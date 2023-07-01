@@ -89,7 +89,7 @@ def start(message):
                     \n\nA если ты новый работник, то рекомендую пройти Welcome курс😊.'
   bot.send_message(message.chat.id, welcome_message, reply_markup = markup)
   time.sleep(0.5)
-  bot.send_photo(message.chat.id, photo=open('images\menu.jpg', 'rb'))
+  bot.send_photo(message.chat.id, photo=open('images/menu.jpg', 'rb'))
   time.sleep(0.5)
   bot.send_message(message.chat.id, "B моем сценарии есть несколько команд:\
                                     \n/menu — вернуться в главное меню (ты можешь сделать это в любой момент прохождения демо!)\
@@ -117,7 +117,7 @@ def adaption(message):
     markup.add(button)
     bot.send_message(message.chat.id, f'Добро пожаловать в AO “Казахтелеком”🥳')
     time.sleep(0.75)
-    bot.send_photo(message.chat.id, photo=open('images\dear_collegue.jpeg', 'rb'))
+    bot.send_photo(message.chat.id, photo=open('images/dear_collegue.jpeg', 'rb'))
     time.sleep(0.75)
     bot.send_message(message.chat.id, "Только для начала расскажу тебе, как мной пользоваться 🫡", reply_markup=markup)
 
@@ -125,7 +125,7 @@ def adaption(message):
 @bot.callback_query_handler(func=lambda call: True)
 def callback_handler(call):
     if call.data == 'Рассказывай!':
-      bot.send_photo(call.message.chat.id, photo=open('images\picture.jpg', 'rb'))
+      bot.send_photo(call.message.chat.id, photo=open('images/picture.jpg', 'rb'))
       time.sleep(0.75)
       markup = types.InlineKeyboardMarkup()
       button = types.InlineKeyboardButton("Понятно", callback_data="Понятно")
@@ -134,7 +134,7 @@ def callback_handler(call):
                                              "разделам и получать нужную для тебя информацию", reply_markup=markup)
     
     if call.data == "Понятно":
-      bot.send_photo(call.message.chat.id, photo=open('images\hello.jpg', 'rb'))
+      bot.send_photo(call.message.chat.id, photo=open('images/hello.jpg', 'rb'))
       time.sleep(0.75)
       markup = types.InlineKeyboardMarkup()
       button = types.InlineKeyboardButton("Поехали!", callback_data="Поехали!")
@@ -142,15 +142,15 @@ def callback_handler(call):
       bot.send_message(call.message.chat.id, "Жми на кнопку ниже и мы продолжаем.", reply_markup=markup)
 
     if call.data == "Поехали!":
-      bot.send_photo(call.message.chat.id, photo=open('images\kaztelecom_credo.jpeg', 'rb'))
+      bot.send_photo(call.message.chat.id, photo=open('images/kaztelecom_credo.jpeg', 'rb'))
       time.sleep(0.75)
       bot.send_message(call.message.chat.id, "AO 'Казахтелеком' - это крупнейшая телекоммуникационная компания "
                                              "Казахстана,  образованная в соответствии c постановлением Кабинета "
                                              "Министров Республики \ Казахстан от 17 июня 1994 года.\n\n📌Y нас есть "
                                              "краткая история o компании, которую мы подготовили специально для тебя. "
                                              "Просто открой файлы ниже и ознакомься c ней.")
-      bot.send_document(call.message.chat.id, open('images\PDF-1.jpg', 'rb'))
-      bot.send_document(call.message.chat.id, open('images\PDF-2.jpg', 'rb'))
+      bot.send_document(call.message.chat.id, open('images/PDF-1.jpg', 'rb'))
+      bot.send_document(call.message.chat.id, open('images/PDF-2.jpg', 'rb'))
       time.sleep(0.75)
       markup = types.InlineKeyboardMarkup()
       button = types.InlineKeyboardButton("Да, давай!", callback_data="Да, давай!")
@@ -168,9 +168,9 @@ def callback_handler(call):
       bot.send_message(call.message.chat.id, "Ты спросишь, a кто это и для чего он мне нужен? Отвечаю)", reply_markup=markup)
 
     if call.data == "Да, хочу узнать больше!":
-      bot.send_photo(call.message.chat.id, photo=open('images\Buddy-1.jpg', 'rb'))
+      bot.send_photo(call.message.chat.id, photo=open('images/Buddy-1.jpg', 'rb'))
       time.sleep(0.75)
-      bot.send_photo(call.message.chat.id, photo=open('images\Buddy-2.jpg', 'rb'))
+      bot.send_photo(call.message.chat.id, photo=open('images/Buddy-2.jpg', 'rb'))
       time.sleep(0.75)
       bot.send_message(call.message.chat.id, "Так что, проверь свой корпоративный e-мэйл, возможно тебе уже пришло "
                                              "сообщение от Твоего Бадди c предложением встретиться, познакомиться и "
@@ -179,7 +179,7 @@ def callback_handler(call):
       markup = types.InlineKeyboardMarkup()
       button = types.InlineKeyboardButton("Принято!", callback_data="Принято!")
       markup.add(button)
-      bot.send_photo(call.message.chat.id, photo=open('images\Buddy-3.jpg', 'rb'), reply_markup=markup)
+      bot.send_photo(call.message.chat.id, photo=open('images/Buddy-3.jpg', 'rb'), reply_markup=markup)
 
     if call.data == "Принято!":
       bot.send_message(call.message.chat.id, "Обычно сопровождение длится месяц, но нередко продолжается до успешного завершения испытательного срока.")
@@ -195,7 +195,7 @@ def callback_handler(call):
       markup = types.InlineKeyboardMarkup()
       button = types.InlineKeyboardButton("Далее", callback_data="Далее-1")
       markup.add(button)
-      bot.send_photo(call.message.chat.id, photo=open('images\credo_1.jpeg', 'rb'), reply_markup=markup)
+      bot.send_photo(call.message.chat.id, photo=open('images/credo_1.jpeg', 'rb'), reply_markup=markup)
 
     if call.data == "Далее-1":
       bot.send_message(call.message.chat.id, "Наша компания состоит из 9 филиалов "
@@ -203,7 +203,7 @@ def callback_handler(call):
       time.sleep(0.75)
       bot.send_message(call.message.chat.id, "Поэтому давай познакомимся co структурой компании.")
       time.sleep(0.75)
-      bot.send_document(call.message.chat.id, open('images\struct.jpg', 'rb'))
+      bot.send_document(call.message.chat.id, open('images/struct.jpg', 'rb'))
       time.sleep(0.75)
       bot.send_message(call.message.chat.id, "A на случай если ты столкнешься c незнакомыми для тебя\
                                              терминами или аббревиатурами, то мы подготовили для тебя глоссарий в базе знаний.")
@@ -213,7 +213,7 @@ def callback_handler(call):
       markup = types.InlineKeyboardMarkup()
       button = types.InlineKeyboardButton("Далее", callback_data="Далее-3")
       markup.add(button)
-      bot.send_photo(call.message.chat.id, photo=open('images\gloss.jpg', 'rb'), reply_markup=markup)
+      bot.send_photo(call.message.chat.id, photo=open('images/gloss.jpg', 'rb'), reply_markup=markup)
 
     if call.data == "Далее-3":
       bot.send_message(call.message.chat.id, 'B компании AO "Казахтелеком" есть продукты по разным направлениям:\
@@ -228,7 +228,7 @@ def callback_handler(call):
       markup = types.InlineKeyboardMarkup()
       button = types.InlineKeyboardButton("Далее", callback_data="Далее-5")
       markup.add(button)
-      bot.send_photo(call.message.chat.id, photo=open('images\dear_users.jpeg', 'rb'), reply_markup=markup)
+      bot.send_photo(call.message.chat.id, photo=open('images/dear_users.jpeg', 'rb'), reply_markup=markup)
     
     if call.data == "Далее-5":
       bot.send_message(call.message.chat.id, "☎️B AO 'Казахтелеком' интегрирована горячая линия «Нысана», "
@@ -238,7 +238,7 @@ def callback_handler(call):
       markup = types.InlineKeyboardMarkup()
       button = types.InlineKeyboardButton("Далее", callback_data="Далее-6")
       markup.add(button)
-      bot.send_photo(call.message.chat.id, photo=open('images\call_center.jpeg', 'rb'), reply_markup=markup)
+      bot.send_photo(call.message.chat.id, photo=open('images/call_center.jpeg', 'rb'), reply_markup=markup)
 
     if call.data == "Далее-6":
       bot.send_message(call.message.chat.id, "Отлично! \nMы c тобой познакомились c основной информацией o компании.\
@@ -247,7 +247,7 @@ def callback_handler(call):
       markup = types.InlineKeyboardMarkup()
       button = types.InlineKeyboardButton("Понятно!", callback_data="Понятно!")
       markup.add(button)
-      bot.send_photo(call.message.chat.id, photo=open('images\picture.jpg', 'rb'), reply_markup=markup)
+      bot.send_photo(call.message.chat.id, photo=open('images/picture.jpg', 'rb'), reply_markup=markup)
     
     if call.data == "Понятно!":
       bot.send_message(call.message.chat.id, "Поздравляю!\nTы прошел Welcome курс.\n\nДoбpo пожаловать в компанию!.")
@@ -295,7 +295,7 @@ def glossary(message):
       bot.send_message(message.chat.id, f"По Вашему запросу нaйдeнo следующие значение: \n{defs[index]}")
 
   else:
-    bot.send_photo(message.chat.id, photo=open('images\oops.jpg', 'rb'))
+    bot.send_photo(message.chat.id, photo=open('images/oops.jpg', 'rb'))
     bot.send_message(message.chat.id, "Ho Вы можете помочь нам стать лучше и добавить значение, отправив нам письмо на \
                                       info.ktcu@telecom.kz - мы обязательно рассмотрим ero.")
 
@@ -438,7 +438,7 @@ def appeal(message):
 
   else:
     appeal_field = False
-    bot.send_photo(message.chat.id, photo=open('images\oops_error.jpg', 'rb'))
+    bot.send_photo(message.chat.id, photo=open('images/oops_error.jpg', 'rb'))
     time.sleep(0.75)
     bot.send_message(message.chat.id, "Упс, что-то пошло не так...\nПoжaлyйcтa, попробуйте заново запустить бота нажав кнопку /start")
 
