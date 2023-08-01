@@ -17,8 +17,11 @@ kb_field = ["База знаний", "База инструкций", "Глос�
 kb_field_all = ["Логотипы и Брендбук", "Личный кабинет telecom.kz", "Модемы | Настройка", "Lotus | Инструкции",
                 "Мобильная версия", "ПК или ноутбук", "portal.telecom.kz | Инструкции",
                 "CheckPoint VPN | Удаленная работа", "Командировка | Порядок оформления",
-                "Как авторизоваться", "Личный профиль", "Из портала перейти в ССП"]
-instr_field = ["Брендбук и логотипы", "Личный кабинет telecom.kz", "Модемы | Настройка", "Lotus & CheckPoint"]
+                "Как авторизоваться", "Личный профиль", "Из портала перейти в ССП",
+                "Данные по серверам филиалов", "Инструкция по установке Lotus", "Установочный файл Lotus", "АО 'Казахтелеком'",
+                "Корпоративный Университет", "Как оплатить услугу", "Как посмотреть о деталях оплаты",
+                "Как посмотреть подключенные услуги", "Раздел 'Мои Услуги'", "ADSL модем", "IDTV приставки",
+                "ONT модемы", "Router 4G and Router Ethernet","Инструкция по установке CheckPoint", "Установочный файл CheckPoint"]
 adapt_field = ["Welcome курс | Адаптация"]
 new_message, user_name, chosen_category, flag, appeal_field = '', '', '', 0, False
 
@@ -70,23 +73,25 @@ markup.add(button, button2, button3, button4, button5)
 
 
 def send_welcome_message(bot, message):
-    welcome_message = f'Привет, {message.from_user.first_name} 👋\
-                    \nЯ - ktbot, твой личный помощник в компании.\
-                    \n\nBoт, как я могу тебе помочь:\
-                    \n   · ✉️Отправить обращение по вопросам обучения;\
-                    \n   · 🗃️Предоставить доступ к Базе знаний c инструкциями и глоссарием;\
-                    \n   · 👷Помочь отправить карточку БиОТ;\
-                    \n   · 📄Предоставить ответы на часто задаваемые вопросы.\
-                    \n\nA если ты новый работник, то рекомендую пройти Welcome курс😊.'
+    # welcome_message = f'Привет, {message.from_user.first_name} 👋\
+    #                 \nЯ - ktbot, твой личный помощник в компании.\
+    #                 \n\nBoт, как я могу тебе помочь:\
+    #                 \n   · ✉️Отправить обращение по вопросам обучения;\
+    #                 \n   · 🗃️Предоставить доступ к Базе знаний c инструкциями и глоссарием;\
+    #                 \n   · 👷Помочь отправить карточку БиОТ;\
+    #                 \n   · 📄Предоставить ответы на часто задаваемые вопросы.\
+    #                 \n\nA если ты новый работник, то рекомендую пройти Welcome курс😊.'
+    welcome_message = f'Привет, {message.chat.first_name} 👋'
     bot.send_message(message.chat.id, welcome_message, reply_markup=markup)
     with open("images/menu.jpg", 'rb') as photo_file:
         bot.send_photo(message.chat.id, photo_file)
     time.sleep(0.5)
     bot.send_message(message.chat.id, "B моем сценарии есть несколько команд:\
-                                        \n/menu — вернуться в главное меню (ты можешь сделать это в любой момент прохождения демо!)\
-                                        \n/help — связаться c разработчиками (используй эту команду, если столкнешься c трудностями или y тебя есть предложения для улучшения)\
-                                        \n/start — Перезапустить бота\
-                                        \n\nKoмaнды ты можешь найти во вкладке «Меню» в строке сообщений (слева внизу) или просто пришли название команды, только значок «/» не забывай!")
+    \n/menu — вернуться в главное меню (ты можешь сделать это в любой момент прохождения демо!)\
+    \n/help — связаться c разработчиками (используй эту команду, если столкнешься c трудностями или y тебя есть предложения для улучшения)\
+    \n/start — Перезапустить бота \
+    \n/language - Изменить язык бота\
+    \n\nKoмaнды ты можешь найти во вкладке «Меню» в строке сообщений (слева внизу) или просто пришли название команды, только значок «/» не забывай!")
 
 
 def send_error(bot, message):
@@ -103,7 +108,6 @@ def adaption(bot, message):
         button_adapt = types.InlineKeyboardButton("Рассказывай!", callback_data="Рассказывай!")
         markup_adapt.add(button_adapt)
         bot.send_message(message.chat.id, f'Добро пожаловать в AO “Казахтелеком”🥳')
-        time.sleep(0.75)
         bot.send_photo(message.chat.id, photo=open('images/dear_collegue.jpeg', 'rb'))
         time.sleep(0.75)
         bot.send_message(message.chat.id, "Только для начала расскажу тебе, как мной пользоваться 🫡",
@@ -147,7 +151,7 @@ def call_back(bot, call):
         bot.send_message(call.message.chat.id, "Если все понятно, то продолжаем?", reply_markup=markup_callback)
 
     if call.data == "Да, давай!":
-        bot.send_message(call.message.chat.id, "Y Тебя уже есть Бадди?")
+        bot.send_message(call.message.chat.id, "У Тебя уже есть Бадди?")
         time.sleep(0.75)
         bot.send_message(call.message.chat.id, "Если еще нет, не расстраивайся, он найдет тебя в ближайшее время!")
         time.sleep(0.75)
@@ -260,9 +264,7 @@ def appeal(bot, message):
         for key in categories:
             button = types.KeyboardButton(key)
             markup.add(button)
-        bot.send_message(message.chat.id,
-                         "B данном разделе Вы можете оставить свое обращение по интересующим Bac вопросам в Корпоративный Университет.",
-                         reply_markup=markup)
+        bot.send_message(message.chat.id, "B данном разделе Вы можете оставить свое обращение по интересующим Bac вопросам в Корпоративный Университет.", reply_markup=markup)
         time.sleep(0.75)
         bot.send_message(message.chat.id,
                          "Для выбора категории, нажмите на клавиатуру в телеграме(обычно это иконка справа от строки ввода).")
@@ -278,7 +280,8 @@ def appeal(bot, message):
         db_connect.cm_sv_db(message, message.text)
         db_connect.set_chosen_category(message, message.text)
         bot.send_message(message.chat.id,
-                         "Чтобы оставить ваше обращение, пожалуйста, укажите свои контактные данные в формате: \n+7 ### ### ## ##  \nИмя Фамилия  \nАдрес электронной почты")
+                         "Чтобы оставить ваше обращение, пожалуйста, укажите свои контактные данные в формате: "
+                         "\n+7 ### ### ## ##  \nИмя Фамилия  \nАдрес электронной почты")
 
     elif db_connect.get_appeal_field(message) and db_connect.get_appeal_message(message) != '':
         new_message = f'{db_connect.get_appeal_message(message)} \n {message.text}'
@@ -365,34 +368,54 @@ def biot(bot, message):
 def instructions(bot, message):
     if message.text == "Логотипы и Брендбук":
         db_connect.cm_sv_db(message, 'Логотипы и Брендбук')
-        bot.send_message(message.chat.id,
-                         "Для получения информации о категории 'Брендбук и Логотипы' перейдите по ссылке ниже \nhttps://drive.google.com/drive/folders/1RnTAuvjskl2bcxQbz9SsGLveGSaVUmJ8?usp=drive_link")
+        markup_instr = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+        button1_i = types.KeyboardButton("АО 'Казахтелеком'")
+        button2_i = types.KeyboardButton("Корпоративный Университет")
+        markup_instr.add(button1_i, button2_i)
+        bot.send_message(message.chat.id, "Выберете категорию", reply_markup=markup_instr)
     elif message.text == "Личный кабинет telecom.kz":
         db_connect.cm_sv_db(message, 'Личный кабинет telecom.kz')
-        bot.send_message(message.chat.id,
-                         "Для получения информации о категории 'Личный кабинет telecom.kz' перейдите по ссылке ниже \nhttps://drive.google.com/drive/folders/10g5ZWQGFo3iCtF27mVh40Rs1eVHdLXE4?usp=drive_link")
+        markup_instr = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+        button1_i = types.KeyboardButton("Как оплатить услугу")
+        button2_i = types.KeyboardButton("Как посмотреть о деталях оплаты")
+        button3_i = types.KeyboardButton("Как посмотреть подключенные услуги")
+        button4_i = types.KeyboardButton("Раздел 'Мои Услуги'")
+        markup_instr.add(button1_i, button2_i, button3_i, button4_i)
+        bot.send_message(message.chat.id, "Выберете категорию", reply_markup=markup_instr)
     elif message.text == "Модемы | Настройка":
         db_connect.cm_sv_db(message, 'Модемы | Настройка')
-        bot.send_message(message.chat.id,
-                         "Для получения информации о категории 'Модемы | Настройка' перейдите по ссылке ниже \nhttps://drive.google.com/drive/folders/1rhsAYmRUJKSS_Pi9aEzWHTczC1Q6MIlF?usp=drive_link")
+        markup_instr = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+        button1_i = types.KeyboardButton("ADSL модем")
+        button2_i = types.KeyboardButton("IDTV приставки")
+        button3_i = types.KeyboardButton("ONT модемы")
+        button4_i = types.KeyboardButton("Router 4G and Router Ethernet")
+        markup_instr.add(button1_i, button2_i, button3_i, button4_i)
+        bot.send_message(message.chat.id, "Выберете категорию", reply_markup=markup_instr)
     elif message.text == "Lotus | Инструкции":
         db_connect.cm_sv_db(message, 'Lotus | Инструкции')
-        bot.send_message(message.chat.id,
-                         "Для получения информации о категории 'Lotus & CheckPoint' перейдите по ссылке ниже \nhttps://drive.google.com/drive/folders/18yrrAkjmwpp1oxToPE6JBGqIkLi2zhmz?usp=drive_link")
+        markup_instr = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+        button1_i = types.KeyboardButton("Данные по серверам филиалов")
+        button2_i = types.KeyboardButton("Инструкция по установке Lotus")
+        button3_i = types.KeyboardButton("Установочный файл Lotus")
+        markup_instr.add(button1_i, button2_i, button3_i)
+        bot.send_message(message.chat.id, "Выберете категорию", reply_markup=markup_instr)
     elif message.text == "portal.telecom.kz | Инструкции":
         db_connect.cm_sv_db(message, 'portal.telecom.kz | Инструкции')
-        markup_portal = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+        markup_portal = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         button1 = types.KeyboardButton("Мобильная версия")
         button2 = types.KeyboardButton("ПК или ноутбук")
         markup_portal.add(button1, button2)
         bot.send_message(message.chat.id, "Выберете категорию", reply_markup=markup_portal)
     elif message.text == "CheckPoint VPN | Удаленная работа":
         db_connect.cm_sv_db(message, 'CheckPoint VPN | Удаленная работа')
-        bot.send_message(message.chat.id,
-                         "Для получения информации о категории 'CheckPoint VPN' перейдите по ссылке ниже \nhttps://drive.google.com/drive/folders/1obzIvUKiVO5UvxX-2t7YFMHZWgDE5_Fj?usp=drive_link")
+        markup_instr = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+        button1_i = types.KeyboardButton("Инструкция по установке CheckPoint")
+        button2_i = types.KeyboardButton("Установочный файл CheckPoint")
+        markup_instr.add(button1_i, button2_i)
+        bot.send_message(message.chat.id, "Выберете категорию", reply_markup=markup_instr)
     elif message.text == "Командировка | Порядок оформления":
         bot.send_message(message.chat.id,
-                         "Для получения информации о категории 'Командировка | Порядок оформления' перейдите по ссылке ниже \nhttps://drive.google.com/drive/folders/1AsWzCc-a1EgveMeuqJVkiBmKsXSm9TB3?usp=drive_link")
+                         "Для получения информации о категории 'Командировка | Порядок оформления' перейдите по ссылке ниже \nhttps://wiki.telecom.kz/ru/instructionsopl/kommandiroviporyadok")
     elif message.text == "Мобильная версия":
         bot.send_message(message.chat.id,
                          "Для получения информации о категории 'Мобильная версия' перейдите по ссылке ниже \nhttps://drive.google.com/drive/folders/1ojKgDgsUX9l9h0A1354AFVxFhQY2_ECZ?usp=drive_link")
@@ -408,10 +431,53 @@ def instructions(bot, message):
                          "Для получения информации о категории 'Как авторизоваться на портале работника через ПК?' перейдите по ссылке ниже \nhttps://youtu.be/vsRIDqt_-1A")
     elif message.text == "Личный профиль":
         bot.send_message(message.chat.id,
-                         "Для получения информации о категории 'Как заполнить личный профиль?' перейдите по ссылке ниже \nhttps://youtu.be/V9r3ALrIQ48")
+                         "Для получения информации о категории 'Как заполнить личный профиль?' перейдите по ссылке ниже "
+                         "\nhttps://youtu.be/V9r3ALrIQ48")
     elif message.text == "Из портала перейти в ССП":
         bot.send_message(message.chat.id,
-                         "Для получения информации о категории 'Как перейти из портала перейти в ССП' перейдите по ссылке ниже \nhttps://youtu.be/wnfI4JpMvmE")
+                         "Для получения информации о категории 'Как перейти из портала перейти в ССП' перейдите по ссылке ниже "
+                         "\nhttps://youtu.be/wnfI4JpMvmE")
+    elif message.text == "Данные по серверам филиалов":
+        bot.send_message(message.chat.id, "Данные по серверам филиалов: \nhttps://disk.telecom.kz/index.php/f/695222")
+    elif message.text == "Инструкция по установке Lotus":
+        bot.send_message(message.chat.id,
+                         "Для получения информации о категории 'Инструкция по установке Lotus' перейдите по ссылке"
+                         "\nhttps://wiki.telecom.kz/ru/corp_systems/lotus_instruction")
+    elif message.text == "Установочный файл Lotus":
+        bot.send_message(message.chat.id, "Установочный файл Lotus Notes: \nhttps://disk.telecom.kz/index.php/f/695258")
+    elif message.text == "Инструкция по установке CheckPoint":
+        bot.send_message(message.chat.id,
+                         "Для получения информации о категории 'Инструкция по установке CheckPoint' перейдите по ссылке"
+                         "\nhttps://wiki.telecom.kz/ru/corp_systems/checkpoint_instruction ")
+    elif message.text == "Установочный файл CheckPoint":
+        bot.send_message(message.chat.id, "Ссылка на установочный файл:\nhttps://disk.telecom.kz/index.php/f/695264")
+    elif message.text == "АО 'Казахтелеком'":
+        bot.send_message(message.chat.id,
+                         "https://drive.google.com/drive/folders/1TJOkjRhZcNauln1EFqIN6sh_D78TXvF7?usp=drive_link")
+    elif message.text == "Корпоративный Университет":
+        bot.send_message(message.chat.id,
+                         "https://drive.google.com/drive/folders/10JQcSDebbsBFrVPjcxAlWGXLdbn937MX?usp=sharing")
+    elif message.text == "Как оплатить услугу":
+        bot.send_document(message.chat.id, document=open("files/КАК ОПЛАТИТЬ УСЛУГИ КАЗАХТЕЛЕКОМ.pptx (1).pdf", 'rb'))
+    elif message.text == "Как посмотреть о деталях оплаты":
+        bot.send_document(message.chat.id,
+                          document=open("files/КАК ПОСМОТРЕТЬ ИНФОРМАЦИЮ О ДЕТАЛЯХ ОПЛАТЫ (1).pdf", 'rb'))
+    elif message.text == "Как посмотреть подключенные услуги":
+        bot.send_document(message.chat.id, document=open("files/КАК ПОСМОТРЕТЬ МОИ ПОДКЛЮЧЕННЫЕ УСЛУГИ (1).pdf", 'rb'))
+    elif message.text == "Раздел 'Мои Услуги'":
+        bot.send_document(message.chat.id, document=open("files/РАЗДЕЛ «МОИ УСЛУГИ» (1).pdf", 'rb'))
+    elif message.text == "ADSL модем":
+        bot.send_message(message.chat.id,
+                         "Для получения информации о категории 'ADSL модем' перейдите по ссылке\nhttps://drive.google.com/drive/folders/1ZMcd4cVuX8_JUJ8OoN0rYx5d5DjwlEbz?usp=drive_link")
+    elif message.text == "IDTV приставки":
+        bot.send_message(message.chat.id,
+                         "Для получения информации о категории 'IDTV приставки' перейдите по ссылке\nhttps://drive.google.com/drive/folders/1ZFbUrKi9QITBLkJQ93I45dxhINSsgv7H?usp=drive_link")
+    elif message.text == "ONT модемы":
+        bot.send_message(message.chat.id,
+                         "Для получения информации о категории 'ONT модемы' перейдите по ссылке\nhttps://drive.google.com/drive/folders/1IiLJ14dKF3wQhoLYb18jJMLD6BNz3K7x?usp=drive_link")
+    elif message.text == "Router 4G and Router Ethernet":
+        bot.send_message(message.chat.id,
+                         "Для получения информации о категории 'Router 4G and Router Ethernet' перейдите по ссылке\nhttps://drive.google.com/drive/folders/1EkzERKwa-DTnMW86-qJGbc_YAU2k6A74?usp=drive_link")
 
 
 def kb(bot, message):

@@ -1,5 +1,3 @@
-import time
-import openpyxl
 import pandas as pd
 import psycopg2
 from telebot import *
@@ -14,34 +12,14 @@ admin_id = ['484489968', '760906879']
 
 @bot.message_handler(commands=['start'])
 def start(message):
-    conn = psycopg2.connect(user="postgres", password="j7hPC180")
-    cur = conn.cursor()
-
-    cur.execute(
-        'CREATE TABLE IF NOT EXISTS users (id varchar(50) primary key, username varchar(50), lastname varchar(50), '
-        'firstname varchar(50), language varchar(10))')
-    cur.execute(
-        'CREATE TABLE IF NOT EXISTS commands_history (id varchar(50), commands_name varchar(50), date timestamp)')
-    cur.execute(
-        'CREATE TABLE IF NOT EXISTS users_info(id varchar(50), instr bool, glossar bool, new_message varchar(200), '
-        'chosen_category varchar(50), flag bool, appeal_field bool)')
-    conn.commit()
-
+    # sticker_file = open("images/AnimatedSticker.tgs", "rb")
+    # bot.send_sticker(message.chat.id, sticker_file)
+    db_connect.creat_db()
+    db_connect.addIfNotExistUser(message)
     db_connect.cm_sv_db(message, '/start')
-
-    cur.execute('SELECT id FROM users')
-    users_id = cur.fetchall()
-    # new_message, user_name, chosen_category, flag, appeal_field = '', '', '', 0, False
-
-    if not any(id[0] == str(message.chat.id) for id in users_id):
-        cur.execute("INSERT INTO users (id, username, lastname, firstname, language) VALUES ('%s','%s', '%s', '%s', '%s')" % (
-            str(message.chat.id), str(message.from_user.username),  str(message.from_user.first_name),  str(message.from_user.last_name), 'n'))
-        cur.execute("INSERT INTO users_info(id , instr , glossar, new_message, chosen_category , flag , appeal_field ) "
-                    "VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (str(message.chat.id), False, False, '', '', False, False))
     db_connect.clear_appeals(message)
-    cur.execute("SELECT language FROM users WHERE id = '%s'" % (str(message.chat.id)))
-
-    language = cur.fetchall()
+    print(db_connect.get_users_info(message, 'instr'))
+    language = db_connect.get_language(message)
     if language[0][0] == 'rus':
         rus.send_welcome_message(bot, message)
     elif language[0][0] == 'kaz':
@@ -49,52 +27,42 @@ def start(message):
     else:
         lang(message)
 
-    conn.commit()
-    cur.close()
-    conn.close()
 
-
-@bot.message_handler(commands=['lang'])
+@bot.message_handler(commands=['language'])
 def lang(message):
     markup = types.InlineKeyboardMarkup()
     button1 = types.InlineKeyboardButton(text='🇷🇺 Русский язык', callback_data='rus')
     button2 = types.InlineKeyboardButton(text='🇰🇿 Қазақ тілі', callback_data='kaz')
     markup.add(button2, button1)
-    bot.send_message(text='Выберите язык | Тілді таңдаңыз', chat_id=message.chat.id, reply_markup=markup)
+    bot.send_message(text='Тілді таңдаңыз | Выберите язык', chat_id=message.chat.id, reply_markup=markup)
 
 
 @bot.callback_query_handler(func=lambda call: call.data == 'rus')
-def handle_button1(call):
-    change_language(call.message, 'rus')
+def handle_button_rus(call):
+    db_connect.change_language(call.message, 'rus')
+    print(call.message)
     start(call.message)
 
 
 @bot.callback_query_handler(func=lambda call: call.data == 'kaz')
-def handle_button2(call):
-    change_language(call.message, 'kaz')
+def handle_button_kaz(call):
+    db_connect.change_language(call.message, 'kaz')
     start(call.message)
-
-
-def change_language(message, language):
-    conn = psycopg2.connect(user="postgres", password="j7hPC180")
-    cur = conn.cursor()
-    cur.execute("UPDATE users SET language='%s' where id='%s'" % (
-        str(language), str(message.chat.id)))
-    conn.commit()
-    cur.close()
-    conn.close()
 
 
 @bot.message_handler(commands=['menu'])
 def menu(message):
+    db_connect.creat_db()
+    db_connect.addIfNotExistUser(message)
     db_connect.cm_sv_db(message, 'menu')
     language = db_connect.get_language(message)[0][0]
     if language == 'rus':
         rus.menu(bot, message)
     elif language == 'kaz':
         kaz.menu(bot, message)
+    else:
+        lang(message)
     db_connect.clear_appeals(message)
-
 
 
 @bot.message_handler(commands=["help"])
@@ -119,28 +87,28 @@ def callback_handler(call):
         kaz.call_back(bot, call)
 
 
-def faq(message):
-    language = db_connect.get_language(message)[0][0]
-    if language == 'rus':
-        rus.faq(bot, message)
-    elif language == 'kaz':
-        kaz.faq(bot, message)
-
-
-def instructions(message):
-    language = db_connect.get_language(message)
-    if language == 'rus':
-        rus.instructions(bot, message)
-    elif language == 'kaz':
-        kaz.instructions(bot, message)
-    
-
-def biot(message):
-    language = db_connect.get_language(message)[0][0]
-    if language == 'rus':
-        rus.biot(bot, message)
-    elif language == 'kaz':
-        kaz.biot(bot, message)
+# def faq(message):
+#     language = db_connect.get_language(message)[0][0]
+#     if language == 'rus':
+#         rus.faq(bot, message)
+#     elif language == 'kaz':
+#         kaz.faq(bot, message)
+#
+#
+# def instructions(message):
+#     language = db_connect.get_language(message)
+#     if language == 'rus':
+#         rus.instructions(bot, message)
+#     elif language == 'kaz':
+#         kaz.instructions(bot, message)
+#
+#
+# def biot(message):
+#     language = db_connect.get_language(message)[0][0]
+#     if language == 'rus':
+#         rus.biot(bot, message)
+#     elif language == 'kaz':
+#         kaz.biot(bot, message)
 
 
 @bot.message_handler(commands=['get_excel'])
@@ -201,23 +169,22 @@ def message_sender(message, broadcast_message):
     elif message.text.upper() == "НЕТ":
         bot.send_message(message.chat.id, "Вызовите функцию /broadcast чтобы вызвать комманду рассылки еще раз")
     else:
-        language = db_connect.get_language(message)[0][0]
-        if language == "rus":
-            rus.send_error(bot, message)
-        elif language == "kaz":
-            kaz.send_error(bot, message)
+        rus.send_error(bot, message)
 
 
 @bot.message_handler(content_types=['text'])
 def mess(message):
     get_message = message.text
-    language = db_connect.get_language(message)[0][0]
-    if language == 'rus':
-        text(message, get_message, rus)
-    elif language == 'kaz':
-        text(message, get_message, kaz)
-    else:
-        print("language not found")
+    try:
+        language = db_connect.get_language(message)[0][0]
+        if language == 'rus':
+            text(message, get_message, rus)
+        elif language == 'kaz':
+            text(message, get_message, kaz)
+        else:
+            lang(message)
+    except:
+        lang(message)
 
 
 def text(message, get_message, lang):
@@ -233,8 +200,8 @@ def text(message, get_message, lang):
         lang.kb(bot, message)
     elif get_message in lang.adapt_field:
         lang.adaption(bot, message)
-    elif get_message == "Оставить обращение" or get_message == "Өтінішті қалдыру" or db_connect.get_appeal_field(message):
-        print(db_connect.get_appeal_field(message))
+    elif get_message == "Оставить обращение" or get_message == "Өтінішті қалдыру" \
+            or db_connect.get_appeal_field(message):
         lang.appeal(bot, message)
     elif str(message.chat.id) in db_connect.get_users_id():
         if db_connect.get_glossar(message):

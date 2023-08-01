@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  ktbot:
+    build: .
+    container_name: ktbot
+    restart: always
+    image: kt_image
+    volumes:
+      - /etc/localtime:/etc/localtime
+    environment:
+      - DB_HOST=db
+    depends_on:
+      - db
+    networks:
+      - app-tier
+
+  db:
+    container_name: db
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+       - "db_data:/var/lib/postgresql/data"
+    expose:
+       - "5432"
+    ports:
+       - "5432:5432"
+    command: -p 5432
+    networks:
+       - app-tier
+networks:
+  app-tier:
+    driver: bridge
+
+volumes:
+  db_data:
+
+
+
