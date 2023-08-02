@@ -6,7 +6,7 @@ import rus
 import db_connect
 
 bot = telebot.TeleBot('6053200189:AAHdUXx0SFKbQBs6S4a06VWw-GgX0KOQpCk')
-admin_id = ['484489968', '760906879', '187663574']
+admin_id = ['484489968', '760906879', '187663574', '577247261', '204504707', '531622371']
 
 
 @bot.message_handler(commands=['start'])
@@ -17,7 +17,8 @@ def start(message):
     db_connect.addIfNotExistUser(message)
     db_connect.cm_sv_db(message, '/start')
     db_connect.clear_appeals(message)
-    print(db_connect.get_users_info(message, 'instr'))
+    if str(message.chat.id)[0] == '-':
+        return
     language = db_connect.get_language(message)
     if language[0][0] == 'rus':
         rus.send_welcome_message(bot, message)
@@ -29,6 +30,8 @@ def start(message):
 
 @bot.message_handler(commands=['language'])
 def lang(message):
+    if str(message.chat.id)[0] == '-':
+        return
     markup = types.InlineKeyboardMarkup()
     button1 = types.InlineKeyboardButton(text='🇷🇺 Русский язык', callback_data='rus')
     button2 = types.InlineKeyboardButton(text='🇰🇿 Қазақ тілі', callback_data='kaz')
@@ -54,6 +57,8 @@ def menu(message):
     db_connect.creat_db()
     db_connect.addIfNotExistUser(message)
     db_connect.cm_sv_db(message, 'menu')
+    if str(message.chat.id)[0] == '-':
+        return
     language = db_connect.get_language(message)[0][0]
     if language == 'rus':
         rus.menu(bot, message)
@@ -68,6 +73,8 @@ def menu(message):
 def help(message):
     db_connect.cm_sv_db(message, '/help')
     language = db_connect.get_language(message)[0][0]
+    if str(message.chat.id)[0] == '-':
+        return
     if language == 'rus':
         bot.send_message(message.chat.id,
                          "Вы можете помочь нам стать лучше и отправить нам письмо на info.ktcu@telecom.kz.")
@@ -86,39 +93,53 @@ def callback_handler(call):
         kaz.call_back(bot, call)
 
 
-# def faq(message):
-#     language = db_connect.get_language(message)[0][0]
-#     if language == 'rus':
-#         rus.faq(bot, message)
-#     elif language == 'kaz':
-#         kaz.faq(bot, message)
-#
-#
-# def instructions(message):
-#     language = db_connect.get_language(message)
-#     if language == 'rus':
-#         rus.instructions(bot, message)
-#     elif language == 'kaz':
-#         kaz.instructions(bot, message)
-#
-#
-# def biot(message):
-#     language = db_connect.get_language(message)[0][0]
-#     if language == 'rus':
-#         rus.biot(bot, message)
-#     elif language == 'kaz':
-#         kaz.biot(bot, message)
-
-
 @bot.message_handler(commands=['get_excel'])
 def get_excel(message):
-    conn = psycopg2.connect(user="postgres", password="j7hPC180")
+    # conn = psycopg2.connect(user="postgres", password="j7hPC180")
+    conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
+
     df = pd.read_sql_query("SELECT users.id, firstname, lastname, commands_name, commands_history.date  FROM commands_history full outer join users on commands_history.id = users.id", conn)
     df.to_excel('output_file.xlsx', index=False)
 
     with open('output_file.xlsx', 'rb') as file:
         bot.send_document(message.chat.id, file)
     conn.close()
+
+
+@bot.message_handler(commands=['get_users_info'])
+def get_excel(message):
+    # conn = psycopg2.connect(user="postgres", password="j7hPC180")
+    conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
+    if str(message.chat.id) not in admin_id:
+        send_error(message)
+    df = pd.read_sql_query("SELECT id, instr, glossar, new_message, chosen_category, appeal_field FROM users_info ", conn)
+    df.to_excel('users_info_file.xlsx', index=False)
+    with open('users_info_file.xlsx', 'rb') as file:
+        bot.send_document(message.chat.id, file)
+    conn.close()
+
+
+@bot.message_handler(commands=['get_users'])
+def get_excel(message):
+    # conn = psycopg2.connect(user="postgres", password="j7hPC180")
+    conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
+    if str(message.chat.id) not in admin_id:
+        send_error(message)
+    df = pd.read_sql_query("SELECT id, firstname, lastname, username FROM users ", conn)
+    df.to_excel('users_file.xlsx', index=False)
+    with open('users_file.xlsx', 'rb') as file:
+        bot.send_document(message.chat.id, file)
+    conn.close()
+
+
+def send_error(message):
+    language = db_connect.get_language(message)
+    if language == 'rus':
+        rus.send_error(bot, message)
+    elif language == 'kaz':
+        kaz.send_error(bot, message)
+    else:
+        lang(message)
 
 
 @bot.message_handler(commands=['broadcast'])
@@ -140,7 +161,8 @@ def text_check(message):
 
 def message_sender(message, broadcast_message):
     if message.text.upper() == "ДА":
-        conn = psycopg2.connect(user="postgres", password="j7hPC180")
+        # conn = psycopg2.connect(user="postgres", password="j7hPC180")
+        conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
         cur = conn.cursor()
         cur.execute('SELECT id FROM users')
         users_id = cur.fetchall()
@@ -175,6 +197,8 @@ def message_sender(message, broadcast_message):
 def mess(message):
     get_message = message.text
     try:
+        if str(message.chat.id)[0] == '-':
+            return
         language = db_connect.get_language(message)[0][0]
         if language == 'rus':
             text(message, get_message, rus)
