@@ -1,13 +1,12 @@
 import pandas as pd
 import psycopg2
 from telebot import *
-
 import kaz
 import rus
 import db_connect
 
-bot = telebot.TeleBot('6220689869:AAH6luRPM4E1HW7ZfUeZvT-VlssMzClvXuI')
-admin_id = ['484489968', '760906879']
+bot = telebot.TeleBot('6053200189:AAHdUXx0SFKbQBs6S4a06VWw-GgX0KOQpCk')
+admin_id = ['484489968', '760906879', '187663574']
 
 
 @bot.message_handler(commands=['start'])
@@ -114,7 +113,7 @@ def callback_handler(call):
 @bot.message_handler(commands=['get_excel'])
 def get_excel(message):
     conn = psycopg2.connect(user="postgres", password="j7hPC180")
-    df = pd.read_sql_query("SELECT * FROM commands_history", conn)
+    df = pd.read_sql_query("SELECT users.id, firstname, lastname, commands_name, commands_history.date  FROM commands_history full outer join users on commands_history.id = users.id", conn)
     df.to_excel('output_file.xlsx', index=False)
 
     with open('output_file.xlsx', 'rb') as file:
