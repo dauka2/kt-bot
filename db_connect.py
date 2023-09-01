@@ -73,7 +73,7 @@ def create_db():
 
     cur.execute(
         'CREATE TABLE IF NOT EXISTS users (id varchar(50) primary key, username varchar(50), lastname varchar(50), '
-        'firstname varchar(50),table_number varchar(7), phone_number varchar(13), '
+        'firstname varchar(50), table_number varchar(11), phone_number varchar(13), '
         'email varchar(50), branch varchar(50), language varchar(10))')
     cur.execute(
         'CREATE TABLE IF NOT EXISTS commands_history (id varchar(50), commands_name varchar(50), date timestamp)')
@@ -100,6 +100,9 @@ def addIfNotExistUser(message):
                     "VALUES ('%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (str(message.chat.id), str(message.from_user.username),
                                                               str(message.from_user.first_name),
                                                               str(message.from_user.last_name), ' ', ' ', ' ', ' ', 'n'))
+    cur.execute('SELECT id FROM users_info')
+    users_info_id = cur.fetchall()
+    if not any(id[0] == str(message.chat.id) for id in users_info_id):
         cur.execute("INSERT INTO users_info(id , instr , glossar, appeal_field, appeal_id, category, is_appeal_anon ) "
                     "VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (str(message.chat.id), False, False, False, 0, ' ', False))
     conn.commit()
@@ -113,10 +116,10 @@ def get_language(message):
     conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
     cur = conn.cursor()
     cur.execute("SELECT language FROM users WHERE id='%s'" % (str(message.chat.id)))
-    language = cur.fetchall()
+    language = cur.fetchone()
     cur.close()
     conn.close()
-    return language
+    return language[0]
 
 
 def change_language(message, language):
@@ -135,23 +138,26 @@ def change_language(message, language):
 def alter_table_users():
     conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
     cur = conn.cursor()
-    cur.execute("ALTER TABLE users ADD COLUMN phone_number varchar(13) DEFAULT ' '")
-    cur.execute("ALTER TABLE users ADD COLUMN email varchar(50) DEFAULT ' '")
-    cur.execute("ALTER TABLE users ADD COLUMN table_number varchar(7) DEFAULT ' '")
+    # cur.execute("ALTER TABLE users ADD COLUMN phone_number varchar(13) DEFAULT ' '")
+    # cur.execute("ALTER TABLE users ADD COLUMN email varchar(50) DEFAULT ' '")
+    # cur.execute("ALTER TABLE users ADD COLUMN table_number varchar(7) DEFAULT ' '")
     # cur.execute("TRUNCATE users_info")
     # cur.execute("TRUNCATE users")
     # cur.execute("DROP TABLE IF EXISTS users;")
     # cur.execute("DROP TABLE IF EXISTS users_info;")
     # cur.execute("DROP TABLE IF EXISTS appeals;")
     # cur.execute("DROP TABLE IF EXISTS commands_history;")
-    cur.execute("ALTER TABLE users_info DROP COLUMN new_message")
-    cur.execute("ALTER TABLE users_info DROP COLUMN chosen_category")
-    cur.execute(
-        'CREATE TABLE IF NOT EXISTS appeals(id serial primary key, user_id varchar(50), status varchar(30), '
-        'category varchar(100), appeal_text varchar(1000), date varchar(30), date_status varchar(30), '
-        'id_performer varchar(30), comment varchar(1000), is_appeal_anon bool)')
-    cur.execute("ALTER TABLE users ADD COLUMN branch varchar(50) DEFAULT ' '")
-    cur.execute("ALTER TABLE users_info ADD COLUMN is_appeal_anon bool DEFAULT False")
+    # cur.execute("ALTER TABLE users_info DROP COLUMN new_message")
+    # cur.execute("ALTER TABLE users_info DROP COLUMN chosen_category")
+    # cur.execute(
+    #     'CREATE TABLE IF NOT EXISTS appeals(id serial primary key, user_id varchar(50), status varchar(30), '
+    #     'category varchar(100), appeal_text varchar(1000), date varchar(30), date_status varchar(30), '
+    #     'id_performer varchar(30), comment varchar(1000), is_appeal_anon bool)')
+    # cur.execute("ALTER TABLE users ADD COLUMN branch varchar(50) DEFAULT ' '")
+    # cur.execute("ALTER TABLE users_info ADD COLUMN is_appeal_anon bool DEFAULT False")
+    # cur.execute("ALTER TABLE users_info ADD COLUMN category bool DEFAULT False")
+    # cur.execute("ALTER TABLE users_info ADD COLUMN appeal_id int DEFAULT 0")
+    cur.execute("ALTER TABLE users ALTER COLUMN table_number TYPE varchar(11)")
     conn.commit()
     cur.close()
     conn.close()
@@ -460,27 +466,6 @@ def glossary(bot, message, text1, text2):
     else:
         bot.send_photo(message.chat.id, photo=open('images/oops.jpg', 'rb'))
         bot.send_message(message.chat.id, text2)
-
-
-
-def profile(bot, message):
-    cm_sv_db(message, "Мой профиль")
-    markup_ap = types.InlineKeyboardMarkup(row_width=1)
-    button1_ap = types.InlineKeyboardButton("Изменить Имя", callback_data="Изменить Имя")
-    button2_ap = types.InlineKeyboardButton("Изменить Фамилию", callback_data="Изменить Фамилию")
-    button3_ap = types.InlineKeyboardButton("Изменить номер телефона", callback_data="Изменить номер телефона")
-    button4_ap = types.InlineKeyboardButton("Изменить email", callback_data="Изменить email")
-    button5_ap = types.InlineKeyboardButton("Изменить табельный номер", callback_data="Изменить табельный номер")
-    button6_ap = types.InlineKeyboardButton("Изменить филиал", callback_data="Изменить филиал")
-    markup_ap.add(button1_ap, button2_ap, button3_ap, button4_ap, button5_ap, button6_ap)
-    bot.send_message(message.chat.id, f"Сохраненная информация\n\n"
-                                      f"Имя: {get_firstname(message)}\n"
-                                      f"Фамилия: {get_lastname(message)}\n"
-                                      f"Номер телефона: {get_phone_number(message)}\n"
-                                      f"Email: {get_email(message)}\n"
-                                      f"Табельный номер: {get_table_number(message)}\n"
-                                      f"Филиал: {get_branch(message.chat.id)}",
-                     reply_markup=markup_ap)
 
 
 def generate_buttons(bts_names, markup_g):

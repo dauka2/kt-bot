@@ -28,10 +28,12 @@ kb_field_all = ["Логотипы и Брендбук", "Личный кабин
 instr_field = ["Брендбук и логотипы", "Личный кабинет telecom.kz", "Модемы | Настройка", "Lotus & CheckPoint"]
 adapt_field = ["Welcome курс | Адаптация"]
 faq_1 = {
-    'Ha кого направлена программа “Демеу” в AO “Казахтелеком”?': 'Социальная поддержка Программы «Демеу» AO «Казахтелеком»:  (далее - Программа) направлена работникам по статусу: \
+    'Ha кого направлена программа “Демеу” в AO “Казахтелеком”?':
+        'Социальная поддержка Программы «Демеу» AO «Казахтелеком»:  (далее - Программа) направлена работникам по статусу: \
   \n1) многодетная семья - семья, имеющая в своем составе четырех и более совместно проживающих несовершеннолетних детей, в том числе детей, обучающихся по очной форме обучения в организациях среднего, \
   технического и профессионального, послесреднего, высшего и (или) послевузовского образования после достижения ими совершеннолетия до времени окончания образования (но не более чем до достижения \
-  двадцатитрехлетнего возраста); \n2) семья c детьми-инвалидами - семья, имеющая в своем составе ребенка (детей) до восемнадцати лет, имеющего(-их) нарушение здоровья co стойким расстройством функций организма,\
+  двадцатитрехлетнего возраста); '
+        '\n2) семья c детьми-инвалидами - семья, имеющая в своем составе ребенка (детей) до восемнадцати лет, имеющего(-их) нарушение здоровья co стойким расстройством функций организма,\
   обусловленное заболеваниями, увечьями (ранениями, травмами, контузиями), их последствиями, дефектами, которые приводят к ограничению жизнедеятельности и необходимости ero (их) социальной защиты; \
   \n3) семья, усыновившая/удочерившая более 2-x детей - семья, имеющая в своем составе более 2-x несовершеннолетних усыновленных/удочеренных детей, которые состоят на диспансерном учете по состоянию здоровья, и единственного кормильца. \
   \n4) Работникам грейда A8-B4 устанавливается социальная поддержка по оплате выпускного курса обучения (без учета расходов на проживание и питание) их детей в среднем специальном учебном заведении (далее - CYZ)/высшем учебном заведении (далее - BYZ). \
@@ -45,10 +47,15 @@ faq_1 = {
   \n7) возмещение средств за специальные образовательные программы (для детей-инвалидов); \
   \n8) возмещение средств за посещение специальных коррекционных организаций (для детей-инвалидов); \
   \n9) материальная помощь выпускникам школ, не достигшим на дату окончания школы совершеннолетия и окончившим учебу на отлично; \
-  \n10) возмещение (работникам грейда A8-B4) расходов по оплате выпускного курса обучения (без учета расходов на проживание и питание) их детей в среднем специальном учебном заведении (далее - CYZ)/высшем учебном заведении (далее - BYZ).',
-    'Процесс подачи заявления в социальную комиссию': 'Основанием для рассмотрения вопроса об оказании социальной поддержки является заявление работника \nЦА/филиала, поданное в Социальную комиссию ЦА/филиала с приложением подтверждающих документов.',
+  \n10) возмещение (работникам грейда A8-B4) расходов по оплате выпускного курса обучения (без учета расходов на '
+    'проживание и питание) их детей в среднем специальном учебном заведении (далее - CYZ)/высшем учебном заведении '
+                                                '(далее - BYZ).',
+    'Процесс подачи заявления в социальную комиссию':
+        'Основанием для рассмотрения вопроса об оказании социальной поддержки является заявление работника \n'
+        'ЦА/филиала, поданное в Социальную комиссию ЦА/филиала с приложением подтверждающих документов.',
     'Где оформлять заявление?': 'Заявление оформляете в своей рабочей базе(БРД). Специальных баз нет.',
-    'Председатель социальной комиссии ДРБ': ' Председатель Социальной комиссии в филиалах - Генеральный директор филиала. В ЦА – Главный директор по операционной эффективности',
+    'Председатель социальной комиссии': 'Председатель Социальной комиссии в филиалах - Генеральный директор филиала. '
+                                        'В ЦА – Главный директор по операционной эффективности',
 }
 faq_2 = {
     'Как получить справку c места работы?': 'Заявку на получение спpaвки c места работы необходимо оформить в Базе «Заявки ОЦО HR». \nСоздать новый – выбрать наименование Вашего филиала – заявка на выдачу справки с места работы – заполнить ФИО сотрудника, вид справки и необходимые критерии (язык, стаж, должностной оклад, средняя заработная плата) – сохранить заявку – Отправить в ОЦО В Заявке автоматически будет указан Исполнитель Вашей заявки.',
@@ -260,7 +267,7 @@ def appeal(bot, message, message_text):
         markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         button2_ap = types.KeyboardButton("Да, верная")
         markup_ap.add(button2_ap)
-        db_connect.profile(bot, message)
+        profile(bot, message)
         bot.send_message(message.chat.id, "Информация верна?", reply_markup=markup_ap)
     elif message_text == 'Да, верная':
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
@@ -292,7 +299,7 @@ def appeal(bot, message, message_text):
         bot.send_message(message.chat.id,
                          "Ваше обращение принято и находится в обработке.\nПлaнoвoe время разрешения - 1 рабочий день.")
     else:
-        send_error(message)
+        send_error(bot, message)
         db_connect.clear_appeals(message)
 
 
@@ -326,21 +333,32 @@ def faq(bot, message):
         bot.send_message(message.chat.id, "Выберите, пожалуйста, вопрос", reply_markup=markup_faq)
     elif message.text == "Вопросы по займам":
         db_connect.cm_sv_db(message, 'Вопросы по займам')
-        markup_faq = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-        markup_faq = db_connect.generate_buttons(branches[1:], markup_faq)
-        bot.send_message(message.chat.id, "Выберите филиал", reply_markup=markup_faq)
-    elif message.text == "Корпоративный Университет":
+        branch = db_connect.get_branch(message.chat.id)
+        if branch == "Центральный Аппарат":
+            markup_faq = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+            markup_faq = db_connect.generate_buttons(branches[1:], markup_faq)
+            bot.send_message(message.chat.id, "Выберите филиал", reply_markup=markup_faq)
+        elif branch in branches[1:]:
+            bot.send_message(message.chat.id, f"Филиал {branch}\n\n"
+                                              "Все вопросы по займам Вы можете адресовать по следующим контактам:")
+            func_branch(bot, message, branch)
+    else:
+        func_branch(bot, message, message.text)
+
+
+def func_branch(bot, message, message_text):
+    if message_text == "Корпоративный Университет":
         db_connect.cm_sv_db(message, 'Займы КУ')
         bot.send_message(message.chat.id, "Таспаева Гульшат Сериккалиевна\nФинансовый блок\nГлавный бухгалтер\n"
                                           "мобильный +7-701-780-64-34")
-    elif message.text == "Дивизион Информационных Технологий":
+    elif message_text == "Дивизион Информационных Технологий":
         db_connect.cm_sv_db(message, 'Займы ДИТ')
         bot.send_message(message.chat.id, "Рысбеков Нуркен Алтынбаевич\nДепартамент финансового анализа и планирования"
                                           "\nВедущий экономист\nрабочий +7-727-398-91-53, мобильный +7-702-345-6292"
                                           "\n\nДусалиева Жанна Хабидуллаевна\nДепартамент финансового анализа и "
                                           "планирования\nВедущий специалист\nрабочий +7-727-398-91-49, "
                                           "мобильный +7-777-181-8919")
-    elif message.text == "Дивизион по Корпоративному Бизнесу":
+    elif message_text == "Дивизион по Корпоративному Бизнесу":
         db_connect.cm_sv_db(message, 'Займы ДКБ')
         bot.send_message(message.chat.id, "Уразбаев Ануар Талғатұлы\nФинансовый блок/Департамент экономики и финансов/"
                                           "Отдел бюджетирования и казначейства\nВедущий экономист\n"
@@ -348,30 +366,28 @@ def faq(bot, message):
                                           "Зинелов Әділет Маратұлы\nФинансовый блок/Департамент экономики и финансов/"
                                           "Отдел бюджетирования и казначейства\nЭкономист\nрабочий +7-727-272-04-11 "
                                           "мобильный +7-707-315-55-59")
-    elif message.text == "Дирекция Управления Проектами":
+    elif message_text == "Дирекция Управления Проектами":
         db_connect.cm_sv_db(message, 'Займы ДУП')
         bot.send_message(message.chat.id, "Шекенова Нургуль Жантасовна\nEX сектор\nEX operations\nрабочий "
                                           "+7-717-224-97-46 мобильный +7-747-403-82-92)")
-    elif message.text == "Дирекция Телеком Комплект":
+    elif message_text == "Дирекция Телеком Комплект":
         db_connect.cm_sv_db(message, 'Займы ДТК')
         bot.send_message(message.chat.id, "Рамазанқызы Айнұр\nОтдел экономики и финансов\nВедущий специалистn\n"
                                           "мобильный +7-777-241-2936")
-    elif message.text == "Сервисная Фабрика":
+    elif message_text == "Сервисная Фабрика":
         db_connect.cm_sv_db(message, 'Займы СФ')
         bot.send_message(message.chat.id, "Тезекбаев Максат Темирбековичn\nОтдел бюджетирования, экономики и финансов\n"
                                           "Ведущий экономист\nмобильный +7-708-694-75-40")
-    elif message.text == "Дивизион по Рознечному Бизнесу":
+    elif message_text == "Дивизион по Рознечному Бизнесу":
         db_connect.cm_sv_db(message, 'Займы ДРБ')
         markup_r = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         markup_r = db_connect.generate_buttons(drb_regions, markup_r)
         bot.send_message(message.chat.id, "Выберите регион", reply_markup=markup_r)
-    elif message.text == 'Обьединение Дивизион "Сеть"':
+    elif message_text == 'Обьединение Дивизион "Сеть"':
         db_connect.cm_sv_db(message, 'Займы ОДС')
         markup_r = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         markup_r = db_connect.generate_buttons(ods_regions, markup_r)
         bot.send_message(message.chat.id, "Выберите регион", reply_markup=markup_r)
-    else:
-        db_connect.send_error(bot, message)
 
 
 def func_region(bot, message):
@@ -792,4 +808,24 @@ def glossary(bot, message):
     text2 = "Ho Вы можете помочь нам стать лучше и добавить значение, отправив нам письмо на \
                                       info.ktcu@telecom.kz - мы обязательно рассмотрим ero."
     db_connect.glossary(bot, message, text1, text2)
+
+
+def profile(bot, message):
+    db_connect.cm_sv_db(message, "Мой профиль")
+    markup_ap = types.InlineKeyboardMarkup(row_width=1)
+    button1_ap = types.InlineKeyboardButton("Изменить Имя", callback_data="Изменить Имя")
+    button2_ap = types.InlineKeyboardButton("Изменить Фамилию", callback_data="Изменить Фамилию")
+    button3_ap = types.InlineKeyboardButton("Изменить номер телефона", callback_data="Изменить номер телефона")
+    button4_ap = types.InlineKeyboardButton("Изменить email", callback_data="Изменить email")
+    button5_ap = types.InlineKeyboardButton("Изменить табельный номер", callback_data="Изменить табельный номер")
+    button6_ap = types.InlineKeyboardButton("Изменить филиал", callback_data="Изменить филиал")
+    markup_ap.add(button1_ap, button2_ap, button3_ap, button4_ap, button5_ap, button6_ap)
+    bot.send_message(message.chat.id, f"Сохраненная информация\n\n"
+                                      f"Имя: {db_connect.get_firstname(message)}\n"
+                                      f"Фамилия: {db_connect.get_lastname(message)}\n"
+                                      f"Номер телефона: {db_connect.get_phone_number(message)}\n"
+                                      f"Email: {db_connect.get_email(message)}\n"
+                                      f"Табельный номер: {db_connect.get_table_number(message)}\n"
+                                      f"Филиал: {db_connect.get_branch(message.chat.id)}",
+                     reply_markup=markup_ap)
 
