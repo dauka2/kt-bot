@@ -6,7 +6,7 @@ import kaz
 import rus
 import db_connect
 
-bot = telebot.TeleBot('6220689869:AAH6luRPM4E1HW7ZfUeZvT-VlssMzClvXuI')
+bot = telebot.TeleBot('6053200189:AAHdUXx0SFKbQBs6S4a06VWw-GgX0KOQpCk')
 admin_id = ['484489968', '760906879', '187663574', '577247261', '204504707', '531622371']
 branches = ['Центральный Аппарат', 'Обьединение Дивизион "Сеть"', 'Дивизион по Рознечному Бизнесу',
             'Дивизион по Корпоративному Бизнесу', 'Корпоративный Университет', 'Дивизион Информационных Технологий',
