@@ -284,16 +284,16 @@ def appeal(bot, message, message_text):
         db_connect.set_category(message, message.text)
         bot.send_message(message.chat.id, "Өтінішіңізді енгізіңіз")
     elif db_connect.get_appeal_field(message) and db_connect.get_category_users_info(message):
-        user_info = f"Имя Фамилия: {db_connect.get_firstname(message)} {db_connect.get_lastname(message)}\n" \
-                    f"Табельный номер: {db_connect.get_table_number(message)}\n" \
-                    f"Номер телефона: {db_connect.get_phone_number(message)}\n" \
+        user_info = f"Аты Тегі: {db_connect.get_firstname(message)} {db_connect.get_lastname(message)}\n" \
+                    f"Табель нөмірі: {db_connect.get_table_number(message)}\n" \
+                    f"Телефон нөмірі: {db_connect.get_phone_number(message)}\n" \
                     f"Email: {db_connect.get_email(message)}\n" \
-                    f"Филиал: {db_connect.get_branch(message.chat.id)}"
+                    f"Филиалы: {db_connect.get_branch(message.chat.id)}"
         new_message = f'{user_info} \n {message.text}'
         db_connect.send_gmails(new_message, categories, db_connect.get_category_users_info(message))
         db_connect.clear_appeals(message)
         bot.send_message(message.chat.id,
-                         "Сіздің өтінішіңіз қабылданды және өңделуде.\nЖоспарлы рұқсат беру уақыты - 1 жұмыс күні.")
+                         "Сіздің өтінішіңіз қабылданды және өңделуде.\nЖоспарлы рұқсат беру уақыты - 1 жұмыс күні")
     else:
         send_error(bot, message)
         db_connect.clear_appeals(message)
@@ -336,7 +336,7 @@ def faq(bot, message):
             bot.send_message(message.chat.id, "Филиалды таңдаңыз", reply_markup=markup_faq)
         elif branch in branches[1:]:
             bot.send_message(message.chat.id, f"Филиал {branch}\n\n"
-                                              "Қарыздар бойынша барлық сұрақтарды келесі контактілер бойынша жіберуге болады:")
+                                              "Қарыздар бойынша сұрақтарды келесі байланыс нөміріне жіберуге болады")
             func_branch(bot, message, branch)
     else:
         func_branch(bot, message, message.text)
