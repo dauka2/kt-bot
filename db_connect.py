@@ -138,26 +138,26 @@ def change_language(message, language):
 def alter_table_users():
     conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
     cur = conn.cursor()
-    # cur.execute("ALTER TABLE users ADD COLUMN phone_number varchar(13) DEFAULT ' '")
-    # cur.execute("ALTER TABLE users ADD COLUMN email varchar(50) DEFAULT ' '")
-    # cur.execute("ALTER TABLE users ADD COLUMN table_number varchar(7) DEFAULT ' '")
+    cur.execute("ALTER TABLE users ADD COLUMN table_number varchar(11) DEFAULT ' '")
+    cur.execute("ALTER TABLE users ADD COLUMN phone_number varchar(13) DEFAULT ' '")
+    cur.execute("ALTER TABLE users ADD COLUMN email varchar(50) DEFAULT ' '")
     # cur.execute("TRUNCATE users_info")
     # cur.execute("TRUNCATE users")
     # cur.execute("DROP TABLE IF EXISTS users;")
     # cur.execute("DROP TABLE IF EXISTS users_info;")
     # cur.execute("DROP TABLE IF EXISTS appeals;")
     # cur.execute("DROP TABLE IF EXISTS commands_history;")
-    # cur.execute("ALTER TABLE users_info DROP COLUMN new_message")
-    # cur.execute("ALTER TABLE users_info DROP COLUMN chosen_category")
-    # cur.execute(
-    #     'CREATE TABLE IF NOT EXISTS appeals(id serial primary key, user_id varchar(50), status varchar(30), '
-    #     'category varchar(100), appeal_text varchar(1000), date varchar(30), date_status varchar(30), '
-    #     'id_performer varchar(30), comment varchar(1000), is_appeal_anon bool)')
-    # cur.execute("ALTER TABLE users ADD COLUMN branch varchar(50) DEFAULT ' '")
-    # cur.execute("ALTER TABLE users_info ADD COLUMN is_appeal_anon bool DEFAULT False")
-    # cur.execute("ALTER TABLE users_info ADD COLUMN category bool DEFAULT False")
-    # cur.execute("ALTER TABLE users_info ADD COLUMN appeal_id int DEFAULT 0")
-    cur.execute("ALTER TABLE users ALTER COLUMN table_number TYPE varchar(11)")
+    cur.execute("ALTER TABLE users_info DROP COLUMN new_message")
+    cur.execute("ALTER TABLE users_info DROP COLUMN chosen_category")
+    cur.execute(
+        'CREATE TABLE IF NOT EXISTS appeals(id serial primary key, user_id varchar(50), status varchar(30), '
+        'category varchar(100), appeal_text varchar(1000), date varchar(30), date_status varchar(30), '
+        'id_performer varchar(30), comment varchar(1000), is_appeal_anon bool)')
+    cur.execute("ALTER TABLE users ADD COLUMN branch varchar(50) DEFAULT ' '")
+    cur.execute("ALTER TABLE users ADD COLUMN language varchar(10) DEFAULT 'n'")
+    cur.execute("ALTER TABLE users_info ADD COLUMN category bool DEFAULT False")
+    cur.execute("ALTER TABLE users_info ADD COLUMN appeal_id int DEFAULT 0")
+    cur.execute("ALTER TABLE users_info ADD COLUMN is_appeal_anon bool DEFAULT False")
     conn.commit()
     cur.close()
     conn.close()

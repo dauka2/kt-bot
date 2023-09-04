@@ -25,6 +25,12 @@ def check_id(categories, input_id):
     return False
 
 
+def check_is_command(text):
+    if text == "/menu" or text == "/start" or text == "/help" or text == "/language":
+        return False
+    return True
+
+
 def check_register(message, func):
     arr = [rus.markup, rus, "Изменения сохранены", "Оставить обращение"]
     language = db_connect.get_language(message)
@@ -63,10 +69,17 @@ def register(message, func="menu"):
 
 
 def change_firstname(message, func):
+    language = db_connect.get_language(message)
+    if not check_is_command(message.text):
+        if language == "kaz":
+            msg = bot.send_message(message.chat.id, "Командаларды пайдалану үшін атауды енгізу керек")
+        else:
+            msg = bot.send_message(message.chat.id, "Для использования команд необходимо ввести имя")
+        bot.register_next_step_handler(msg, change_firstname, func)
+        return
     db_connect.set_firstname(message, message.text)
     if check_register(message, func) != 0:
         return
-    language = db_connect.get_language(message)
     if language == 'kaz':
         msg = bot.send_message(message.chat.id, "Тегіңізді енгізіңіз")
     else:
@@ -75,10 +88,17 @@ def change_firstname(message, func):
 
 
 def change_lastname(message, func):
+    language = db_connect.get_language(message)
+    if not check_is_command(message.text):
+        if language == "kaz":
+            msg = bot.send_message(message.chat.id, "Командаларды пайдалану үшін фамилияны енгізу керек")
+        else:
+            msg = bot.send_message(message.chat.id, "Для использования команд необходимо ввести фамилию")
+        bot.register_next_step_handler(msg, change_lastname, func)
+        return
     db_connect.set_lastname(message, message.text)
     if check_register(message, func) != 0:
         return
-    language = db_connect.get_language(message)
     if language == 'kaz':
         msg = bot.send_message(message.chat.id, "Енді табель нөміріңізді енгізіңіз\n\n"
                                                 "P.s.: табель нөміріңізді сіздің филиалдағы HR дженералистен білуге болады")
