@@ -100,19 +100,19 @@ def change_lastname(message, func):
     if check_register(message, func) != 0:
         return
     if language == 'kaz':
-        msg = bot.send_message(message.chat.id, "Телефон нөміріңізді енгізіңіз\n\nМысалы: +7 777 777 7777")
+        msg = bot.send_message(message.chat.id, "Телефон нөміріңізді енгізіңіз\n\nМысалы: +77001112233")
     else:
-        msg = bot.send_message(message.chat.id, "Введите Ваш номер телефона\n\nНапример: +7 777 777 7777")
+        msg = bot.send_message(message.chat.id, "Введите Ваш номер телефона\n\nНапример: +77001112233")
     bot.register_next_step_handler(msg, change_phone_num, func)
 
 
 def change_table_num(message, func):
     language = db_connect.get_language(message)
     arr = ["Вы ввели некорректные данные, введите в таком шаблоне:\n123456",
-           "Введите Ваш номер телефона\n\nНапример: +7 777 777 7777 "]
+           "Введите Ваш номер телефона\n\nНапример: +77001112233"]
     if language == "kaz":
         arr = ["Сіз деректерді қате енгіздіңіз, осы үлгіде енгізіңіз:\n123456",
-               "Телефон нөміріңізді енгізіңіз\n\nМысалы: +7 777 777 7777"]
+               "Телефон нөміріңізді енгізіңіз\n\nМысалы: +77001112233"]
     try:
         int(message.text)
     except ValueError:
@@ -137,7 +137,7 @@ def change_phone_num(message, func):
     arr = ["Вы ввели некорректные данные, введите в таком шаблоне +77001112233",
            "Введите Ваш корпоративный E-mail\n\n(временно можете указать и Ваш личный)"]
     if language == "kaz":
-        arr = ["Сіз деректерді қате енгіздіңіз, осы үлгіде +7 777 777 7777 енгізіңіз",
+        arr = ["Сіз деректерді қате енгіздіңіз, осы үлгіде +77001112233 енгізіңіз",
                "Корпоративтік e-mail енгізіңіз\n\n(уақытша өзіңіздің жеке поштаңызды көрсете аласыз)"]
     if not re.match(pattern, phone_num):
         msg = bot.send_message(message.chat.id, arr[0])
