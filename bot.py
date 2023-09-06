@@ -8,7 +8,7 @@ import db_connect
 
 bot = telebot.TeleBot('6220689869:AAH6luRPM4E1HW7ZfUeZvT-VlssMzClvXuI')
 admin_id = ['484489968', '760906879', '187663574', '577247261', '204504707', '531622371']
-branches = ['Центральный Аппарат', 'Обьединение Дивизион "Сеть"', 'Дивизион по Рознечному Бизнесу',
+branches = ['Центральный Аппарат', 'Обьединение Дивизион "Сеть"', 'Дивизион по Розничному Бизнесу',
             'Дивизион по Корпоративному Бизнесу', 'Корпоративный Университет', 'Дивизион Информационных Технологий',
             'Дирекция Телеком Комплект', 'Дирекция Управления Проектами',
             'Сервисная Фабрика']
@@ -100,12 +100,10 @@ def change_lastname(message, func):
     if check_register(message, func) != 0:
         return
     if language == 'kaz':
-        msg = bot.send_message(message.chat.id, "Енді табель нөміріңізді енгізіңіз\n\n"
-                                                "P.s.: табель нөміріңізді сіздің филиалдағы HR дженералистен білуге болады")
+        msg = bot.send_message(message.chat.id, "Телефон нөміріңізді енгізіңіз\n\nМысалы: +7 777 777 7777")
     else:
-        msg = bot.send_message(message.chat.id, "А теперь введите Ваш табельный номер \n\n"
-                                                "P.s.: Таб. номер Вы узнать у Вашего HR дженералиста")
-    bot.register_next_step_handler(msg, change_table_num, func)
+        msg = bot.send_message(message.chat.id, "Введите Ваш номер телефона\n\nНапример: +7 777 777 7777")
+    bot.register_next_step_handler(msg, change_phone_num, func)
 
 
 def change_table_num(message, func):
