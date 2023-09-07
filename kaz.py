@@ -1,13 +1,46 @@
+from datetime import timedelta
 from telebot import *
 import db_connect
 
 
+# categories = {
+#     'Learning.telecom.kz | Техникалық қолдау': 'info.ktcu@telecom.kz',
+#     'Оқыту | Корпоративтік Университет': 'info.ktcu@telecom.kz',
+#     '"Нысана" қолдау қызметі': 'nysana@cscc.kz',
+#     'Комплаенс қызметіне хабарласыңыз': 'tlek.issakov@telecom.kz',
+# }
 categories = {
-    'Learning.telecom.kz | Техникалық қолдау': 'info.ktcu@telecom.kz',
-    'Оқыту | Корпоративтік Университет': 'info.ktcu@telecom.kz',
-    '"Нысана" қолдау қызметі': 'nysana@cscc.kz',
-    'Комплаенс қызметіне хабарласыңыз': 'tlek.issakov@telecom.kz',
+    'Learning.telecom.kz | Техникалық қолдау': {
+        "id": "187663574",
+        "name": "Оспанов Тамирлан",
+        "phone_num": "87777777777",
+        "email": "info.ktcu@telecom.kz",
+        "telegram": "@tamirlan"
+    },
+    'Оқыту | Корпоративтік Университет': {
+        "id": "760906879",
+        "name": "Мустафина Дильназ",
+        "phone_num": "87089081808",
+        "email": "info.ktcu@telecom.kz",
+        "telegram": "@dilnaz.mustafina"
+    },
+    'Нысана" қолдау қызметі': {
+        "id": "760906879",
+        "name": "Мустафина Дильназ",
+        "phone_num": "87089081808",
+        "email": "nysana@cscc.kz",
+        "telegram": "@dilnaz.mustafina"
+    },
+    'Комплаенс қызметіне хабарласыңыз': {
+        "id": "760906879",
+        "name": "Мустафина Дильназ",
+        "phone_num": "87089081808",
+        "email": "tlek.issakov@telecom.kz",
+        "telegram": "@dilnaz.mustafina"
+    },
 }
+admins_id = ['187663574', '760906879']
+
 
 faq_field = ["Жиі қойылатын сұрақтар", "Демеу", "HR сұрақтары", "Қарыздар бойынша сұрақтар"]
 drb_regions = ["Алматинский регион, г.Алматы", "Западный, Центральный регион", "Северный, Южный, Восточный регионы"]
@@ -69,7 +102,7 @@ branches = ['Центральный Аппарат', 'Обьединение Д�
 
 markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
 button = types.KeyboardButton("Welcome курс | Бейімделу")
-button2 = types.KeyboardButton("Өтінішті қалдыру")
+button2 = types.KeyboardButton("Өтініштер")
 button3 = types.KeyboardButton("Білім базасы")
 button4 = types.KeyboardButton("ҚТ ж ЕҚ кәртішкесін толтыру")
 button5 = types.KeyboardButton("Жиі қойылатын сұрақтар")
@@ -119,6 +152,35 @@ def adaption(bot, message):
         time.sleep(0.75)
         bot.send_message(message.chat.id, 'Бастау үшін сізге мені қалай пайдалану керектігін айтамын 🫡',
                          reply_markup=markup_adapt)
+
+
+def performer_text(appeal_info, message):
+    status = kaz_get_status(message, appeal_info[0])
+    text = f"Өтініш <b>ID</b> {appeal_info[0]}\n\n" \
+           f" Мәртебесі: {status}\n" \
+           f" Құрылған күні: {str(appeal_info[5])}\n" \
+           f" Санат: {str(appeal_info[3])}\n" \
+           f" Өтініш мәтіні: {str(appeal_info[4])}\n" \
+           f" Соңғы мәртебе өзгерген күн: {str(appeal_info[6])}\n" \
+           f" Пікір: {str(appeal_info[8])}\n\n" \
+           f"Орындаушы\n" \
+           f" ТАӘ: {categories.get(str(appeal_info[3]), {}).get('name', None)}\n" \
+           f" Телефон нөмірі: {categories.get(str(appeal_info[3]), {}).get('phone_num', None)}\n" \
+           f" Email: {categories.get(str(appeal_info[3]), {}).get('email', None)}\n" \
+           f" Telegram: {categories.get(str(appeal_info[3]), {}).get('telegram', None)}\n"
+    return text
+
+
+def kaz_get_status(message, appeal_id):
+    language = db_connect.get_language(message)
+    status = db_connect.get_status(appeal_id)[0][0]
+    if language == "kaz":
+        if status == "Решено":
+            return "Шешілді"
+        elif status == "В процессе":
+            return "Процесінде"
+        return "Өтініш қабылданды"
+    return status
 
 
 def call_back(bot, call):
@@ -254,49 +316,290 @@ def call_back(bot, call):
                          "Құттықтаймыз!\nСіз Welcome курсынан өттіңіз. \n\nКомпанияға қош келдіңіз!")
         time.sleep(0.75)
         bot.send_message(call.message.chat.id, "Негізгі мәзірге өту үшін /menu пәрменін теріңіз немесе басыңыз")
+    elif str(call.data).isdigit():
+        appeal_id = str(call.data)
+        appeal_info = db_connect.get_appeal_by_id(appeal_id)[0]
+        text = performer_text(appeal_info, message=call.message)
+        bot.send_message(call.message.chat.id, text)
+    elif db_connect.extract_number_from_status_change(str(call.data), r'^(\d+)admin$') is not None:
+        appeal_id = db_connect.extract_number_from_status_change(str(call.data), r'^(\d+)admin$')
+        appeal_info = db_connect.get_appeal_by_id(appeal_id)[0]
+        callback_d = f"{appeal_id}statusdecided"
+        btn_text = "Изменить статус на Решено"
+        if appeal_info[9]:
+            text = f"ID обращения {appeal_id}\n\n" \
+                   f" Статус: {str(appeal_info[2])}\n" \
+                   f" Дата создания: {str(appeal_info[5])}\n" \
+                   f" Категория: {str(appeal_info[3])}\n" \
+                   f" Текст обращения: {str(appeal_info[4])}\n" \
+                   f" Дата последнего изменения статуса: {str(appeal_info[6])}" \
+                   f" Комментарий: {str(appeal_info[8])}\n\n"
+            if str(appeal_info[2]) == "Обращение принято":
+                callback_d = f"{appeal_id}statusinprocess"
+                btn_text = "Изменить статус на 'В процессе'"
+        else:
+            appeal_info = db_connect.get_appeal_by_id_inner_join_users(appeal_id)[0]
+            text = f"ID обращения {appeal_id}\n\n" \
+                   f" Статус: {str(appeal_info[1])}\n" \
+                   f" Дата создания: {str(appeal_info[4])}\n" \
+                   f" Категория: {str(appeal_info[2])}\n" \
+                   f" Текст обращения: {str(appeal_info[3])}\n" \
+                   f" Дата последнего изменения статуса: {str(appeal_info[5])}" \
+                   f" Комментарий: {str(appeal_info[6])}\n\n" \
+                   f"Пользователь\n" \
+                   f" ФИО: {str(appeal_info[9])} {str(appeal_info[8])}\n" \
+                   f" Номер телефона: {str(appeal_info[11])}\n" \
+                   f" Email: {str(appeal_info[12])}\n" \
+                   f" Telegram: {str(appeal_info[7])}\n" \
+                   f" Филиал: {str(appeal_info[13])}"
+            if str(appeal_info[1]) == "Обращение принято":
+                callback_d = f"{appeal_id}statusinprocess"
+                btn_text = "Изменить статус на 'В процессе'"
+        markup_a = types.InlineKeyboardMarkup(row_width=1)
+        button_a = types.InlineKeyboardButton(btn_text, callback_data=callback_d)
+        callback_d = f"{appeal_id}addcomment"
+        button_a1 = types.InlineKeyboardButton("Добавить комментарий", callback_data=callback_d)
+        markup_a.add(button_a, button_a1)
+        bot.send_message(call.message.chat.id, text, reply_markup=markup_a)
+    elif db_connect.extract_number_from_status_change(str(call.data), r'^(\d+)statusinprocess') is not None \
+            or db_connect.extract_number_from_status_change(str(call.data), r'^(\d+)statusdecided$') is not None:
+        appeal_id = db_connect.extract_number_from_status_change(str(call.data), r'^(\d+)statusinprocess')
+        if appeal_id is None:
+            appeal_id = db_connect.extract_number_from_status_change(str(call.data), r'^(\d+)statusdecided$')
+            db_connect.set_status(appeal_id, "Решено")
+        else:
+            db_connect.set_status(appeal_id, "В процессе")
+        now = datetime.now() + timedelta(hours=6)
+        now_updated = db_connect.remove_milliseconds(now)
+        db_connect.set_date_status(appeal_id, str(now_updated))
+        bot.send_message(call.message.chat.id, "Статус изменен")
+        appeal_info = db_connect.get_appeal_by_id(appeal_id)[0]
+        status = kaz_get_status(call.message, appeal_id)
+        text = f"Өтініш <b>ID</b> {appeal_info[0]}\n\n" \
+               f" Мәртебесі: {status}\n" \
+               f" Құрылған күні: {str(appeal_info[5])}\n" \
+               f" Санат: {str(appeal_info[3])}\n" \
+               f" Өтініш мәтіні: {str(appeal_info[4])}\n" \
+               f" Соңғы мәртебе өзгерген күн: {str(appeal_info[6])}\n" \
+               f" Пікір: {str(appeal_info[8])}\n\n" \
+               f"Орындаушы\n" \
+               f" ТАӘ: {categories.get(str(appeal_info[3]), {}).get('name', None)}\n" \
+               f" Телефон нөмірі: {categories.get(str(appeal_info[3]), {}).get('phone_num', None)}\n" \
+               f" Email: {categories.get(str(appeal_info[3]), {}).get('email', None)}\n" \
+               f" Telegram: {categories.get(str(appeal_info[3]), {}).get('telegram', None)}\n"
+        bot.send_message(appeal_info[1], "Сіздің өтінішіңіздің мәртебесі өзгертілді")
+        bot.send_message(appeal_info[1], text)
+        if db_connect.get_status(appeal_id)[0][0] == "Решено":
+            markup = types.InlineKeyboardMarkup(row_width=5)
+            for i in range(1, 6):
+                callback_d = str(i) + "evaluation" + str(appeal_info[0])
+                button = types.InlineKeyboardButton(i, callback_data=callback_d)
+                markup.add(button)
+            bot.send_message(appeal_info[1], "Шешілген үндеуді 1-ден 5-ке дейін бағалаңыз\n\nҚайда 1-өте нашар, 5-керемет", reply_markup=markup)
+    elif db_connect.extract_number_from_status_change(str(call.data), r'^(\d+)addcomment') is not None:
+        appeal_id = db_connect.extract_number_from_status_change(str(call.data), r'^(\d+)addcomment')
+        msg = bot.send_message(call.message.chat.id, 'Введите комментарий')
+        bot.register_next_step_handler(msg, add_comment, bot, appeal_id)
+    elif db_connect.extract_numbers_from_status_change_decided(str(call.data)) is not None:
+        evaluation, appeal_id = db_connect.extract_numbers_from_status_change_decided(str(call.data))
+        db_connect.set_evaluation(appeal_id, evaluation)
+        bot.edit_message_text("Пікіріңіз үшін және жақсы адам болуға көмектескеніңіз үшін рахмет", call.message.chat.id, call.message.message_id)
+        bot.answer_callback_query(call.id)
+        # bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id)
+        # bot.answer_callback_query(call.id, "Спасибо за Ваш отзыв и за то, что помогаете нам стать лучше")
+
+
+def add_comment(message, bot, appeal_id):
+    db_connect.set_comment(appeal_id, message.text)
+    appeal_info = db_connect.get_appeal_by_id(appeal_id)[0]
+    status = kaz_get_status(message, appeal_id)
+    text = f"Өтініш <b>ID</b> {appeal_info[0]}\n\n" \
+           f" Мәртебесі: {status}\n" \
+           f" Құрылған күні: {str(appeal_info[5])}\n" \
+           f" Санат: {str(appeal_info[3])}\n" \
+           f" Өтініш мәтіні: {str(appeal_info[4])}\n" \
+           f" Соңғы мәртебе өзгерген күн: {str(appeal_info[6])}\n" \
+           f" Пікір: {str(appeal_info[8])}\n\n" \
+           f"Орындаушы\n" \
+           f" ТАӘ: {categories.get(str(appeal_info[3]), {}).get('name', None)}\n" \
+           f" Телефон нөмірі: {categories.get(str(appeal_info[3]), {}).get('phone_num', None)}\n" \
+           f" Email: {categories.get(str(appeal_info[3]), {}).get('email', None)}\n" \
+           f" Telegram: {categories.get(str(appeal_info[3]), {}).get('telegram', None)}\n"
+    bot.send_message(appeal_info[1], "Сіздің үндеуіңізге түсініктеме қосылды")
+    bot.send_message(appeal_info[1], text)
+    bot.send_message(message.chat.id, "Комментарий добавлен")
 
 
 def appeal(bot, message, message_text):
     db_connect.set_appeal_field(message, True)
-    if message_text == "Өтінішті қалдыру":
+    if message_text == "Өтініштер":
+        db_connect.cm_sv_db(message, 'Өтініштер')
+        markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+        button1_ap = types.KeyboardButton("Менің өтініштерім")
+        button2_ap = types.KeyboardButton("Өтінішті қалдыру")
+        if db_connect.check_id(categories, str(message.chat.id)):
+            markup_ap.add(types.KeyboardButton("Админ панель для обращений"))
+        markup_ap.add(button1_ap, button2_ap)
+        bot.send_message(message.chat.id,
+                         "B осы бөлімде Сіз өзіңізді қызықтыратын мәселелер бойынша өтінішіңізді корпоративтік университетке қалдыра аласыз.",
+                         reply_markup=markup_ap)
+        time.sleep(0.75)
+        bot.send_message(message.chat.id,
+                         "Егер сіз артқа қайтқыңыз келсе, /menu таңдаңыз /menu енгізу жолағының сол жағында")
+    elif message_text == "Менің өтініштерім":
+        db_connect.cm_sv_db(message, 'Менің өтініштерім')
+        markup_a = types.InlineKeyboardMarkup()
+        appeals_ = db_connect.get_appeals(message)
+        for appeal in appeals_:
+            text = str(appeal[0]) + " - " + appeal[1]
+            markup_a.add(types.InlineKeyboardButton(text=text, callback_data=str(appeal[0])))
+        if markup_a.keyboard:
+            bot.send_message(message.chat.id, "Мұнда сіз өтініштеріңіздің күйін бақылай аласыз",
+                             reply_markup=markup_a)
+        else:
+            bot.send_message(message.chat.id, "Бұл жерде әлі бос,\nбірақ сіз апелляцияны қалдыра аласыз және ол осы жерде көрсетіледі")
+    elif message_text == "Өтінішті қалдыру":
         db_connect.cm_sv_db(message, 'Өтінішті қалдыру')
         markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-        button2_ap = types.KeyboardButton("Ия, дұрыс")
+        # button1_ap = types.KeyboardButton("Информация неверна")
+        button2_ap = types.KeyboardButton("Иә")
         markup_ap.add(button2_ap)
         profile(bot, message)
         bot.send_message(message.chat.id, "Ақпарат дұрыс па?", reply_markup=markup_ap)
-    elif message_text == 'Ия, дұрыс':
-        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
-        for key in categories:
-            button = types.KeyboardButton(key)
-            markup.add(button)
-        bot.send_message(message.chat.id,
-                         "Бұл бөлімде Корпоративтік университетке сізді қызықтыратын мәселелер бойынша өтініш қалдыра аласыз.",
-                         reply_markup=markup)
-        time.sleep(0.75)
-        bot.send_message(message.chat.id,
-                         "Санатты таңдау үшін телеграммдағы пернетақтаны басыңыз (әдетте бұл белгі енгізу жолағының оң жағында болады).")
-        time.sleep(0.75)
-        bot.send_message(message.chat.id,
-                         "Егер сіз артқа қайтқыңыз келсе, /menu таңдаңыз /menu енгізу жолағының сол жағында ")
-    elif message.text in categories.keys():
-        db_connect.cm_sv_db(message, message.text)
+    elif message_text == "Иә":
+        markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+        markup_ap = db_connect.generate_buttons(categories, markup_ap)
+        bot.send_message(message.chat.id, "Өтініш санатын таңдаңыз", reply_markup=markup_ap)
+    # elif message_text == "Анонимно":
+    #     db_connect.cm_sv_db(message, 'Анонимно')
+    #     db_connect.set_is_appeal_anon_users_info(message.chat.id, True)
+    #     markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+    #     markup_ap = generate_buttons(categories, markup_ap)
+    #     bot.send_message(message.chat.id,
+    #                      "Выберите категорию обращения",
+    #                      reply_markup=markup_ap)
+    elif message_text in categories.keys():
+        db_connect.cm_sv_db(message, message_text)
         db_connect.set_category(message, message.text)
-        bot.send_message(message.chat.id, "Өтінішіңізді енгізіңіз")
-    elif db_connect.get_appeal_field(message) and db_connect.get_category_users_info(message):
-        user_info = f"Аты Тегі: {db_connect.get_firstname(message)} {db_connect.get_lastname(message)}\n" \
-                    f"Табель нөмірі: {db_connect.get_table_number(message)}\n" \
-                    f"Телефон нөмірі: {db_connect.get_phone_number(message)}\n" \
-                    f"Email: {db_connect.get_email(message)}\n" \
-                    f"Филиалы: {db_connect.get_branch(message.chat.id)}"
-        new_message = f'{user_info} \n {message.text}'
-        db_connect.send_gmails(new_message, categories, db_connect.get_category_users_info(message))
+        bot.send_message(message.chat.id, 'Өтінішіңізді сипаттаңыз:')
+    elif db_connect.get_appeal_field(message) and db_connect.get_category_users_info(message) != ' ':
+        now = datetime.now() + timedelta(hours=6)
+        now_updated = db_connect.remove_milliseconds(now)
+        category = db_connect.get_category_users_info(message)
+        performer_id = categories.get(category, {}).get('id', None)
+        if db_connect.get_is_appeal_anon_users_info(message.chat.id):
+            appeal_id = db_connect.add_appeal(message.chat.id, "Өтініш қабылданды", category, message.text,
+                                              now_updated, now_updated, performer_id, ' ', True)
+            status = kaz_get_status(message, appeal_id)
+            text = f"Өтініш ID {appeal_id}\n" \
+                   f"Мәртебесі: {status}\n" \
+                   f"Санат: {db_connect.get_category_users_info(message)}\n" \
+                   f"Өтініш: {message.text}\n" \
+                   f"Құрылған күні: {now_updated}"
+        else:
+            appeal_id = db_connect.add_appeal(message.chat.id, "Обращение принято", category, message.text,
+                                              now_updated, now_updated, performer_id, ' ', False)
+            status = kaz_get_status(message, appeal_id)
+            text = f"Өтініш ID {appeal_id}\n\n" \
+                   f"Мәртебесі: {status}\n" \
+                   f"Аты Тегі: {db_connect.get_firstname(message)} {db_connect.get_lastname(message)}\n" \
+                   f"Табель нөмірі: {db_connect.get_table_number(message)}\n" \
+                   f"Телефон нөмірі: {db_connect.get_phone_number(message)}\n" \
+                   f"Email: {db_connect.get_email(message)}\n" \
+                   f"Санат: {db_connect.get_category_users_info(message)}\n" \
+                   f"Өтініш: {message.text}\n" \
+                   f"Құрылған күні: {now_updated}"
+        bot.send_message(message.chat.id, "Сіздің өтініштеріңіз қабылданды")
+        bot.send_message(message.chat.id, "Егер сіз артқа қайтқыңыз келсе, /menu таңдаңыз /menu енгізу жолағының сол жағында")
+        markup_a1 = types.InlineKeyboardMarkup()
+        callback_d = f"{appeal_id}statusinprocess"
+        button_a = types.InlineKeyboardButton("Обращение просмотрено", callback_data=callback_d)
+        markup_a1.add(button_a)
+        bot.send_message(performer_id, text, reply_markup=markup_a1)
         db_connect.clear_appeals(message)
-        bot.send_message(message.chat.id,
-                         "Сіздің өтінішіңіз қабылданды және өңделуде.\nЖоспарлы рұқсат беру уақыты - 1 жұмыс күні")
+    elif message_text == "Админ панель для обращений":
+        markup_a = types.ReplyKeyboardMarkup()
+        button1_a = types.KeyboardButton("Текущие Обращения")
+        button2_a = types.KeyboardButton("Решенные Обращения")
+        markup_a.add(button1_a, button2_a)
+        bot.send_message(message.chat.id, "Выберите следующий шаг", reply_markup=markup_a)
+    elif db_connect.check_id(categories, str(message.chat.id)) and message_text == "Текущие Обращения":
+        appeal_info = db_connect.get_all_appeals_by_id_performer(str(message.chat.id), "Обращение принято",
+                                                                 "В процессе")
+        markup_a = types.InlineKeyboardMarkup()
+        if appeal_info is not None:
+            for appeal_ in appeal_info:
+                text_b = str(appeal_[0]) + " ID " + appeal_[9] + " " + appeal_[8]
+                callback_data_a = str(appeal_[0]) + "admin"
+                button_a = types.InlineKeyboardButton(text_b, callback_data=callback_data_a)
+                markup_a.add(button_a)
+        appeal_info_anon = db_connect.get_all_anonymous_appeals_by_id_performer(str(message.chat.id),
+                                                                                "Обращение принято", "В процессе")
+        if appeal_info_anon is not None:
+            for appeal_ in appeal_info_anon:
+                text_b = str(appeal_[0]) + " Анонимно"
+                callback_data_a = str(appeal_[0]) + "admin"
+                button_a = types.InlineKeyboardButton(text_b, callback_data=callback_data_a)
+                markup_a.add(button_a)
+        if markup_a.keyboard:
+            bot.send_message(message.chat.id, "Текущие Обращения", reply_markup=markup_a)
+        else:
+            bot.send_message(message.chat.id, "Текущих Обращений нет")
+    elif db_connect.check_id(categories, str(message.chat.id)) and message_text == "Решенные Обращения":
+        get_excel_admin1(bot, message, "Решено")
     else:
-        send_error(bot, message)
+        db_connect.send_error(bot, message)
         db_connect.clear_appeals(message)
+
+
+def get_excel_admin1(bot, message, status="Решено"):
+    sql_query = "SELECT * from appeals where id_performer=%s and status=%s"
+    params = (str(message.chat.id), str(status),)  # Make sure to create a tuple
+    db_connect.get_excel(bot, message, admins_id, 'output_file.xlsx', sql_query, params)
+
+
+
+# def appeal(bot, message, message_text):
+#     db_connect.set_appeal_field(message, True)
+#     if message_text == "Өтінішті қалдыру":
+#         db_connect.cm_sv_db(message, 'Өтінішті қалдыру')
+#         markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+#         button2_ap = types.KeyboardButton("Ия, дұрыс")
+#         markup_ap.add(button2_ap)
+#         profile(bot, message)
+#         bot.send_message(message.chat.id, "Ақпарат дұрыс па?", reply_markup=markup_ap)
+#     elif message_text == 'Ия, дұрыс':
+#         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+#         for key in categories:
+#             button = types.KeyboardButton(key)
+#             markup.add(button)
+#         bot.send_message(message.chat.id,
+#                          "Бұл бөлімде Корпоративтік университетке сізді қызықтыратын мәселелер бойынша өтініш қалдыра аласыз.",
+#                          reply_markup=markup)
+#         time.sleep(0.75)
+#         bot.send_message(message.chat.id,
+#                          "Санатты таңдау үшін телеграммдағы пернетақтаны басыңыз (әдетте бұл белгі енгізу жолағының оң жағында болады).")
+#         time.sleep(0.75)
+#         bot.send_message(message.chat.id,
+#                          "Егер сіз артқа қайтқыңыз келсе, /menu таңдаңыз /menu енгізу жолағының сол жағында ")
+#     elif message.text in categories.keys():
+#         db_connect.cm_sv_db(message, message.text)
+#         db_connect.set_category(message, message.text)
+#         bot.send_message(message.chat.id, "Өтінішіңізді енгізіңіз")
+#     elif db_connect.get_appeal_field(message) and db_connect.get_category_users_info(message):
+#         user_info = f"Аты Тегі: {db_connect.get_firstname(message)} {db_connect.get_lastname(message)}\n" \
+#                     f"Табель нөмірі: {db_connect.get_table_number(message)}\n" \
+#                     f"Телефон нөмірі: {db_connect.get_phone_number(message)}\n" \
+#                     f"Email: {db_connect.get_email(message)}\n" \
+#                     f"Филиалы: {db_connect.get_branch(message.chat.id)}"
+#         new_message = f'{user_info} \n {message.text}'
+#         db_connect.send_gmails(new_message, categories, db_connect.get_category_users_info(message))
+#         db_connect.clear_appeals(message)
+#         bot.send_message(message.chat.id,
+#                          "Сіздің өтінішіңіз қабылданды және өңделуде.\nЖоспарлы рұқсат беру уақыты - 1 жұмыс күні")
+#     else:
+#         send_error(bot, message)
+#         db_connect.clear_appeals(message)
 
 
 def faq(bot, message):

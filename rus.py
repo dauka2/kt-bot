@@ -1,13 +1,43 @@
+from datetime import timedelta
 from telebot import *
 import db_connect
 
+# categories = {
+#     'Learning.telecom.kz | Техническая поддержка': 'info.ktcu@telecom.kz',
+#     'Обучение | Корпоративный Университет': 'info.ktcu@telecom.kz',
+#     'Служба поддержки “Нысана"': 'nysana@cscc.kz',
+#     'Обратиться в службу комплаенс': 'tlek.issakov@telecom.kz',
+# }
 categories = {
-    'Learning.telecom.kz | Техническая поддержка': 'info.ktcu@telecom.kz',
-    'Обучение | Корпоративный Университет': 'info.ktcu@telecom.kz',
-    'Служба поддержки “Нысана"': 'nysana@cscc.kz',
-    'Обратиться в службу комплаенс': 'tlek.issakov@telecom.kz',
+    'Learning.telecom.kz | Техническая поддержка': {
+        "id": "187663574",
+        "name": "Оспанов Тамирлан",
+        "phone_num": "87777777777",
+        "email": "info.ktcu@telecom.kz",
+        "telegram": "@tamirlan"
+    },
+    'Обучение | Корпоративный Университет': {
+        "id": "760906879",
+        "name": "Мустафина Дильназ",
+        "phone_num": "87089081808",
+        "email": "info.ktcu@telecom.kz",
+        "telegram": "@dilnaz.mustafina"
+    },
+    'Служба поддержки "Нысана"': {
+        "id": "760906879",
+        "name": "Мустафина Дильназ",
+        "phone_num": "87089081808",
+        "email": "nysana@cscc.kz",
+        "telegram": "@dilnaz.mustafina"
+    },
+    'Обратиться в службу комплаенс': {
+        "id": "760906879",
+        "name": "Мустафина Дильназ",
+        "phone_num": "87089081808",
+        "email": "tlek.issakov@telecom.kz",
+        "telegram": "@dilnaz.mustafina"
+    },
 }
-
 faq_field = ["Часто задаваемые вопросы", "Демеу", "Вопросы к HR", "Вопросы по займам"]
 drb_regions = ["Алматинский регион, г.Алматы", "Западный, Центральный регион", "Северный, Южный, Восточный регионы"]
 ods_regions = ["ДЭСД 'Алматытелеком'", "Южно-Казахстанский ДЭСД", "Кызылординский ДЭСД", "Костанайский ДЭСД",
@@ -27,6 +57,8 @@ kb_field_all = ["Логотипы и Брендбук", "Личный кабин
                 "Установочный файл CheckPoint", ]
 instr_field = ["Брендбук и логотипы", "Личный кабинет telecom.kz", "Модемы | Настройка", "Lotus & CheckPoint"]
 adapt_field = ["Welcome курс | Адаптация"]
+admins_id = ['187663574', '760906879']
+
 faq_1 = {
     'Ha кого направлена программа “Демеу” в AO “Казахтелеком”?':
         'Социальная поддержка Программы «Демеу» AO «Казахтелеком»:  (далее - Программа) направлена работникам по статусу: \
@@ -77,7 +109,7 @@ branches = ['Центральный Аппарат', 'Обьединение Д�
 
 markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
 button = types.KeyboardButton("Welcome курс | Адаптация")
-button2 = types.KeyboardButton("Оставить обращение")
+button2 = types.KeyboardButton("Обращения")
 button3 = types.KeyboardButton("База знаний")
 button4 = types.KeyboardButton("Заполнить карточку БиОТ")
 button5 = types.KeyboardButton("Часто задаваемые вопросы")
@@ -127,6 +159,22 @@ def adaption(bot, message):
         time.sleep(0.75)
         bot.send_message(message.chat.id, "Только для начала расскажу тебе, как мной пользоваться 🫡",
                          reply_markup=markup_adapt)
+
+
+def performer_text(appeal_info):
+    text = f"<b>ID</b> обращения {appeal_info[0]}\n\n" \
+           f" Статус: {str(appeal_info[2])}\n" \
+           f" Дата создания: {str(appeal_info[5])}\n" \
+           f" Категория: {str(appeal_info[3])}\n" \
+           f" Текст обращения: {str(appeal_info[4])}\n" \
+           f" Дата последнего изменения статуса: {str(appeal_info[6])}\n" \
+           f" Комментарий: {str(appeal_info[8])}\n\n" \
+           f"Исполнитель\n" \
+           f" ФИО: {categories.get(str(appeal_info[3]), {}).get('name', None)}\n" \
+           f" Номер телефона: {categories.get(str(appeal_info[3]), {}).get('phone_num', None)}\n" \
+           f" Email: {categories.get(str(appeal_info[3]), {}).get('email', None)}\n" \
+           f" Telegram: {categories.get(str(appeal_info[3]), {}).get('telegram', None)}\n"
+    return text
 
 
 def call_back(bot, call):
@@ -258,49 +306,245 @@ def call_back(bot, call):
         bot.send_message(call.message.chat.id, "Поздравляю!\nTы прошел Welcome курс.\n\nДoбpo пожаловать в компанию!.")
         time.sleep(0.75)
         bot.send_message(call.message.chat.id, "Чтобы перейти в главное меню, введите или нажмите на команду /menu")
+    elif str(call.data).isdigit():
+        appeal_id = str(call.data)
+        appeal_info = db_connect.get_appeal_by_id(appeal_id)[0]
+        text = performer_text(appeal_info)
+        bot.send_message(call.message.chat.id, text)
+    elif db_connect.extract_number_from_status_change(str(call.data), r'^(\d+)admin$') is not None:
+        appeal_id = db_connect.extract_number_from_status_change(str(call.data), r'^(\d+)admin$')
+        appeal_info = db_connect.get_appeal_by_id(appeal_id)[0]
+        callback_d = f"{appeal_id}statusdecided"
+        btn_text = "Изменить статус на Решено"
+        if appeal_info[9]:
+            text = f"ID обращения {appeal_id}\n\n" \
+                   f" Статус: {str(appeal_info[2])}\n" \
+                   f" Дата создания: {str(appeal_info[5])}\n" \
+                   f" Категория: {str(appeal_info[3])}\n" \
+                   f" Текст обращения: {str(appeal_info[4])}\n" \
+                   f" Дата последнего изменения статуса: {str(appeal_info[6])}\n" \
+                   f" Комментарий: {str(appeal_info[8])}\n\n"
+            if str(appeal_info[2]) == "Обращение принято":
+                callback_d = f"{appeal_id}statusinprocess"
+                btn_text = "Изменить статус на 'В процессе'"
+        else:
+            appeal_info = db_connect.get_appeal_by_id_inner_join_users(appeal_id)[0]
+            text = f"ID обращения {appeal_id}\n\n" \
+                   f" Статус: {str(appeal_info[1])}\n" \
+                   f" Дата создания: {str(appeal_info[4])}\n" \
+                   f" Категория: {str(appeal_info[2])}\n" \
+                   f" Текст обращения: {str(appeal_info[3])}\n" \
+                   f" Дата последнего изменения статуса: {str(appeal_info[5])}\n" \
+                   f" Комментарий: {str(appeal_info[6])}\n\n" \
+                   f"Пользователь\n" \
+                   f" ФИО: {str(appeal_info[9])} {str(appeal_info[8])}\n" \
+                   f" Номер телефона: {str(appeal_info[11])}\n" \
+                   f" Email: {str(appeal_info[12])}\n" \
+                   f" Telegram: {str(appeal_info[7])}\n" \
+                   f" Филиал: {str(appeal_info[13])}"
+            if str(appeal_info[1]) == "Обращение принято":
+                callback_d = f"{appeal_id}statusinprocess"
+                btn_text = "Изменить статус на 'В процессе'"
+        markup_a = types.InlineKeyboardMarkup(row_width=1)
+        button_a = types.InlineKeyboardButton(btn_text, callback_data=callback_d)
+        callback_d = f"{appeal_id}addcomment"
+        button_a1 = types.InlineKeyboardButton("Добавить комментарий", callback_data=callback_d)
+        markup_a.add(button_a, button_a1)
+        bot.send_message(call.message.chat.id, text, reply_markup=markup_a)
+    elif db_connect.extract_number_from_status_change(str(call.data), r'^(\d+)statusinprocess') is not None \
+            or db_connect.extract_number_from_status_change(str(call.data), r'^(\d+)statusdecided$') is not None:
+        appeal_id = db_connect.extract_number_from_status_change(str(call.data), r'^(\d+)statusinprocess')
+        if appeal_id is None:
+            appeal_id = db_connect.extract_number_from_status_change(str(call.data), r'^(\d+)statusdecided$')
+            db_connect.set_status(appeal_id, "Решено")
+        else:
+            db_connect.set_status(appeal_id, "В процессе")
+        now = datetime.now() + timedelta(hours=6)
+        now_updated = db_connect.remove_milliseconds(now)
+        db_connect.set_date_status(appeal_id, str(now_updated))
+        bot.send_message(call.message.chat.id, "Статус изменен")
+        appeal_info = db_connect.get_appeal_by_id(appeal_id)[0]
+        text = f"<b>ID</b> обращения {appeal_info[0]}\n\n" \
+               f" Статус: <b>{str(appeal_info[2])}</b>\n" \
+               f" Дата создания: {str(appeal_info[5])}\n" \
+               f" Категория: {str(appeal_info[3])}\n" \
+               f" Текст обращения: {str(appeal_info[4])}\n" \
+               f" Дата последнего изменения статуса: {str(appeal_info[6])}" \
+               f" Комментарий: {str(appeal_info[8])}\n\n" \
+               f"Исполнитель\n" \
+               f" ФИО: {categories.get(str(appeal_info[3]), {}).get('name', None)}\n" \
+               f" Номер телефона: {categories.get(str(appeal_info[3]), {}).get('phone_num', None)}\n" \
+               f" Email: {categories.get(str(appeal_info[3]), {}).get('email', None)}\n" \
+               f" Telegram: {categories.get(str(appeal_info[3]), {}).get('telegram', None)}\n"
+        bot.send_message(appeal_info[1], "Статус вашего обращения изменен")
+        bot.send_message(appeal_info[1], text)
+        if db_connect.get_status(appeal_id)[0][0] == "Решено":
+            markup = types.InlineKeyboardMarkup(row_width=5)
+            for i in range(1, 6):
+                callback_d = str(i) + "evaluation" + str(appeal_info[0])
+                button = types.InlineKeyboardButton(i, callback_data=callback_d)
+                markup.add(button)
+            bot.send_message(appeal_info[1], "Оцените решенное обращение от 1 до 5\n\nГде 1 - очень плохо, "
+                                             "5 - замечательно", reply_markup=markup)
+    elif db_connect.extract_number_from_status_change(str(call.data), r'^(\d+)addcomment') is not None:
+        appeal_id = db_connect.extract_number_from_status_change(str(call.data), r'^(\d+)addcomment')
+        msg = bot.send_message(call.message.chat.id, 'Введите комментарий')
+        bot.register_next_step_handler(msg, add_comment, bot, appeal_id)
+    elif db_connect.extract_numbers_from_status_change_decided(str(call.data)) is not None:
+        evaluation, appeal_id = db_connect.extract_numbers_from_status_change_decided(str(call.data))
+        db_connect.set_evaluation(appeal_id, evaluation)
+        bot.edit_message_text("Спасибо за Ваш отзыв и за то, что помогаете нам стать лучше", call.message.chat.id, call.message.message_id)
+        bot.answer_callback_query(call.id)
+        # bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id)
+        # bot.answer_callback_query(call.id, "Спасибо за Ваш отзыв и за то, что помогаете нам стать лучше")
+
+
+def add_comment(message, bot, appeal_id):
+    db_connect.set_comment(appeal_id, message.text)
+    appeal_info = db_connect.get_appeal_by_id(appeal_id)[0]
+    text = f"<b>ID</b> обращения {appeal_info[0]}\n\n" \
+           f" Статус: {str(appeal_info[2])}\n" \
+           f" Дата создания: {str(appeal_info[5])}\n" \
+           f" Категория: {str(appeal_info[3])}\n" \
+           f" Текст обращения: {str(appeal_info[4])}\n" \
+           f" Дата последнего изменения статуса: {str(appeal_info[6])}" \
+           f" Комментарий:  <b>{str(appeal_info[8])}</b>\n\n" \
+           f"Исполнитель\n" \
+           f" ФИО: {categories.get(str(appeal_info[3]), {}).get('name', None)}\n" \
+           f" Номер телефона: {categories.get(str(appeal_info[3]), {}).get('phone_num', None)}\n" \
+           f" Email: {categories.get(str(appeal_info[3]), {}).get('email', None)}\n" \
+           f" Telegram: {categories.get(str(appeal_info[3]), {}).get('telegram', None)}\n"
+    bot.send_message(appeal_info[1], "Добавлен комментарий к вашему обращению")
+    bot.send_message(appeal_info[1], text)
+    bot.send_message(message.chat.id, "Комментарий добавлен")
 
 
 def appeal(bot, message, message_text):
     db_connect.set_appeal_field(message, True)
-    if message_text == "Оставить обращение":
-        db_connect.cm_sv_db(message, 'Оставить обращение')
+    if message_text == "Обращения":
+        db_connect.cm_sv_db(message, 'Обращения')
         markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-        button2_ap = types.KeyboardButton("Да, верная")
-        markup_ap.add(button2_ap)
-        profile(bot, message)
-        bot.send_message(message.chat.id, "Информация верна?", reply_markup=markup_ap)
-    elif message_text == 'Да, верная':
-        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
-        for key in categories:
-            button = types.KeyboardButton(key)
-            markup.add(button)
+        button1_ap = types.KeyboardButton("Мои обращения")
+        button2_ap = types.KeyboardButton("Оставить обращение")
+        if db_connect.check_id(categories, str(message.chat.id)):
+            markup_ap.add(types.KeyboardButton("Админ панель для обращений"))
+        markup_ap.add(button1_ap, button2_ap)
         bot.send_message(message.chat.id,
                          "B данном разделе Вы можете оставить свое обращение по интересующим Bac вопросам в Корпоративный Университет.",
-                         reply_markup=markup)
-        time.sleep(0.75)
-        bot.send_message(message.chat.id,
-                         "Для выбора категории, нажмите на клавиатуру в телеграме(обычно это иконка справа от строки ввода).")
+                         reply_markup=markup_ap)
         time.sleep(0.75)
         bot.send_message(message.chat.id,
                          "Ecли Вы хотите вернуться назад, то введите /menu или выберите /menu в меню команд слева от строки ввода.")
+    elif message_text == "Мои обращения":
+        db_connect.cm_sv_db(message, 'Мои обращения')
+        markup_a = types.InlineKeyboardMarkup()
+        appeals_ = db_connect.get_appeals(message)
+        for appeal in appeals_:
+            text = str(appeal[0]) + " - " + appeal[1]
+            markup_a.add(types.InlineKeyboardButton(text=text, callback_data=str(appeal[0])))
+        if markup_a.keyboard:
+            bot.send_message(message.chat.id, "Здесь вы можете отслеживать статусы ваших обращений",
+                             reply_markup=markup_a)
+        else:
+            bot.send_message(message.chat.id, "Тут пока пусто, "
+                                              "\nно Вы можете оставить обращение и оно будет отображаться здесь")
+    elif message_text == "Оставить обращение":
+        db_connect.cm_sv_db(message, 'Оставить обращение')
+        markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+        # button1_ap = types.KeyboardButton("Информация неверна")
+        button2_ap = types.KeyboardButton("Да")
+        markup_ap.add(button2_ap)
+        profile(bot, message)
+        bot.send_message(message.chat.id, "Информация верна?", reply_markup=markup_ap)
+    elif message_text == "Да":
+        markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+        markup_ap = db_connect.generate_buttons(categories, markup_ap)
+        bot.send_message(message.chat.id, "Выберите категорию обращения", reply_markup=markup_ap)
+    # elif message_text == "Анонимно":
+    #     db_connect.cm_sv_db(message, 'Анонимно')
+    #     db_connect.set_is_appeal_anon_users_info(message.chat.id, True)
+    #     markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+    #     markup_ap = generate_buttons(categories, markup_ap)
+    #     bot.send_message(message.chat.id,
+    #                      "Выберите категорию обращения",
+    #                      reply_markup=markup_ap)
     elif message_text in categories.keys():
-        db_connect.cm_sv_db(message, message.text)
+        db_connect.cm_sv_db(message, message_text)
         db_connect.set_category(message, message.text)
-        bot.send_message(message.chat.id, "Введите ваше обращение")
-    elif db_connect.get_appeal_field(message) and db_connect.get_category_users_info(message):
-        user_info = f"Имя Фамилия: {db_connect.get_firstname(message)} {db_connect.get_lastname(message)}\n" \
-                    f"Табельный номер: {db_connect.get_table_number(message)}\n" \
-                    f"Номер телефона: {db_connect.get_phone_number(message)}\n" \
-                    f"Email: {db_connect.get_email(message)}\n" \
-                    f"Филиал: {db_connect.get_branch(message.chat.id)}"
-        new_message = f'{user_info} \n {message.text}'
-        db_connect.send_gmails(new_message, categories, db_connect.get_category_users_info(message))
+        bot.send_message(message.chat.id, 'Пожалуйста, опишите ваше обращение:')
+    elif db_connect.get_appeal_field(message) and db_connect.get_category_users_info(message) != ' ':
+        now = datetime.now() + timedelta(hours=6)
+        now_updated = db_connect.remove_milliseconds(now)
+        category = db_connect.get_category_users_info(message)
+        performer_id = categories.get(category, {}).get('id', None)
+        if db_connect.get_is_appeal_anon_users_info(message.chat.id):
+            appeal_id = db_connect.add_appeal(message.chat.id, "Обращение принято", category, message.text,
+                                              now_updated, now_updated, performer_id, ' ', True)
+            text = f"ID Обращения {appeal_id}\n" \
+                   f"Статус: {db_connect.get_status(appeal_id)[0][0]}\n" \
+                   f"Категория: {db_connect.get_category_users_info(message)}\n" \
+                   f"Обращение: {message.text}\n" \
+                   f"Дата создания: {now_updated}"
+        else:
+            appeal_id = db_connect.add_appeal(message.chat.id, "Обращение принято", category, message.text,
+                                              now_updated, now_updated, performer_id, ' ', False)
+            text = f"ID Обращения {appeal_id}\n\n" \
+                   f"Статус: {db_connect.get_status(appeal_id)[0][0]}\n" \
+                   f"Имя Фамилия: {db_connect.get_firstname(message)} {db_connect.get_lastname(message)}\n" \
+                   f"Табельный номер: {db_connect.get_table_number(message)}\n" \
+                   f"Номер телефона: {db_connect.get_phone_number(message)}\n" \
+                   f"Почта: {db_connect.get_email(message)}\n" \
+                   f"Категория: {db_connect.get_category_users_info(message)}\n" \
+                   f"Обращение: {message.text}\n" \
+                   f"Дата создания: {now_updated}"
+        bot.send_message(message.chat.id, "Ваше обращения принято")
+        bot.send_message(message.chat.id, "Ecли Вы хотите вернуться назад, то введите /menu или выберите /menu в меню "
+                                          "команд слева от строки ввода.")
+        markup_a1 = types.InlineKeyboardMarkup()
+        callback_d = f"{appeal_id}statusinprocess"
+        button_a = types.InlineKeyboardButton("Обращение просмотрено", callback_data=callback_d)
+        markup_a1.add(button_a)
+        bot.send_message(performer_id, text, reply_markup=markup_a1)
         db_connect.clear_appeals(message)
-        bot.send_message(message.chat.id,
-                         "Ваше обращение принято и находится в обработке.\nПлaнoвoe время разрешения - 1 рабочий день.")
+    elif message_text == "Админ панель для обращений":
+        markup_a = types.ReplyKeyboardMarkup()
+        button1_a = types.KeyboardButton("Текущие Обращения")
+        button2_a = types.KeyboardButton("Решенные Обращения")
+        markup_a.add(button1_a, button2_a)
+        bot.send_message(message.chat.id, "Выберите следующий шаг", reply_markup=markup_a)
+    elif db_connect.check_id(categories, str(message.chat.id)) and message_text == "Текущие Обращения":
+        appeal_info = db_connect.get_all_appeals_by_id_performer(str(message.chat.id), "Обращение принято",
+                                                                 "В процессе")
+        markup_a = types.InlineKeyboardMarkup()
+        if appeal_info is not None:
+            for appeal_ in appeal_info:
+                text_b = str(appeal_[0]) + " ID " + appeal_[9] + " " + appeal_[8]
+                callback_data_a = str(appeal_[0]) + "admin"
+                button_a = types.InlineKeyboardButton(text_b, callback_data=callback_data_a)
+                markup_a.add(button_a)
+        appeal_info_anon = db_connect.get_all_anonymous_appeals_by_id_performer(str(message.chat.id),
+                                                                                "Обращение принято", "В процессе")
+        if appeal_info_anon is not None:
+            for appeal_ in appeal_info_anon:
+                text_b = str(appeal_[0]) + " Анонимно"
+                callback_data_a = str(appeal_[0]) + "admin"
+                button_a = types.InlineKeyboardButton(text_b, callback_data=callback_data_a)
+                markup_a.add(button_a)
+        if markup_a.keyboard:
+            bot.send_message(message.chat.id, "Текущие Обращения", reply_markup=markup_a)
+        else:
+            bot.send_message(message.chat.id, "Текущих Обращений нет")
+    elif db_connect.check_id(categories, str(message.chat.id)) and message_text == "Решенные Обращения":
+        get_excel_admin1(bot, message, "Решено")
     else:
-        send_error(bot, message)
+        db_connect.send_error(bot, message)
         db_connect.clear_appeals(message)
+
+
+def get_excel_admin1(bot, message, status="Решено"):
+    sql_query = "SELECT * from appeals where id_performer=%s and status=%s"
+    params = (str(message.chat.id), str(status),)  # Make sure to create a tuple
+    db_connect.get_excel(bot, message, admins_id, 'output_file.xlsx', sql_query, params)
 
 
 def faq(bot, message):

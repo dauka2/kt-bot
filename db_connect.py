@@ -1,3 +1,4 @@
+import re
 from telebot import types
 import openpyxl
 import pandas as pd
@@ -23,7 +24,7 @@ def get_excel(bot, message, admin_id, excel_file, sql_query, params=None):
         return
     df = pd.read_sql_query(sql_query, conn, params=params)
     if df.empty:
-        bot.send_message(message.chat.id, "Решенные обращения не найдены")
+        bot.send_message(message.chat.id, "Обращения не найдены")
         conn.close()
         return
     df.to_excel(excel_file, index=False)
@@ -83,7 +84,7 @@ def create_db():
     cur.execute(
         'CREATE TABLE IF NOT EXISTS appeals(id serial primary key, user_id varchar(50), status varchar(30), '
         'category varchar(100), appeal_text varchar(1000), date varchar(30), date_status varchar(30), '
-        'id_performer varchar(30), comment varchar(1000), is_appeal_anon bool)')
+        'id_performer varchar(30), comment varchar(1000), is_appeal_anon bool, evaluation int)')
     conn.commit()
     cur.close()
     conn.close()
@@ -143,10 +144,10 @@ def alter_table_users():
     # cur.execute("ALTER TABLE users ADD COLUMN email varchar(50) DEFAULT ' '")
     # cur.execute("TRUNCATE users_info")
     # cur.execute("TRUNCATE users")
-    cur.execute("DROP TABLE IF EXISTS users;")
-    cur.execute("DROP TABLE IF EXISTS users_info;")
-    cur.execute("DROP TABLE IF EXISTS appeals;")
-    cur.execute("DROP TABLE IF EXISTS commands_history;")
+    # cur.execute("DROP TABLE IF EXISTS users;")
+    # cur.execute("DROP TABLE IF EXISTS users_info;")
+    # cur.execute("DROP TABLE IF EXISTS appeals;")
+    # cur.execute("DROP TABLE IF EXISTS commands_history;")
     # cur.execute("ALTER TABLE users_info DROP COLUMN new_message")
     # cur.execute("ALTER TABLE users_info DROP COLUMN chosen_category")
     # cur.execute(
@@ -158,6 +159,8 @@ def alter_table_users():
     # cur.execute("ALTER TABLE users_info ADD COLUMN category varchar(50) DEFAULT False")
     # cur.execute("ALTER TABLE users_info ADD COLUMN appeal_id int DEFAULT 0")
     # cur.execute("ALTER TABLE users_info ADD COLUMN is_appeal_anon bool DEFAULT False")
+    cur.execute("ALTER TABLE appeals ADD COLUMN evaluation int DEFAULT 0")
+
     conn.commit()
     cur.close()
     conn.close()
@@ -317,6 +320,12 @@ def set_phone_number(message, phone_number):
 def set_email(message, email):
     sql_query = 'UPDATE users SET email=%s WHERE id=%s'
     params = (email, str(message.chat.id),)
+    execute_set_sql_query(sql_query, params)
+
+
+def set_evaluation(appeal_id, evaluation):
+    sql_query = 'UPDATE appeals SET evaluation=%s WHERE id=%s'
+    params = (evaluation, str(appeal_id),)
     execute_set_sql_query(sql_query, params)
 
 
@@ -486,3 +495,28 @@ def useful_links():
     button7 = types.InlineKeyboardButton(text='Забота о сотрудниках', url='https://t.me/+I8Okb3LFgKExYWZi')
     markup.add(button1, button2, button3, button4, button5, button6, button7)
     return markup
+
+
+def extract_number_from_status_change(input_string, pattern):
+    match = re.match(pattern, input_string)
+    if match:
+        return int(match.group(1))
+    else:
+        return None
+
+
+def extract_numbers_from_status_change_decided(input_string):
+    pattern = r'(\d+)evaluation(\d+)'
+    match = re.search(pattern, input_string)
+    if match:
+        # Возвращает кортеж из двух чисел
+        return int(match.group(1)), int(match.group(2))
+    else:
+        return None
+
+
+def check_id(categories, input_id):
+    for category, details in categories.items():
+        if details.get("id") == input_id:
+            return True
+    return False
