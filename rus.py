@@ -542,7 +542,9 @@ def appeal(bot, message, message_text):
 
 
 def get_excel_admin1(bot, message, status="Решено"):
-    sql_query = "SELECT * from appeals where id_performer=%s and status=%s"
+    sql_query = "SELECT appeals.id, firstname, lastname, table_number, phone_number, email, branch " \
+                "status, category, date, date_status, comment, evaluation from appeals inner join users " \
+                "on appeals.user_id = users.id where id_performer=%s and status=%s"
     params = (str(message.chat.id), str(status),)  # Make sure to create a tuple
     db_connect.get_excel(bot, message, admins_id, 'output_file.xlsx', sql_query, params)
 
