@@ -1,12 +1,11 @@
-import openpyxl
-import pandas as pd
 import psycopg2
 from telebot import *
 import kaz
 import rus
 import db_connect
 
-bot = telebot.TeleBot('6220689869:AAG3gpxg6U0Dd95w1x4AHA5qMs1f8TczSqE')
+
+bot = telebot.TeleBot(db_connect.TOKEN, parse_mode="HTML")
 admin_id = ['484489968', '760906879', '187663574', '577247261', '204504707', '531622371']
 branches = ['Центральный Аппарат', 'Обьединение Дивизион "Сеть"', 'Дивизион по Розничному Бизнесу',
             'Дивизион по Корпоративному Бизнесу', 'Корпоративный Университет', 'Дивизион Информационных Технологий',
@@ -370,7 +369,9 @@ def get_excel(message):
 
 @bot.message_handler(commands=['get_appeals'])
 def get_excel(message):
-    sql_query = "SELECT * from appeals"
+    sql_query = "SELECT appeals.id, firstname, lastname, table_number, phone_number, email, branch " \
+                "status, category, appeal_text, date, date_status, comment, evaluation, image_data from appeals " \
+                "inner join users on appeals.user_id = users.id"
     db_connect.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
 
 
@@ -403,7 +404,6 @@ def text_check(message):
 
 def message_sender(message, broadcast_message):
     if message.text.upper() == "ДА":
-        # conn = psycopg2.connect(user="postgres", password="j7hPC180")
         conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
         cur = conn.cursor()
         cur.execute('SELECT id FROM users')
@@ -437,7 +437,6 @@ def message_sender(message, broadcast_message):
 @bot.message_handler(content_types=['text'])
 def mess(message):
     get_message = message.text
-    # try:
     if str(message.chat.id)[0] == '-':
         return
     language = db_connect.get_language(message)
@@ -447,8 +446,6 @@ def mess(message):
         text(message, get_message, kaz)
     else:
         lang(message)
-    # except:
-    #     lang(message)
 
 
 def text(message, get_message, lang_py):
@@ -468,7 +465,9 @@ def text(message, get_message, lang_py):
         lang_py.kb(bot, message)
     elif get_message in lang_py.adapt_field:
         lang_py.adaption(bot, message)
-    elif get_message == "Оставить обращение" or get_message == "Өтінішті қалдыру" \
+    elif get_message == "У меня есть вопрос" or get_message == "Менің сұрағым бар":
+        lang_py.questions(bot, message)
+    elif get_message == "Обращения" or get_message == "Өтініштер" \
             or db_connect.get_appeal_field(message):
         lang_py.appeal(bot, message, message.text)
     elif str(message.chat.id) in db_connect.get_users_id():
@@ -480,6 +479,18 @@ def text(message, get_message, lang_py):
             lang_py.send_error(bot, message)
     else:
         lang_py.send_error(bot, message)
+
+
+@bot.message_handler(content_types=['photo'])
+def get_photo(message):
+    language = db_connect.get_language(message)
+    if db_connect.get_appeal_field(message):
+        if language == 'rus':
+            rus.appeal(bot, message, message.text)
+        elif language == 'kaz':
+            kaz.appeal(bot, message, message.text)
+    else:
+        send_error(message)
 
 
 bot.polling(none_stop=True)

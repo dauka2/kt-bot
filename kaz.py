@@ -1,14 +1,10 @@
 from datetime import timedelta
+
+import requests
 from telebot import *
 import db_connect
+import rus
 
-
-# categories = {
-#     'Learning.telecom.kz | Техникалық қолдау': 'info.ktcu@telecom.kz',
-#     'Оқыту | Корпоративтік Университет': 'info.ktcu@telecom.kz',
-#     '"Нысана" қолдау қызметі': 'nysana@cscc.kz',
-#     'Комплаенс қызметіне хабарласыңыз': 'tlek.issakov@telecom.kz',
-# }
 categories = {
     'Learning.telecom.kz | Техникалық қолдау': {
         "id": "187663574",
@@ -39,8 +35,6 @@ categories = {
         "telegram": "@dilnaz.mustafina"
     },
 }
-admins_id = ['187663574', '760906879']
-
 
 faq_field = ["Жиі қойылатын сұрақтар", "Демеу", "HR сұрақтары", "Қарыздар бойынша сұрақтар"]
 drb_regions = ["Алматинский регион, г.Алматы", "Западный, Центральный регион", "Северный, Южный, Восточный регионы"]
@@ -100,25 +94,19 @@ branches = ['Центральный Аппарат', 'Обьединение Д�
             'Дирекция Телеком Комплект', 'Дирекция Управления Проектами',
             'Сервисная Фабрика']
 
+
+
 markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
 button = types.KeyboardButton("Welcome курс | Бейімделу")
-button2 = types.KeyboardButton("Өтініштер")
+# button2 = types.KeyboardButton("Өтініштер")
 button3 = types.KeyboardButton("Білім базасы")
 button4 = types.KeyboardButton("ҚТ ж ЕҚ кәртішкесін толтыру")
-button5 = types.KeyboardButton("Жиі қойылатын сұрақтар")
+button5 = types.KeyboardButton("Менің сұрағым бар")
 button6 = types.KeyboardButton("Менің профилім")
-markup.add(button, button2, button3, button4, button5, button6)
+markup.add(button, button3, button4, button5, button6)
 
 
 def send_welcome_message(bot, message):
-    # welcome_message = f'Сәлем {message.from_user.first_name}👋\
-    #                    \nМен - ktbot, Компаниядағы сіздің жеке көмекшіңізбін.\
-    #                    \n\nМіне, мен сізге қалай көмектесе аламын:\
-    #                    \n  · ✉️ - Оқыту мәселелері бойынша өтініш жіберу;\
-    #                    \n  · 🗃️ - Нұсқаулар мен глоссариймен білім қорына қол жеткізуді қамтамасыз етіңіз\
-    #                    \n  · 👷 ҚТ ж ЕҚ картасын жіберуге көмектесу;\
-    #                    \n  · 📄 Жиі қойылатын сұрақтарға жауап беріңіз.\
-    #                    \n\nAл егер сіз жаңа қызметкер болсаңыз, мен Welcome курсынан өтуді ұсынамын 😊.'
     welcome_message = f'Сәлем {db_connect.get_firstname(message)}👋'
     bot.send_message(message.chat.id, welcome_message, reply_markup=markup)
     with open("images/menu.jpg", 'rb') as photo_file:
@@ -156,6 +144,9 @@ def adaption(bot, message):
 
 def performer_text(appeal_info, message):
     status = kaz_get_status(message, appeal_info[0])
+    categories_ = categories
+    if categories_.get(str(appeal_info[3]), {}).get('name', None) is None:
+        categories_ = rus.categories
     text = f"Өтініш <b>ID</b> {appeal_info[0]}\n\n" \
            f" Мәртебесі: {status}\n" \
            f" Құрылған күні: {str(appeal_info[5])}\n" \
@@ -164,10 +155,10 @@ def performer_text(appeal_info, message):
            f" Соңғы мәртебе өзгерген күн: {str(appeal_info[6])}\n" \
            f" Пікір: {str(appeal_info[8])}\n\n" \
            f"Орындаушы\n" \
-           f" ТАӘ: {categories.get(str(appeal_info[3]), {}).get('name', None)}\n" \
-           f" Телефон нөмірі: {categories.get(str(appeal_info[3]), {}).get('phone_num', None)}\n" \
-           f" Email: {categories.get(str(appeal_info[3]), {}).get('email', None)}\n" \
-           f" Telegram: {categories.get(str(appeal_info[3]), {}).get('telegram', None)}\n"
+           f" ТАӘ: {categories_.get(str(appeal_info[3]), {}).get('name', None)}\n" \
+           f" Телефон нөмірі: {categories_.get(str(appeal_info[3]), {}).get('phone_num', None)}\n" \
+           f" Email: {categories_.get(str(appeal_info[3]), {}).get('email', None)}\n" \
+           f" Telegram: {categories_.get(str(appeal_info[3]), {}).get('telegram', None)}\n"
     return text
 
 
@@ -232,7 +223,8 @@ def call_back(bot, call):
         bot.send_photo(call.message.chat.id, photo=open('images/buddy kaz - 2.jpg', 'rb'))
         time.sleep(0.75)
         bot.send_message(call.message.chat.id,
-                         "Сонымен, корпоративтік e-mail-ді тексеріңіз, сізге Баддиден біздің Компаниядағы бейімделу бағдарламасымен танысу туралы хабарлама келген шығар. ")
+                         "Сонымен, корпоративтік e-mail-ді тексеріңіз, сізге Баддиден біздің Компаниядағы бейімделу "
+                         "бағдарламасымен танысу туралы хабарлама келген шығар. ")
         time.sleep(0.75)
         markup = types.InlineKeyboardMarkup()
         button = types.InlineKeyboardButton("Қабылданды!", callback_data="Қабылданды!")
@@ -243,7 +235,8 @@ def call_back(bot, call):
                          "Әдетте қолдау бір айға созылып, көбіне сынақ мерзімі сәтті аяқталғанға дейін жалғасады.")
         time.sleep(0.75)
         bot.send_message(call.message.chat.id,
-                         "Айтпақшы, кез-келген бөлімнің жұмыскері Бадди бағдарламасына қатыса алады және бұл өте жақсы-көлденең және тік байланыстар кеңейеді.")
+                         "Айтпақшы, кез-келген бөлімнің жұмыскері Бадди бағдарламасына қатыса алады және бұл өте "
+                         "жақсы-көлденең және тік байланыстар кеңейеді.")
         time.sleep(0.75)
         markup_1 = types.InlineKeyboardMarkup()
         button_1 = types.InlineKeyboardButton("Керемет, әрі қарай жалғастырамыз!",
@@ -253,52 +246,54 @@ def call_back(bot, call):
                          text="Болашақта жаңадан келгендерге бейімделуге көмектесіп, сіз де Бадди бола аласыз!  😊",
                          reply_markup=markup_1)
     elif call.data == "Керемет, әрі қарай жалғастырамыз!":
-        markup = types.InlineKeyboardMarkup()
-        button = types.InlineKeyboardButton("Келесі", callback_data="Келесі-1")
-        markup.add(button)
-        bot.send_photo(call.message.chat.id, photo=open('images/credo_1_kaz.jpg', 'rb'), reply_markup=markup)
+        markup_callback = types.InlineKeyboardMarkup()
+        button_callback = types.InlineKeyboardButton("Келесі", callback_data="Келесі-1")
+        markup_callback.add(button_callback)
+        bot.send_photo(call.message.chat.id, photo=open('images/credo_1_kaz.jpg', 'rb'), reply_markup=markup_callback)
     elif call.data == "Келесі-1":
         bot.send_message(call.message.chat.id,
-                         "Біздің компания 9 филиалдан тұрады және олардың аббревиатураларын күн сайын жұмыста міндетті түрде естисіз.")
+                         "Біздің компания 9 филиалдан тұрады және олардың аббревиатураларын күн сайын жұмыста міндетті"
+                         " түрде естисіз.")
         time.sleep(0.75)
         bot.send_message(call.message.chat.id, "Сол себепті Компанияның құрылымымен танысайық.")
         time.sleep(0.75)
         bot.send_document(call.message.chat.id, open('images/struct.jpg', 'rb'))
         time.sleep(0.75)
         bot.send_message(call.message.chat.id,
-                         "Сізге бейтаныс терминдер немесе аббревиатуралар кездессе, онда біз сізге білім қорында глоссарий дайындадық.")
+                         "Сізге бейтаныс терминдер немесе аббревиатуралар кездессе, онда біз сізге білім қорында "
+                         "глоссарий дайындадық.")
         time.sleep(0.75)
         bot.send_message(call.message.chat.id, "Сіз әрқашан негізгі мәзірден білім қорын таба аласыз.")
         time.sleep(0.75)
-        markup = types.InlineKeyboardMarkup()
-        button = types.InlineKeyboardButton("Келесі", callback_data="Келесі-3")
-        markup.add(button)
-        bot.send_photo(call.message.chat.id, photo=open('images/gloss.jpg', 'rb'), reply_markup=markup)
+        markup_callback = types.InlineKeyboardMarkup()
+        button_callback = types.InlineKeyboardButton("Келесі", callback_data="Келесі-3")
+        markup_callback.add(button_callback)
+        bot.send_photo(call.message.chat.id, photo=open('images/gloss.jpg', 'rb'), reply_markup=markup_callback)
     elif call.data == "Келесі-3":
         bot.send_message(call.message.chat.id, '"Қазақтелеком" АҚ-да түрлі бағыттар бойынша өнімдер бар:\
                                              \n🌍Ғаламтор \n📞Телефон\n📹Бейнебақылау\n🖥️TV+ \n🛍️Дүкен shop.telecom.kz')
         time.sleep(0.75)
-        markup = types.InlineKeyboardMarkup()
-        button = types.InlineKeyboardButton("Келесі", callback_data="Келесі-4")
-        markup.add(button)
+        markup_callback = types.InlineKeyboardMarkup()
+        button_callback = types.InlineKeyboardButton("Келесі", callback_data="Келесі-4")
+        markup_callback.add(button_callback)
         bot.send_message(call.message.chat.id,
                          "Өнімдер мен олардың тарифтері туралы өзекті ақпаратты сіз әрқашан сайттан таба аласыз "
                          "telecom.kz",
-                         reply_markup=markup)
+                         reply_markup=markup_callback)
     elif call.data == "Келесі-4":
-        markup = types.InlineKeyboardMarkup()
-        button = types.InlineKeyboardButton("Келесі", callback_data="Келесі-5")
-        markup.add(button)
-        bot.send_photo(call.message.chat.id, photo=open('images/dear_users_kaz.jpg', 'rb'), reply_markup=markup)
+        markup_callback = types.InlineKeyboardMarkup()
+        button_callback = types.InlineKeyboardButton("Келесі", callback_data="Келесі-5")
+        markup_callback.add(button_callback)
+        bot.send_photo(call.message.chat.id, photo=open('images/dear_users_kaz.jpg', 'rb'), reply_markup=markup_callback)
     elif call.data == "Келесі-5":
         bot.send_message(call.message.chat.id,
                          '☎️" Қазақтелеком " АҚ-да "Нысана" жедел желісі біріктірілген, онда әр жұмыскер QR-код арқылы '
                          'немесе төмендегі суретте көрсетілген байланыс нөміріне хабарласа алады. ')
         time.sleep(0.75)
-        markup = types.InlineKeyboardMarkup()
-        button = types.InlineKeyboardButton("Келесі", callback_data="Келесі-6")
-        markup.add(button)
-        bot.send_photo(call.message.chat.id, photo=open('images/call_center_kaz.jpg', 'rb'), reply_markup=markup)
+        markup_callback = types.InlineKeyboardMarkup()
+        button_callback = types.InlineKeyboardButton("Келесі", callback_data="Келесі-6")
+        markup_callback.add(button_callback)
+        bot.send_photo(call.message.chat.id, photo=open('images/call_center_kaz.jpg', 'rb'), reply_markup=markup_callback)
     elif call.data == "Келесі-6":
         bot.send_message(call.message.chat.id,
                          "Керемет! \nКомпания туралы негізгі ақпаратпен таныстыңыз. Әрқашан боттың негізгі мәзіріндегі "
@@ -306,10 +301,10 @@ def call_back(bot, call):
                          "ақпаратпен таныстыңыз. Әрқашан боттың негізгі мәзіріндегі білім қорын немесе жиі қойылатын "
                          "сұрақтар бөлімін пайдалана аласыз.")
         time.sleep(0.75)
-        markup = types.InlineKeyboardMarkup()
-        button = types.InlineKeyboardButton("Түсінікті!", callback_data="Түсінікті!")
-        markup.add(button)
-        bot.send_photo(call.message.chat.id, photo=open('images/picture kaz.jpg', 'rb'), reply_markup=markup)
+        markup_welcome = types.InlineKeyboardMarkup()
+        button_ = types.InlineKeyboardButton("Түсінікті!", callback_data="Түсінікті!")
+        markup_welcome.add(button_)
+        bot.send_photo(call.message.chat.id, photo=open('images/picture kaz.jpg', 'rb'), reply_markup=markup_welcome)
     elif call.data == "Түсінікті!":
         db_connect.cm_sv_db(call.message, 'Welcome курс | Бейімделу end')
         bot.send_message(call.message.chat.id,
@@ -319,48 +314,13 @@ def call_back(bot, call):
     elif str(call.data).isdigit():
         appeal_id = str(call.data)
         appeal_info = db_connect.get_appeal_by_id(appeal_id)[0]
+        image_data = db_connect.get_image_data(appeal_id)
+        try:
+            bot.send_photo(appeal_info[1], image_data)
+        except:
+            print("error")
         text = performer_text(appeal_info, message=call.message)
         bot.send_message(call.message.chat.id, text)
-    elif db_connect.extract_number_from_status_change(str(call.data), r'^(\d+)admin$') is not None:
-        appeal_id = db_connect.extract_number_from_status_change(str(call.data), r'^(\d+)admin$')
-        appeal_info = db_connect.get_appeal_by_id(appeal_id)[0]
-        callback_d = f"{appeal_id}statusdecided"
-        btn_text = "Изменить статус на Решено"
-        if appeal_info[9]:
-            text = f"ID обращения {appeal_id}\n\n" \
-                   f" Статус: {str(appeal_info[2])}\n" \
-                   f" Дата создания: {str(appeal_info[5])}\n" \
-                   f" Категория: {str(appeal_info[3])}\n" \
-                   f" Текст обращения: {str(appeal_info[4])}\n" \
-                   f" Дата последнего изменения статуса: {str(appeal_info[6])}" \
-                   f" Комментарий: {str(appeal_info[8])}\n\n"
-            if str(appeal_info[2]) == "Обращение принято":
-                callback_d = f"{appeal_id}statusinprocess"
-                btn_text = "Изменить статус на 'В процессе'"
-        else:
-            appeal_info = db_connect.get_appeal_by_id_inner_join_users(appeal_id)[0]
-            text = f"ID обращения {appeal_id}\n\n" \
-                   f" Статус: {str(appeal_info[1])}\n" \
-                   f" Дата создания: {str(appeal_info[4])}\n" \
-                   f" Категория: {str(appeal_info[2])}\n" \
-                   f" Текст обращения: {str(appeal_info[3])}\n" \
-                   f" Дата последнего изменения статуса: {str(appeal_info[5])}" \
-                   f" Комментарий: {str(appeal_info[6])}\n\n" \
-                   f"Пользователь\n" \
-                   f" ФИО: {str(appeal_info[9])} {str(appeal_info[8])}\n" \
-                   f" Номер телефона: {str(appeal_info[11])}\n" \
-                   f" Email: {str(appeal_info[12])}\n" \
-                   f" Telegram: {str(appeal_info[7])}\n" \
-                   f" Филиал: {str(appeal_info[13])}"
-            if str(appeal_info[1]) == "Обращение принято":
-                callback_d = f"{appeal_id}statusinprocess"
-                btn_text = "Изменить статус на 'В процессе'"
-        markup_a = types.InlineKeyboardMarkup(row_width=1)
-        button_a = types.InlineKeyboardButton(btn_text, callback_data=callback_d)
-        callback_d = f"{appeal_id}addcomment"
-        button_a1 = types.InlineKeyboardButton("Добавить комментарий", callback_data=callback_d)
-        markup_a.add(button_a, button_a1)
-        bot.send_message(call.message.chat.id, text, reply_markup=markup_a)
     elif db_connect.extract_number_from_status_change(str(call.data), r'^(\d+)statusinprocess') is not None \
             or db_connect.extract_number_from_status_change(str(call.data), r'^(\d+)statusdecided$') is not None:
         appeal_id = db_connect.extract_number_from_status_change(str(call.data), r'^(\d+)statusinprocess')
@@ -373,59 +333,47 @@ def call_back(bot, call):
         now_updated = db_connect.remove_milliseconds(now)
         db_connect.set_date_status(appeal_id, str(now_updated))
         bot.send_message(call.message.chat.id, "Статус изменен")
+        db_connect.admin_appeal_callback(call, bot, add_comment)
         appeal_info = db_connect.get_appeal_by_id(appeal_id)[0]
-        status = kaz_get_status(call.message, appeal_id)
-        text = f"Өтініш <b>ID</b> {appeal_info[0]}\n\n" \
-               f" Мәртебесі: {status}\n" \
-               f" Құрылған күні: {str(appeal_info[5])}\n" \
-               f" Санат: {str(appeal_info[3])}\n" \
-               f" Өтініш мәтіні: {str(appeal_info[4])}\n" \
-               f" Соңғы мәртебе өзгерген күн: {str(appeal_info[6])}\n" \
-               f" Пікір: {str(appeal_info[8])}\n\n" \
-               f"Орындаушы\n" \
-               f" ТАӘ: {categories.get(str(appeal_info[3]), {}).get('name', None)}\n" \
-               f" Телефон нөмірі: {categories.get(str(appeal_info[3]), {}).get('phone_num', None)}\n" \
-               f" Email: {categories.get(str(appeal_info[3]), {}).get('email', None)}\n" \
-               f" Telegram: {categories.get(str(appeal_info[3]), {}).get('telegram', None)}\n"
+        text = performer_text(appeal_info, message=call.message)
         bot.send_message(appeal_info[1], "Сіздің өтінішіңіздің мәртебесі өзгертілді")
+        image_data = db_connect.get_image_data(appeal_id)
+        try:
+            bot.send_photo(appeal_info[1], image_data)
+        except:
+            print("error")
         bot.send_message(appeal_info[1], text)
         if db_connect.get_status(appeal_id)[0][0] == "Решено":
-            markup = types.InlineKeyboardMarkup(row_width=5)
+            markup_callback = types.InlineKeyboardMarkup(row_width=5)
             for i in range(1, 6):
                 callback_d = str(i) + "evaluation" + str(appeal_info[0])
-                button = types.InlineKeyboardButton(i, callback_data=callback_d)
-                markup.add(button)
-            bot.send_message(appeal_info[1], "Шешілген үндеуді 1-ден 5-ке дейін бағалаңыз\n\nҚайда 1-өте нашар, 5-керемет", reply_markup=markup)
-    elif db_connect.extract_number_from_status_change(str(call.data), r'^(\d+)addcomment') is not None:
-        appeal_id = db_connect.extract_number_from_status_change(str(call.data), r'^(\d+)addcomment')
-        msg = bot.send_message(call.message.chat.id, 'Введите комментарий')
-        bot.register_next_step_handler(msg, add_comment, bot, appeal_id)
+                button_callback = types.InlineKeyboardButton(i, callback_data=callback_d)
+                markup_callback.add(button_callback)
+            bot.send_message(appeal_info[1], "Шешілген үндеуді 1-ден 5-ке дейін бағалаңыз\n\nҚайда 1-өте нашар, "
+                                             "5-керемет", reply_markup=markup_callback)
+    # elif db_connect.extract_number_from_status_change(str(call.data), r'^(\d+)addcomment') is not None:
+    #     appeal_id = db_connect.extract_number_from_status_change(str(call.data), r'^(\d+)addcomment')
+    #     msg = bot.send_message(call.message.chat.id, 'Введите комментарий')
+    #     bot.register_next_step_handler(msg, add_comment, bot, appeal_id)
     elif db_connect.extract_numbers_from_status_change_decided(str(call.data)) is not None:
         evaluation, appeal_id = db_connect.extract_numbers_from_status_change_decided(str(call.data))
         db_connect.set_evaluation(appeal_id, evaluation)
         bot.edit_message_text("Пікіріңіз үшін және жақсы адам болуға көмектескеніңіз үшін рахмет", call.message.chat.id, call.message.message_id)
         bot.answer_callback_query(call.id)
-        # bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id)
-        # bot.answer_callback_query(call.id, "Спасибо за Ваш отзыв и за то, что помогаете нам стать лучше")
+    else:
+        db_connect.admin_appeal_callback(call, bot, add_comment)
 
 
 def add_comment(message, bot, appeal_id):
     db_connect.set_comment(appeal_id, message.text)
     appeal_info = db_connect.get_appeal_by_id(appeal_id)[0]
-    status = kaz_get_status(message, appeal_id)
-    text = f"Өтініш <b>ID</b> {appeal_info[0]}\n\n" \
-           f" Мәртебесі: {status}\n" \
-           f" Құрылған күні: {str(appeal_info[5])}\n" \
-           f" Санат: {str(appeal_info[3])}\n" \
-           f" Өтініш мәтіні: {str(appeal_info[4])}\n" \
-           f" Соңғы мәртебе өзгерген күн: {str(appeal_info[6])}\n" \
-           f" Пікір: {str(appeal_info[8])}\n\n" \
-           f"Орындаушы\n" \
-           f" ТАӘ: {categories.get(str(appeal_info[3]), {}).get('name', None)}\n" \
-           f" Телефон нөмірі: {categories.get(str(appeal_info[3]), {}).get('phone_num', None)}\n" \
-           f" Email: {categories.get(str(appeal_info[3]), {}).get('email', None)}\n" \
-           f" Telegram: {categories.get(str(appeal_info[3]), {}).get('telegram', None)}\n"
     bot.send_message(appeal_info[1], "Сіздің үндеуіңізге түсініктеме қосылды")
+    image_data = db_connect.get_image_data(appeal_id)
+    try:
+        bot.send_photo(appeal_info[1], image_data)
+    except:
+        print("error")
+    text = performer_text(appeal_info, message)
     bot.send_message(appeal_info[1], text)
     bot.send_message(message.chat.id, "Комментарий добавлен")
 
@@ -448,11 +396,7 @@ def appeal(bot, message, message_text):
                          "Егер сіз артқа қайтқыңыз келсе, /menu таңдаңыз /menu енгізу жолағының сол жағында")
     elif message_text == "Менің өтініштерім":
         db_connect.cm_sv_db(message, 'Менің өтініштерім')
-        markup_a = types.InlineKeyboardMarkup()
-        appeals_ = db_connect.get_appeals(message)
-        for appeal in appeals_:
-            text = str(appeal[0]) + " - " + appeal[1]
-            markup_a.add(types.InlineKeyboardButton(text=text, callback_data=str(appeal[0])))
+        markup_a = db_connect.appealInlineMarkup(message)
         if markup_a.keyboard:
             bot.send_message(message.chat.id, "Мұнда сіз өтініштеріңіздің күйін бақылай аласыз",
                              reply_markup=markup_a)
@@ -461,7 +405,6 @@ def appeal(bot, message, message_text):
     elif message_text == "Өтінішті қалдыру":
         db_connect.cm_sv_db(message, 'Өтінішті қалдыру')
         markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-        # button1_ap = types.KeyboardButton("Информация неверна")
         button2_ap = types.KeyboardButton("Иә")
         markup_ap.add(button2_ap)
         profile(bot, message)
@@ -470,14 +413,6 @@ def appeal(bot, message, message_text):
         markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True)
         markup_ap = db_connect.generate_buttons(categories, markup_ap)
         bot.send_message(message.chat.id, "Өтініш санатын таңдаңыз", reply_markup=markup_ap)
-    # elif message_text == "Анонимно":
-    #     db_connect.cm_sv_db(message, 'Анонимно')
-    #     db_connect.set_is_appeal_anon_users_info(message.chat.id, True)
-    #     markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True)
-    #     markup_ap = generate_buttons(categories, markup_ap)
-    #     bot.send_message(message.chat.id,
-    #                      "Выберите категорию обращения",
-    #                      reply_markup=markup_ap)
     elif message_text in categories.keys():
         db_connect.cm_sv_db(message, message_text)
         db_connect.set_category(message, message.text)
@@ -510,96 +445,23 @@ def appeal(bot, message, message_text):
                    f"Өтініш: {message.text}\n" \
                    f"Құрылған күні: {now_updated}"
         bot.send_message(message.chat.id, "Сіздің өтініштеріңіз қабылданды")
-        bot.send_message(message.chat.id, "Егер сіз артқа қайтқыңыз келсе, /menu таңдаңыз /menu енгізу жолағының сол жағында")
+        bot.send_message(message.chat.id, "Егер сіз артқа қайтқыңыз келсе, /menu таңдаңыз /menu енгізу жолағының "
+                                          "сол жағында")
+        if message.photo:
+            file_info = bot.get_file(message.photo[-1].file_id)
+            file = requests.get('https://api.telegram.org/file/bot{}/{}'.format(db_connect.TOKEN, file_info.file_path))
+            db_connect.set_image_data(appeal_id, file)
+            image_data = db_connect.get_image_data(appeal_id)
+            bot.send_photo(performer_id, image_data)
+            db_connect.set_appeal_text(appeal_id, message.caption)
         markup_a1 = types.InlineKeyboardMarkup()
         callback_d = f"{appeal_id}statusinprocess"
         button_a = types.InlineKeyboardButton("Обращение просмотрено", callback_data=callback_d)
         markup_a1.add(button_a)
         bot.send_message(performer_id, text, reply_markup=markup_a1)
         db_connect.clear_appeals(message)
-    elif message_text == "Админ панель для обращений":
-        markup_a = types.ReplyKeyboardMarkup()
-        button1_a = types.KeyboardButton("Текущие Обращения")
-        button2_a = types.KeyboardButton("Решенные Обращения")
-        markup_a.add(button1_a, button2_a)
-        bot.send_message(message.chat.id, "Выберите следующий шаг", reply_markup=markup_a)
-    elif db_connect.check_id(categories, str(message.chat.id)) and message_text == "Текущие Обращения":
-        appeal_info = db_connect.get_all_appeals_by_id_performer(str(message.chat.id), "Обращение принято",
-                                                                 "В процессе")
-        markup_a = types.InlineKeyboardMarkup()
-        if appeal_info is not None:
-            for appeal_ in appeal_info:
-                text_b = str(appeal_[0]) + " ID " + appeal_[9] + " " + appeal_[8]
-                callback_data_a = str(appeal_[0]) + "admin"
-                button_a = types.InlineKeyboardButton(text_b, callback_data=callback_data_a)
-                markup_a.add(button_a)
-        appeal_info_anon = db_connect.get_all_anonymous_appeals_by_id_performer(str(message.chat.id),
-                                                                                "Обращение принято", "В процессе")
-        if appeal_info_anon is not None:
-            for appeal_ in appeal_info_anon:
-                text_b = str(appeal_[0]) + " Анонимно"
-                callback_data_a = str(appeal_[0]) + "admin"
-                button_a = types.InlineKeyboardButton(text_b, callback_data=callback_data_a)
-                markup_a.add(button_a)
-        if markup_a.keyboard:
-            bot.send_message(message.chat.id, "Текущие Обращения", reply_markup=markup_a)
-        else:
-            bot.send_message(message.chat.id, "Текущих Обращений нет")
-    elif db_connect.check_id(categories, str(message.chat.id)) and message_text == "Решенные Обращения":
-        get_excel_admin1(bot, message, "Решено")
     else:
-        db_connect.send_error(bot, message)
-        db_connect.clear_appeals(message)
-
-
-def get_excel_admin1(bot, message, status="Решено"):
-    sql_query = "SELECT * from appeals where id_performer=%s and status=%s"
-    params = (str(message.chat.id), str(status),)  # Make sure to create a tuple
-    db_connect.get_excel(bot, message, admins_id, 'output_file.xlsx', sql_query, params)
-
-
-
-# def appeal(bot, message, message_text):
-#     db_connect.set_appeal_field(message, True)
-#     if message_text == "Өтінішті қалдыру":
-#         db_connect.cm_sv_db(message, 'Өтінішті қалдыру')
-#         markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-#         button2_ap = types.KeyboardButton("Ия, дұрыс")
-#         markup_ap.add(button2_ap)
-#         profile(bot, message)
-#         bot.send_message(message.chat.id, "Ақпарат дұрыс па?", reply_markup=markup_ap)
-#     elif message_text == 'Ия, дұрыс':
-#         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
-#         for key in categories:
-#             button = types.KeyboardButton(key)
-#             markup.add(button)
-#         bot.send_message(message.chat.id,
-#                          "Бұл бөлімде Корпоративтік университетке сізді қызықтыратын мәселелер бойынша өтініш қалдыра аласыз.",
-#                          reply_markup=markup)
-#         time.sleep(0.75)
-#         bot.send_message(message.chat.id,
-#                          "Санатты таңдау үшін телеграммдағы пернетақтаны басыңыз (әдетте бұл белгі енгізу жолағының оң жағында болады).")
-#         time.sleep(0.75)
-#         bot.send_message(message.chat.id,
-#                          "Егер сіз артқа қайтқыңыз келсе, /menu таңдаңыз /menu енгізу жолағының сол жағында ")
-#     elif message.text in categories.keys():
-#         db_connect.cm_sv_db(message, message.text)
-#         db_connect.set_category(message, message.text)
-#         bot.send_message(message.chat.id, "Өтінішіңізді енгізіңіз")
-#     elif db_connect.get_appeal_field(message) and db_connect.get_category_users_info(message):
-#         user_info = f"Аты Тегі: {db_connect.get_firstname(message)} {db_connect.get_lastname(message)}\n" \
-#                     f"Табель нөмірі: {db_connect.get_table_number(message)}\n" \
-#                     f"Телефон нөмірі: {db_connect.get_phone_number(message)}\n" \
-#                     f"Email: {db_connect.get_email(message)}\n" \
-#                     f"Филиалы: {db_connect.get_branch(message.chat.id)}"
-#         new_message = f'{user_info} \n {message.text}'
-#         db_connect.send_gmails(new_message, categories, db_connect.get_category_users_info(message))
-#         db_connect.clear_appeals(message)
-#         bot.send_message(message.chat.id,
-#                          "Сіздің өтінішіңіз қабылданды және өңделуде.\nЖоспарлы рұқсат беру уақыты - 1 жұмыс күні")
-#     else:
-#         send_error(bot, message)
-#         db_connect.clear_appeals(message)
+        db_connect.admin_appeal(bot, message, message_text, categories)
 
 
 def faq(bot, message):
@@ -759,8 +621,9 @@ def biot(bot, message):
         button2 = types.KeyboardButton("Жұмысты орындау тәртібі")
         button3 = types.KeyboardButton("Ұсыныстар | Идеялар")
         markup.add(button, button2, button3)
-        bot.send_message(message.chat.id,
-                         "Сіз қауіпті факторды, қауіпті мінез-құлықты байқадыңыз ба немесе жұмыс орнындағы қауіпсіздік пен еңбекті қорғауды жақсарту бойынша ұсыныстарыңыз/идеяларыңыз бар ма?",
+        bot.send_message(message.chat.id, "Сіз қауіпті факторды, қауіпті мінез-құлықты байқадыңыз ба немесе жұмыс "
+                                          "орнындағы қауіпсіздік пен еңбекті қорғауды жақсарту бойынша ұсыныстарыңыз/"
+                                          "идеяларыңыз бар ма?",
                          reply_markup=markup)
         time.sleep(0.75)
         bot.send_message(message.chat.id, "Қажетті оқиғаны таңдап, ҚТ ж ЕҚ кәртішкесін толтырыңыз.")
@@ -773,21 +636,27 @@ def biot(bot, message):
                                       \nhttps://docs.google.com/forms/d/1eizZuYiPEHYZ8A9-TQTvhQAHJHVtmJ0H90gxUsn5Ows/edit")
         time.sleep(0.75)
         bot.send_message(message.chat.id,
-                         "Егер сіз артқа оралғыңыз келсе, теріңіз /menu немесе таңдаңыз /menu енгізу жолағының сол жағындағы командалар мәзірінен.")
+                         "Егер сіз артқа оралғыңыз келсе, теріңіз /menu немесе таңдаңыз /menu енгізу жолағының сол "
+                         "жағындағы командалар мәзірінен.")
     elif message.text == "Жұмысты орындау тәртібі":
         db_connect.cm_sv_db(message, 'Жұмысты орындау тәртібі')
-        bot.send_message(message.chat.id, "Егер Сіз жұмыстарды орындау кезінде мінез-құлық тәуекелдерін байқасаңыз, төмендегі сілтемеге өтіп, сауалнаманы толтырыңыз:\
-                                      \nhttps://docs.google.com/forms/d/e/1FAIpQLSftmGKV1hjBiMcwqKW1yIM83PIP2eOPqU4afa8x9z3-VeHZKA/viewform?usp=sf_link")
+        bot.send_message(message.chat.id, "Егер Сіз жұмыстарды орындау кезінде мінез-құлық тәуекелдерін байқасаңыз, "
+                                          "төмендегі сілтемеге өтіп, сауалнаманы толтырыңыз:\
+                        \nhttps://docs.google.com/forms/d/e/1FAIpQLSftmGKV1hjBiMcwqKW1yIM83PIP2eOPqU4afa8x9z3-VeHZKA/"
+                                          "viewform?usp=sf_link")
         time.sleep(0.75)
         bot.send_message(message.chat.id,
-                         "Егер сіз артқа оралғыңыз келсе, теріңіз /menu немесе таңдаңыз /menu енгізу жолағының сол жағындағы командалар мәзірінен.")
+                         "Егер сіз артқа оралғыңыз келсе, теріңіз /menu немесе таңдаңыз "
+                         "/menu енгізу жолағының сол жағындағы командалар мәзірінен.")
     elif message.text == "Ұсыныстар | Идеялар":
         db_connect.cm_sv_db(message, 'Ұсыныстар | Идеялар')
-        bot.send_message(message.chat.id, "Егер Сізде ұсыныстар немесе идеялар болса, төмендегі сілтемеге өтіп, сауалнаманы толтырыңыз:\
-                                      \nhttps://docs.google.com/forms/d/e/1FAIpQLSdzvAVfVH2dhFyXceKTyhZhBx9TplXUp53uLTSNzw8FejpNoA/viewform")
+        bot.send_message(message.chat.id, "Егер Сізде ұсыныстар немесе идеялар болса, төмендегі сілтемеге өтіп, "
+            "сауалнаманы толтырыңыз:"
+            "\nhttps://docs.google.com/forms/d/e/1FAIpQLSdzvAVfVH2dhFyXceKTyhZhBx9TplXUp53uLTSNzw8FejpNoA/viewform")
         time.sleep(0.75)
         bot.send_message(message.chat.id,
-                         "Егер сіз артқа оралғыңыз келсе, теріңіз /menu немесе таңдаңыз /menu енгізу жолағының сол жағындағы командалар мәзірінен.")
+                         "Егер сіз артқа оралғыңыз келсе, теріңіз /menu немесе таңдаңыз /menu енгізу жолағының сол "
+                         "жағындағы командалар мәзірінен.")
 
 
 def instructions(bot, message):
@@ -844,9 +713,9 @@ def instructions(bot, message):
                                           "төмендегі сілтемеге өтіңіз "
                                           "\nhttps://wiki.telecom.kz/ru/instructionsopl/kommandiroviporyadok")
     elif message.text == "Мобильді нұсқа":
-        bot.send_message(message.chat.id, "'Мобильді нұсқа' санаты туралы ақпарат алу үшін төмендегі сілтемеге өтіңіз "
-                                          "\nhttps://drive.google.com/drive/folders/"
-                                          "1ojKgDgsUX9l9h0A1354AFVxFhQY2_ECZ?usp=drive_link")
+        bot.send_document(message.chat.id, document=open("images/инструкция VPN IOS.jpg", 'rb'))
+        bot.send_document(message.chat.id, document=open("images/инструкция VPN Android.jpg", 'rb'))
+
     elif message.text == "ДК немесе ноутбук":
         markup_pk = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         button1 = types.KeyboardButton("Қалай кіруге болады")
@@ -864,8 +733,7 @@ def instructions(bot, message):
         bot.send_message(message.chat.id, "Санат туралы ақпарат алу үшін 'Порталдан ССП өту'төмендегі сілтемеге өтіңіз"
                                           "\nhttps://youtu.be/wnfI4JpMvmE")
     elif message.text == "Филиал серверлері бойынша деректер":
-        bot.send_message(message.chat.id, "Филиал серверлері бойынша деректер:"
-                                          "\nhttps://disk.telecom.kz/index.php/f/695222")
+        bot.send_document(message.chat.id, document=open("files/Данные по всем lotus серверам.xlsx", 'rb'))
     elif message.text == "Lotus Орнату нұсқаулары":
         bot.send_document(message.chat.id, document=open("files/Инструкция по Lotus Notes на домашнем пк_.docx", 'rb'))
     elif message.text == "Lotus орнату файлы":
@@ -892,28 +760,32 @@ def instructions(bot, message):
         bot.send_document(message.chat.id, document=open("files/раздел «МОИ УСЛУГИ».pdf", 'rb'))
     elif message.text == "ADSL модемі":
         bot.send_message(message.chat.id,
-                         "'ADSL модемі' санаты туралы ақпарат алу үшін мына сілтемеге өтіңіз\nhttps://drive.google.com/drive/folders/1ZMcd4cVuX8_JUJ8OoN0rYx5d5DjwlEbz?usp=drive_link")
+                         "'ADSL модемі' санаты туралы ақпарат алу үшін мына сілтемеге өтіңіз\n"
+                         "https://drive.google.com/drive/folders/1ZMcd4cVuX8_JUJ8OoN0rYx5d5DjwlEbz?usp=drive_link")
     elif message.text == "IDTV консолі":
         bot.send_message(message.chat.id,
-                         "'IDTV консолі' санаты туралы ақпарат алу үшін мына сілтемеге өтіңіз\nhttps://drive.google.com/drive/folders/1ZFbUrKi9QITBLkJQ93I45dxhINSsgv7H?usp=drive_link")
+                         "'IDTV консолі' санаты туралы ақпарат алу үшін мына сілтемеге өтіңіз\n"
+                         "https://drive.google.com/drive/folders/1ZFbUrKi9QITBLkJQ93I45dxhINSsgv7H?usp=drive_link")
     elif message.text == "ONT модемдері":
         bot.send_message(message.chat.id,
-                         "'ONT модемдері' санаты туралы ақпарат алу үшін мына сілтемеге өтіңіз\nhttps://drive.google.com/drive/folders/1IiLJ14dKF3wQhoLYb18jJMLD6BNz3K7x?usp=drive_link")
+                         "'ONT модемдері' санаты туралы ақпарат алу үшін мына сілтемеге өтіңіз\n"
+                         "https://drive.google.com/drive/folders/1IiLJ14dKF3wQhoLYb18jJMLD6BNz3K7x?usp=drive_link")
     elif message.text == "Router 4G and Router Ethernet":
         bot.send_message(message.chat.id,
-                         "'Router 4G and Router Ethernet' санаты туралы ақпарат алу үшін мына сілтемеге өтіңіз\nhttps://drive.google.com/drive/folders/1EkzERKwa-DTnMW86-qJGbc_YAU2k6A74?usp=drive_link")
+                         "'Router 4G and Router Ethernet' санаты туралы ақпарат алу үшін мына сілтемеге өтіңіз\n"
+                         "https://drive.google.com/drive/folders/1EkzERKwa-DTnMW86-qJGbc_YAU2k6A74?usp=drive_link")
 
 
 def kb(bot, message):
     if message.text == "Білім базасы":
         db_connect.cm_sv_db(message, 'Білім базасы')
         db_connect.set_bool(message, False, False)
-        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-        button = types.KeyboardButton("Нұсқаулық базасы")
-        button2 = types.KeyboardButton("Глоссарий")
-        button3 = types.KeyboardButton("Пайдалы сілтемелер")
-        markup.add(button2, button, button3)
-        bot.send_message(message.chat.id, "Мобильді білім қорына қош келдіңіз!", reply_markup=markup)
+        markup_kb = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+        button_kb1 = types.KeyboardButton("Нұсқаулық базасы")
+        button_kb2 = types.KeyboardButton("Глоссарий")
+        button_kb3 = types.KeyboardButton("Пайдалы сілтемелер")
+        markup_kb.add(button_kb2, button_kb1, button_kb3)
+        bot.send_message(message.chat.id, "Мобильді білім қорына қош келдіңіз!", reply_markup=markup_kb)
         time.sleep(0.75)
         bot.send_message(message.chat.id,
                          "Мұнда сіз өзіңізге қажетті Bac нұсқаулығын таба аласыз немесе пайдалана аласыз "
@@ -923,15 +795,14 @@ def kb(bot, message):
         db_connect.cm_sv_db(message, 'Нұсқаулық базасы')
         db_connect.set_bool(message, True, False)
         markup_instr = types.ReplyKeyboardMarkup(row_width=1)
-        button1 = types.KeyboardButton("Логотиптер және Брендбук")
-        button2 = types.KeyboardButton("Жеке кабинет telecom.kz")
-        button3 = types.KeyboardButton("Модемдер | Теңшеу")
-        button4 = types.KeyboardButton("Lotus | Нұсқаулар")
-        button5 = types.KeyboardButton("portal.telecom.kz | Нұсқаулар")
-        button6 = types.KeyboardButton("Checkpoint VPN | Қашықтан жұмыс")
-        button7 = types.KeyboardButton("Iссапар | Рәсімдеу тәртібі")
-        markup_instr.add(button5, button4, button6, button1, button7, button2, button3)
-
+        button1_instr = types.KeyboardButton("Логотиптер және Брендбук")
+        button2_instr = types.KeyboardButton("Жеке кабинет telecom.kz")
+        button3_instr = types.KeyboardButton("Модемдер | Теңшеу")
+        button4_instr = types.KeyboardButton("Lotus | Нұсқаулар")
+        button5_instr = types.KeyboardButton("portal.telecom.kz | Нұсқаулар")
+        button6_instr = types.KeyboardButton("Checkpoint VPN | Қашықтан жұмыс")
+        button7_instr = types.KeyboardButton("Iссапар | Рәсімдеу тәртібі")
+        markup_instr.add(button5_instr, button4_instr, button6_instr, button1_instr, button7_instr, button2_instr, button3_instr)
         bot.send_message(message.chat.id, "Бұл жерде өзіңізге пайдалы нұсқаулықты таба аласыз.",
                          reply_markup=markup_instr)
         time.sleep(0.5)
@@ -955,138 +826,6 @@ def kb(bot, message):
         time.sleep(0.5)
         markup = db_connect.useful_links()
         bot.send_message(message.chat.id, "Пайдалы сілтемелер", reply_markup=markup)
-
-
-# def kb_service(bot, message):
-#     if message.text == "Жеке кабинет telecom.kz":
-#         db_connect.cm_sv_db(message, 'Жеке кабинет telecom.kz')
-#         markup_instr = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-#         button1_i = types.KeyboardButton("Қызметті қалай төлеуге болады")
-#         button2_i = types.KeyboardButton("Төлем мәліметтерін қалай көруге болады")
-#         button3_i = types.KeyboardButton("Қосылған қызметтерді қалай көруге болады")
-#         button4_i = types.KeyboardButton("Менің Қызметтерім 'Бөлімі'")
-#         markup_instr.add(button1_i, button2_i, button3_i, button4_i)
-#         bot.send_message(message.chat.id, "Санатты таңдаңыз", reply_markup=markup_instr)
-#     elif message.text == "Акции":
-#         db_connect.cm_sv_db(message, 'Акции')
-#         bot.send_document(message.chat.id, open("files/Скрипт по акции Почувствуй разницу!.docx", 'rb'))
-#     elif message.text == "Скрипты":
-#         db_connect.cm_sv_db(message, 'Скрипты')
-#         markup_s = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-#         button1_s = types.KeyboardButton("НЛТ-2022")
-#         button2_s = types.KeyboardButton("Текст SMS уведомления")
-#         button3_s = types.KeyboardButton("Повышение Тарифов, Скрипт")
-#         button4_s = types.KeyboardButton("Скрипт замена оборудования")
-#         button5_s = types.KeyboardButton("Скрипт замена оборудования ПСС, УП")
-#         button6_s = types.KeyboardButton("Скрипт с КАТВ на ТВ+")
-#         markup_s.add(button1_s, button2_s, button3_s, button4_s, button5_s, button6_s)
-#         bot.send_message(message.chat.id, "Выберете категорию", reply_markup=markup_s)
-#     elif message.text == "НЛТ-2022":
-#         markup_s = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-#         button1_s = types.KeyboardButton("2022 НЛТ_Bereket A для ЦРК")
-#         button2_s = types.KeyboardButton("2022 НЛТ_Bereket А для ЦАП")
-#         button3_s = types.KeyboardButton("2022 НЛТ_Керемет TV для ЦАП")
-#         button4_s = types.KeyboardButton("2022 НЛТ_Керемет TV для ЦРК")
-#         button5_s = types.KeyboardButton("2022 НЛТ_Керемет Моbile для ЦАП")
-#         button6_s = types.KeyboardButton("2022 НЛТ_Керемет Моbile для ЦРК")
-#         markup_s.add(button1_s, button2_s, button3_s, button4_s, button5_s, button6_s)
-#         bot.send_message(message.chat.id, "Выберете категорию", reply_markup=markup_s)
-#     elif message.text == "Тарифы":
-#         db_connect.cm_sv_db(message, 'Тарифы')
-#         markup_s = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-#         button1_s = types.KeyboardButton("Save Desk - Тарифы для удержания")
-#         button2_s = types.KeyboardButton("Раздаточный материал, Приказ 210")
-#         button3_s = types.KeyboardButton("Действующие пакеты 2022")
-#         button4_s = types.KeyboardButton("Дополнительные виды услуг и сервисов")
-#         button5_s = types.KeyboardButton("Тарифы на организацию доступа к услугам")
-#         button6_s = types.KeyboardButton("Тарифы на Интернет")
-#         button7_s = types.KeyboardButton("Тарифы на услуги мобильной связи")
-#         markup_s.add(button1_s, button2_s, button3_s, button4_s, button5_s, button6_s, button7_s)
-#         bot.send_message(message.chat.id, "Выберете категорию", reply_markup=markup_s)
-#     elif message.text == "НРД":
-#         db_connect.cm_sv_db(message, 'НРД')
-#         markup_s = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-#         button1_s = types.KeyboardButton("Стандарты СО")
-#         button2_s = types.KeyboardButton("Публичный договор")
-#         button3_s = types.KeyboardButton("Правила класификации лицевых счетов")
-#         markup_s.add(button1_s, button2_s, button3_s)
-#         bot.send_message(message.chat.id, "Выберете категорию", reply_markup=markup_s)
-#     elif message.text == "Save Desk - Тарифы для удержания":
-#         bot.send_document(message.chat.id, open("files/Save Desk-Тарифы для удержания.pdf", 'rb'))
-#     elif message.text == "Раздаточный материал, Приказ 210":
-#         bot.send_document(message.chat.id,
-#                           open("files/Раздаточный материал, с 01.08.2023, Приказ 210 от 28.07.2023.xlsx", 'rb'))
-#     elif message.text == "Действующие пакеты 2022":
-#         bot.send_document(message.chat.id, open("files/Каз-12 Действующие пакеты 2022.pdf", 'rb'))
-#     elif message.text == "Дополнительные виды услуг и сервисов":
-#         bot.send_document(message.chat.id, open("files/Каз-8-Дополнительные виды услуг и сервисов.pdf", 'rb'))
-#     elif message.text == "Тарифы на организацию доступа к услугам":
-#         bot.send_document(message.chat.id, open("files/Каз-4-Тарифы на организацию доступа к услугам.pdf", 'rb'))
-#     elif message.text == "Тарифы на Интернет":
-#         bot.send_document(message.chat.id, open("files/Каз 7-Тарифы на Интернет.pdf", 'rb'))
-#     elif message.text == "Тарифы на услуги мобильной связи":
-#         bot.send_document(message.chat.id, open("files/Каз 3-Тарифы на услуги мобильной связи.pdf", 'rb'))
-#     elif message.text == "2022 НЛТ_Bereket A для ЦРК":
-#         bot.send_document(message.chat.id, open("files/2022 НЛТ_Bereket A для ЦРК.pdf", 'rb'))
-#     elif message.text == "2022 НЛТ_Bereket А для ЦАП":
-#         bot.send_document(message.chat.id, open("files/2022 НЛТ_Bereket А для ЦАП.pdf", 'rb'))
-#     elif message.text == "2022 НЛТ_Керемет TV для ЦАП":
-#         bot.send_document(message.chat.id, open("files/2022 НЛТ_Керемет TV для ЦАП.pdf", 'rb'))
-#     elif message.text == "2022 НЛТ_Керемет TV для ЦРК":
-#         bot.send_document(message.chat.id, open("files/2022 НЛТ_Керемет TV  для ЦРК.pdf", 'rb'))
-#     elif message.text == "2022 НЛТ_Керемет Моbile для ЦАП":
-#         bot.send_document(message.chat.id, open("files/2022 НЛТ_Керемет Моbile для ЦАП.pdf", 'rb'))
-#     elif message.text == "2022 НЛТ_Керемет Моbile для ЦРК":
-#         bot.send_document(message.chat.id, open("files/2022 НЛТ_Керемет Моbile  для ЦРК.pdf", 'rb'))
-#     elif message.text == "Текст SMS уведомления":
-#         bot.send_document(message.chat.id, open("files/Текст SMS увед, каз и рус.pdf", 'rb'))
-#     elif message.text == "Повышение Тарифов, Скрипт":
-#         bot.send_document(message.chat.id, open("files/Повышение тарифов, Скрипт - с 1 августа 2023.pdf", 'rb'))
-#     elif message.text == "Скрипт замена оборудования":
-#         bot.send_document(message.chat.id, open("files/П_Скрипт замена оборудования.pdf", 'rb'))
-#     elif message.text == "Скрипт замена оборудования ПСС, УП":
-#         bot.send_document(message.chat.id, open("files/П_Скрипт замена оборудования ПСС, УП.pdf", 'rb'))
-#     elif message.text == "Скрипт с КАТВ на ТВ+":
-#         bot.send_document(message.chat.id, open("files/К_Скрипт с КАТВ на ТВ+.pdf", 'rb'))
-#     elif message.text == "Стандарты СО":
-#         markup_s = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-#         button1_s = types.KeyboardButton("Внутренний клиент, Стандарты СО")
-#         button2_s = types.KeyboardButton("Внешний клиент, Стандарты СО")
-#         markup_s.add(button1_s, button2_s)
-#         bot.send_message(message.chat.id, "Выберете категорию", reply_markup=markup_s)
-#     elif message.text == "Внутренний клиент, Стандарты СО":
-#         bot.send_document(message.chat.id, open("files/Внутренний клиент, Стандарты СО.pdf", 'rb'))
-#     elif message.text == "Внешний клиент, Стандарты СО":
-#         bot.send_document(message.chat.id, open("files/Внешний клиент, Стандарты СО.pdf", 'rb'))
-#     elif message.text == "Публичный договор":
-#         markup_s = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-#         button1_s = types.KeyboardButton("Публичный договор рус")
-#         button2_s = types.KeyboardButton("Публичный договор каз")
-#         markup_s.add(button1_s, button2_s)
-#         bot.send_message(message.chat.id, "Выберете категорию", reply_markup=markup_s)
-#     elif message.text == "Публичный договор рус":
-#         bot.send_document(message.chat.id, open("files/Публичный договор рус.pdf", 'rb'))
-#     elif message.text == "Публичный договор каз":
-#         bot.send_document(message.chat.id, open("files/Публичный договор каз.pdf", 'rb'))
-#     elif message.text == "Правила классификации лицевых счетов рус":
-#         markup_s = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-#         button1_s = types.KeyboardButton("Публичный договор рус")
-#         button2_s = types.KeyboardButton("Публичный договор каз")
-#         markup_s.add(button1_s, button2_s)
-#         bot.send_message(message.chat.id, "Выберете категорию", reply_markup=markup_s)
-#     elif message.text == "Правила классификации лицевых счетов рус":
-#         bot.send_document(message.chat.id, open("files/Правила классификации лицевых счетов рус.pdf", 'rb'))
-#     elif message.text == "Правила классификации лицевых счетов каз":
-#         bot.send_document(message.chat.id, open("files/Правила классификации лицевых счетов каз.pdf", 'rb'))
-#     elif message.text == "Как оплатить услугу":
-#         bot.send_document(message.chat.id, document=open("files/Как оплатить услуги Казахтелеком.pdf", 'rb'))
-#     elif message.text == "Как посмотреть о деталях оплаты":
-#         bot.send_document(message.chat.id,
-#                           document=open("files/Как посмотреть информацию о деталях оплаты.pdf", 'rb'))
-#     elif message.text == "Как посмотреть подключенные услуги":
-#         bot.send_document(message.chat.id, document=open("files/Как посмотреть мои подключенные услуги.pdf", 'rb'))
-#     elif message.text == "Раздел 'Мои Услуги'":
-#         bot.send_document(message.chat.id, document=open("files/РАЗДЕЛ «МОИ УСЛУГИ» (1).pdf", 'rb'))
 
 
 def menu(bot, message):
@@ -1119,3 +858,11 @@ def profile(bot, message):
                                       f"Табель нөмірі: {db_connect.get_table_number(message)}\n"
                                       f"Филиалы: {db_connect.get_branch(message.chat.id)}",
                      reply_markup=markup_ap)
+
+
+def questions(bot, message):
+    button_q1 = types.KeyboardButton("Өтініштер")
+    button_q2 = types.KeyboardButton("Жиі қойылатын сұрақтар")
+    markup_q = types.ReplyKeyboardMarkup()
+    markup_q.add(button_q1, button_q2)
+    bot.send_message(str(message.chat.id), "Бөлімді таңдаңыз", reply_markup=markup_q)

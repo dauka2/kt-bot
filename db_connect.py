@@ -8,6 +8,10 @@ import time
 from email.header import Header
 import smtplib
 from email.mime.text import MIMEText
+import io
+
+TOKEN = '6053200189:AAHVGsQDJOnyvW0o4xwCZJ_X_zBdn7kRKNA'
+admins_id = ['187663574', '760906879']
 
 
 def remove_milliseconds(dt):
@@ -84,7 +88,8 @@ def create_db():
     cur.execute(
         'CREATE TABLE IF NOT EXISTS appeals(id serial primary key, user_id varchar(50), status varchar(30), '
         'category varchar(100), appeal_text varchar(1000), date varchar(30), date_status varchar(30), '
-        'id_performer varchar(30), comment varchar(1000), is_appeal_anon bool, evaluation int)')
+        'id_performer varchar(30), comment varchar(1000), is_appeal_anon bool, evaluation int, '
+        'image_data bytea)')
     conn.commit()
     cur.close()
     conn.close()
@@ -159,7 +164,8 @@ def alter_table_users():
     # cur.execute("ALTER TABLE users_info ADD COLUMN category varchar(50) DEFAULT False")
     # cur.execute("ALTER TABLE users_info ADD COLUMN appeal_id int DEFAULT 0")
     # cur.execute("ALTER TABLE users_info ADD COLUMN is_appeal_anon bool DEFAULT False")
-    cur.execute("ALTER TABLE appeals ADD COLUMN evaluation int DEFAULT 0")
+    # cur.execute("ALTER TABLE appeals ADD COLUMN evaluation int DEFAULT 0")
+    cur.execute("ALTER TABLE appeals ADD COLUMN image_data bytea")
 
     conn.commit()
     cur.close()
@@ -218,6 +224,12 @@ def get_appeal_text(appeal_id):
     sql_query = 'SELECT appeal_text FROM appeals WHERE id=%s'
     params = (appeal_id,)
     return execute_get_sql_query(sql_query, params)[0][0]
+
+
+def set_appeal_text(appeal_id, appeal_text):
+    sql_query = 'UPDATE appeals SET appeal_text = %s WHERE id=%s'
+    params = (appeal_text, appeal_id,)
+    execute_set_sql_query(sql_query, params)
 
 
 def set_category(message, category):
@@ -452,6 +464,21 @@ def set_is_appeal_anon_users_info(user_id, is_appeal_anon):
     execute_set_sql_query(sql_query, params)
 
 
+def set_image_data(appeal_id, file):
+    sql_query = 'UPDATE appeals SET image_data=%s WHERE id=%s'
+    params = (file.content, appeal_id,)
+    execute_set_sql_query(sql_query, params)
+
+
+def get_image_data(appeal_id):
+    sql_query = 'SELECT image_data FROM appeals WHERE id=%s'
+    params = (str(appeal_id),)
+    row = execute_get_sql_query(sql_query, params)
+    image_data = io.BytesIO(row[0][0])
+    return image_data
+
+
+
 def delete_user(message):
     conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
     cur = conn.cursor()
@@ -459,6 +486,7 @@ def delete_user(message):
     conn.commit()
     cur.close()
     conn.close()
+
 
 
 def glossary(bot, message, text1, text2):
@@ -513,6 +541,121 @@ def extract_numbers_from_status_change_decided(input_string):
         return int(match.group(1)), int(match.group(2))
     else:
         return None
+
+
+def admin_appeal(bot, message, message_text, categories):
+    if message_text == "Админ панель для обращений":
+        markup_a = types.ReplyKeyboardMarkup()
+        button1_a = types.KeyboardButton("Текущие Обращения")
+        button2_a = types.KeyboardButton("Решенные Обращения")
+        markup_a.add(button1_a, button2_a)
+        bot.send_message(message.chat.id, "Выберите следующий шаг", reply_markup=markup_a)
+        return
+    elif check_id(categories, str(message.chat.id)) and message_text == "Текущие Обращения":
+        appeal_info = get_all_appeals_by_id_performer(str(message.chat.id), "Обращение принято", "В процессе")
+        markup_a = types.InlineKeyboardMarkup()
+        if appeal_info is not None:
+            for appeal_ in appeal_info:
+                text_b = str(appeal_[0]) + " ID " + appeal_[9] + " " + appeal_[8]
+                callback_data_a = str(appeal_[0]) + "admin"
+                button_a = types.InlineKeyboardButton(text_b, callback_data=callback_data_a)
+                markup_a.add(button_a)
+        appeal_info_anon = get_all_anonymous_appeals_by_id_performer(str(message.chat.id), "Обращение принято", "В процессе")
+        if appeal_info_anon is not None:
+            for appeal_ in appeal_info_anon:
+                text_b = str(appeal_[0]) + " Анонимно"
+                callback_data_a = str(appeal_[0]) + "admin"
+                button_a = types.InlineKeyboardButton(text_b, callback_data=callback_data_a)
+                markup_a.add(button_a)
+        elif markup_a.keyboard:
+            bot.send_message(message.chat.id, "Текущие Обращения", reply_markup=markup_a)
+        else:
+            bot.send_message(message.chat.id, "Текущих Обращений нет")
+    elif check_id(categories, str(message.chat.id)) and message_text == "Решенные Обращения":
+        get_excel_admin1(bot, message, "Решено")
+    else:
+        send_error(bot, message)
+        clear_appeals(message)
+
+
+def get_excel_admin1(bot, message, status="Решено"):
+    sql_query = "SELECT * from appeals where id_performer=%s and status=%s"
+    params = (str(message.chat.id), str(status),)  # Make sure to create a tuple
+    get_excel(bot, message, admins_id, 'output_file.xlsx', sql_query, params)
+
+
+def appealInlineMarkup(message):
+    markup_a = types.InlineKeyboardMarkup()
+    appeals_ = get_appeals(message)
+    for appeal in appeals_:
+        text = str(appeal[0]) + " - " + appeal[1]
+        markup_a.add(types.InlineKeyboardButton(text=text, callback_data=str(appeal[0])))
+    return markup_a
+
+
+def admin_appeal_callback(call, bot, add_comment):
+    if extract_number_from_status_change(str(call.data), r'^(\d+)admin$') is not None:
+        appeal_id = extract_number_from_status_change(str(call.data), r'^(\d+)admin$')
+        appeal_info = get_appeal_by_id(appeal_id)[0]
+        image_data = get_image_data(appeal_id)
+        try:
+            bot.send_photo(appeal_info[1], image_data)
+        except:
+            print("error")
+        callback_d = f"{appeal_id}statusdecided"
+        btn_text = "Изменить статус на Решено"
+        if appeal_info[9]:
+            text = f"ID обращения {appeal_id}\n\n" \
+                   f" Статус: {str(appeal_info[2])}\n" \
+                   f" Дата создания: {str(appeal_info[5])}\n" \
+                   f" Категория: {str(appeal_info[3])}\n" \
+                   f" Текст обращения: {str(appeal_info[4])}\n" \
+                   f" Дата последнего изменения статуса: {str(appeal_info[6])}" \
+                   f" Комментарий: {str(appeal_info[8])}\n\n"
+            if str(appeal_info[2]) == "Обращение принято":
+                callback_d = f"{appeal_id}statusinprocess"
+                btn_text = "Изменить статус на 'В процессе'"
+        else:
+            appeal_info = get_appeal_by_id_inner_join_users(appeal_id)[0]
+            text = f"ID обращения {appeal_id}\n\n" \
+                   f" Статус: {str(appeal_info[1])}\n" \
+                   f" Дата создания: {str(appeal_info[4])}\n" \
+                   f" Категория: {str(appeal_info[2])}\n" \
+                   f" Текст обращения: {str(appeal_info[3])}\n" \
+                   f" Дата последнего изменения статуса: {str(appeal_info[5])}" \
+                   f" Комментарий: {str(appeal_info[6])}\n\n" \
+                   f"Пользователь\n" \
+                   f" ФИО: {str(appeal_info[9])} {str(appeal_info[8])}\n" \
+                   f" Номер телефона: {str(appeal_info[11])}\n" \
+                   f" Email: {str(appeal_info[12])}\n" \
+                   f" Telegram: {str(appeal_info[7])}\n" \
+                   f" Филиал: {str(appeal_info[13])}"
+            if str(appeal_info[1]) == "Обращение принято":
+                callback_d = f"{appeal_id}statusinprocess"
+                btn_text = "Изменить статус на 'В процессе'"
+        markup_a = types.InlineKeyboardMarkup(row_width=1)
+        button_a = types.InlineKeyboardButton(btn_text, callback_data=callback_d)
+        callback_d = f"{appeal_id}addcomment"
+        button_a1 = types.InlineKeyboardButton("Добавить комментарий", callback_data=callback_d)
+        markup_a.add(button_a, button_a1)
+        bot.send_message(call.message.chat.id, text, reply_markup=markup_a)
+    # elif extract_number_from_status_change(str(call.data), r'^(\d+)statusinprocess') is not None \
+    #      or extract_number_from_status_change(str(call.data), r'^(\d+)statusdecided$') is not None:
+    #     appeal_id = extract_number_from_status_change(str(call.data), r'^(\d+)statusinprocess')
+    #     if appeal_id is None:
+    #         appeal_id = extract_number_from_status_change(str(call.data), r'^(\d+)statusdecided$')
+    #         set_status(appeal_id, "Решено")
+    #     else:
+    #         set_status(appeal_id, "В процессе")
+    #     now = datetime.now() + timedelta(hours=6)
+    #     now_updated = remove_milliseconds(now)
+    #     set_date_status(appeal_id, str(now_updated))
+    #     bot.send_message(call.message.chat.id, "Статус изменен")
+    elif extract_number_from_status_change(str(call.data), r'^(\d+)addcomment') is not None:
+        appeal_id = extract_number_from_status_change(str(call.data), r'^(\d+)addcomment')
+        msg = bot.send_message(call.message.chat.id, 'Введите комментарий')
+        bot.register_next_step_handler(msg, add_comment, bot, appeal_id)
+
 
 
 def check_id(categories, input_id):
