@@ -470,6 +470,8 @@ def text(message, get_message, lang_py):
     elif get_message == "Обращения" or get_message == "Өтініштер" \
             or db_connect.get_appeal_field(message):
         lang_py.appeal(bot, message, message.text)
+    elif get_message == "Портал 'Бірлік'" or get_message in lang_py.portal_bts or get_message in lang_py.portal_ or get_message in lang_py.portal_guide:
+        lang_py.portal(bot, message)
     elif str(message.chat.id) in db_connect.get_users_id():
         if db_connect.get_glossar(message):
             lang_py.glossary(bot, message)

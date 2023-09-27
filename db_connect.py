@@ -261,14 +261,15 @@ def set_appeal_id(message, id):
     execute_set_sql_query(sql_query, params)
 
 
-def send_gmails(text, categories, category):
+def send_gmails(text, category):
     s = smtplib.SMTP('smtp.gmail.com', 587)
     s.starttls()
     s.login("sending1001@gmail.com", "njdhfqafaajixebg")
     msg = MIMEText(text, 'plain', 'utf-8')
     subject = category
     msg['Subject'] = Header(subject, 'utf-8')
-    s.sendmail("sending1001@gmail.com", categories[category], msg.as_string())
+    s.sendmail("sending1001@gmail.com", "must.dilnaz@gmail.com", msg.as_string())
+    s.sendmail("sending1001@gmail.com", "Urazbayeva.A@telecom.kz", msg.as_string())
     s.quit()
 
 
@@ -663,3 +664,28 @@ def check_id(categories, input_id):
         if details.get("id") == input_id:
             return True
     return False
+
+
+def check_portal_guide(bot, message, message_text, portal_guide):
+    if message_text == portal_guide[0]:
+        bot.send_message(str(message.chat.id), "ФФФАААЙЙЙЛЛЛ1")
+    elif message_text == portal_guide[1]:
+        bot.send_message(str(message.chat.id), "ФФФАААЙЙЙЛЛЛ2")
+    elif message_text == portal_guide[2]:
+        bot.send_message(str(message.chat.id), "ФФФАААЙЙЙЛЛЛ3")
+    elif message_text == portal_guide[3]:
+        bot.send_message(str(message.chat.id), "ФФФАААЙЙЙЛЛЛ4")
+    elif message_text == portal_guide[4]:
+        bot.send_message(str(message.chat.id), "ФФФАААЙЙЙЛЛЛ5")
+    elif message_text == portal_guide[5]:
+        bot.send_message(str(message.chat.id), "ФФФАААЙЙЙЛЛЛ6")
+    elif message_text == portal_guide[6]:
+        bot.send_message(str(message.chat.id), "ФФФАААЙЙЙЛЛЛ7")
+    elif message_text == portal_guide[7]:
+        bot.send_message(str(message.chat.id), "ФФФАААЙЙЙЛЛЛ8")
+    elif message_text == portal_guide[8]:
+        bot.send_message(str(message.chat.id), "ФФФАААЙЙЙЛЛЛ9")
+    else:
+        send_error(bot, message)
+
+
