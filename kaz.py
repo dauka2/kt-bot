@@ -153,12 +153,12 @@ def performer_text(appeal_info, message):
            f" Санат: {str(appeal_info[3])}\n" \
            f" Өтініш мәтіні: {str(appeal_info[4])}\n" \
            f" Соңғы мәртебе өзгерген күн: {str(appeal_info[6])}\n" \
-           f" Пікір: {str(appeal_info[8])}\n\n" \
            f"Орындаушы\n" \
            f" ТАӘ: {categories_.get(str(appeal_info[3]), {}).get('name', None)}\n" \
            f" Телефон нөмірі: {categories_.get(str(appeal_info[3]), {}).get('phone_num', None)}\n" \
            f" Email: {categories_.get(str(appeal_info[3]), {}).get('email', None)}\n" \
-           f" Telegram: {categories_.get(str(appeal_info[3]), {}).get('telegram', None)}\n"
+           f" Telegram: {categories_.get(str(appeal_info[3]), {}).get('telegram', None)}\n\n" \
+           f" Пікір: {str(appeal_info[8])}"
     return text
 
 
@@ -371,7 +371,8 @@ def call_back(bot, call):
 
 
 def add_comment(message, bot, appeal_id):
-    db_connect.set_comment(appeal_id, message.text)
+    comment = message.text + " \n" + str(db_connect.get_comment(appeal_id)[0][0])
+    db_connect.set_comment(appeal_id, comment)
     appeal_info = db_connect.get_appeal_by_id(appeal_id)[0]
     bot.send_message(appeal_info[1], "Сіздің үндеуіңізге түсініктеме қосылды")
     image_data = db_connect.get_image_data(appeal_id)
@@ -386,21 +387,19 @@ def add_comment(message, bot, appeal_id):
 
 def appeal(bot, message, message_text):
     db_connect.set_appeal_field(message, True)
-    if message_text == "Өтініштер":
-        db_connect.cm_sv_db(message, 'Өтініштер')
-        markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-        button1_ap = types.KeyboardButton("Менің өтініштерім")
-        button2_ap = types.KeyboardButton("Өтінішті қалдыру")
-        if db_connect.check_id(categories, str(message.chat.id)):
-            markup_ap.add(types.KeyboardButton("Админ панель для обращений"))
-        markup_ap.add(button1_ap, button2_ap)
-        bot.send_message(message.chat.id,
-                         "B осы бөлімде Сіз өзіңізді қызықтыратын мәселелер бойынша өтінішіңізді корпоративтік университетке қалдыра аласыз.",
-                         reply_markup=markup_ap)
-        time.sleep(0.75)
-        bot.send_message(message.chat.id,
-                         "Егер сіз артқа қайтқыңыз келсе, /menu таңдаңыз /menu енгізу жолағының сол жағында")
-    elif message_text == "Менің өтініштерім":
+    # if message_text == "Өтініштер":
+    #     db_connect.cm_sv_db(message, 'Өтініштер')
+    #     markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+    #     button1_ap = types.KeyboardButton("Менің өтініштерім")
+    #     button2_ap = types.KeyboardButton("Өтінішті қалдыру")
+    #     markup_ap.add(button1_ap, button2_ap)
+    #     bot.send_message(message.chat.id,
+    #                      "B осы бөлімде Сіз өзіңізді қызықтыратын мәселелер бойынша өтінішіңізді корпоративтік университетке қалдыра аласыз.",
+    #                      reply_markup=markup_ap)
+    #     time.sleep(0.75)
+    #     bot.send_message(message.chat.id,
+    #                      "Егер сіз артқа қайтқыңыз келсе, /menu таңдаңыз /menu енгізу жолағының сол жағында")
+    if message_text == "Менің өтініштерім":
         db_connect.cm_sv_db(message, 'Менің өтініштерім')
         markup_a = db_connect.appealInlineMarkup(message)
         if markup_a.keyboard:
@@ -882,11 +881,18 @@ def profile(bot, message):
 
 
 def questions(bot, message):
-    button_q1 = types.KeyboardButton("Өтініштер")
+    button_q = types.KeyboardButton("Менің өтініштерім")
+    button_q1 = types.KeyboardButton("Өтінішті қалдыру")
     button_q2 = types.KeyboardButton("Жиі қойылатын сұрақтар")
-    markup_q = types.ReplyKeyboardMarkup()
-    markup_q.add(button_q1, button_q2)
-    bot.send_message(str(message.chat.id), "Бөлімді таңдаңыз", reply_markup=markup_q)
+    markup_q = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+    markup_q.add(button_q2, button_q1, button_q)
+    if db_connect.check_id(categories, str(message.chat.id)):
+        markup_q.add(types.KeyboardButton("Админ панель для обращений"))
+    bot.send_message(str(message.chat.id), "Бұл бөлімде сіз өзіңіздің өтінішіңізді қалдыра аласыз немесе жиі "
+                                           "қойылатын сұрақтарға жауаптарды көре аласыз", reply_markup=markup_q)
+    time.sleep(0.75)
+    bot.send_message(message.chat.id,
+                     "Егер сіз артқа қайтқыңыз келсе, /menu таңдаңыз /menu енгізу жолағының сол жағында")
 
 
 portal_bts = ["'Бірлік' порталы дегеніміз не?", "Порталға қалай кіруге болады?", "Өтінішті қалдыру", "Бірлік Гид"]

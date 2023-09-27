@@ -154,18 +154,18 @@ def adaption(bot, message):
 
 
 def performer_text(appeal_info):
-    text = f"<b>ID</b> обращения {appeal_info[0]}\n\n" \
+    text = f"Обращения <b>ID</b> {appeal_info[0]}\n\n" \
            f" Статус: {str(appeal_info[2])}\n" \
            f" Дата создания: {str(appeal_info[5])}\n" \
            f" Категория: {str(appeal_info[3])}\n" \
            f" Текст обращения: {str(appeal_info[4])}\n" \
            f" Дата последнего изменения статуса: {str(appeal_info[6])}\n" \
-           f" Комментарий: {str(appeal_info[8])}\n\n" \
            f"Исполнитель\n" \
            f" ФИО: {categories.get(str(appeal_info[3]), {}).get('name', None)}\n" \
            f" Номер телефона: {categories.get(str(appeal_info[3]), {}).get('phone_num', None)}\n" \
            f" Email: {categories.get(str(appeal_info[3]), {}).get('email', None)}\n" \
-           f" Telegram: {categories.get(str(appeal_info[3]), {}).get('telegram', None)}\n"
+           f" Telegram: {categories.get(str(appeal_info[3]), {}).get('telegram', None)}\n\n" \
+           f" Комментарий: {str(appeal_info[8])}"
     return text
 
 
@@ -401,7 +401,8 @@ def call_back(bot, call):
 
 
 def add_comment(message, bot, appeal_id):
-    db_connect.set_comment(appeal_id, message.text)
+    comment = message.text + " \n" + str(db_connect.get_comment(appeal_id)[0][0])
+    db_connect.set_comment(appeal_id, comment)
     appeal_info = db_connect.get_appeal_by_id(appeal_id)[0]
     image_data = db_connect.get_image_data(appeal_id)
     text = performer_text(appeal_info)
@@ -416,21 +417,21 @@ def add_comment(message, bot, appeal_id):
 
 def appeal(bot, message, message_text):
     db_connect.set_appeal_field(message, True)
-    if message_text == "Обращения":
-        db_connect.cm_sv_db(message, 'Обращения')
-        markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-        button1_ap = types.KeyboardButton("Мои обращения")
-        button2_ap = types.KeyboardButton("Оставить обращение")
-        if db_connect.check_id(categories, str(message.chat.id)):
-            markup_ap.add(types.KeyboardButton("Админ панель для обращений"))
-        markup_ap.add(button1_ap, button2_ap)
-        bot.send_message(message.chat.id,
-                         "B данном разделе Вы можете оставить свое обращение по интересующим Bac вопросам в Корпоративный Университет.",
-                         reply_markup=markup_ap)
-        time.sleep(0.75)
-        bot.send_message(message.chat.id,
-                         "Ecли Вы хотите вернуться назад, то введите /menu или выберите /menu в меню команд слева от строки ввода.")
-    elif message_text == "Мои обращения":
+    # if message_text == "Обращения":
+    #     db_connect.cm_sv_db(message, 'Обращения')
+    #     markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+    #     button1_ap = types.KeyboardButton("Мои обращения")
+    #     button2_ap = types.KeyboardButton("Оставить обращение")
+    #     if db_connect.check_id(categories, str(message.chat.id)):
+    #         markup_ap.add(types.KeyboardButton("Админ панель для обращений"))
+    #     markup_ap.add(button1_ap, button2_ap)
+    #     bot.send_message(message.chat.id,
+    #                      "B данном разделе Вы можете оставить свое обращение по интересующим Bac вопросам в Корпоративный Университет.",
+    #                      reply_markup=markup_ap)
+    #     time.sleep(0.75)
+    #     bot.send_message(message.chat.id,
+    #                      "Ecли Вы хотите вернуться назад, то введите /menu или выберите /menu в меню команд слева от строки ввода.")
+    if message_text == "Мои обращения":
         db_connect.cm_sv_db(message, 'Мои обращения')
         markup_a = db_connect.appealInlineMarkup(message)
         if markup_a.keyboard:
@@ -1061,11 +1062,18 @@ def profile(bot, message):
 
 
 def questions(bot, message):
-    button_q1 = types.KeyboardButton("Обращения")
+    button_q = types.KeyboardButton("Мои обращения")
+    button_q1 = types.KeyboardButton("Оставить обращение")
     button_q2 = types.KeyboardButton("Часто задаваемые вопросы")
-    markup_q = types.ReplyKeyboardMarkup()
-    markup_q.add(button_q1, button_q2)
-    bot.send_message(str(message.chat.id), "Выберите раздел", reply_markup=markup_q)
+    markup_q = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+    markup_q.add(button_q2, button_q1, button_q)
+    if db_connect.check_id(categories, str(message.chat.id)):
+        markup_q.add(types.KeyboardButton("Админ панель для обращений"))
+    bot.send_message(str(message.chat.id), "B данном разделе Вы можете оставить свое обращение или "
+                                           "посмотреть ответы на часто задаваемые вопросы", reply_markup=markup_q)
+    time.sleep(0.75)
+    bot.send_message(message.chat.id, "Ecли Вы хотите вернуться назад, то введите /menu или выберите /menu "
+                                      "в меню команд слева от строки ввода.")
 
 
 portal_bts = ["Что такое портал 'Бірлік'?", "Как войти на портал?", "Оставить обращение", "Бірлік Гид"]

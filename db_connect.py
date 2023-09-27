@@ -10,7 +10,7 @@ import smtplib
 from email.mime.text import MIMEText
 import io
 
-TOKEN = '6220689869:AAHktyMsUH1kA8XePSq3sGIw-zPviXEGEfg'
+TOKEN = '6053200189:AAHVGsQDJOnyvW0o4xwCZJ_X_zBdn7kRKNA'
 admins_id = ['187663574', '760906879']
 
 
@@ -600,7 +600,7 @@ def admin_appeal_callback(call, bot, add_comment):
         appeal_info = get_appeal_by_id(appeal_id)[0]
         image_data = get_image_data(appeal_id)
         try:
-            bot.send_photo(appeal_info[1], image_data)
+            bot.send_photo(appeal_info[7], image_data)
         except:
             print("error")
         callback_d = f"{appeal_id}statusdecided"
@@ -618,19 +618,19 @@ def admin_appeal_callback(call, bot, add_comment):
                 btn_text = "Изменить статус на 'В процессе'"
         else:
             appeal_info = get_appeal_by_id_inner_join_users(appeal_id)[0]
-            text = f"ID обращения {appeal_id}\n\n" \
+            text = f"Обращения <b>ID</b> {appeal_id}\n\n" \
                    f" Статус: {str(appeal_info[1])}\n" \
                    f" Дата создания: {str(appeal_info[4])}\n" \
                    f" Категория: {str(appeal_info[2])}\n" \
                    f" Текст обращения: {str(appeal_info[3])}\n" \
-                   f" Дата последнего изменения статуса: {str(appeal_info[5])}" \
-                   f" Комментарий: {str(appeal_info[6])}\n\n" \
+                   f" Дата последнего изменения статуса: {str(appeal_info[5])}\n\n" \
                    f"Пользователь\n" \
                    f" ФИО: {str(appeal_info[9])} {str(appeal_info[8])}\n" \
                    f" Номер телефона: {str(appeal_info[11])}\n" \
                    f" Email: {str(appeal_info[12])}\n" \
                    f" Telegram: {str(appeal_info[7])}\n" \
-                   f" Филиал: {str(appeal_info[13])}"
+                   f" Филиал: {str(appeal_info[13])}\n\n" \
+                   f" Комментарий: {str(appeal_info[6])}"
             if str(appeal_info[1]) == "Обращение принято":
                 callback_d = f"{appeal_id}statusinprocess"
                 btn_text = "Изменить статус на 'В процессе'"

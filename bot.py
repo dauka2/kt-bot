@@ -467,7 +467,9 @@ def text(message, get_message, lang_py):
         lang_py.adaption(bot, message)
     elif get_message == "У меня есть вопрос" or get_message == "Менің сұрағым бар":
         lang_py.questions(bot, message)
-    elif get_message == "Обращения" or get_message == "Өтініштер" \
+    elif get_message == "Мои обращения" or get_message == "Менің өтініштерім" \
+            or get_message == "Оставить обращение" or get_message == "Өтінішті қалдыру" \
+            or get_message == "Админ панель для обращений" \
             or db_connect.get_appeal_field(message):
         lang_py.appeal(bot, message, message.text)
     elif get_message == "Портал 'Бірлік'" or get_message in lang_py.portal_bts or get_message in lang_py.portal_ or get_message in lang_py.portal_guide:
