@@ -24,6 +24,16 @@ def check_id(categories, input_id):
     return False
 
 
+# def check_is_portal(message, language):
+#     if db_connect.get_appeal_field(message):
+#         if language == "rus":
+#             rus.portal(bot, message)
+#         else:
+#             kaz.portal(bot, message)
+#         return True
+#     return False
+
+
 def check_is_command(text):
     if text == "/menu" or text == "/start" or text == "/help" or text == "/language":
         return False
@@ -157,11 +167,17 @@ def change_email(message, func):
     regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
     language = db_connect.get_language(message)
     arr = ["И завершающий этап\nВыберите Ваш филиал из списка",
-           "Вы ввели некорректные данные, введите в таком шаблоне dilnaz@telecom.kz"]
+           "Вы ввели некорректные данные, введите в таком шаблоне dilnaz@telecom.kz",
+           "Для использования команд необходимо ввести email"]
     if language == "kaz":
         arr = ["Соңғы кезең тізімнен филиалды таңдаңыз",
-               "Сіз деректерді қате енгіздіңіз, осы үлгіде енгізіңіз dilnaz@telecom.kz"]
-    if re.fullmatch(regex, email):
+               "Сіз деректерді қате енгіздіңіз, осы үлгіде енгізіңіз dilnaz@telecom.kz",
+               "Пәрмендерді пайдалану үшін email енгізу керек"]
+    if not check_is_command(message.text):
+        msg = bot.send_message(message.chat.id, arr[2])
+        bot.register_next_step_handler(msg, change_email, func)
+        return
+    elif re.fullmatch(regex, email):
         db_connect.set_email(message, email)
         if check_register(message, func) != 0:
             return
@@ -453,7 +469,7 @@ def text(message, get_message, lang_py):
         lang_py.faq(bot, message)
     elif get_message in drb_regions or get_message in ods_regions:
         lang_py.func_region(bot, message)
-    elif get_message == "Мой профиль" or get_message == "Менің профилім":
+    elif get_message == "Мой профиль🧐" or get_message == "Менің профилім🧐":
         lang_py.profile(bot, message)
     elif get_message in lang_py.faq_1.keys():
         bot.send_message(message.chat.id, lang_py.faq_1[message.text])
@@ -465,14 +481,14 @@ def text(message, get_message, lang_py):
         lang_py.kb(bot, message)
     elif get_message in lang_py.adapt_field:
         lang_py.adaption(bot, message)
-    elif get_message == "У меня есть вопрос" or get_message == "Менің сұрағым бар":
+    elif get_message == "У меня есть вопрос📄" or get_message == "Менің сұрағым бар📄":
         lang_py.questions(bot, message)
     elif get_message == "Мои обращения" or get_message == "Менің өтініштерім" \
             or get_message == "Оставить обращение" or get_message == "Өтінішті қалдыру" \
             or get_message == "Админ панель для обращений" \
             or db_connect.get_appeal_field(message):
         lang_py.appeal(bot, message, message.text)
-    elif get_message == "Портал 'Бірлік'" or get_message in lang_py.portal_bts or get_message in lang_py.portal_ or get_message in lang_py.portal_guide:
+    elif get_message == "Портал 'Бірлік'🖥" or get_message in lang_py.portal_bts or get_message in lang_py.portal_ or get_message in lang_py.portal_guide:
         lang_py.portal(bot, message)
     elif str(message.chat.id) in db_connect.get_users_id():
         if db_connect.get_glossar(message):

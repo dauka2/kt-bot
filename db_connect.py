@@ -20,6 +20,14 @@ def remove_milliseconds(dt):
     return modified_dt
 
 
+def send_error(bot, message):
+    bot.send_photo(message.chat.id, photo=open('images/oops_error.jpg', 'rb'))
+    time.sleep(0.5)
+    bot.send_message(message.chat.id,
+                     "Упс, что-то пошло не так...\nПoжaлyйcтa, попробуйте заново запустить бота нажав кнопку /menu")
+
+
+
 def get_excel(bot, message, admin_id, excel_file, sql_query, params=None):
     # conn = psycopg2.connect(user="postgres", password="j7hPC180")
     conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
@@ -62,13 +70,6 @@ def execute_set_sql_query(sql_query, params=None):
     except (psycopg2.Error, Exception) as e:
         print("Error:", e)
         return None
-
-
-def send_error(bot, message):
-    bot.send_photo(message.chat.id, photo=open('images/oops_error.jpg', 'rb'))
-    time.sleep(0.5)
-    bot.send_message(message.chat.id,
-                     "Упс, что-то пошло не так...\nПoжaлyйcтa, попробуйте заново запустить бота нажав кнопку /menu")
 
 
 def create_db():
@@ -137,7 +138,6 @@ def change_language(message, language):
     conn.commit()
     cur.close()
     conn.close()
-
 
 
 
@@ -246,13 +246,10 @@ def clear_appeals(message):
 
 
 def get_category_users_info(message):
-    sql_query = "SELECT category FROM users_info WHERE id = %s;"
+    sql_query = 'SELECT category FROM users_info WHERE id=%s'
     params = (str(message.chat.id),)
-    category = execute_get_sql_query(sql_query=sql_query, params=params)
-    if category:
-        return category[0][0]
-    else:
-        return None
+    appeal_field = execute_get_sql_query(sql_query, params)
+    return appeal_field[0][0]
 
 
 def set_appeal_id(message, id):
