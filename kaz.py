@@ -939,6 +939,8 @@ def portal(bot, message):
             db_connect.set_category(message, "portal")
             appeal(bot, message, message_text)
     else:
+        if checkpoint(bot, message):
+            return
         db_connect.check_portal_guide(bot, message, message_text, portal_guide)
 
 
