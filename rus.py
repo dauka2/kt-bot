@@ -151,7 +151,7 @@ def send_error(bot, message):
 
 
 def adaption(bot, message):
-    if message.text == "Welcome курс | Адаптация😊":
+    if message.text == "😊Welcome курс | Адаптация":
         db_connect.cm_sv_db(message, 'Welcome курс | Адаптация')
         markup_adapt = types.InlineKeyboardMarkup()
         button_adapt = types.InlineKeyboardButton("Рассказывай!", callback_data="Рассказывай!")
