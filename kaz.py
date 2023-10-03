@@ -41,8 +41,8 @@ drb_regions = ["Алматинский регион, г.Алматы", "Запа
 ods_regions = ["ДЭСД 'Алматытелеком'", "Южно-Казахстанский ДЭСД", "Кызылординский ДЭСД", "Костанайский ДЭСД",
                "Восточно-Казахстанский ДЭСД", "Атырауский ДЭСД", "Актюбинский ДЭСД",
                "ДЭСД 'Астана'", "ТУСМ-1", "ТУСМ-6", "ТУСМ-8", "ТУСМ-10", "ТУСМ-11", "ТУСМ-13", "ТУСМ-14", "ГА"]
-biot_field = ["ҚТ ж ЕҚ кәртішкесін толтыру👷", "Қауіпті фактор | шарт", "Жұмысты орындау тәртібі", "Ұсыныстар | Идеялар"]
-kb_field = ["Білім базасы🗃️", "Нұсқаулық базасы", "Глоссарий", "Пайдалы сілтемелер"]
+biot_field = ["👷ҚТ ж ЕҚ кәртішкесін толтыру", "Қауіпті фактор | шарт", "Жұмысты орындау тәртібі", "Ұсыныстар | Идеялар"]
+kb_field = ["🗃️Білім базасы", "Нұсқаулық базасы", "Глоссарий", "Пайдалы сілтемелер"]
 kb_field_all = ["Логотиптер және Брендбук", "Жеке кабинет telecom.kz", "Модемдер | Теңшеу", "Lotus | Нұсқаулар",
                 "Checkpoint VPN | Қашықтан жұмыс", "Iссапар | Рәсімдеу тәртібі",
                 "Қалай кіруге болады", "Жеке профиль", "Порталдан ССП өту", "Филиал серверлері бойынша деректер",
@@ -52,7 +52,7 @@ kb_field_all = ["Логотиптер және Брендбук", "Жеке ка
                 "IDTV консолі", "ONT модемдері", "Router 4G and Router Ethernet", "CheckPoint Орнату нұсқаулығы",
                 "Checkpoint орнату файлы"]
 instr_field = ["Брендбук және логотиптер", "Жеке кабинет telecom.kz", "Модемдер | Теңшеу", "Lotus | Нұсқаулар"]
-adapt_field = ["Welcome курс | Бейімделу😊"]
+adapt_field = ["😊Welcome курс | Бейімделу"]
 portal_bts = ["'Бірлік' порталы дегеніміз не?", "Порталға қалай кіруге болады?", "Порталға өтініш қалдыру", "Бірлік Гид"]
 portal_ = ["Мобильді нұсқа", "ДК немесе ноутбук", "Қалай кіруге болады", "Жеке профиль", "Порталдан ССП өту",
            "iOS", "Android", "Есть checkpoint", "Нет checkpoint"]
@@ -107,13 +107,13 @@ branches = ['Центральный Аппарат', 'Обьединение Д�
 
 
 markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-button = types.KeyboardButton("Welcome курс | Бейімделу😊")
+button = types.KeyboardButton("😊Welcome курс | Бейімделу")
 # button2 = types.KeyboardButton("Өтініштер")
-button3 = types.KeyboardButton("Білім базасы🗃️")
-button4 = types.KeyboardButton("ҚТ ж ЕҚ кәртішкесін толтыру👷")
-button5 = types.KeyboardButton("Менің сұрағым бар📄")
-button6 = types.KeyboardButton("Менің профилім🧐")
-button7 = types.KeyboardButton("Портал 'Бірлік'🖥")
+button3 = types.KeyboardButton("🗃️Білім базасы")
+button4 = types.KeyboardButton("👷ҚТ ж ЕҚ кәртішкесін толтыру")
+button5 = types.KeyboardButton("📄Менің сұрағым бар")
+button6 = types.KeyboardButton("🧐Менің профилім")
+button7 = types.KeyboardButton("🖥Портал 'Бірлік'")
 markup.add(button, button3, button7, button5, button4, button6)
 
 
@@ -141,7 +141,7 @@ def send_error(bot, message):
 
 
 def adaption(bot, message):
-    if message.text == 'Welcome курс | Бейімделу😊':
+    if message.text == '😊Welcome курс | Бейімделу':
         db_connect.cm_sv_db(message, 'Welcome курс | Бейімделу')
         markup_adapt = types.InlineKeyboardMarkup()
         button_adapt = types.InlineKeyboardButton('Айтыңызшы!', callback_data='Айтыңызшы!')
@@ -322,12 +322,25 @@ def call_back(bot, call):
                          "Құттықтаймыз!\nСіз Welcome курсынан өттіңіз. \n\nКомпанияға қош келдіңіз!")
         time.sleep(0.75)
         bot.send_message(call.message.chat.id, "Негізгі мәзірге өту үшін /menu пәрменін теріңіз немесе басыңыз")
-    elif call.data == "checkpoint":
-        markup_p = types.ReplyKeyboardMarkup()
-        button_p1 = types.KeyboardButton("iOS")
-        button_p2 = types.KeyboardButton("Android")
+    elif call.data == "checkPoint":
+        markup_p = types.InlineKeyboardMarkup()
+        button_p1 = types.InlineKeyboardButton("iOS", callback_data="iOS")
+        button_p2 = types.InlineKeyboardButton("Android", callback_data="Android")
         markup_p.add(button_p1, button_p2)
         bot.send_message(str(call.message.chat.id), "Санатты таңдаңыз", reply_markup=markup_p)
+    elif call.data == portal_[5]:
+        markup_p = types.InlineKeyboardMarkup()
+        button_p1 = types.InlineKeyboardButton(text="App Store сілтемесі",
+                                               url="https://apps.apple.com/ru/app/check-point-capsule-connect/id506669652")
+        markup_p.add(button_p1)
+        bot.send_message(str(call.message.chat.id), "iOS жүйесіндегі checkpoint бейне нұсқаулығына сілтеме\nhttps://youtu.be/giK26_GgVgE ", reply_markup=markup_p)
+    elif call.data == portal_[6]:
+        markup_p = types.InlineKeyboardMarkup()
+        button_p2 = types.InlineKeyboardButton(text="PlayMarket сілтемесі",
+                                               url="https://play.google.com/store/apps/details?id=com.checkpoint.VPN&hl=en&gl=US&pli=1")
+        markup_p.add(button_p2)
+        bot.send_message(str(call.message.chat.id), "Android жүйесіндегі checkpoint бейне нұсқаулығына сілтеме\nhttps://youtu.be/KjL9tpunb4U", reply_markup=markup_p)
+
     elif str(call.data).isdigit():
         appeal_id = str(call.data)
         appeal_info = db_connect.get_appeal_by_id(appeal_id)[0]
@@ -645,7 +658,7 @@ def func_region(bot, message):
 
 
 def biot(bot, message):
-    if message.text == "ҚТ ж ЕҚ кәртішкесін толтыру👷":
+    if message.text == "👷ҚТ ж ЕҚ кәртішкесін толтыру":
         db_connect.cm_sv_db(message, 'ҚТ ж ЕҚ кәртішкесін толтыру')
         markup = types.ReplyKeyboardMarkup(row_width=1)
         button = types.KeyboardButton("Қауіпті фактор | шарт")
@@ -724,11 +737,11 @@ def instructions(bot, message):
     #     bot.send_message(message.chat.id, "Санатты таңдаңыз", reply_markup=markup_portal)
     elif message.text == "Checkpoint VPN | Қашықтан жұмыс":
         db_connect.cm_sv_db(message, 'Checkpoint VPN | Қашықтан жұмыс')
-        markup_instr = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-        button1_i = types.KeyboardButton("CheckPoint Орнату нұсқаулығы")
-        button2_i = types.KeyboardButton("Checkpoint орнату файлы")
-        markup_instr.add(button1_i, button2_i)
-        bot.send_message(message.chat.id, "Санатты таңдаңыз", reply_markup=markup_instr)
+        markup_p = types.InlineKeyboardMarkup()
+        button_p1 = types.InlineKeyboardButton("iOS", callback_data="iOS")
+        button_p2 = types.InlineKeyboardButton("Android", callback_data="Android")
+        markup_p.add(button_p1, button_p2)
+        bot.send_message(str(message.chat.id), "Санатты таңдаңыз", reply_markup=markup_p)
     elif message.text == "Жеке кабинет telecom.kz":
         db_connect.cm_sv_db(message, 'Жеке кабинет telecom.kz')
         markup_instr = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
@@ -808,7 +821,7 @@ def instructions(bot, message):
 
 
 def kb(bot, message):
-    if message.text == "Білім базасы🗃️":
+    if message.text == "🗃️Білім базасы":
         db_connect.cm_sv_db(message, 'Білім базасы')
         db_connect.set_bool(message, False, False)
         markup_kb = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
@@ -830,10 +843,9 @@ def kb(bot, message):
         button2_instr = types.KeyboardButton("Жеке кабинет telecom.kz")
         button3_instr = types.KeyboardButton("Модемдер | Теңшеу")
         button4_instr = types.KeyboardButton("Lotus | Нұсқаулар")
-        button5_instr = types.KeyboardButton("portal.telecom.kz | Нұсқаулар")
         button6_instr = types.KeyboardButton("Checkpoint VPN | Қашықтан жұмыс")
         button7_instr = types.KeyboardButton("Iссапар | Рәсімдеу тәртібі")
-        markup_instr.add(button5_instr, button4_instr, button6_instr, button1_instr, button7_instr, button2_instr, button3_instr)
+        markup_instr.add(button4_instr, button6_instr, button1_instr, button7_instr, button2_instr, button3_instr)
         bot.send_message(message.chat.id, "Бұл жерде өзіңізге пайдалы нұсқаулықты таба аласыз.",
                          reply_markup=markup_instr)
         time.sleep(0.5)
@@ -872,7 +884,7 @@ def glossary(bot, message):
 
 
 def profile(bot, message):
-    db_connect.cm_sv_db(message, "Менің профилім🧐")
+    db_connect.cm_sv_db(message, "🧐Менің профилім")
     markup_ap = types.InlineKeyboardMarkup(row_width=1)
     button1_ap = types.InlineKeyboardButton("Атын Өзгерту", callback_data="Изменить Имя")
     button2_ap = types.InlineKeyboardButton("Тегін өзгерту", callback_data="Изменить Фамилию")
@@ -908,24 +920,37 @@ def questions(bot, message):
 
 def portal(bot, message):
     message_text = message.text
-    if message_text == "Портал 'Бірлік'🖥":
+    if message_text == "🖥Портал 'Бірлік'":
         markup_p = types.ReplyKeyboardMarkup(row_width=1)
         markup_p = db_connect.generate_buttons(portal_bts, markup_p)
         bot.send_message(str(message.chat.id), "Выберите категорию", reply_markup=markup_p)
     elif message_text == portal_bts[0]:
         bot.send_message(str(message.chat.id), "Что такое портал - файл")
-    elif message_text == portal_bts[1]:
+    elif message_text == portal_[0]:
+        markup_p = types.InlineKeyboardMarkup()
+        button_p = types.InlineKeyboardButton("Checkpoint керек пе?", callback_data="checkPoint")
+        markup_p.add(button_p)
+        bot.send_message(str(message.chat.id), "IOS және Android жүйелеріндегі қызметкер порталына қалай кіруге болады | portal.telecom.kz\nhttps://youtu.be/WJdS1aIBe1I", reply_markup=markup_p)
+    elif message_text == portal_bts[3]:
+        markup_p = types.ReplyKeyboardMarkup(row_width=1)
+        markup_p = db_connect.generate_buttons(portal_guide, markup_p)
+        bot.send_message(str(message.chat.id), "Сұрақты таңдаңыз", reply_markup=markup_p)
+    elif message_text == portal_bts[2]:
+            db_connect.set_category(message, "portal")
+            appeal(bot, message, message_text)
+    else:
+        db_connect.check_portal_guide(bot, message, message_text, portal_guide)
+
+
+def checkpoint(bot, message):
+    message_text = message.text
+    if message_text == portal_bts[1]:
         db_connect.cm_sv_db(message, portal_bts[1])
         markup_portal = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         button1 = types.KeyboardButton(portal_[0])
         button2 = types.KeyboardButton(portal_[1])
         markup_portal.add(button1, button2)
         bot.send_message(message.chat.id, "Санатты таңдаңыз", reply_markup=markup_portal)
-    elif message_text == portal_[0]:
-        markup_p = types.InlineKeyboardMarkup()
-        button_p = types.InlineKeyboardButton("Checkpoint керек пе?", callback_data="checkPoint")
-        markup_p.add(button_p)
-        bot.send_message(str(message.chat.id), "Ссылка а видео как войти на портал", reply_markup=markup_p)
     elif message_text == portal_[1]:
         markup_pk = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         button1_p = types.KeyboardButton("Қалай кіруге болады")
@@ -942,26 +967,6 @@ def portal(bot, message):
     elif message_text == portal_[4]:
         bot.send_message(message.chat.id, "Санат туралы ақпарат алу үшін 'Порталдан ССП өту'төмендегі сілтемеге өтіңіз"
                                           "\nhttps://youtu.be/wnfI4JpMvmE")
-    elif message_text == portal_bts[3]:
-        markup_p = types.ReplyKeyboardMarkup(row_width=1)
-        markup_p = db_connect.generate_buttons(portal_guide, markup_p)
-        bot.send_message(str(message.chat.id), "Сұрақты таңдаңыз", reply_markup=markup_p)
-    elif message_text == portal_bts[2]:
-            db_connect.set_category(message, "portal")
-            appeal(bot, message, message_text)
-    elif message_text == portal_[5]:
-        markup_p = types.InlineKeyboardMarkup()
-        button_p1 = types.InlineKeyboardButton(text="App Store сілтемесі",
-                                               url="https://apps.apple.com/ru/app/check-point-capsule-connect/id506669652")
-        markup_p.add(button_p1)
-        bot.send_message(str(message.chat.id), "iOS жүйесіндегі checkpoint бейне нұсқаулығына сілтеме\nhttps://youtu.be/giK26_GgVgE ", reply_markup=markup_p)
-    elif message_text == portal_[6]:
-        markup_p = types.InlineKeyboardMarkup()
-        button_p2 = types.InlineKeyboardButton(text="PlayMarket сілтемесі",
-                                               url="https://play.google.com/store/apps/details?id=com.checkpoint.VPN&hl=en&gl=US&pli=1")
-        markup_p.add(button_p2)
-        bot.send_message(str(message.chat.id), "Android жүйесіндегі checkpoint бейне нұсқаулығына сілтеме\nhttps://youtu.be/KjL9tpunb4U", reply_markup=markup_p)
     else:
-        db_connect.check_portal_guide(bot, message, message_text, portal_guide)
-
-
+        return False
+    return True

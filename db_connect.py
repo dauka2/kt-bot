@@ -10,7 +10,7 @@ import smtplib
 from email.mime.text import MIMEText
 import io
 
-TOKEN = '6220689869:AAHktyMsUH1kA8XePSq3sGIw-zPviXEGEfg'
+TOKEN = '6053200189:AAHVGsQDJOnyvW0o4xwCZJ_X_zBdn7kRKNA'
 admins_id = ['187663574', '760906879']
 
 
