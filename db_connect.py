@@ -36,7 +36,7 @@ def get_excel(bot, message, admin_id, excel_file, sql_query, params=None):
         return
     df = pd.read_sql_query(sql_query, conn, params=params)
     if df.empty:
-        bot.send_message(message.chat.id, "Обращения не найдены")
+        bot.send_message(message.chat.id, "Информация не найдена")
         conn.close()
         return
     df.to_excel(excel_file, index=False)
@@ -91,6 +91,9 @@ def create_db():
         'category varchar(100), appeal_text varchar(1000), date varchar(30), date_status varchar(30), '
         'id_performer varchar(30), comment varchar(1000), is_appeal_anon bool, evaluation int, '
         'image_data bytea)')
+    cur.execute(
+        'CREATE TABLE IF NOT EXISTS performers(id serial primary key, performer_id varchar(50), category varchar(50), '
+        'firstname varchar(50), lastname varchar(50), phone_num varchar(13), email varchar(50), telegram varchar(50))')
     conn.commit()
     cur.close()
     conn.close()
@@ -165,7 +168,28 @@ def alter_table_users():
     # cur.execute("ALTER TABLE users_info ADD COLUMN appeal_id int DEFAULT 0")
     # cur.execute("ALTER TABLE users_info ADD COLUMN is_appeal_anon bool DEFAULT False")
     # cur.execute("ALTER TABLE appeals ADD COLUMN evaluation int DEFAULT 0")
-    cur.execute("ALTER TABLE appeals ADD COLUMN image_data bytea")
+    # cur.execute("ALTER TABLE appeals ADD COLUMN image_data bytea")
+    cur.execute(
+        'CREATE TABLE IF NOT EXISTS performers(id serial primary key, performer_id varchar(50), category varchar(50),'
+        'firstname varchar(50), lastname varchar(50), phone_num varchar(13), email varchar(50), telegram varchar(50))')
+    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) '
+                'values (%s, %s, %s, %s, %s, %s, %s)', ("187663574", "Learning.telecom.kz | Техническая поддержка",
+                                                        "Тамирлан", "Оспанов", "87777777777", "email@gmail.com",
+                                                        "@tttt"))
+
+    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) '
+                'values (%s, %s, %s, %s, %s, %s, %s)', ("760906879", "Обучение | Корпоративный Университет",
+                                                         "Дильназ", "Мустафина", "87777777777", "email@gmail.com",
+                                                         "@tttt"))
+
+    cur.execute("insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) "
+                "values  (%s, %s, %s, %s, %s, %s, %s)", ('760906879', 'Служба поддержки \"Нысана\"', 'Дильназ',
+                                                          'Мустафина', '87777777777', 'email@gmail.com', '@tttt'))
+
+    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) '
+                'values (%s, %s, %s, %s, %s, %s, %s)', ("760906879", "Обратиться в службу комплаенс",
+                                                         "Дильназ", "Мустафина", "87777777777", "email@gmail.com",
+                                                         "@tttt"))
 
     conn.commit()
     cur.close()
@@ -491,7 +515,7 @@ def glossary(bot, message, text1, text2):
     wb = openpyxl.load_workbook('glossary.xlsx')
     excel = wb['Лист1']
     abbr, defs = [], []
-    for row in excel.iter_rows(min_row=2, max_row=1264, values_only=True):
+    for row in excel.iter_rows(min_row=2, max_row=1500, values_only=True):
         abbr.append(row[1])
         defs.append(row[2])
     if message.text.upper() in abbr:
@@ -577,16 +601,44 @@ def admin_appeal(bot, message, message_text, categories):
 
 
 def get_excel_admin1(bot, message, status="Решено"):
-    sql_query = "SELECT * from appeals where id_performer=%s and status=%s"
+    sql_query = """
+        SELECT
+            appeals.id,
+            users.firstname AS user_firstname,
+            users.lastname AS user_lastname,
+            table_number,
+            users.phone_number AS user_phone,
+            users.email AS user_email,
+            branch,
+            status,
+            appeals.category,
+            appeal_text,
+            date,
+            date_status,
+            comment,
+            evaluation,
+            image_data,
+            performers.firstname AS performer_firstname,
+            performers.lastname AS performer_lastname,
+            performers.email AS performer_email,
+            telegram
+        FROM appeals
+        inner JOIN users ON appeals.user_id = users.id
+        inner JOIN performers ON performers.category = appeals.category
+        WHERE id_performer=%s and status=%s
+    """
     params = (str(message.chat.id), str(status),)  # Make sure to create a tuple
     get_excel(bot, message, admins_id, 'output_file.xlsx', sql_query, params)
 
 
-def appealInlineMarkup(message):
+def appealInlineMarkup(message, lang="rus", rus_categories=None, kaz_categories=None):
     markup_a = types.InlineKeyboardMarkup()
     appeals_ = get_appeals(message)
     for appeal in appeals_:
-        text = str(appeal[0]) + " - " + appeal[1]
+        if lang == "kaz":
+            text = str(appeal[0]) + " - " + rename_category_to_kaz(rus_categories, kaz_categories, str(appeal[1]))
+        else:
+            text = str(appeal[0]) + " - " + appeal[1]
         markup_a.add(types.InlineKeyboardButton(text=text, callback_data=str(appeal[0])))
     return markup_a
 
@@ -684,5 +736,22 @@ def check_portal_guide(bot, message, message_text, portal_guide):
         bot.send_message(str(message.chat.id), "ФФФАААЙЙЙЛЛЛ9")
     else:
         send_error(bot, message)
+
+
+def rename_category_to_kaz(rus_categories, kaz_categories, category):
+    list_rus_categories = list(rus_categories.keys())
+    for i in range(len(list_rus_categories)):
+        if list_rus_categories[i] == category:
+            return list(kaz_categories.keys())[i]
+    return category
+
+
+def rename_category_to_rus(rus_categories, kaz_categories, category):
+    list_kaz_categories = list(kaz_categories.keys())
+    for i in range(len(list_kaz_categories)):
+        if list_kaz_categories[i] == category:
+            return list(rus_categories.keys())[i]
+    return category
+
 
 

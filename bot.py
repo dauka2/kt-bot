@@ -391,6 +391,13 @@ def get_excel(message):
     db_connect.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
 
 
+@bot.message_handler(commands=['get_performers'])
+def get_excel(message):
+    sql_query = "SELECT * from performers"
+    db_connect.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
+
+
+
 def send_error(message):
     language = db_connect.get_language(message)
     if language == 'rus':
