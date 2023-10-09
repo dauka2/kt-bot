@@ -58,7 +58,8 @@ kb_field_all = ["Логотипы и Брендбук", "Личный кабин
                 "Установочный файл CheckPoint", ]
 instr_field = ["Брендбук и логотипы", "Личный кабинет telecom.kz", "Модемы | Настройка", "Lotus & CheckPoint"]
 adapt_field = ["😊Welcome курс | Адаптация"]
-portal_bts = ["Что такое портал 'Бірлік'?", "Как войти на портал?", "Оставить обращение на портал", "Бірлік Гид"]
+portal_bts = ["Что такое портал 'Бірлік'?", "Как войти на портал?", "Оставить обращение на портал"]
+# "Бірлік Гид"
 portal_ = ["Мобильная версия", "ПК или ноутбук", "Как авторизоваться", "Личный профиль", "Из портала перейти в ССП",
            "iOS", "Android", "Есть checkpoint", "Нет checkpoint"]
 portal_guide = ["Куда обратиться для обратной связи - комментарии и предложения?",
@@ -164,6 +165,8 @@ def adaption(bot, message):
 
 
 def performer_text(appeal_info):
+    performer_info = db_connect.get_performer_by_category(category=appeal_info[3])
+
     text = f"Обращения <b>ID</b> {appeal_info[0]}\n\n" \
            f" Статус: {str(appeal_info[2])}\n" \
            f" Дата создания: {str(appeal_info[5])}\n" \
@@ -171,10 +174,10 @@ def performer_text(appeal_info):
            f" Текст обращения: {str(appeal_info[4])}\n" \
            f" Дата последнего изменения статуса: {str(appeal_info[6])}\n\n" \
            f"Исполнитель\n" \
-           f" ФИО: {categories.get(str(appeal_info[3]), {}).get('name', None)}\n" \
-           f" Номер телефона: {categories.get(str(appeal_info[3]), {}).get('phone_num', None)}\n" \
-           f" Email: {categories.get(str(appeal_info[3]), {}).get('email', None)}\n" \
-           f" Telegram: {categories.get(str(appeal_info[3]), {}).get('telegram', None)}\n\n" \
+           f" ФИО: {performer_info[4]} {performer_info[3]}\n" \
+           f" Номер телефона: {performer_info[5]}\n" \
+           f" Email: {performer_info[6]}\n" \
+           f" Telegram: {performer_info[7]}\n\n" \
            f" Комментарий: {str(appeal_info[8])}"
     return text
 
@@ -474,7 +477,7 @@ def appeal(bot, message, message_text):
             appeal(bot, message, "portal")
             return
         markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True)
-        markup_ap = db_connect.generate_buttons(categories, markup_ap)
+        markup_ap = db_connect.generate_buttons(db_connect.list_categories(), markup_ap)
         bot.send_message(message.chat.id, "Выберите категорию обращения", reply_markup=markup_ap)
     # elif message_text == "Анонимно":
     #     db_connect.cm_sv_db(message, 'Анонимно')
@@ -486,7 +489,7 @@ def appeal(bot, message, message_text):
     #                      reply_markup=markup_ap)
     elif message_text == "portal":
         bot.send_message(message.chat.id, 'Пожалуйста, опишите ваше обращение:')
-    elif message_text in categories.keys():
+    elif message_text in db_connect.list_categories():
         db_connect.cm_sv_db(message, message_text)
         db_connect.set_category(message, message.text)
         bot.send_message(message.chat.id, 'Пожалуйста, опишите ваше обращение:\nВы также можете скинуть фотографию')
@@ -504,7 +507,7 @@ def appeal(bot, message, message_text):
             db_connect.send_gmails(new_message, "Портал 'Бірлік'")
             bot.send_message(str(message.chat.id), "Ваше обращение успешно отправлено")
             return
-        performer_id = categories.get(category, {}).get('id', None)
+        performer_id = db_connect.get_performer_by_category(category)[1]
         # if db_connect.get_is_appeal_anon_users_info(message.chat.id):
         #     appeal_id = db_connect.add_appeal(message.chat.id, "Обращение принято", category, message.text,
         #                                       now_updated, now_updated, performer_id, ' ', True)
@@ -541,7 +544,7 @@ def appeal(bot, message, message_text):
         bot.send_message(performer_id, text, reply_markup=markup_a1)
         db_connect.clear_appeals(message)
     else:
-        db_connect.admin_appeal(bot, message, message_text, categories)
+        db_connect.admin_appeal(bot, message, message_text)
     # elif message_text == "Админ панель для обращений":
     #     markup_a = types.ReplyKeyboardMarkup()
     #     button1_a = types.KeyboardButton("Текущие Обращения")
@@ -1060,7 +1063,7 @@ def questions(bot, message):
     button_q2 = types.KeyboardButton("Часто задаваемые вопросы")
     markup_q = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
     markup_q.add(button_q2, button_q1, button_q)
-    if db_connect.check_id(categories, str(message.chat.id)):
+    if db_connect.check_id(str(message.chat.id)):
         markup_q.add(types.KeyboardButton("Админ панель для обращений"))
     bot.send_message(str(message.chat.id), "B данном разделе Вы можете оставить свое обращение или "
                                            "посмотреть ответы на часто задаваемые вопросы", reply_markup=markup_q)

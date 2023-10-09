@@ -385,9 +385,31 @@ def get_excel(message):
 
 @bot.message_handler(commands=['get_appeals'])
 def get_excel(message):
-    sql_query = "SELECT appeals.id, firstname, lastname, table_number, phone_number, email, branch " \
-                "status, category, appeal_text, date, date_status, comment, evaluation, image_data from appeals " \
-                "inner join users on appeals.user_id = users.id"
+    sql_query = """
+        SELECT
+            appeals.id,
+            users.firstname AS user_firstname,
+            users.lastname AS user_lastname,
+            table_number,
+            users.phone_number AS user_phone,
+            users.email AS user_email,
+            branch,
+            status,
+            appeals.category,
+            appeal_text,
+            date,
+            date_status,
+            comment,
+            evaluation,
+            image_data,
+            performers.firstname AS performer_firstname,
+            performers.lastname AS performer_lastname,
+            performers.email AS performer_email,
+            telegram
+        FROM appeals
+        inner JOIN users ON appeals.user_id = users.id
+        inner JOIN performers ON performers.category = appeals.category
+    """
     db_connect.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
 
 

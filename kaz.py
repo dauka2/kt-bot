@@ -35,6 +35,8 @@ categories = {
         "telegram": "@dilnaz.mustafina"
     },
 }
+categories_ = ['Learning.telecom.kz | Техникалық қолдау', 'Оқыту | Корпоративтік Университет',
+              '"Нысана" қолдау қызметі', 'Комплаенс қызметіне хабарласыңыз']
 
 faq_field = ["Жиі қойылатын сұрақтар", "Демеу", "HR сұрақтары", "Қарыздар бойынша сұрақтар"]
 drb_regions = ["Алматинский регион, г.Алматы", "Западный, Центральный регион", "Северный, Южный, Восточный регионы"]
@@ -155,10 +157,8 @@ def adaption(bot, message):
 
 def performer_text(appeal_info, message):
     status = kaz_get_status(message, appeal_info[0])
-    categories_ = categories
-    if categories_.get(str(appeal_info[3]), {}).get('name', None) is None:
-        categories_ = rus.categories
-    category = db_connect.rename_category_to_kaz(rus.categories, categories, appeal_info[3])
+    performer_info = db_connect.get_performer_by_category(category=appeal_info[3])
+    category = db_connect.rename_category_to_kaz(categories, appeal_info[3])
     text = f"Өтініш <b>ID</b> {appeal_info[0]}\n\n" \
            f" Мәртебесі: {status}\n" \
            f" Құрылған күні: {str(appeal_info[5])}\n" \
@@ -166,10 +166,10 @@ def performer_text(appeal_info, message):
            f" Өтініш мәтіні: {str(appeal_info[4])}\n" \
            f" Соңғы мәртебе өзгерген күн: {str(appeal_info[6])}\n\n" \
            f"Орындаушы\n" \
-           f" ТАӘ: {categories_.get(str(appeal_info[3]), {}).get('name', None)}\n" \
-           f" Телефон нөмірі: {categories_.get(str(appeal_info[3]), {}).get('phone_num', None)}\n" \
-           f" Email: {categories_.get(str(appeal_info[3]), {}).get('email', None)}\n" \
-           f" Telegram: {categories_.get(str(appeal_info[3]), {}).get('telegram', None)}\n\n" \
+           f" ТАӘ: {performer_info[4]} {performer_info[3]}\n" \
+           f" Телефон нөмірі: {performer_info[5]}\n" \
+           f" Email: {performer_info[6]}\n" \
+           f" Telegram: {performer_info[7]}\n\n" \
            f" Пікір: {str(appeal_info[8])}"
     return text
 
@@ -425,7 +425,7 @@ def appeal(bot, message, message_text):
     #                      "Егер сіз артқа қайтқыңыз келсе, /menu таңдаңыз /menu енгізу жолағының сол жағында")
     if message_text == "Менің өтініштерім":
         db_connect.cm_sv_db(message, 'Менің өтініштерім')
-        markup_a = db_connect.appealInlineMarkup(message, "kaz", rus.categories, categories)
+        markup_a = db_connect.appealInlineMarkup(message, "kaz", categories)
         if markup_a.keyboard:
             bot.send_message(message.chat.id, "Мұнда сіз өтініштеріңіздің күйін бақылай аласыз",
                              reply_markup=markup_a)
@@ -443,13 +443,13 @@ def appeal(bot, message, message_text):
             appeal(bot, message, "portal")
             return
         markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True)
-        markup_ap = db_connect.generate_buttons(categories, markup_ap)
+        markup_ap = db_connect.generate_buttons(categories_, markup_ap)
         bot.send_message(message.chat.id, "Өтініш санатын таңдаңыз", reply_markup=markup_ap)
     elif message_text == "portal":
         bot.send_message(message.chat.id, 'Өтінішіңізді сипаттаңыз:')
-    elif message_text in categories.keys():
+    elif message_text in db_connect.list_categories() or message_text in categories_:
         db_connect.cm_sv_db(message, message_text)
-        category = db_connect.rename_category_to_rus(rus.categories, categories, message.text)
+        category = db_connect.rename_category_to_rus(categories, message.text)
         db_connect.set_category(message, category)
         bot.send_message(message.chat.id, 'Өтінішіңізді сипаттаңыз:\nСіз сондай-ақ фотосуретті тастай аласыз')
     elif db_connect.get_appeal_field(message) and db_connect.get_category_users_info(message) != ' ':
@@ -466,11 +466,8 @@ def appeal(bot, message, message_text):
             db_connect.send_gmails(new_message, "Портал 'Бірлік'")
             bot.send_message(str(message.chat.id), "Сіздің өтінішіңіз сәтті жіберілді")
             return
-        categories_ = categories
-        if categories_.get(str(category), {}).get('name', None) is None:
-            categories_ = rus.categories
-        performer_id = categories_.get(category, {}).get('id', None)
-        category_ = db_connect.rename_category_to_kaz(rus.categories, categories, db_connect.get_category_users_info(message))
+        performer_id = db_connect.get_performer_by_category(category)[1]
+        category_ = db_connect.rename_category_to_kaz(categories, db_connect.get_category_users_info(message))
 
         # if db_connect.get_is_appeal_anon_users_info(message.chat.id):
         #     appeal_id = db_connect.add_appeal(message.chat.id, "Өтініш қабылданды", category, message.text,
@@ -511,7 +508,7 @@ def appeal(bot, message, message_text):
         bot.send_message(performer_id, text, reply_markup=markup_a1)
         db_connect.clear_appeals(message)
     else:
-        db_connect.admin_appeal(bot, message, message_text, categories)
+        db_connect.admin_appeal(bot, message, message_text)
 
 
 def faq(bot, message):
@@ -599,7 +596,6 @@ def func_branch(bot, message, message_text):
         markup_r = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         markup_r = db_connect.generate_buttons(ods_regions, markup_r)
         bot.send_message(message.chat.id, "Выберите регион", reply_markup=markup_r)
-
 
 
 def func_region(bot, message):
@@ -890,7 +886,7 @@ def questions(bot, message):
     button_q2 = types.KeyboardButton("Жиі қойылатын сұрақтар")
     markup_q = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
     markup_q.add(button_q2, button_q1, button_q)
-    if db_connect.check_id(categories, str(message.chat.id)):
+    if db_connect.check_id(str(message.chat.id)):
         markup_q.add(types.KeyboardButton("Админ панель для обращений"))
     bot.send_message(str(message.chat.id), "Бұл бөлімде сіз өзіңіздің өтінішіңізді қалдыра аласыз немесе жиі "
                                            "қойылатын сұрақтарға жауаптарды көре аласыз", reply_markup=markup_q)

@@ -411,6 +411,25 @@ def get_appeal_by_id(id):
     return appeals
 
 
+def get_performers():
+    sql_query = 'SELECT * FROM performers'
+    return execute_get_sql_query(sql_query)
+
+
+def get_performer_by_category(category):
+    sql_query = 'SELECT * FROM performers where category = %s'
+    params = (category,)
+    return execute_get_sql_query(sql_query, params)[0]
+
+
+def list_categories():
+    sql_query = 'Select category from performers'
+    categories = execute_get_sql_query(sql_query)
+    categories_result = []
+    for category in categories:
+        categories_result.append(category[0])
+    return categories_result
+
 
 def get_all_appeals_by_id_performer(id_performer, status_1, status_2):
     sql_query = (
@@ -529,7 +548,7 @@ def glossary(bot, message, text1, text2):
 
 def generate_buttons(bts_names, markup_g):
     for button_g in bts_names:
-        markup_g.add(types.KeyboardButton(button_g))
+        markup_g.add(types.KeyboardButton(str(button_g)))
     return markup_g
 
 
@@ -565,7 +584,8 @@ def extract_numbers_from_status_change_decided(input_string):
         return None
 
 
-def admin_appeal(bot, message, message_text, categories):
+def admin_appeal(bot, message, message_text):
+    categories = list_categories()
     if message_text == "Админ панель для обращений":
         markup_a = types.ReplyKeyboardMarkup()
         button1_a = types.KeyboardButton("Текущие Обращения")
@@ -573,7 +593,7 @@ def admin_appeal(bot, message, message_text, categories):
         markup_a.add(button1_a, button2_a)
         bot.send_message(message.chat.id, "Выберите следующий шаг", reply_markup=markup_a)
         return
-    elif check_id(categories, str(message.chat.id)) and message_text == "Текущие Обращения":
+    elif check_id(str(message.chat.id)) and message_text == "Текущие Обращения":
         appeal_info = get_all_appeals_by_id_performer(str(message.chat.id), "Обращение принято", "В процессе")
         markup_a = types.InlineKeyboardMarkup()
         if appeal_info is not None:
@@ -593,7 +613,7 @@ def admin_appeal(bot, message, message_text, categories):
             bot.send_message(message.chat.id, "Текущие Обращения", reply_markup=markup_a)
         else:
             bot.send_message(message.chat.id, "Текущих Обращений нет")
-    elif check_id(categories, str(message.chat.id)) and message_text == "Решенные Обращения":
+    elif check_id(str(message.chat.id)) and message_text == "Решенные Обращения":
         get_excel_admin1(bot, message, "Решено")
     else:
         send_error(bot, message)
@@ -631,12 +651,12 @@ def get_excel_admin1(bot, message, status="Решено"):
     get_excel(bot, message, admins_id, 'output_file.xlsx', sql_query, params)
 
 
-def appealInlineMarkup(message, lang="rus", rus_categories=None, kaz_categories=None):
+def appealInlineMarkup(message, lang="rus", kaz_categories=None):
     markup_a = types.InlineKeyboardMarkup()
     appeals_ = get_appeals(message)
     for appeal in appeals_:
         if lang == "kaz":
-            text = str(appeal[0]) + " - " + rename_category_to_kaz(rus_categories, kaz_categories, str(appeal[1]))
+            text = str(appeal[0]) + " - " + rename_category_to_kaz(kaz_categories, str(appeal[1]))
         else:
             text = str(appeal[0]) + " - " + appeal[1]
         markup_a.add(types.InlineKeyboardButton(text=text, callback_data=str(appeal[0])))
@@ -708,9 +728,10 @@ def admin_appeal_callback(call, bot, add_comment):
 
 
 
-def check_id(categories, input_id):
-    for category, details in categories.items():
-        if details.get("id") == input_id:
+def check_id(input_id):
+    performers = get_performers()
+    for performer in performers:
+        if str(performer[1]) == str(input_id):
             return True
     return False
 
@@ -738,20 +759,17 @@ def check_portal_guide(bot, message, message_text, portal_guide):
         send_error(bot, message)
 
 
-def rename_category_to_kaz(rus_categories, kaz_categories, category):
-    list_rus_categories = list(rus_categories.keys())
+def rename_category_to_kaz(kaz_categories, category):
+    list_rus_categories = list_categories()
     for i in range(len(list_rus_categories)):
         if list_rus_categories[i] == category:
             return list(kaz_categories.keys())[i]
     return category
 
 
-def rename_category_to_rus(rus_categories, kaz_categories, category):
+def rename_category_to_rus(kaz_categories, category):
     list_kaz_categories = list(kaz_categories.keys())
     for i in range(len(list_kaz_categories)):
         if list_kaz_categories[i] == category:
-            return list(rus_categories.keys())[i]
+            return list(list_categories())[i]
     return category
-
-
-
