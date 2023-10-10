@@ -477,7 +477,7 @@ def appeal(bot, message, message_text):
         now = datetime.now() + timedelta(hours=6)
         now_updated = db_connect.remove_milliseconds(now)
         category = db_connect.get_category_users_info(message)
-        performer_id = db_connect.get_performer_id_by_category(message.text)
+        performer_id = db_connect.get_performer_id_by_category(category)
         if performer_id is None:
             user_info = f"Имя Фамилия: {db_connect.get_firstname(message)} {db_connect.get_lastname(message)}\n" \
                         f"Табельный номер: {db_connect.get_table_number(message)}\n" \

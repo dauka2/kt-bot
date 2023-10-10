@@ -10,7 +10,7 @@ import smtplib
 from email.mime.text import MIMEText
 import io
 
-TOKEN = '6220689869:AAHktyMsUH1kA8XePSq3sGIw-zPviXEGEfg'
+TOKEN = '6053200189:AAHVGsQDJOnyvW0o4xwCZJ_X_zBdn7kRKNA'
 admins_id = ['187663574', '760906879']
 
 
@@ -177,7 +177,7 @@ def alter_table_users():
                                                         "@tttt"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) '
                 'values (%s, %s, %s, %s, %s, %s, %s)', ("760906879", "Обучение | Корпоративный Университет",
-                                                         "Дильназ", "Мустафина", "87777777777", "email@gmail.com",
+                                                         "Людмила", "Нам", "+77009145025", "info.ktcu@telecom.kz",
                                                          "@tttt"))
     cur.execute("insert into performers (category, email) "
                 "values  (%s, %s)", ('Служба поддержки \"Нысана\"', 'must.dilnaz@gmail.com'))
@@ -417,7 +417,7 @@ def get_appeal_by_id(id):
 
 
 def get_performers():
-    sql_query = 'SELECT * FROM performers'
+    sql_query = 'SELECT performer_id FROM performers'
     return execute_get_sql_query(sql_query)
 
 
@@ -733,7 +733,7 @@ def admin_appeal_callback(call, bot, add_comment):
 def check_id(input_id):
     performers = get_performers()
     for performer in performers:
-        if str(performer[1]) == str(input_id):
+        if str(performer[0]) == str(input_id):
             return True
     return False
 
