@@ -10,7 +10,7 @@ import smtplib
 from email.mime.text import MIMEText
 import io
 
-TOKEN = '6053200189:AAHVGsQDJOnyvW0o4xwCZJ_X_zBdn7kRKNA'
+TOKEN = '6220689869:AAHktyMsUH1kA8XePSq3sGIw-zPviXEGEfg'
 admins_id = ['187663574', '760906879']
 
 
@@ -176,9 +176,9 @@ def alter_table_users():
                                                         "Тамирлан", "Оспанов", "87777777777", "email@gmail.com",
                                                         "@tttt"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) '
-                'values (%s, %s, %s, %s, %s, %s, %s)', ("760906879", "Обучение | Корпоративный Университет",
+                'values (%s, %s, %s, %s, %s, %s, %s)', ("1483219013", "Обучение | Корпоративный Университет",
                                                          "Людмила", "Нам", "+77009145025", "info.ktcu@telecom.kz",
-                                                         "@tttt"))
+                                                         "@"))
     cur.execute("insert into performers (category, email) "
                 "values  (%s, %s)", ('Служба поддержки \"Нысана\"', 'must.dilnaz@gmail.com'))
 
