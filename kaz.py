@@ -1,40 +1,38 @@
 from datetime import timedelta
-
 import requests
 from telebot import *
 import db_connect
-import rus
 
-categories = {
-    'Learning.telecom.kz | Техникалық қолдау': {
-        "id": "187663574",
-        "name": "Оспанов Тамирлан",
-        "phone_num": "87777777777",
-        "email": "info.ktcu@telecom.kz",
-        "telegram": "@tamirlan"
-    },
-    'Оқыту | Корпоративтік Университет': {
-        "id": "760906879",
-        "name": "Мустафина Дильназ",
-        "phone_num": "87089081808",
-        "email": "info.ktcu@telecom.kz",
-        "telegram": "@dilnaz.mustafina"
-    },
-    '"Нысана" қолдау қызметі': {
-        "id": "760906879",
-        "name": "Мустафина Дильназ",
-        "phone_num": "87089081808",
-        "email": "nysana@cscc.kz",
-        "telegram": "@dilnaz.mustafina"
-    },
-    'Комплаенс қызметіне хабарласыңыз': {
-        "id": "760906879",
-        "name": "Мустафина Дильназ",
-        "phone_num": "87089081808",
-        "email": "tlek.issakov@telecom.kz",
-        "telegram": "@dilnaz.mustafina"
-    },
-}
+# categories = {
+#     'Learning.telecom.kz | Техникалық қолдау': {
+#         "id": "187663574",
+#         "name": "Оспанов Тамирлан",
+#         "phone_num": "87777777777",
+#         "email": "info.ktcu@telecom.kz",
+#         "telegram": "@tamirlan"
+#     },
+#     'Оқыту | Корпоративтік Университет': {
+#         "id": "760906879",
+#         "name": "Мустафина Дильназ",
+#         "phone_num": "87089081808",
+#         "email": "info.ktcu@telecom.kz",
+#         "telegram": "@dilnaz.mustafina"
+#     },
+#     '"Нысана" қолдау қызметі': {
+#         "id": "760906879",
+#         "name": "Мустафина Дильназ",
+#         "phone_num": "87089081808",
+#         "email": "nysana@cscc.kz",
+#         "telegram": "@dilnaz.mustafina"
+#     },
+#     'Комплаенс қызметіне хабарласыңыз': {
+#         "id": "760906879",
+#         "name": "Мустафина Дильназ",
+#         "phone_num": "87089081808",
+#         "email": "tlek.issakov@telecom.kz",
+#         "telegram": "@dilnaz.mustafina"
+#     },
+# }
 categories_ = ['Learning.telecom.kz | Техникалық қолдау', 'Оқыту | Корпоративтік Университет',
               '"Нысана" қолдау қызметі', 'Комплаенс қызметіне хабарласыңыз']
 
@@ -55,7 +53,8 @@ kb_field_all = ["Логотиптер және Брендбук", "Жеке ка
                 "Checkpoint орнату файлы"]
 instr_field = ["Брендбук және логотиптер", "Жеке кабинет telecom.kz", "Модемдер | Теңшеу", "Lotus | Нұсқаулар"]
 adapt_field = ["😊Welcome курс | Бейімделу"]
-portal_bts = ["'Бірлік' порталы дегеніміз не?", "Порталға қалай кіруге болады?", "Порталға өтініш қалдыру", "Бірлік Гид"]
+portal_bts = ["'Бірлік' порталы дегеніміз не?", "Порталға қалай кіруге болады?", "Порталға өтініш қалдыру"]
+#"Бірлік Гид"
 portal_ = ["Мобильді нұсқа", "ДК немесе ноутбук", "Қалай кіруге болады", "Жеке профиль", "Порталдан ССП өту",
            "iOS", "Android", "Есть checkpoint", "Нет checkpoint"]
 portal_guide = ["Кері байланыс үшін қайда жүгіну керек-пікірлер мен ұсыныстар?",
@@ -106,16 +105,13 @@ branches = ['Центральный Аппарат', 'Обьединение Д�
             'Дирекция Телеком Комплект', 'Дирекция Управления Проектами',
             'Сервисная Фабрика']
 
-
-
 markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
 button = types.KeyboardButton("😊Welcome курс | Бейімделу")
-# button2 = types.KeyboardButton("Өтініштер")
 button3 = types.KeyboardButton("🗃️Білім базасы")
 button4 = types.KeyboardButton("👷ҚТ ж ЕҚ кәртішкесін толтыру")
 button5 = types.KeyboardButton("📄Менің сұрағым бар")
 button6 = types.KeyboardButton("🧐Менің профилім")
-button7 = types.KeyboardButton("🖥Портал 'Бірлік'")
+button7 = types.KeyboardButton('🖥Портал "Бірлік"')
 markup.add(button, button3, button7, button5, button4, button6)
 
 
@@ -158,7 +154,7 @@ def adaption(bot, message):
 def performer_text(appeal_info, message):
     status = kaz_get_status(message, appeal_info[0])
     performer_info = db_connect.get_performer_by_category(category=appeal_info[3])
-    category = db_connect.rename_category_to_kaz(categories, appeal_info[3])
+    category = db_connect.rename_category_to_kaz(categories_, appeal_info[3])
     text = f"Өтініш <b>ID</b> {appeal_info[0]}\n\n" \
            f" Мәртебесі: {status}\n" \
            f" Құрылған күні: {str(appeal_info[5])}\n" \
@@ -381,10 +377,6 @@ def call_back(bot, call):
                 markup_callback.add(button_callback)
             bot.send_message(appeal_info[1], "Шешілген үндеуді 1-ден 5-ке дейін бағалаңыз\n\nҚайда 1-өте нашар, "
                                              "5-керемет", reply_markup=markup_callback)
-    # elif db_connect.extract_number_from_status_change(str(call.data), r'^(\d+)addcomment') is not None:
-    #     appeal_id = db_connect.extract_number_from_status_change(str(call.data), r'^(\d+)addcomment')
-    #     msg = bot.send_message(call.message.chat.id, 'Введите комментарий')
-    #     bot.register_next_step_handler(msg, add_comment, bot, appeal_id)
     elif db_connect.extract_numbers_from_status_change_decided(str(call.data)) is not None:
         evaluation, appeal_id = db_connect.extract_numbers_from_status_change_decided(str(call.data))
         db_connect.set_evaluation(appeal_id, evaluation)
@@ -411,21 +403,9 @@ def add_comment(message, bot, appeal_id):
 
 def appeal(bot, message, message_text):
     db_connect.set_appeal_field(message, True)
-    # if message_text == "Өтініштер":
-    #     db_connect.cm_sv_db(message, 'Өтініштер')
-    #     markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-    #     button1_ap = types.KeyboardButton("Менің өтініштерім")
-    #     button2_ap = types.KeyboardButton("Өтінішті қалдыру")
-    #     markup_ap.add(button1_ap, button2_ap)
-    #     bot.send_message(message.chat.id,
-    #                      "B осы бөлімде Сіз өзіңізді қызықтыратын мәселелер бойынша өтінішіңізді корпоративтік университетке қалдыра аласыз.",
-    #                      reply_markup=markup_ap)
-    #     time.sleep(0.75)
-    #     bot.send_message(message.chat.id,
-    #                      "Егер сіз артқа қайтқыңыз келсе, /menu таңдаңыз /menu енгізу жолағының сол жағында")
     if message_text == "Менің өтініштерім":
         db_connect.cm_sv_db(message, 'Менің өтініштерім')
-        markup_a = db_connect.appealInlineMarkup(message, "kaz", categories)
+        markup_a = db_connect.appealInlineMarkup(message, "kaz", categories_)
         if markup_a.keyboard:
             bot.send_message(message.chat.id, "Мұнда сіз өтініштеріңіздің күйін бақылай аласыз",
                              reply_markup=markup_a)
@@ -439,7 +419,7 @@ def appeal(bot, message, message_text):
         profile(bot, message)
         bot.send_message(message.chat.id, "Ақпарат дұрыс па?", reply_markup=markup_ap)
     elif message_text == "Иә":
-        if db_connect.get_category_users_info(message) == "portal":
+        if db_connect.get_category_users_info(message) == 'Портал "Бірлік"':
             appeal(bot, message, "portal")
             return
         markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True)
@@ -449,38 +429,34 @@ def appeal(bot, message, message_text):
         bot.send_message(message.chat.id, 'Өтінішіңізді сипаттаңыз:')
     elif message_text in db_connect.list_categories() or message_text in categories_:
         db_connect.cm_sv_db(message, message_text)
-        category = db_connect.rename_category_to_rus(categories, message.text)
+        category = db_connect.rename_category_to_rus(categories_, message.text)
         db_connect.set_category(message, category)
-        bot.send_message(message.chat.id, 'Өтінішіңізді сипаттаңыз:\nСіз сондай-ақ фотосуретті тастай аласыз')
+        performer_id = db_connect.get_performer_id_by_category(message.text)
+        if performer_id is not None:
+            bot.send_message(message.chat.id, 'Өтінішіңізді сипаттаңыз:\nСіз сондай-ақ фотосуретті тастай аласыз')
+        else:
+            bot.send_message(message.chat.id, 'Өтінішіңізді сипаттаңыз:')
     elif db_connect.get_appeal_field(message) and db_connect.get_category_users_info(message) != ' ':
         now = datetime.now() + timedelta(hours=6)
         now_updated = db_connect.remove_milliseconds(now)
         category = db_connect.get_category_users_info(message)
-        if category == "portal":
+        performer_id = db_connect.get_performer_id_by_category(message.text)
+        if performer_id is None:
             user_info = f"Аты Тегі: {db_connect.get_firstname(message)} {db_connect.get_lastname(message)}\n" \
                         f"Табель нөмірі: {db_connect.get_table_number(message)}\n" \
                         f"Телефон нөмірі: {db_connect.get_phone_number(message)}\n" \
                         f"Email: {db_connect.get_email(message)}\n" \
                         f"Филиалы: {db_connect.get_branch(message.chat.id)}"
             new_message = f'{user_info} \n {message.text}'
-            db_connect.send_gmails(new_message, "Портал 'Бірлік'")
+            db_connect.send_gmails(new_message, category)
+            category = db_connect.rename_category_to_kaz(categories_, category)
+            db_connect.add_appeal_gmail(message.chat.id, category, message.text, now_updated)
             bot.send_message(str(message.chat.id), "Сіздің өтінішіңіз сәтті жіберілді")
             return
         performer_id = db_connect.get_performer_by_category(category)[1]
-        category_ = db_connect.rename_category_to_kaz(categories, db_connect.get_category_users_info(message))
-
-        # if db_connect.get_is_appeal_anon_users_info(message.chat.id):
-        #     appeal_id = db_connect.add_appeal(message.chat.id, "Өтініш қабылданды", category, message.text,
-        #                                       now_updated, now_updated, performer_id, ' ', True)
-        #     status = kaz_get_status(message, appeal_id)
-        #     text = f"Өтініш ID {appeal_id}\n" \
-        #            f"Мәртебесі: {status}\n" \
-        #            f"Санат: {db_connect.get_category_users_info(message)}\n" \
-        #            f"Өтініш: {message.text}\n" \
-        #            f"Құрылған күні: {now_updated}"
-        # else:
-        appeal_id = db_connect.add_appeal(message.chat.id, "Обращение принято", category, message.text,
-                                          now_updated, now_updated, performer_id, ' ', False)
+        category_ = db_connect.rename_category_to_kaz(categories_, db_connect.get_category_users_info(message))
+        appeal_id = db_connect.add_appeal(message.chat.id, "Обращение принято", category, message.text, now_updated,
+                                          now_updated, performer_id, ' ', False)
         status = kaz_get_status(message, appeal_id)
         bot.send_message(message.chat.id, "Сіздің өтініштеріңіз қабылданды")
         bot.send_message(message.chat.id, "Егер сіз артқа қайтқыңыз келсе, /menu таңдаңыз /menu енгізу жолағының "
@@ -730,17 +706,9 @@ def instructions(bot, message):
         button3_i = types.KeyboardButton("Lotus орнату файлы")
         markup_instr.add(button1_i, button2_i, button3_i)
         bot.send_message(message.chat.id, "Санатты таңдаңыз", reply_markup=markup_instr)
-    # elif message.text == "portal.telecom.kz | Нұсқаулар":
-    #     db_connect.cm_sv_db(message, 'portal.telecom.kz | Нұсқаулар')
-    #     markup_portal = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-    #     button1 = types.KeyboardButton("Мобильді нұсқа")
-    #     button2 = types.KeyboardButton("ДК немесе ноутбук")
-    #     markup_portal.add(button1, button2)
-    #     bot.send_message(message.chat.id, "Санатты таңдаңыз", reply_markup=markup_portal)
     elif message.text == "Checkpoint VPN | Қашықтан жұмыс":
         db_connect.cm_sv_db(message, 'Checkpoint VPN | Қашықтан жұмыс')
         checkpoint(bot, message, portal_bts[1])
-
     elif message.text == "Жеке кабинет telecom.kz":
         db_connect.cm_sv_db(message, 'Жеке кабинет telecom.kz')
         markup_instr = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
@@ -881,6 +849,7 @@ def profile(bot, message):
 
 
 def questions(bot, message):
+    db_connect.cm_sv_db(message, "Менің сұрағым бар")
     button_q = types.KeyboardButton("Менің өтініштерім")
     button_q1 = types.KeyboardButton("Өтінішті қалдыру")
     button_q2 = types.KeyboardButton("Жиі қойылатын сұрақтар")
@@ -897,11 +866,13 @@ def questions(bot, message):
 
 def portal(bot, message):
     message_text = message.text
-    if message_text == "🖥Портал 'Бірлік'":
+    if message_text == '🖥Портал "Бірлік"':
+        db_connect.cm_sv_db(message, 'Портал "Бірлік"')
         markup_p = types.ReplyKeyboardMarkup(row_width=1)
         markup_p = db_connect.generate_buttons(portal_bts, markup_p)
         bot.send_message(str(message.chat.id), "Выберите категорию", reply_markup=markup_p)
     elif message_text == portal_bts[0]:
+        db_connect.cm_sv_db(message, "'Бірлік' порталы дегеніміз не?")
         with open("images/Birlik_BG.jpg", 'rb') as photo_file:
             bot.send_photo(message.chat.id, photo_file)
         bot.send_message(str(message.chat.id), "'Бірлік' қызметкерінің порталы - 'Қазақтелеком' АҚ-ның әрбір қызметкері"
@@ -929,13 +900,14 @@ def portal(bot, message):
         button_p = types.InlineKeyboardButton("Checkpoint керек пе?", callback_data="checkPoint")
         markup_p.add(button_p)
         bot.send_message(str(message.chat.id), "IOS және Android жүйелеріндегі қызметкер порталына қалай кіруге болады | portal.telecom.kz\nhttps://youtu.be/WJdS1aIBe1I", reply_markup=markup_p)
-    elif message_text == portal_bts[3]:
-        markup_p = types.ReplyKeyboardMarkup(row_width=1)
-        markup_p = db_connect.generate_buttons(portal_guide, markup_p)
-        bot.send_message(str(message.chat.id), "Сұрақты таңдаңыз", reply_markup=markup_p)
+    # elif message_text == portal_bts[3]:
+    #     markup_p = types.ReplyKeyboardMarkup(row_width=1)
+    #     markup_p = db_connect.generate_buttons(portal_guide, markup_p)
+    #     bot.send_message(str(message.chat.id), "Сұрақты таңдаңыз", reply_markup=markup_p)
     elif message_text == portal_bts[2]:
-            db_connect.set_category(message, "portal")
-            appeal(bot, message, message_text)
+        db_connect.cm_sv_db(message, 'Порталға өтініш қалдыру')
+        db_connect.set_category(message, 'Портал "Бірлік"')
+        appeal(bot, message, message_text)
     else:
         if checkpoint(bot, message, message_text):
             return

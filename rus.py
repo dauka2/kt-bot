@@ -1,5 +1,4 @@
 from datetime import timedelta
-
 import requests
 from telebot import *
 import db_connect
@@ -10,36 +9,37 @@ import db_connect
 #     'Служба поддержки “Нысана"': 'nysana@cscc.kz',
 #     'Обратиться в службу комплаенс': 'tlek.issakov@telecom.kz',
 # }
-categories = {
-    'Learning.telecom.kz | Техническая поддержка': {
-        "id": "187663574",
-        "name": "Оспанов Тамирлан",
-        "phone_num": "87777777777",
-        "email": "info.ktcu@telecom.kz",
-        "telegram": "@tamirlan"
-    },
-    'Обучение | Корпоративный Университет': {
-        "id": "1483219013",
-        "name": "Нам Людмила",
-        "phone_num": "+77009145025",
-        "email": "Nam.l@telecom.is",
-        "telegram": "@"
-    },
-    'Служба поддержки "Нысана"': {
-        "id": "760906879",
-        "name": "Мустафина Дильназ",
-        "phone_num": "87089081808",
-        "email": "nysana@cscc.kz",
-        "telegram": "@dilnaz.mustafina"
-    },
-    'Обратиться в службу комплаенс': {
-        "id": "760906879",
-        "name": "Мустафина Дильназ",
-        "phone_num": "87089081808",
-        "email": "tlek.issakov@telecom.kz",
-        "telegram": "@dilnaz.mustafina"
-    },
-}
+
+# categories = {
+#     'Learning.telecom.kz | Техническая поддержка': {
+#         "id": "187663574",
+#         "name": "Оспанов Тамирлан",
+#         "phone_num": "87777777777",
+#         "email": "info.ktcu@telecom.kz",
+#         "telegram": "@tamirlan"
+#     },
+#     'Обучение | Корпоративный Университет': {
+#         "id": "1483219013",
+#         "name": "Нам Людмила",
+#         "phone_num": "+77009145025",
+#         "email": "Nam.l@telecom.is",
+#         "telegram": "@"
+#     },
+#     'Служба поддержки "Нысана"': {
+#         "id": "760906879",
+#         "name": "Мустафина Дильназ",
+#         "phone_num": "87089081808",
+#         "email": "nysana@cscc.kz",
+#         "telegram": "@dilnaz.mustafina"
+#     },
+#     'Обратиться в службу комплаенс': {
+#         "id": "760906879",
+#         "name": "Мустафина Дильназ",
+#         "phone_num": "87089081808",
+#         "email": "tlek.issakov@telecom.kz",
+#         "telegram": "@dilnaz.mustafina"
+#     },
+# }
 faq_field = ["Часто задаваемые вопросы", "Демеу", "Вопросы к HR", "Вопросы по займам"]
 drb_regions = ["Алматинский регион, г.Алматы", "Западный, Центральный регион", "Северный, Южный, Восточный регионы"]
 ods_regions = ["ДЭСД 'Алматытелеком'", "Южно-Казахстанский ДЭСД", "Кызылординский ДЭСД", "Костанайский ДЭСД",
@@ -68,7 +68,6 @@ portal_guide = ["Куда обратиться для обратной связ�
                 "Как поблагодарить коллегу?", "Как создать опрос в экосистеме?",
                 "Как купить товар со скидкой в Казахтелеком магазине?", "Как купить мерч Казахтелеком?",
                 "Где увидеть скидки и акции для работников Компании?"]
-
 faq_1 = {
     'Ha кого направлена программа “Демеу” в AO “Казахтелеком”?':
         'Социальная поддержка Программы «Демеу» AO «Казахтелеком»:  (далее - Программа) направлена работникам по статусу: \
@@ -119,12 +118,11 @@ branches = ['Центральный Аппарат', 'Обьединение Д�
 
 markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
 button = types.KeyboardButton("😊Welcome курс | Адаптация")
-# button2 = types.KeyboardButton("Обращения")
 button3 = types.KeyboardButton("🗃️База знаний")
 button4 = types.KeyboardButton("👷Заполнить карточку БиОТ")
 button5 = types.KeyboardButton("📄У меня есть вопрос")
 button6 = types.KeyboardButton("🧐Мой профиль")
-button7 = types.KeyboardButton("🖥Портал 'Бірлік'")
+button7 = types.KeyboardButton('🖥Портал "Бірлік"')
 markup.add(button, button3, button7, button5, button4, button6)
 
 
@@ -442,20 +440,6 @@ def add_comment(message, bot, appeal_id):
 
 def appeal(bot, message, message_text):
     db_connect.set_appeal_field(message, True)
-    # if message_text == "Обращения":
-    #     db_connect.cm_sv_db(message, 'Обращения')
-    #     markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-    #     button1_ap = types.KeyboardButton("Мои обращения")
-    #     button2_ap = types.KeyboardButton("Оставить обращение")
-    #     if db_connect.check_id(categories, str(message.chat.id)):
-    #         markup_ap.add(types.KeyboardButton("Админ панель для обращений"))
-    #     markup_ap.add(button1_ap, button2_ap)
-    #     bot.send_message(message.chat.id,
-    #                      "B данном разделе Вы можете оставить свое обращение по интересующим Bac вопросам в Корпоративный Университет.",
-    #                      reply_markup=markup_ap)
-    #     time.sleep(0.75)
-    #     bot.send_message(message.chat.id,
-    #                      "Ecли Вы хотите вернуться назад, то введите /menu или выберите /menu в меню команд слева от строки ввода.")
     if message_text == "Мои обращения":
         db_connect.cm_sv_db(message, 'Мои обращения')
         markup_a = db_connect.appealInlineMarkup(message)
@@ -473,51 +457,41 @@ def appeal(bot, message, message_text):
         profile(bot, message)
         bot.send_message(message.chat.id, "Информация верна?", reply_markup=markup_ap)
     elif message_text == "Да":
-        if db_connect.get_category_users_info(message) == "portal":
+        if db_connect.get_category_users_info(message) == 'Портал "Бірлік"':
             appeal(bot, message, "portal")
             return
         markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True)
         markup_ap = db_connect.generate_buttons(db_connect.list_categories(), markup_ap)
         bot.send_message(message.chat.id, "Выберите категорию обращения", reply_markup=markup_ap)
-    # elif message_text == "Анонимно":
-    #     db_connect.cm_sv_db(message, 'Анонимно')
-    #     db_connect.set_is_appeal_anon_users_info(message.chat.id, True)
-    #     markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True)
-    #     markup_ap = generate_buttons(categories, markup_ap)
-    #     bot.send_message(message.chat.id,
-    #                      "Выберите категорию обращения",
-    #                      reply_markup=markup_ap)
     elif message_text == "portal":
         bot.send_message(message.chat.id, 'Пожалуйста, опишите ваше обращение:')
     elif message_text in db_connect.list_categories():
         db_connect.cm_sv_db(message, message_text)
         db_connect.set_category(message, message.text)
-        bot.send_message(message.chat.id, 'Пожалуйста, опишите ваше обращение:\nВы также можете скинуть фотографию')
+        performer_id = db_connect.get_performer_id_by_category(message.text)
+        if performer_id is not None:
+            bot.send_message(message.chat.id, 'Пожалуйста, опишите ваше обращение:\nВы также можете скинуть фотографию')
+        else:
+            bot.send_message(message.chat.id, 'Пожалуйста, опишите ваше обращение:')
     elif db_connect.get_appeal_field(message) and db_connect.get_category_users_info(message) != ' ':
         now = datetime.now() + timedelta(hours=6)
         now_updated = db_connect.remove_milliseconds(now)
         category = db_connect.get_category_users_info(message)
-        if category == "portal":
+        performer_id = db_connect.get_performer_id_by_category(message.text)
+        if performer_id is None:
             user_info = f"Имя Фамилия: {db_connect.get_firstname(message)} {db_connect.get_lastname(message)}\n" \
                         f"Табельный номер: {db_connect.get_table_number(message)}\n" \
                         f"Номер телефона: {db_connect.get_phone_number(message)}\n" \
                         f"Email: {db_connect.get_email(message)}\n" \
                         f"Филиал: {db_connect.get_branch(message.chat.id)}"
             new_message = f'{user_info} \n {message.text}'
-            db_connect.send_gmails(new_message, "Портал 'Бірлік'")
+            db_connect.send_gmails(new_message, category)
+            db_connect.add_appeal_gmail(message.chat.id, category, message.text, now_updated)
             bot.send_message(str(message.chat.id), "Ваше обращение успешно отправлено")
             return
         performer_id = db_connect.get_performer_by_category(category)[1]
-        # if db_connect.get_is_appeal_anon_users_info(message.chat.id):
-        #     appeal_id = db_connect.add_appeal(message.chat.id, "Обращение принято", category, message.text,
-        #                                       now_updated, now_updated, performer_id, ' ', True)
-        #     text = f"ID Обращения {appeal_id}\n" \
-        #            f"Статус: {db_connect.get_status(appeal_id)[0][0]}\n" \
-        #            f"Категория: {db_connect.get_category_users_info(message)}\n" \
-        #            f"Обращение: {message.text}\n" \
-        #            f"Дата создания: {now_updated}"
-        appeal_id = db_connect.add_appeal(message.chat.id, "Обращение принято", category, message.text,
-                                  now_updated, now_updated, performer_id, ' ', False)
+        appeal_id = db_connect.add_appeal(message.chat.id, "Обращение принято", category, message.text, now_updated,
+                                          now_updated, performer_id, ' ', False)
         bot.send_message(message.chat.id, "Ваше обращения принято")
         bot.send_message(message.chat.id, "Ecли Вы хотите вернуться назад, то введите /menu или выберите /menu в меню "
                                           "команд слева от строки ввода.")
@@ -545,18 +519,6 @@ def appeal(bot, message, message_text):
         db_connect.clear_appeals(message)
     else:
         db_connect.admin_appeal(bot, message, message_text)
-    # elif message_text == "Админ панель для обращений":
-    #     markup_a = types.ReplyKeyboardMarkup()
-    #     button1_a = types.KeyboardButton("Текущие Обращения")
-    #     button2_a = types.KeyboardButton("Решенные Обращения")
-    #     markup_a.add(button1_a, button2_a)
-    #     bot.send_message(message.chat.id, "Выберите следующий шаг", reply_markup=markup_a)
-    # elif db_connect.check_id(categories, str(message.chat.id)) and message_text == "Текущие Обращения":
-    #     db_connect.admin_appeal(bot, message)
-    # elif db_connect.check_id(categories, str(message.chat.id)) and message_text == "Решенные Обращения":
-    #     get_excel_admin1(bot, message, "Решено")
-    # else:
-    #     db_connect.admin_appeal(bot, message)
 
 
 def faq(bot, message):
@@ -771,13 +733,6 @@ def instructions(bot, message):
         button3_i = types.KeyboardButton("Установочный файл Lotus")
         markup_instr.add(button1_i, button2_i, button3_i)
         bot.send_message(message.chat.id, "Выберете категорию", reply_markup=markup_instr)
-    # elif message.text == "portal.telecom.kz | Инструкции":
-    #     db_connect.cm_sv_db(message, 'portal.telecom.kz | Инструкции')
-    #     markup_portal = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-    #     button1 = types.KeyboardButton("Мобильная версия")
-    #     button2 = types.KeyboardButton("ПК или ноутбук")
-    #     markup_portal.add(button1, button2)
-    #     bot.send_message(message.chat.id, "Выберете категорию", reply_markup=markup_portal)
     elif message.text == "CheckPoint VPN | Удаленная работа":
         db_connect.cm_sv_db(message, 'CheckPoint VPN | Удаленная работа')
         checkpoint(bot, message, portal_bts[1])
@@ -1058,6 +1013,7 @@ def profile(bot, message):
 
 
 def questions(bot, message):
+    db_connect.cm_sv_db(message, "У меня есть вопрос")
     button_q = types.KeyboardButton("Мои обращения")
     button_q1 = types.KeyboardButton("Оставить обращение")
     button_q2 = types.KeyboardButton("Часто задаваемые вопросы")
@@ -1074,12 +1030,13 @@ def questions(bot, message):
 
 def portal(bot, message):
     message_text = message.text
-    if message_text == "🖥Портал 'Бірлік'":
-        db_connect.cm_sv_db(message, "Портал 'Бірлік'")
+    if message_text == '🖥Портал "Бірлік"':
+        db_connect.cm_sv_db(message, 'Портал "Бірлік"')
         markup_p = types.ReplyKeyboardMarkup(row_width=1, one_time_keyboard=True, )
         markup_p = db_connect.generate_buttons(portal_bts, markup_p)
         bot.send_message(str(message.chat.id), "Выберите категорию", reply_markup=markup_p)
     elif message_text == portal_bts[0]:
+        db_connect.cm_sv_db(message, "Что такое портал 'Бірлік'?")
         with open("images/Birlik_BG.jpg", 'rb') as photo_file:
             bot.send_photo(message.chat.id, photo_file)
         bot.send_message(str(message.chat.id), "Портал работника 'Бірлік' - единая интранет система, созданная в "
@@ -1102,42 +1059,20 @@ def portal(bot, message):
                                                "Эффективное сотрудничество и командная работа\n"
                                                "Укрепление корпоративной культуры и ценностей компании\n"
                                                "Интеграция внешних модулей в единое пространство")
-    # elif message_text == portal_bts[1]:
-    #     db_connect.cm_sv_db(message, portal_bts[1])
-    #     markup_portal = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-    #     button1 = types.KeyboardButton(portal_[0])
-    #     button2 = types.KeyboardButton(portal_[1])
-    #     markup_portal.add(button1, button2)
-    #     bot.send_message(message.chat.id, "Выберете категорию", reply_markup=markup_portal)
     elif message_text == portal_[0]:
         markup_p = types.InlineKeyboardMarkup()
         button_p = types.InlineKeyboardButton("Нужен checkpoint?", callback_data="checkPoint")
         markup_p.add(button_p)
-        bot.send_message(str(message.chat.id), "Как авторизоваться на портале работника на IOS и Android | portal.telecom.kz\nhttps://youtu.be/WJdS1aIBe1I", reply_markup=markup_p)
-    # elif message_text == portal_[1]:
-    #     markup_pk = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-    #     button1_p = types.KeyboardButton("Как авторизоваться")
-    #     button2_p = types.KeyboardButton("Личный профиль")
-    #     button3_p = types.KeyboardButton("Из портала перейти в ССП")
-    #     markup_pk.add(button1_p, button2_p, button3_p)
-    #     bot.send_message(message.chat.id, "Выберете категорию", reply_markup=markup_pk)
-    # elif message_text == portal_[2]:
-    #     bot.send_message(message.chat.id, "Для получения информации о категории 'Как авторизоваться на портале "
-    #                                       "работника через ПК?' перейдите по ссылке ниже "
-    #                                       "\nhttps://youtu.be/vsRIDqt_-1A")
-    # elif message_text == portal_[3]:
-    #     bot.send_message(message.chat.id, "Для получения информации о категории 'Как заполнить личный профиль?' "
-    #                                       "перейдите по ссылке ниже \nhttps://youtu.be/V9r3ALrIQ48")
-    # elif message_text == portal_[4]:
-    #     bot.send_message(message.chat.id, "Для получения информации о категории 'Как перейти из портала перейти в ССП'"
-    #                                       " перейдите по ссылке ниже \nhttps://youtu.be/wnfI4JpMvmE")
-    elif message_text == portal_bts[3]:
-        markup_p = types.ReplyKeyboardMarkup(row_width=1, one_time_keyboard=True, )
-        markup_p = db_connect.generate_buttons(portal_guide, markup_p)
-        bot.send_message(str(message.chat.id), "Выберите вопрос", reply_markup=markup_p)
+        bot.send_message(str(message.chat.id), "Как авторизоваться на портале работника на IOS и Android | "
+                                               "portal.telecom.kz\nhttps://youtu.be/WJdS1aIBe1I", reply_markup=markup_p)
+    # elif message_text == portal_bts[3]:
+    #     markup_p = types.ReplyKeyboardMarkup(row_width=1, one_time_keyboard=True, )
+    #     markup_p = db_connect.generate_buttons(portal_guide, markup_p)
+    #     bot.send_message(str(message.chat.id), "Выберите вопрос", reply_markup=markup_p)
     elif message_text == portal_bts[2]:
-            db_connect.set_category(message, "portal")
-            appeal(bot, message, message_text)
+        db_connect.cm_sv_db(message, 'Оставить обращение на портал')
+        db_connect.set_category(message, 'Портал "Бірлік"')
+        appeal(bot, message, message_text)
     else:
         if checkpoint(bot, message, message_text):
             return

@@ -407,8 +407,8 @@ def get_excel(message):
             performers.email AS performer_email,
             telegram
         FROM appeals
-        inner JOIN users ON appeals.user_id = users.id
-        inner JOIN performers ON performers.category = appeals.category
+        left outer JOIN users ON appeals.user_id = users.id
+        left outer JOIN performers ON performers.category = appeals.category
     """
     db_connect.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
 
@@ -517,10 +517,10 @@ def text(message, get_message, lang_py):
             or get_message == "Админ панель для обращений" \
             or db_connect.get_appeal_field(message):
         lang_py.appeal(bot, message, message.text)
-    elif get_message == "🖥Портал 'Бірлік'" or get_message in lang_py.portal_bts or get_message in lang_py.portal_ or get_message in lang_py.portal_guide:
+    elif get_message == '🖥Портал "Бірлік"' or get_message in lang_py.portal_bts or get_message in lang_py.portal_ or get_message in lang_py.portal_guide:
         lang_py.portal(bot, message)
     elif str(message.chat.id) in db_connect.get_users_id():
-        if db_connect.get_glossar(message):
+        if db_connect.get_glossary(message):
             lang_py.glossary(bot, message)
         elif db_connect.get_instr(message) and message.text in lang_py.kb_field_all:
             lang_py.instructions(bot, message)

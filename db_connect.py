@@ -10,7 +10,7 @@ import smtplib
 from email.mime.text import MIMEText
 import io
 
-TOKEN = '6053200189:AAHVGsQDJOnyvW0o4xwCZJ_X_zBdn7kRKNA'
+TOKEN = '6220689869:AAHktyMsUH1kA8XePSq3sGIw-zPviXEGEfg'
 admins_id = ['187663574', '760906879']
 
 
@@ -25,7 +25,6 @@ def send_error(bot, message):
     time.sleep(0.5)
     bot.send_message(message.chat.id,
                      "Упс, что-то пошло не так...\nПoжaлyйcтa, попробуйте заново запустить бота нажав кнопку /menu")
-
 
 
 def get_excel(bot, message, admin_id, excel_file, sql_query, params=None):
@@ -120,7 +119,6 @@ def addIfNotExistUser(message):
     conn.close()
 
 
-
 def get_language(message):
     # conn = psycopg2.connect(user="postgres", password="j7hPC180")
     conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
@@ -141,7 +139,6 @@ def change_language(message, language):
     conn.commit()
     cur.close()
     conn.close()
-
 
 
 def alter_table_users():
@@ -169,6 +166,8 @@ def alter_table_users():
     # cur.execute("ALTER TABLE users_info ADD COLUMN is_appeal_anon bool DEFAULT False")
     # cur.execute("ALTER TABLE appeals ADD COLUMN evaluation int DEFAULT 0")
     # cur.execute("ALTER TABLE appeals ADD COLUMN image_data bytea")
+    cur.execute("TRUNCATE appeals")
+    cur.execute('DROP TABLE performers')
     cur.execute(
         'CREATE TABLE IF NOT EXISTS performers(id serial primary key, performer_id varchar(50), category varchar(50),'
         'firstname varchar(50), lastname varchar(50), phone_num varchar(13), email varchar(50), telegram varchar(50))')
@@ -176,20 +175,19 @@ def alter_table_users():
                 'values (%s, %s, %s, %s, %s, %s, %s)', ("187663574", "Learning.telecom.kz | Техническая поддержка",
                                                         "Тамирлан", "Оспанов", "87777777777", "email@gmail.com",
                                                         "@tttt"))
-
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) '
                 'values (%s, %s, %s, %s, %s, %s, %s)', ("760906879", "Обучение | Корпоративный Университет",
                                                          "Дильназ", "Мустафина", "87777777777", "email@gmail.com",
                                                          "@tttt"))
+    cur.execute("insert into performers (category, email) "
+                "values  (%s, %s)", ('Служба поддержки \"Нысана\"', 'must.dilnaz@gmail.com'))
 
-    cur.execute("insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) "
-                "values  (%s, %s, %s, %s, %s, %s, %s)", ('760906879', 'Служба поддержки \"Нысана\"', 'Дильназ',
-                                                          'Мустафина', '87777777777', 'email@gmail.com', '@tttt'))
+    cur.execute('insert into performers (category, email) '
+                'values (%s, %s)', ("Обратиться в службу комплаенс", "must.dilnaz@gmail.com"))
+    cur.execute("insert into performers (category, email) "
+                "values (%s, %s)", ('Портал "Бірлік"', "must.dilnaz@gmail.com"))
 
-    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) '
-                'values (%s, %s, %s, %s, %s, %s, %s)', ("760906879", "Обратиться в службу комплаенс",
-                                                         "Дильназ", "Мустафина", "87777777777", "email@gmail.com",
-                                                         "@tttt"))
+    # cur.execute("UPDATE performers SET category = 'Портал \"Бірлік\"'  where id = 5")
 
     conn.commit()
     cur.close()
@@ -210,7 +208,7 @@ def set_bool(message, instr, glossar):
     execute_set_sql_query(sql_query, params)
 
 
-def get_glossar(message):
+def get_glossary(message):
     sql_query = 'SELECT glossar FROM users_info WHERE id=%s'
     params = (str(message.chat.id),)
     return execute_get_sql_query(sql_query, params)[0][0]
@@ -289,8 +287,8 @@ def send_gmails(text, category):
     msg = MIMEText(text, 'plain', 'utf-8')
     subject = category
     msg['Subject'] = Header(subject, 'utf-8')
-    s.sendmail("sending1001@gmail.com", "must.dilnaz@gmail.com", msg.as_string())
-    s.sendmail("sending1001@gmail.com", "Urazbayeva.A@telecom.kz", msg.as_string())
+    email = get_email_by_category(category)
+    s.sendmail("sending1001@gmail.com", email, msg.as_string())
     s.quit()
 
 
@@ -304,7 +302,6 @@ def set_lastname(message, lastname):
     sql_query = 'UPDATE users SET lastname = %s WHERE id=%s'
     params = (lastname, str(message.chat.id),)
     execute_set_sql_query(sql_query, params)
-
 
 
 def get_firstname(message):
@@ -381,7 +378,6 @@ def set_date_status(appeal_id, date_status):
     execute_set_sql_query(sql_query, params)
 
 
-
 def add_appeal(user_id, status, category, appeal_text, date, date_status, id_performer, comment, is_appeal_anon):
     conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
     # conn = psycopg2.connect(user="postgres", password="j7hPC180")
@@ -396,6 +392,15 @@ def add_appeal(user_id, status, category, appeal_text, date, date_status, id_per
     conn.close()
     return appeal
 
+
+def add_appeal_gmail(user_id, category, appeal_text, date):
+    conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
+    cur = conn.cursor()
+    cur.execute("INSERT INTO appeals(user_id, category, appeal_text, date) "
+                "VALUES ('%s', '%s', '%s', '%s')" % (str(user_id), str(category), str(appeal_text), date))
+    conn.commit()
+    cur.close()
+    conn.close()
 
 
 def get_appeals(message):
@@ -423,7 +428,7 @@ def get_performer_by_category(category):
 
 
 def list_categories():
-    sql_query = 'Select category from performers'
+    sql_query = 'SELECT category FROM performers WHERE id <> 5'
     categories = execute_get_sql_query(sql_query)
     categories_result = []
     for category in categories:
@@ -519,7 +524,6 @@ def get_image_data(appeal_id):
     return image_data
 
 
-
 def delete_user(message):
     conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
     cur = conn.cursor()
@@ -527,7 +531,6 @@ def delete_user(message):
     conn.commit()
     cur.close()
     conn.close()
-
 
 
 def glossary(bot, message, text1, text2):
@@ -727,7 +730,6 @@ def admin_appeal_callback(call, bot, add_comment):
         bot.register_next_step_handler(msg, add_comment, bot, appeal_id)
 
 
-
 def check_id(input_id):
     performers = get_performers()
     for performer in performers:
@@ -763,13 +765,27 @@ def rename_category_to_kaz(kaz_categories, category):
     list_rus_categories = list_categories()
     for i in range(len(list_rus_categories)):
         if list_rus_categories[i] == category:
-            return list(kaz_categories.keys())[i]
+            return kaz_categories[i]
     return category
 
 
 def rename_category_to_rus(kaz_categories, category):
-    list_kaz_categories = list(kaz_categories.keys())
-    for i in range(len(list_kaz_categories)):
-        if list_kaz_categories[i] == category:
+    for i in range(len(kaz_categories)):
+        if kaz_categories[i] == category:
             return list(list_categories())[i]
     return category
+
+
+def get_email_by_category(category):
+    sql_query = "SELECT email from performers where category = %s"
+    params = (category,)
+    return execute_get_sql_query(sql_query, params)[0][0]
+
+
+def get_performer_id_by_category(category):
+    sql_query = "SELECT id from performers where category = %s"
+    params = (category,)
+    try:
+        return execute_get_sql_query(sql_query, params)[0][0]
+    except:
+        return None
