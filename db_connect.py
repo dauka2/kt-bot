@@ -10,7 +10,7 @@ import smtplib
 from email.mime.text import MIMEText
 import io
 
-TOKEN = '6220689869:AAHktyMsUH1kA8XePSq3sGIw-zPviXEGEfg'
+TOKEN = '6053200189:AAHVGsQDJOnyvW0o4xwCZJ_X_zBdn7kRKNA'
 admins_id = ['187663574', '760906879']
 
 
@@ -783,9 +783,10 @@ def get_email_by_category(category):
 
 
 def get_performer_id_by_category(category):
-    sql_query = "SELECT id from performers where category = %s"
+    sql_query = "SELECT performer_id from performers where category = %s"
     params = (category,)
-    try:
-        return execute_get_sql_query(sql_query, params)[0][0]
-    except:
+    category = execute_get_sql_query(sql_query, params)
+    if category:
+        return category[0][0]
+    else:
         return None
