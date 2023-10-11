@@ -164,7 +164,6 @@ def adaption(bot, message):
 
 def performer_text(appeal_info):
     performer_info = db_connect.get_performer_by_category(category=appeal_info[3])
-
     text = f"Обращения <b>ID</b> {appeal_info[0]}\n\n" \
            f" Статус: {str(appeal_info[2])}\n" \
            f" Дата создания: {str(appeal_info[5])}\n" \
