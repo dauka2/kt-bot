@@ -452,6 +452,8 @@ def appeal(bot, message, message_text):
             category = db_connect.rename_category_to_kaz(categories_, category)
             db_connect.add_appeal_gmail(message.chat.id, category, message.text, now_updated)
             bot.send_message(str(message.chat.id), "Сіздің өтінішіңіз сәтті жіберілді")
+            db_connect.clear_appeals(message)
+
             return
         performer_id = db_connect.get_performer_by_category(category)[1]
         category_ = db_connect.rename_category_to_kaz(categories_, db_connect.get_category_users_info(message))

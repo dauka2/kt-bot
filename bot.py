@@ -473,10 +473,44 @@ def message_sender(message, broadcast_message):
                     bot.send_message(id[0], broadcast_message.text)
             except:
                 continue
+        bot.send_message(message.chat.id, "Рассылка отправлена")
     elif message.text.upper() == "НЕТ":
         bot.send_message(message.chat.id, "Вызовите функцию /broadcast чтобы вызвать комманду рассылки еще раз")
     else:
         rus.send_error(bot, message)
+
+
+# @bot.message_handler(commands=['send_poll'])
+# def send_poll(message):
+#     conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
+#     cur = conn.cursor()
+#     cur.execute('SELECT id FROM users')
+#     users_id = cur.fetchall()
+#     cur.close()
+#     conn.close()
+#     markup_ = types.ReplyKeyboardMarkup(row_width=2)
+#     itembtn1 = types.KeyboardButton('Хорошо')
+#     itembtn2 = types.KeyboardButton('Плохо')
+#     markup_.add(itembtn1, itembtn2)
+#     for id in users_id:
+#         try:
+#             bot.send_poll(id[0], 'Как настроение', ['Хорошо', 'Плохо'], reply_markup=markup_)
+#         except:
+#             continue
+#
+#
+# @bot.poll_handler(func=lambda poll: True)
+# def handle_poll(poll):
+#     results = bot.get_poll_results(poll.id)
+#     total_votes = sum(votes for option, votes in results.options)
+#     bot.send_message(poll.chat.id, f'Total votes: {total_votes}')
+#
+#
+# @bot.poll_answer_handler(func=lambda poll_answer: True)
+# def handle_poll_answer(poll_answer):
+#     option_text = poll_answer.option.text
+#     bot.send_message(poll_answer.user.id, f'You chose: {option_text}')
+#
 
 
 @bot.message_handler(content_types=['text'])
@@ -495,20 +529,28 @@ def mess(message):
 
 def text(message, get_message, lang_py):
     if get_message in lang_py.faq_field or get_message in branches:
+        db_connect.clear_appeals(message)
         lang_py.faq(bot, message)
     elif get_message in drb_regions or get_message in ods_regions:
+        db_connect.clear_appeals(message)
         lang_py.func_region(bot, message)
     elif get_message == "🧐Мой профиль" or get_message == "🧐Менің профилім":
+        db_connect.clear_appeals(message)
         lang_py.profile(bot, message)
     elif get_message in lang_py.faq_1.keys():
+        db_connect.clear_appeals(message)
         bot.send_message(message.chat.id, lang_py.faq_1[message.text])
     elif get_message in lang_py.faq_2.keys():
+        db_connect.clear_appeals(message)
         bot.send_message(message.chat.id, lang_py.faq_2[message.text])
     elif get_message in lang_py.biot_field:
+        db_connect.clear_appeals(message)
         lang_py.biot(bot, message)
     elif get_message in lang_py.kb_field:
+        db_connect.clear_appeals(message)
         lang_py.kb(bot, message)
     elif get_message in lang_py.adapt_field:
+        db_connect.clear_appeals(message)
         lang_py.adaption(bot, message)
     elif get_message == "📄У меня есть вопрос" or get_message == "📄Менің сұрағым бар":
         lang_py.questions(bot, message)
@@ -518,6 +560,7 @@ def text(message, get_message, lang_py):
             or db_connect.get_appeal_field(message):
         lang_py.appeal(bot, message, message.text)
     elif get_message == '🖥Портал "Бірлік"' or get_message in lang_py.portal_bts or get_message in lang_py.portal_ or get_message in lang_py.portal_guide:
+        db_connect.clear_appeals(message)
         lang_py.portal(bot, message)
     elif str(message.chat.id) in db_connect.get_users_id():
         if db_connect.get_glossary(message):
@@ -525,8 +568,10 @@ def text(message, get_message, lang_py):
         elif db_connect.get_instr(message) and message.text in lang_py.kb_field_all:
             lang_py.instructions(bot, message)
         else:
+            db_connect.clear_appeals(message)
             lang_py.send_error(bot, message)
     else:
+        db_connect.clear_appeals(message)
         lang_py.send_error(bot, message)
 
 

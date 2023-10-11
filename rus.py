@@ -487,6 +487,7 @@ def appeal(bot, message, message_text):
             db_connect.send_gmails(new_message, category)
             db_connect.add_appeal_gmail(message.chat.id, category, message.text, now_updated)
             bot.send_message(str(message.chat.id), "Ваше обращение успешно отправлено")
+            db_connect.clear_appeals(message)
             return
         performer_id = db_connect.get_performer_by_category(category)[1]
         appeal_id = db_connect.add_appeal(message.chat.id, "Обращение принято", category, message.text, now_updated,
