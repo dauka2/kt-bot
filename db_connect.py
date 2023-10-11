@@ -164,28 +164,28 @@ def alter_table_users():
     # cur.execute("ALTER TABLE users_info ADD COLUMN category varchar(50) DEFAULT False")
     # cur.execute("ALTER TABLE users_info ADD COLUMN appeal_id int DEFAULT 0")
     # cur.execute("ALTER TABLE users_info ADD COLUMN is_appeal_anon bool DEFAULT False")
-    # cur.execute("ALTER TABLE appeals ADD COLUMN evaluation int DEFAULT 0")
-    # cur.execute("ALTER TABLE appeals ADD COLUMN image_data bytea")
-    cur.execute("TRUNCATE appeals")
-    cur.execute('DROP TABLE performers')
+    cur.execute("ALTER TABLE appeals ADD COLUMN evaluation int DEFAULT 0")
+    cur.execute("ALTER TABLE appeals ADD COLUMN image_data bytea")
+    # cur.execute("TRUNCATE appeals")
+    # cur.execute('DROP TABLE performers')
     cur.execute(
         'CREATE TABLE IF NOT EXISTS performers(id serial primary key, performer_id varchar(50), category varchar(50),'
         'firstname varchar(50), lastname varchar(50), phone_num varchar(13), email varchar(50), telegram varchar(50))')
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) '
-                'values (%s, %s, %s, %s, %s, %s, %s)', ("187663574", "Learning.telecom.kz | Техническая поддержка",
-                                                        "Тамирлан", "Оспанов", "87777777777", "email@gmail.com",
-                                                        "@tttt"))
-    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) '
-                'values (%s, %s, %s, %s, %s, %s, %s)', ("1483219013", "Обучение | Корпоративный Университет",
+                'values (%s, %s, %s, %s, %s, %s, %s)', ("1483219013", "Learning.telecom.kz | Техническая поддержка",
                                                          "Людмила", "Нам", "+77009145025", "info.ktcu@telecom.kz",
                                                          "@"))
+    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) '
+                'values (%s, %s, %s, %s, %s, %s, %s)', ("187663574", "Обучение | Корпоративный Университет",
+                                                        "Тамирлан", "Оспанов", "87079089665", "info.ktcu@telecom.kz",
+                                                        "@tamirlanospanov"))
     cur.execute("insert into performers (category, email) "
-                "values  (%s, %s)", ('Служба поддержки \"Нысана\"', 'must.dilnaz@gmail.com'))
+                "values  (%s, %s)", ('Служба поддержки \"Нысана\"', 'nysana@cscc.kz'))
 
     cur.execute('insert into performers (category, email) '
-                'values (%s, %s)', ("Обратиться в службу комплаенс", "must.dilnaz@gmail.com"))
+                'values (%s, %s)', ("Обратиться в службу комплаенс", "tlek.issakov@telecom.kz"))
     cur.execute("insert into performers (category, email) "
-                "values (%s, %s)", ('Портал "Бірлік"', "must.dilnaz@gmail.com"))
+                "values (%s, %s)", ('Портал "Бірлік"', "Urazbayeva.A@telecom.kz"))
 
     # cur.execute("UPDATE performers SET category = 'Портал \"Бірлік\"'  where id = 5")
 
