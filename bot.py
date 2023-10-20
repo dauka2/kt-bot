@@ -311,6 +311,7 @@ def help(message):
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_handler(call):
+    db_connect.cm_sv_db(call.message, str(call.data))
     language = db_connect.get_language(call.message)
     arr = ["Введите Имя", "Введите Фамилию", "Введите номер телефона",
            "Введите Ваш корпоративный E-mail\n\n(временно можете указать и Ваш личный)", "Введите табельный номер",
@@ -480,42 +481,10 @@ def message_sender(message, broadcast_message):
         rus.send_error(bot, message)
 
 
-# @bot.message_handler(commands=['send_poll'])
-# def send_poll(message):
-#     conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
-#     cur = conn.cursor()
-#     cur.execute('SELECT id FROM users')
-#     users_id = cur.fetchall()
-#     cur.close()
-#     conn.close()
-#     markup_ = types.ReplyKeyboardMarkup(row_width=2)
-#     itembtn1 = types.KeyboardButton('Хорошо')
-#     itembtn2 = types.KeyboardButton('Плохо')
-#     markup_.add(itembtn1, itembtn2)
-#     for id in users_id:
-#         try:
-#             bot.send_poll(id[0], 'Как настроение', ['Хорошо', 'Плохо'], reply_markup=markup_)
-#         except:
-#             continue
-#
-#
-# @bot.poll_handler(func=lambda poll: True)
-# def handle_poll(poll):
-#     results = bot.get_poll_results(poll.id)
-#     total_votes = sum(votes for option, votes in results.options)
-#     bot.send_message(poll.chat.id, f'Total votes: {total_votes}')
-#
-#
-# @bot.poll_answer_handler(func=lambda poll_answer: True)
-# def handle_poll_answer(poll_answer):
-#     option_text = poll_answer.option.text
-#     bot.send_message(poll_answer.user.id, f'You chose: {option_text}')
-#
-
-
 @bot.message_handler(content_types=['text'])
 def mess(message):
     get_message = message.text
+    db_connect.cm_sv_db(message, get_message)
     if str(message.chat.id)[0] == '-':
         return
     language = db_connect.get_language(message)
@@ -543,6 +512,12 @@ def text(message, get_message, lang_py):
     elif get_message in lang_py.faq_2.keys():
         db_connect.clear_appeals(message)
         bot.send_message(message.chat.id, lang_py.faq_2[message.text])
+    elif get_message in lang_py.faq_procurement_portal.keys():
+        db_connect.clear_appeals(message)
+        bot.send_message(message.chat.id, lang_py.faq_procurement_portal[message.text])
+    elif get_message in lang_py.faq_procurement_activities.keys():
+        db_connect.clear_appeals(message)
+        bot.send_message(message.chat.id, lang_py.faq_procurement_activities[message.text])
     elif get_message in lang_py.biot_field:
         db_connect.clear_appeals(message)
         lang_py.biot(bot, message)
@@ -559,9 +534,12 @@ def text(message, get_message, lang_py):
             or get_message == "Админ панель для обращений" \
             or db_connect.get_appeal_field(message):
         lang_py.appeal(bot, message, message.text)
-    elif get_message == '🖥Портал "Бірлік"' or get_message in lang_py.portal_bts or get_message in lang_py.portal_ or get_message in lang_py.portal_guide:
+    elif get_message == '🖥Портал "Бірлік"' or get_message in lang_py.portal_bts or get_message in lang_py.portal_ \
+            or get_message in lang_py.portal_guide:
         db_connect.clear_appeals(message)
         lang_py.portal(bot, message)
+    # elif get_message in lang_py.lte_ or get_message == "Пилот LTE":
+    #     lang_py.lte(bot, message)
     elif str(message.chat.id) in db_connect.get_users_id():
         if db_connect.get_glossary(message):
             lang_py.glossary(bot, message)

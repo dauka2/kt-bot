@@ -1,3 +1,4 @@
+import types
 from datetime import timedelta
 import requests
 from telebot import *
@@ -40,13 +41,15 @@ import db_connect
 #         "telegram": "@dilnaz.mustafina"
 #     },
 # }
-faq_field = ["Часто задаваемые вопросы", "Демеу", "Вопросы к HR", "Вопросы по займам"]
+faq_field = ["Часто задаваемые вопросы", "Демеу", "Вопросы к HR", "Вопросы по займам",
+             "Вопросы по закупочной деятельности", "Вопросы по порталу закупок"]
 drb_regions = ["Алматинский регион, г.Алматы", "Западный, Центральный регион", "Северный, Южный, Восточный регионы"]
 ods_regions = ["ДЭСД 'Алматытелеком'", "Южно-Казахстанский ДЭСД", "Кызылординский ДЭСД", "Костанайский ДЭСД",
                "Восточно-Казахстанский ДЭСД", "Атырауский ДЭСД", "Актюбинский ДЭСД",
                "ДЭСД 'Астана'", "ТУСМ-1", "ТУСМ-6", "ТУСМ-8", "ТУСМ-10", "ТУСМ-11", "ТУСМ-13", "ТУСМ-14", "ГА"]
 biot_field = ["👷Заполнить карточку БиОТ", "Опасный фактор/условие", "Поведение при выполнении работ", "Предложения/Идеи"]
-kb_field = ["🗃️База знаний", "База инструкций", "Глоссарий", "Полезные ссылки", "Сервис и Продажи"]
+kb_field = ["🗃️База знаний", "База инструкций", "Глоссарий", "Полезные ссылки", "Сервис и Продажи",
+            "Регламентирующие документы"]
 kb_field_all = ["Логотипы и Брендбук", "Личный кабинет telecom.kz", "Модемы | Настройка", "Lotus | Инструкции",
                 "CheckPoint VPN | Удаленная работа", "Командировка | Порядок оформления",
                 "Как авторизоваться", "Личный профиль", "Из портала перейти в ССП",
@@ -55,7 +58,8 @@ kb_field_all = ["Логотипы и Брендбук", "Личный кабин
                 'Как посмотреть о деталях оплаты', "Раздел 'Мои Услуги'",
                 "Корпоративный университет", "ADSL модем", "IDTV приставки",
                 "ONT модемы", "Router 4G and Router Ethernet", "Инструкция по установке CheckPoint",
-                "Установочный файл CheckPoint", ]
+                "Установочный файл CheckPoint", "Портал закупок | Инструкции", 'Для инициаторов | Инструкции',
+                'Для секретарей | Инструкции']
 instr_field = ["Брендбук и логотипы", "Личный кабинет telecom.kz", "Модемы | Настройка", "Lotus & CheckPoint"]
 adapt_field = ["😊Welcome курс | Адаптация"]
 portal_bts = ["Что такое портал 'Бірлік'?", "Как войти на портал?", "Оставить обращение на портал"]
@@ -111,6 +115,65 @@ faq_2 = {
     'Где найти телефон коллег?': 'Телефон коллеги Вы можете найти базе "Телефонный справочник Общества" - номера телефонов по Фамилии, поиск сотрудников по подразделению',
     'Обходной лист. Когда ero оформлять?': '1) При оформление заявления на увольнение, автоматически сформирован в третьем листе обходной лист и указаны подписанты.\n2) При переводе/одностороннем порядке/ в филиал обходной лист оформляем в своих рабочих базах',
 }
+faq_procurement_portal = {
+    'Не могу войти на сайт':'Возможно Вы ввели некоректный адрес. Вам нужно ввести в адресную строку следующий адрес: '
+                            'zakup.telecom.kz/app ',
+    'Какие логин и пароль нужно ввести для входа?':'Логин и пароль такие же как на mail.telecom.kz, '
+                                                   'CheckPoint или при входе в Ваш ПК',
+    'Логин и пароль корректный, но все равно не удалось войти':'"Возможно Вы еще не зарегистрированы на портале '
+                                                               'закупок. Для регистрации Вам нужно обратититься к '
+                                                               'одному из специалитов технической поддержки портала '
+                                                               'закупок. Для обращения Вы можете перейти главное меню '
+                                                               'ktbot и оставить Ваше обращения в разделе '
+                                                               '""У меня есть вопрос""."',
+    'Не могу зайти на сайт хотя ввожу адрес сайта верно': 'Возможно у вас проблемы с интернетом или не подключили '
+                                                          'CheckPoint(если входите через ноутбук)'
+}
+faq_procurement_activities = {
+    'Чем регулируются закупки в АО «Казахтелеком»?': 'Порядок осуществления закупок акционерным обществом «Фонд '
+                                                    'национального благосостояния «Самрук-Қазына» и юридическими лицами,'
+                                                    ' пятьдесят и более процентов голосующих акций (долей участия) '
+                                                    'которых прямо или косвенно принадлежат АО «Самрук-Қазына» на праве'
+                                                    ' собственности или доверительного управления и Регламент '
+                                                    'взаимодействия Дирекции «Телеком Комплект» с филиалами '
+                                                    'АО «Казахтелеком».',
+    'Как определяется способ закупа и какие виды закупок?':
+"""1) тендер: 
+- двухэтапный 
+- с торгами на понижение (на усмотрение Заказчика, нельзя по СМР, экспертизе, тех.надзору) 
+- с ограниченным участием (после 2 несост.тендеров) 
+2) запрос ценовых предложений – до 10 000 МРП (обязателен при закупке товаров по реестру доверенного ПО и продукции эл.промышленности и товаров «экономики простых вещей» без ограничений по сумме подлежит исключению с 1 января 2024 года);
+3) через товарные биржи; 
+4) из одного источника (соответствие с ст. 59 Порядка); 
+5) посредством электронного магазина – до 8 млн.тг по 32 категориям товаров на площадке skstore.kz.
+6) особый порядок (соответствие с ст. 73 Порядка)""",
+    'Какие виды плана закупок существуют в компании?': 'План закупок (предварительный, годовой, долгосрочный) - документ'
+                                                      ', содержащий сведения о закупке товаров, работ, услуг, '
+                                                      'необходимых для удовлетворения нужд заказчика в течение периода,'
+                                                      ' определённого планом и в соответствии с графиком плана. ',
+    'Что такое демпинг и как применяется в закупках?': """
+Демпинг - продажа товаров и услуг по искусственно заниженным ценам, ниже рыночных. 
+Ценовое предложение признаётся демпинговым в следующих случаях: 
+- ценовое предложение на СМР, комплексные работы по которым имеется сметная, предпроектная, проектная 
+(проектно-сметная) документация, утвержденная в установленном порядке, более чем на 5% ниже плановой суммы предпроектные
+- проектные и изыскательские работы, работ по комплексной вневедомственной экспертизе проектов строительства и услуг по техническому надзору за строительством объектов более чем на 10% ниже плановой суммы; 
+- ценовое предложение на консультационные (консалтинговые) услуги более чем на 70 % ниже среднеарифметической цены всех представленных ценовых предложений; • ценовое предложение на иные работы, услуги более чем на 20 % ниже среднеарифметической цены всех представленных ценовых предложений
+- ценовое предложение на товары более чем на 15% ниже плановой суммы.
+Антидемпинговые условия не распространяются на закупки с торгами на понижение и тендера по ЗКС (с переговорами на понижение цены)."
+    """,
+    'Что такое офтейк контракт и как заключается?':
+        """
+Офтейк-контракт — это гарантия для казахстанских товаропроизводителей на долгосрочный заказ, с учетом организации производства, реализуется в рамках программы импортозамещения.
+Для приобретения товара, производимого потенциальным поставщиком в рамках реализации Проекта по созданию новых производств, посредством заключения офтейк-контракта, проводится закупка способом из одного источника на основании пп.8 п.1 Ст.59 Порядка осуществления закупок. 
+        """,
+    'Что такое пул товаров импортозамещения?': 'Пул товаров всех ПК Фонда, в которых имеется постоянная и стабильная '
+                                              'востребованность группы компаний, но отсутствует производство в стране.',
+    'Как определяется маркетинговая цена?': 'Маркетинговая цена - цена на товар, применяемая заказчиком для формирования'
+                                           ' бюджетов расходов/плана(ов) закупок и не включающая в себя налог на '
+                                           'добавленную стоимость. Маркетинговые цены на товары определяются в '
+                                           'соответствии с Приложением № 3 к Порядку."'
+
+}
 branches = ['Центральный Аппарат', 'Обьединение Дивизион "Сеть"', 'Дивизион по Розничному Бизнесу',
             'Дивизион по Корпоративному Бизнесу', 'Корпоративный Университет', 'Дивизион Информационных Технологий',
             'Дирекция Телеком Комплект', 'Дирекция Управления Проектами',
@@ -123,6 +186,7 @@ button4 = types.KeyboardButton("👷Заполнить карточку БиОТ
 button5 = types.KeyboardButton("📄У меня есть вопрос")
 button6 = types.KeyboardButton("🧐Мой профиль")
 button7 = types.KeyboardButton('🖥Портал "Бірлік"')
+# button8 = types.KeyboardButton('Пилот LTE')
 markup.add(button, button3, button7, button5, button4, button6)
 
 
@@ -151,7 +215,6 @@ def send_error(bot, message):
 
 def adaption(bot, message):
     if message.text == "😊Welcome курс | Адаптация":
-        db_connect.cm_sv_db(message, 'Welcome курс | Адаптация')
         markup_adapt = types.InlineKeyboardMarkup()
         button_adapt = types.InlineKeyboardButton("Рассказывай!", callback_data="Рассказывай!")
         markup_adapt.add(button_adapt)
@@ -440,7 +503,6 @@ def add_comment(message, bot, appeal_id):
 def appeal(bot, message, message_text):
     db_connect.set_appeal_field(message, True)
     if message_text == "Мои обращения":
-        db_connect.cm_sv_db(message, 'Мои обращения')
         markup_a = db_connect.appealInlineMarkup(message)
         if markup_a.keyboard:
             bot.send_message(message.chat.id, "Здесь вы можете отслеживать статусы ваших обращений",
@@ -449,7 +511,6 @@ def appeal(bot, message, message_text):
             bot.send_message(message.chat.id, "Тут пока пусто, "
                                               "\nно Вы можете оставить обращение и оно будет отображаться здесь")
     elif message_text == "Оставить обращение" or message_text == portal_bts[2]:
-        db_connect.cm_sv_db(message, 'Оставить обращение')
         markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         button2_ap = types.KeyboardButton("Да")
         markup_ap.add(button2_ap)
@@ -457,78 +518,110 @@ def appeal(bot, message, message_text):
         bot.send_message(message.chat.id, "Информация верна?", reply_markup=markup_ap)
     elif message_text == "Да":
         if db_connect.get_category_users_info(message) == 'Портал "Бірлік"':
+            # appeal(bot, message, "portal")
             appeal(bot, message, "portal")
             return
         markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True)
-        markup_ap = db_connect.generate_buttons(db_connect.list_categories(), markup_ap)
+        markup_ap = db_connect.generate_buttons(list(db_connect.list_categories())[:4], markup_ap)
+        markup_ap.add(types.KeyboardButton("Закупочная деятельность"))
         bot.send_message(message.chat.id, "Выберите категорию обращения", reply_markup=markup_ap)
     elif message_text == "portal":
         bot.send_message(message.chat.id, 'Пожалуйста, опишите ваше обращение:')
-    elif message_text in db_connect.list_categories():
-        db_connect.cm_sv_db(message, message_text)
+    elif message_text == "Закупочная деятельность":
+        markup_a = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+        markup_a = db_connect.generate_buttons(db_connect.get_subcategories("Закупочная деятельность"), markup_a)
+        bot.send_message(message.chat.id, "Выберите категорию", reply_markup=markup_a)
+    elif message_text in db_connect.list_categories() or message_text in db_connect.get_subcategories("Закупочная деятельность"):
         db_connect.set_category(message, message.text)
-        performer_id = db_connect.get_performer_id_by_category(message.text)
-        if performer_id is not None:
-            bot.send_message(message.chat.id, 'Пожалуйста, опишите ваше обращение:\nВы также можете скинуть фотографию')
+        bot.send_message(message.chat.id, 'Пожалуйста, опишите ваше обращение:')
+    elif message_text == "Добавить фото":
+        bot.send_message(message.chat.id, "Отправьте фотографию")
+    elif message.photo:
+        file_info: object = bot.get_file(message.photo[-1].file_id)
+        file_url = 'https://api.telegram.org/file/bot{}/{}'.format(db_connect.TOKEN, file_info.file_path)
+        file = requests.get(file_url)
+        appeal_id = db_connect.get_last_appeal(message.chat.id)[0][0]
+        appeal_ = db_connect.get_appeal_by_id(appeal_id)[0]
+        db_connect.set_image_data(appeal_id, file)
+        image_data = db_connect.get_image_data(appeal_id)
+        if appeal_[7] is None or appeal_[7] == '' or len(str(appeal_[7])) == 0:
+            end_appeal_gmail(bot, message, appeal_id, file_url)
         else:
-            bot.send_message(message.chat.id, 'Пожалуйста, опишите ваше обращение:')
+            bot.send_photo(appeal_[7], image_data)
+            db_connect.set_appeal_text(appeal_id, message.caption)
+            end_appeal(bot, message, appeal_id)
+    elif message_text == "Отправить обращение":
+        appeal_id = db_connect.get_last_appeal(message.chat.id)[0][0]
+        appeal_ = db_connect.get_appeal_by_id(appeal_id)[0]
+        if appeal_[7] is None or appeal_[7] == '' or len(str(appeal_[7])) == 0:
+            end_appeal_gmail(bot, message, appeal_id)
+        else:
+            end_appeal(bot, message, appeal_id)
     elif db_connect.get_appeal_field(message) and db_connect.get_category_users_info(message) != ' ':
         now = datetime.now() + timedelta(hours=6)
         now_updated = db_connect.remove_milliseconds(now)
         category = db_connect.get_category_users_info(message)
         performer_id = db_connect.get_performer_id_by_category(category)
         if performer_id is None or performer_id == '' or len(str(performer_id)) == 0:
-            user_info = f"Имя Фамилия: {db_connect.get_firstname(message)} {db_connect.get_lastname(message)}\n" \
-                        f"Табельный номер: {db_connect.get_table_number(message)}\n" \
-                        f"Номер телефона: {db_connect.get_phone_number(message)}\n" \
-                        f"Email: {db_connect.get_email(message)}\n" \
-                        f"Филиал: {db_connect.get_branch(message.chat.id)}"
-            new_message = f'{user_info} \n {message.text}'
-            db_connect.send_gmails(new_message, category)
             db_connect.add_appeal_gmail(message.chat.id, category, message.text, now_updated)
-            bot.send_message(str(message.chat.id), "Ваше обращение успешно отправлено")
-            db_connect.clear_appeals(message)
-            return
-        performer_id = db_connect.get_performer_by_category(category)[1]
-        appeal_id = db_connect.add_appeal(message.chat.id, "Обращение принято", category, message.text, now_updated,
-                                          now_updated, performer_id, ' ', False)
-        bot.send_message(message.chat.id, "Ваше обращения принято")
-        bot.send_message(message.chat.id, "Ecли Вы хотите вернуться назад, то введите /menu или выберите /menu в меню "
-                                          "команд слева от строки ввода.")
-        if message.photo:
-            file_info: object = bot.get_file(message.photo[-1].file_id)
-            file = requests.get('https://api.telegram.org/file/bot{}/{}'.format(db_connect.TOKEN, file_info.file_path))
-            db_connect.set_image_data(appeal_id, file)
-            image_data = db_connect.get_image_data(appeal_id)
-            bot.send_photo(performer_id, image_data)
-            db_connect.set_appeal_text(appeal_id, message.caption)
-        text = f"ID Обращения {appeal_id}\n\n" \
-               f"Статус: {db_connect.get_status(appeal_id)[0][0]}\n" \
-               f"Имя Фамилия: {db_connect.get_firstname(message)} {db_connect.get_lastname(message)}\n" \
-               f"Табельный номер: {db_connect.get_table_number(message)}\n" \
-               f"Номер телефона: {db_connect.get_phone_number(message)}\n" \
-               f"Почта: {db_connect.get_email(message)}\n" \
-               f"Категория: {db_connect.get_category_users_info(message)}\n" \
-               f"Обращение: {db_connect.get_appeal_text(appeal_id)}\n" \
-               f"Дата создания: {now_updated}"
-        markup_a1 = types.InlineKeyboardMarkup()
-        callback_d = f"{appeal_id}statusinprocess"
-        button_a = types.InlineKeyboardButton("Обращение просмотрено", callback_data=callback_d)
-        markup_a1.add(button_a)
-        bot.send_message(performer_id, text, reply_markup=markup_a1)
-        db_connect.clear_appeals(message)
+        else:
+            performer_id = db_connect.get_performer_by_category(category)[1]
+            db_connect.add_appeal(message.chat.id, "Обращение принято", category, message.text, now_updated,
+                                  now_updated,
+                                  performer_id, ' ', False)
+        markup_ap = types.ReplyKeyboardMarkup()
+        button1_ap = types.KeyboardButton("Добавить фото")
+        button2_ap = types.KeyboardButton("Отправить обращение")
+        markup_ap.add(button2_ap, button1_ap)
+        bot.send_message(message.chat.id, "Вы можете отправить фотографию вместе с обращением", reply_markup=markup_ap)
     else:
         db_connect.admin_appeal(bot, message, message_text)
 
 
+def end_appeal(bot, message, appeal_id):
+    appeal = db_connect.get_appeal_by_id_inner_join_users(appeal_id)[0]
+    text = f"ID Обращения {appeal_id}\n\n" \
+           f"Статус: {appeal[1]}\n" \
+           f"Имя Фамилия: {appeal[8]} {appeal[9]}\n" \
+           f"Табельный номер: {appeal[10]}\n" \
+           f"Номер телефона: {appeal[11]}\n" \
+           f"Email: {appeal[12]}\n" \
+           f"Категория: {appeal[2]}\n" \
+           f"Обращение: {appeal[3]}\n" \
+           f"Дата создания: {appeal[5]}"
+    markup_a1 = types.InlineKeyboardMarkup()
+    callback_d = f"{appeal_id}statusinprocess"
+    button_a = types.InlineKeyboardButton("Обращение просмотрено", callback_data=callback_d)
+    markup_a1.add(button_a)
+    bot.send_message(appeal[14], text, reply_markup=markup_a1)
+    db_connect.clear_appeals(message)
+    bot.send_message(message.chat.id, "Ваше обращения принято")
+    bot.send_message(message.chat.id, "Ecли Вы хотите вернуться назад, то введите /menu или выберите /menu в меню"
+                                      " команд слева от строки ввода.")
+    db_connect.clear_appeals(message)
+
+
+def end_appeal_gmail(bot, message, appeal_id, file=None):
+    appeal_ = db_connect.get_appeal_by_id(appeal_id)[0]
+    user_info = f"Имя Фамилия: {db_connect.get_firstname(message)} {db_connect.get_lastname(message)}\n" \
+                f"Табельный номер: {db_connect.get_table_number(message)}\n" \
+                f"Номер телефона: {db_connect.get_phone_number(message)}\n" \
+                f"Email: {db_connect.get_email(message)}\n" \
+                f"Филиал: {db_connect.get_branch(message.chat.id)}"
+    appeal_text = f'{user_info} \n {db_connect.get_appeal_text(appeal_id)}'
+    db_connect.send_gmails(appeal_text, appeal_[3], file)
+    bot.send_message(str(message.chat.id), "Ваше обращение успешно отправлено")
+
+
 def faq(bot, message):
     if message.text == "Часто задаваемые вопросы":
-        db_connect.cm_sv_db(message, 'Часто задаваемые вопросы')
         markup_faq = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         button_d = types.KeyboardButton("Демеу")
         button_hr = types.KeyboardButton("Вопросы к HR")
         button_1 = types.KeyboardButton("Вопросы по займам")
-        markup_faq.add(button_d, button_hr, button_1)
+        button_p1 = types.KeyboardButton("Вопросы по закупочной деятельности")
+        button_p2 = types.KeyboardButton("Вопросы по порталу закупок")
+        markup_faq.add(button_d, button_hr, button_1, button_p1, button_p2)
         bot.send_message(message.chat.id, "Здесь Вы можете найти ответы на часто задаваемые вопросы",
                          reply_markup=markup_faq)
         time.sleep(0.75)
@@ -536,21 +629,18 @@ def faq(bot, message):
                                           "на вопросы, то напишите нам на info.ktcu@telecom.kz - мы обязательно "
                                           "рассмотрим Ваше предложение и свяжемся c Вами.")
     elif message.text == "Демеу":
-        db_connect.cm_sv_db(message, 'Демеу')
         markup_faq = types.ReplyKeyboardMarkup(one_time_keyboard=True)
         for key in faq_1:
             button_d = types.KeyboardButton(key)
             markup_faq.add(button_d)
         bot.send_message(message.chat.id, "Выберите, пожалуйста, вопрос", reply_markup=markup_faq)
     elif message.text == "Вопросы к HR":
-        db_connect.cm_sv_db(message, 'Вопросы к HR')
         markup_faq = types.ReplyKeyboardMarkup(one_time_keyboard=True)
         for key in faq_2:
             button_hr = types.KeyboardButton(key)
             markup_faq.add(button_hr)
         bot.send_message(message.chat.id, "Выберите, пожалуйста, вопрос", reply_markup=markup_faq)
     elif message.text == "Вопросы по займам":
-        db_connect.cm_sv_db(message, 'Вопросы по займам')
         branch = db_connect.get_branch(message.chat.id)
         if branch == "Центральный Аппарат":
             markup_faq = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
@@ -560,24 +650,33 @@ def faq(bot, message):
             bot.send_message(message.chat.id, f"Филиал {branch}\n\n"
                                               "Все вопросы по займам Вы можете адресовать по следующим контактам:")
             func_branch(bot, message, branch)
+    elif message.text == "Вопросы по закупочной деятельности":
+        markup_faq = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+        for key in faq_procurement_activities:
+            button_d = types.KeyboardButton(key)
+            markup_faq.add(button_d)
+        bot.send_message(message.chat.id, "Выберите, пожалуйста, вопрос", reply_markup=markup_faq)
+    elif message.text == "Вопросы по порталу закупок":
+        markup_faq = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+        for key in faq_procurement_portal:
+            button_d = types.KeyboardButton(key)
+            markup_faq.add(button_d)
+        bot.send_message(message.chat.id, "Выберите, пожалуйста, вопрос", reply_markup=markup_faq)
     else:
         func_branch(bot, message, message.text)
 
 
 def func_branch(bot, message, message_text):
     if message_text == "Корпоративный Университет":
-        db_connect.cm_sv_db(message, 'Займы КУ')
         bot.send_message(message.chat.id, "Таспаева Гульшат Сериккалиевна\nФинансовый блок\nГлавный бухгалтер\n"
                                           "мобильный +7-701-780-64-34")
     elif message_text == "Дивизион Информационных Технологий":
-        db_connect.cm_sv_db(message, 'Займы ДИТ')
         bot.send_message(message.chat.id, "Рысбеков Нуркен Алтынбаевич\nДепартамент финансового анализа и планирования"
                                           "\nВедущий экономист\nрабочий +7-727-398-91-53, мобильный +7-702-345-6292"
                                           "\n\nДусалиева Жанна Хабидуллаевна\nДепартамент финансового анализа и "
                                           "планирования\nВедущий специалист\nрабочий +7-727-398-91-49, "
                                           "мобильный +7-777-181-8919")
     elif message_text == "Дивизион по Корпоративному Бизнесу":
-        db_connect.cm_sv_db(message, 'Займы ДКБ')
         bot.send_message(message.chat.id, "Уразбаев Ануар Талғатұлы\nФинансовый блок/Департамент экономики и финансов/"
                                           "Отдел бюджетирования и казначейства\nВедущий экономист\n"
                                           "рабочий +7-727-244-70-54 мобильный +7-747-106-37-63\n\n"
@@ -585,24 +684,19 @@ def func_branch(bot, message, message_text):
                                           "Отдел бюджетирования и казначейства\nЭкономист\nрабочий +7-727-272-04-11 "
                                           "мобильный +7-707-315-55-59")
     elif message_text == "Дирекция Управления Проектами":
-        db_connect.cm_sv_db(message, 'Займы ДУП')
         bot.send_message(message.chat.id, "Шекенова Нургуль Жантасовна\nEX сектор\nEX operations\nрабочий "
                                           "+7-717-224-97-46 мобильный +7-747-403-82-92)")
     elif message_text == "Дирекция Телеком Комплект":
-        db_connect.cm_sv_db(message, 'Займы ДТК')
         bot.send_message(message.chat.id, "Рамазанқызы Айнұр\nОтдел экономики и финансов\nВедущий специалистn\n"
                                           "мобильный +7-777-241-2936")
     elif message_text == "Сервисная Фабрика":
-        db_connect.cm_sv_db(message, 'Займы СФ')
         bot.send_message(message.chat.id, "Тезекбаев Максат Темирбековичn\nОтдел бюджетирования, экономики и финансов\n"
                                           "Ведущий экономист\nмобильный +7-708-694-75-40")
     elif message_text == "Дивизион по Розничному Бизнесу":
-        db_connect.cm_sv_db(message, 'Займы ДРБ')
         markup_r = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         markup_r = db_connect.generate_buttons(drb_regions, markup_r)
         bot.send_message(message.chat.id, "Выберите регион", reply_markup=markup_r)
     elif message_text == 'Обьединение Дивизион "Сеть"':
-        db_connect.cm_sv_db(message, 'Займы ОДС')
         markup_r = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         markup_r = db_connect.generate_buttons(ods_regions, markup_r)
         bot.send_message(message.chat.id, "Выберите регион", reply_markup=markup_r)
@@ -671,7 +765,6 @@ def func_region(bot, message):
 
 def biot(bot, message):
     if message.text == "👷Заполнить карточку БиОТ":
-        db_connect.cm_sv_db(message, 'Заполнить карточку БиОТ')
         markup = types.ReplyKeyboardMarkup(row_width=1)
         button = types.KeyboardButton("Опасный фактор/условие")
         button2 = types.KeyboardButton("Поведение при выполнении работ")
@@ -686,21 +779,18 @@ def biot(bot, message):
         bot.send_message(message.chat.id,
                          "Ecли Вы хотите вернуться назад, то введите /menu или выберите /menu в меню команд слева от строки ввода.")
     elif message.text == "Опасный фактор/условие":
-        db_connect.cm_sv_db(message, 'Опасный фактор/условие')
         bot.send_message(message.chat.id, "Если Вы заметили опасный фактор или условие в процессе работы, то перейдите по ссылке ниже и заполните опросник:\
                                       \nhttps://docs.google.com/forms/d/1eizZuYiPEHYZ8A9-TQTvhQAHJHVtmJ0H90gxUsn5Ows/edit")
         time.sleep(0.75)
         bot.send_message(message.chat.id,
                          "Ecли Вы хотите вернуться назад, то введите /menu или выберите /menu в меню команд слева от строки ввода.")
     elif message.text == "Поведение при выполнении работ":
-        db_connect.cm_sv_db(message, 'Поведение при выполнении работ')
         bot.send_message(message.chat.id, "Если Вы заметили риски в поведении при выполнении работ, то перейдите по ссылке ниже и заполните опросник:\
                                       \nhttps://docs.google.com/forms/d/e/1FAIpQLSftmGKV1hjBiMcwqKW1yIM83PIP2eOPqU4afa8x9z3-VeHZKA/viewform?usp=sf_link")
         time.sleep(0.75)
         bot.send_message(message.chat.id,
                          "Ecли Вы хотите вернуться назад, то введите /menu или выберите /menu в меню команд слева от строки ввода.")
     elif message.text == "Предложения/Идеи":
-        db_connect.cm_sv_db(message, 'Предложения/Идеи')
         bot.send_message(message.chat.id, "Если y Bac есть предложения или идеи, то перейдите по ссылке ниже и заполните опросник:\
                                       \nhttps://docs.google.com/forms/d/e/1FAIpQLSdzvAVfVH2dhFyXceKTyhZhBx9TplXUp53uLTSNzw8FejpNoA/viewform")
         time.sleep(0.75)
@@ -710,14 +800,12 @@ def biot(bot, message):
 
 def instructions(bot, message):
     if message.text == "Логотипы и Брендбук":
-        db_connect.cm_sv_db(message, 'Логотипы и Брендбук')
         markup_instr = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         button1_i = types.KeyboardButton("АО 'Казахтелеком'")
         button2_i = types.KeyboardButton("Корпоративный университет")
         markup_instr.add(button1_i, button2_i)
         bot.send_message(message.chat.id, "Выберете категорию", reply_markup=markup_instr)
     elif message.text == "Модемы | Настройка":
-        db_connect.cm_sv_db(message, 'Модемы | Настройка')
         markup_instr = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         button1_i = types.KeyboardButton("ADSL модем")
         button2_i = types.KeyboardButton("IDTV приставки")
@@ -726,7 +814,6 @@ def instructions(bot, message):
         markup_instr.add(button1_i, button2_i, button3_i, button4_i)
         bot.send_message(message.chat.id, "Выберете категорию", reply_markup=markup_instr)
     elif message.text == "Lotus | Инструкции":
-        db_connect.cm_sv_db(message, 'Lotus | Инструкции')
         markup_instr = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         button1_i = types.KeyboardButton("Данные по серверам филиалов")
         button2_i = types.KeyboardButton("Инструкция по установке Lotus")
@@ -734,10 +821,8 @@ def instructions(bot, message):
         markup_instr.add(button1_i, button2_i, button3_i)
         bot.send_message(message.chat.id, "Выберете категорию", reply_markup=markup_instr)
     elif message.text == "CheckPoint VPN | Удаленная работа":
-        db_connect.cm_sv_db(message, 'CheckPoint VPN | Удаленная работа')
         checkpoint(bot, message, portal_bts[1])
     elif message.text == "Личный кабинет telecom.kz":
-        db_connect.cm_sv_db(message, 'Личный кабинет telecom.kz')
         markup_instr = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         button1_i = types.KeyboardButton("Как оплатить услугу")
         button2_i = types.KeyboardButton("Как посмотреть о деталях оплаты")
@@ -746,7 +831,6 @@ def instructions(bot, message):
         markup_instr.add(button1_i, button2_i, button3_i, button4_i)
         bot.send_message(message.chat.id, "Выберете категорию", reply_markup=markup_instr)
     elif message.text == "Командировка | Порядок оформления":
-        db_connect.cm_sv_db(message, 'Командировка | Порядок оформления')
         bot.send_document(message.chat.id, document=open("files/Порядок оформления командировки.pdf", 'rb'))
     elif message.text == "Данные по серверам филиалов":
         bot.send_document(message.chat.id, document=open("files/Данные по всем lotus серверам.xlsx", 'rb'))
@@ -761,9 +845,11 @@ def instructions(bot, message):
         bot.send_document(message.chat.id, document=open("files/E85.40_CheckPointVPN.msi", 'rb'))
     elif message.text == "АО 'Казахтелеком'":
         bot.send_message(message.chat.id,
+                         "Здесь Вы можете найти логотипы и брендбук АО 'Казахтелеком'\n"
                          "https://drive.google.com/drive/folders/1TJOkjRhZcNauln1EFqIN6sh_D78TXvF7?usp=drive_link")
     elif message.text == "Корпоративный университет":
         bot.send_message(message.chat.id,
+                         "Здесь Вы можете найти логотипы и брендбук Каорпоративного университета\n"
                          "https://drive.google.com/drive/folders/10JQcSDebbsBFrVPjcxAlWGXLdbn937MX?usp=sharing")
     elif message.text == "Как оплатить услугу":
         bot.send_document(message.chat.id, document=open("files/Как оплатить услуги Казахтелеком.pdf", 'rb'))
@@ -786,41 +872,51 @@ def instructions(bot, message):
     elif message.text == "Router 4G and Router Ethernet":
         bot.send_message(message.chat.id,
                          "Для получения информации о категории 'Router 4G and Router Ethernet' перейдите по ссылке\nhttps://drive.google.com/drive/folders/1EkzERKwa-DTnMW86-qJGbc_YAU2k6A74?usp=drive_link")
+    elif message.text == "Портал закупок | Инструкции":
+        markup_kb = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+        button1_kb = types.KeyboardButton("Для инициаторов | Инструкции")
+        button2_kb = types.KeyboardButton("Для секретарей | Инструкции")
+        markup_kb.add(button1_kb, button2_kb)
+        bot.send_message(message.chat.id, "Выберите инструкцию", reply_markup=markup_kb)
+    elif message.text == "Для инициаторов | Инструкции":
+        bot.send_message(message.chat.id, "https://youtu.be/RsNAa02QO0M")
+        bot.send_document(message.chat.id, open("files/Инструкция по работе в системе Портал закупок 2.0.docx", "rb"))
+    elif message.text == "Для секретарей | Инструкции":
+        bot.send_message(message.chat.id, "инструкции для секретарей")
 
 
 def kb(bot, message):
     if message.text == "🗃️База знаний":
-        db_connect.cm_sv_db(message, 'База знаний')
         db_connect.set_bool(message, False, False)
-        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-        button = types.KeyboardButton("База инструкций")
-        button2 = types.KeyboardButton("Глоссарий")
-        button3 = types.KeyboardButton("Полезные ссылки")
-        markup.add(button2, button, button3)
-        bot.send_message(message.chat.id, "Добро пожаловать в мобильную базу знаний!", reply_markup=markup)
+        markup_kb = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+        button1_kb = types.KeyboardButton("База инструкций")
+        button2_kb = types.KeyboardButton("Глоссарий")
+        button3_kb = types.KeyboardButton("Полезные ссылки")
+        button4_kb = types.KeyboardButton("Регламентирующие документы")
+        markup_kb.add(button2_kb, button1_kb, button3_kb, button4_kb)
+        bot.send_message(message.chat.id, "Добро пожаловать в мобильную базу знаний!", reply_markup=markup_kb)
         time.sleep(0.75)
         bot.send_message(message.chat.id,
                          "Здесь Вы можете найти для себя нужную для Bac инструкцию или воспользоваться "
                          "поисковиком глоссарий по ключевым терминам, которые мы используем в нашей "
                          "компании каждый день.")
     elif message.text == "База инструкций":
-        db_connect.cm_sv_db(message, 'База инструкций')
         db_connect.set_bool(message, True, False)
         markup_instr = types.ReplyKeyboardMarkup(row_width=1)
-        button1 = types.KeyboardButton("Логотипы и Брендбук")
-        button2 = types.KeyboardButton("Личный кабинет telecom.kz")
-        button3 = types.KeyboardButton("Модемы | Настройка")
-        button4 = types.KeyboardButton("Lotus | Инструкции")
-        button6 = types.KeyboardButton("CheckPoint VPN | Удаленная работа")
-        button7 = types.KeyboardButton("Командировка | Порядок оформления")
-        markup_instr.add(button4, button6, button1, button7, button2, button3)
+        button1_kb = types.KeyboardButton("Логотипы и Брендбук")
+        button2_kb = types.KeyboardButton("Личный кабинет telecom.kz")
+        button3_kb = types.KeyboardButton("Модемы | Настройка")
+        button4_kb = types.KeyboardButton("Lotus | Инструкции")
+        button6_kb = types.KeyboardButton("CheckPoint VPN | Удаленная работа")
+        button7_kb = types.KeyboardButton("Командировка | Порядок оформления")
+        button8_kb = types.KeyboardButton("Портал закупок | Инструкции")
+        markup_instr.add(button4_kb, button6_kb, button1_kb, button7_kb, button2_kb, button3_kb, button8_kb)
         bot.send_message(message.chat.id, "Здесь Вы можете найти полезную для Bac инструкцию.",
                          reply_markup=markup_instr)
         time.sleep(0.5)
         bot.send_message(message.chat.id,
                          "Для выбора инструкции выберите категория, a затем саму инструкцию в меню-клавиатуре⌨️.")
     elif message.text == "Глоссарий":
-        db_connect.cm_sv_db(message, 'Глоссарий')
         db_connect.set_bool(message, False, True)
         bot.send_message(message.chat.id, "Глоссарий терминов и аббревиатур в компании AO Казахтелеком.")
         time.sleep(0.5)
@@ -831,7 +927,6 @@ def kb(bot, message):
                          "Важно!\n\n- Вводите слово без ошибок и лишних символов.\n - Аббревиатуры важно вводить c "
                          "верхним регистром. Например: ЕППК, ОДС, ДИТ.")
     # elif message.text == "Сервис и Продажи":
-    #     db_connect.cm_sv_db(message, 'Сервис и Продажи')
     #     markup_instr = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
     #     button1_i = types.KeyboardButton("Личный кабинет telecom.kz")
     #     button2_i = types.KeyboardButton("Акции")
@@ -841,16 +936,15 @@ def kb(bot, message):
     #     markup_instr.add(button1_i, button2_i, button3_i, button4_i, button5_i)
     #     bot.send_message(message.chat.id, "Выберете категорию", reply_markup=markup_instr)
     elif message.text == "Полезные ссылки":
-        db_connect.cm_sv_db(message, 'Полезные ссылки')
         db_connect.set_bool(message, False, False)
         time.sleep(0.5)
         markup = db_connect.useful_links()
         bot.send_message(message.chat.id, "Полезные ссылки", reply_markup=markup)
-
-
+    elif message.text == "Регламентирующие документы":
+        bot.send_document(message.chat.id, open("files/Регламент взаимодействия.doc", 'rb'))
+        bot.send_document(message.chat.id, open("files/Порядок осуществления закупок.docx", "rb"))
 # def kb_service(bot, message):
 #     if message.text == "Личный кабинет telecom.kz":
-#         db_connect.cm_sv_db(message, 'Личный кабинет telecom.kz')
 #         markup_instr = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
 #         button1_i = types.KeyboardButton("Как оплатить услугу")
 #         button2_i = types.KeyboardButton("Как посмотреть о деталях оплаты")
@@ -859,10 +953,8 @@ def kb(bot, message):
 #         markup_instr.add(button1_i, button2_i, button3_i, button4_i)
 #         bot.send_message(message.chat.id, "Выберете категорию", reply_markup=markup_instr)
 #     elif message.text == "Акции":
-#         db_connect.cm_sv_db(message, 'Акции')
 #         bot.send_document(message.chat.id, open("files/Скрипт по акции Почувствуй разницу!.docx", 'rb'))
 #     elif message.text == "Скрипты":
-#         db_connect.cm_sv_db(message, 'Скрипты')
 #         markup_s = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
 #         button1_s = types.KeyboardButton("НЛТ-2022")
 #         button2_s = types.KeyboardButton("Текст SMS уведомления")
@@ -883,7 +975,6 @@ def kb(bot, message):
 #         markup_s.add(button1_s, button2_s, button3_s, button4_s, button5_s, button6_s)
 #         bot.send_message(message.chat.id, "Выберете категорию", reply_markup=markup_s)
 #     elif message.text == "Тарифы":
-#         db_connect.cm_sv_db(message, 'Тарифы')
 #         markup_s = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
 #         button1_s = types.KeyboardButton("Save Desk - Тарифы для удержания")
 #         button2_s = types.KeyboardButton("Раздаточный материал, Приказ 210")
@@ -895,7 +986,6 @@ def kb(bot, message):
 #         markup_s.add(button1_s, button2_s, button3_s, button4_s, button5_s, button6_s, button7_s)
 #         bot.send_message(message.chat.id, "Выберете категорию", reply_markup=markup_s)
 #     elif message.text == "НРД":
-#         db_connect.cm_sv_db(message, 'НРД')
 #         markup_s = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
 #         button1_s = types.KeyboardButton("Стандарты СО")
 #         button2_s = types.KeyboardButton("Публичный договор")
@@ -993,7 +1083,6 @@ def glossary(bot, message):
 
 
 def profile(bot, message):
-    db_connect.cm_sv_db(message, "🧐Мой профиль")
     markup_ap = types.InlineKeyboardMarkup(row_width=1)
     button1_ap = types.InlineKeyboardButton("Изменить Имя", callback_data="Изменить Имя")
     button2_ap = types.InlineKeyboardButton("Изменить Фамилию", callback_data="Изменить Фамилию")
@@ -1013,7 +1102,6 @@ def profile(bot, message):
 
 
 def questions(bot, message):
-    db_connect.cm_sv_db(message, "У меня есть вопрос")
     button_q = types.KeyboardButton("Мои обращения")
     button_q1 = types.KeyboardButton("Оставить обращение")
     button_q2 = types.KeyboardButton("Часто задаваемые вопросы")
@@ -1031,12 +1119,10 @@ def questions(bot, message):
 def portal(bot, message):
     message_text = message.text
     if message_text == '🖥Портал "Бірлік"':
-        db_connect.cm_sv_db(message, 'Портал "Бірлік"')
         markup_p = types.ReplyKeyboardMarkup(row_width=1, one_time_keyboard=True, )
         markup_p = db_connect.generate_buttons(portal_bts, markup_p)
         bot.send_message(str(message.chat.id), "Выберите категорию", reply_markup=markup_p)
     elif message_text == portal_bts[0]:
-        db_connect.cm_sv_db(message, "Что такое портал 'Бірлік'?")
         with open("images/Birlik_BG.jpg", 'rb') as photo_file:
             bot.send_photo(message.chat.id, photo_file)
         bot.send_message(str(message.chat.id), "Портал работника 'Бірлік' - единая интранет система, созданная в "
@@ -1070,7 +1156,6 @@ def portal(bot, message):
     #     markup_p = db_connect.generate_buttons(portal_guide, markup_p)
     #     bot.send_message(str(message.chat.id), "Выберите вопрос", reply_markup=markup_p)
     elif message_text == portal_bts[2]:
-        db_connect.cm_sv_db(message, 'Оставить обращение на портал')
         db_connect.set_category(message, 'Портал "Бірлік"')
         appeal(bot, message, message_text)
     else:
@@ -1081,7 +1166,6 @@ def portal(bot, message):
 
 def checkpoint(bot, message, message_text):
     if message_text == portal_bts[1]:
-        db_connect.cm_sv_db(message, portal_bts[1])
         markup_portal = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         button1 = types.KeyboardButton(portal_[0])
         button2 = types.KeyboardButton(portal_[1])
@@ -1107,3 +1191,20 @@ def checkpoint(bot, message, message_text):
     else:
         return False
     return True
+
+
+lte_ = ['Пилот LTE', "Об Акции", "А как продать?", "Я продал!"]
+# def lte(bot, message):
+#     if message.text == 'Пилот LTE':
+#         markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+#         button1_l = types.KeyboardButton(lte_[1])
+#         button2_l = types.KeyboardButton(lte_[2])
+#         button3_l = types.KeyboardButton(lte_[3])
+#         markup_l.add(button1_l, button2_l, button3_l)
+#         bot.send_message(message.chat.id, "Выберите категорию", reply_markup=markup_l)
+#     # elif message.text == lte_[1]:
+#     #     bot.send_message(message.chat.id, "Информация")
+#     # elif message.text == lte_[2]:
+#     #     bot.send_message(message.chat.id, "Информация2")
+#     # elif message.text == lte_[3]:
+#     #     bot.send_message(message.chat.id, "Информация")
