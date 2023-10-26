@@ -236,24 +236,45 @@ def alter_table_users():
     #                                                                          "Азанбеков", "Улан", "+77001117777",
     #                                                                          "kk@gmail.com",
     #                                                                          "@", "Закупочная деятельность"))
+    cur.execute("DROP TABLE internal_sale")
+    cur.execute(
+        """
+    CREATE TABLE IF NOT EXISTS internal_sale (
+    id SERIAL PRIMARY KEY ,
+    user_id VARCHAR(50) NOT NULL,
+    performer_id VARCHAR(50),
+    full_name VARCHAR(200),
+    iin VARCHAR(13),
+    phone_num VARCHAR(14),
+    subscriber_type VARCHAR(15),
+    is_notified BOOLEAN,
+    subscriber_address VARCHAR(200),
+    product_name VARCHAR(45),
+    delivery VARCHAR(30),
+    simcard VARCHAR(21),
+    modem VARCHAR(30),
+    category varchar(50)
 
+    );
+    """
+    )
 
-    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
-                'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("760906879", "Атырау",
-                                                        "Дильназ", "Мустафина", "87089081808", "must.dilnaz@gmail.com",
-                                                        "@dilnazmustafina", "Запад"))
-    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
-                'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("760906879", "Актау",
-                                                        "Дильназ", "Мустафина", "87089081808", "must.dilnaz@gmail.com",
-                                                        "@dilnazmustafina", "Запад"))
-    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
-                'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("760906879", "Семей",
-                                                        "Дильназ", "Мустафина", "87089081808", "must.dilnaz@gmail.com",
-                                                        "@dilnazmustafina", "Восток"))
-    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
-                'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("760906879", "Павлодар",
-                                                        "Дильназ", "Мустафина", "87089081808", "must.dilnaz@gmail.com",
-                                                        "@dilnazmustafina", "Восток"))
+    # cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
+    #             'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("760906879", "Атырау",
+    #                                                     "Дильназ", "Мустафина", "87089081808", "must.dilnaz@gmail.com",
+    #                                                     "@dilnazmustafina", "Запад"))
+    # cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
+    #             'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("760906879", "Актау",
+    #                                                     "Дильназ", "Мустафина", "87089081808", "must.dilnaz@gmail.com",
+    #                                                     "@dilnazmustafina", "Запад"))
+    # cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
+    #             'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("760906879", "Семей",
+    #                                                     "Дильназ", "Мустафина", "87089081808", "must.dilnaz@gmail.com",
+    #                                                     "@dilnazmustafina", "Восток"))
+    # cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
+    #             'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("760906879", "Павлодар",
+    #                                                     "Дильназ", "Мустафина", "87089081808", "must.dilnaz@gmail.com",
+    #                                                     "@dilnazmustafina", "Восток"))
     conn.commit()
     cur.close()
     conn.close()
