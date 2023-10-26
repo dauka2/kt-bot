@@ -180,28 +180,28 @@ def alter_table_users():
     # cur.execute("ALTER TABLE appeals ADD COLUMN evaluation int DEFAULT 0")
     # cur.execute("ALTER TABLE appeals ADD COLUMN image_data bytea")
     # cur.execute("TRUNCATE appeals")
-    cur.execute('DROP TABLE performers')
-    cur.execute(
-        'CREATE TABLE IF NOT EXISTS performers(id serial primary key, performer_id varchar(50), category varchar(50),'
-        'firstname varchar(50), lastname varchar(50), phone_num varchar(13), email varchar(50), telegram varchar(50),'
-        'parent_category varchar(50))')
-    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) '
-                'values (%s, %s, %s, %s, %s, %s, %s)', ("760906879", "Learning.telecom.kz | Техническая поддержка",
-                                                        "Мустафина", "Дильназ", "+77009145025", "must.dilnaz@gmail.com",
-                                                        "@"))
-    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) '
-                'values (%s, %s, %s, %s, %s, %s, %s)', ("187663574", "Обучение | Корпоративный Университет",
-                                                        "Тамирлан", "Оспанов", "87079089665", "must.dilnaz@gmail.com",
-                                                        "@tamirlanospanov"))
-    cur.execute("insert into performers (category, email) "
-                "values  (%s, %s)", ('Служба поддержки \"Нысана\"', 'must.dilnaz@gmail.com'))
+    # cur.execute('DROP TABLE performers')
+    # cur.execute(
+    #     'CREATE TABLE IF NOT EXISTS performers(id serial primary key, performer_id varchar(50), category varchar(50),'
+    #     'firstname varchar(50), lastname varchar(50), phone_num varchar(13), email varchar(50), telegram varchar(50),'
+    #     'parent_category varchar(50))')
+    # cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) '
+    #             'values (%s, %s, %s, %s, %s, %s, %s)', ("760906879", "Learning.telecom.kz | Техническая поддержка",
+    #                                                     "Мустафина", "Дильназ", "+77009145025", "must.dilnaz@gmail.com",
+    #                                                     "@"))
+    # cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) '
+    #             'values (%s, %s, %s, %s, %s, %s, %s)', ("187663574", "Обучение | Корпоративный Университет",
+    #                                                     "Тамирлан", "Оспанов", "87079089665", "must.dilnaz@gmail.com",
+    #                                                     "@tamirlanospanov"))
+    # cur.execute("insert into performers (category, email) "
+    #             "values  (%s, %s)", ('Служба поддержки \"Нысана\"', 'must.dilnaz@gmail.com'))
 
-    cur.execute('insert into performers (category, email) '
-                'values (%s, %s)', ("Обратиться в службу комплаенс", "must.dilnaz@gmail.com"))
-    cur.execute("insert into performers (category, email) "
-                "values (%s, %s)", ('Портал "Бірлік"', "must.dilnaz@gmail.com"))
+    # cur.execute('insert into performers (category, email) '
+    #             'values (%s, %s)', ("Обратиться в службу комплаенс", "must.dilnaz@gmail.com"))
+    # cur.execute("insert into performers (category, email) "
+    #             "values (%s, %s)", ('Портал "Бірлік"', "must.dilnaz@gmail.com"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
-                'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("6391020204",
+                'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("6391020304",
                                                                              "Портал закупок 2.0 | Техническая поддержка",
                                                                              "Тотиева", "Жансая", "+77001117777",
                                                                              "kk@gmail.com",
