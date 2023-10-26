@@ -420,6 +420,11 @@ def get_excel(message):
     db_connect.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
 
 
+@bot.message_handler(commands=['get_internal_sale'])
+def get_excel(message):
+    sql_query = "SELECT * from internal_sale"
+    db_connect.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
+
 
 def send_error(message):
     language = db_connect.get_language(message)
@@ -538,8 +543,8 @@ def text(message, get_message, lang_py):
             or get_message in lang_py.portal_guide:
         db_connect.clear_appeals(message)
         lang_py.portal(bot, message)
-    # elif get_message in lang_py.lte_ or get_message == "Пилот LTE":
-    #     lang_py.lte(bot, message)
+    elif get_message in lang_py.lte_ or get_message == "📞Пилот LTE":
+        lang_py.lte(message, bot)
     elif str(message.chat.id) in db_connect.get_users_id():
         if db_connect.get_glossary(message):
             lang_py.glossary(bot, message)

@@ -47,7 +47,8 @@ drb_regions = ["Алматинский регион, г.Алматы", "Запа
 ods_regions = ["ДЭСД 'Алматытелеком'", "Южно-Казахстанский ДЭСД", "Кызылординский ДЭСД", "Костанайский ДЭСД",
                "Восточно-Казахстанский ДЭСД", "Атырауский ДЭСД", "Актюбинский ДЭСД",
                "ДЭСД 'Астана'", "ТУСМ-1", "ТУСМ-6", "ТУСМ-8", "ТУСМ-10", "ТУСМ-11", "ТУСМ-13", "ТУСМ-14", "ГА"]
-biot_field = ["👷Заполнить карточку БиОТ", "Опасный фактор/условие", "Поведение при выполнении работ", "Предложения/Идеи"]
+biot_field = ["👷Заполнить карточку БиОТ", "Опасный фактор/условие", "Поведение при выполнении работ",
+              "Предложения/Идеи"]
 kb_field = ["🗃️База знаний", "База инструкций", "Глоссарий", "Полезные ссылки", "Сервис и Продажи",
             "Регламентирующие документы"]
 kb_field_all = ["Логотипы и Брендбук", "Личный кабинет telecom.kz", "Модемы | Настройка", "Lotus | Инструкции",
@@ -72,6 +73,11 @@ portal_guide = ["Куда обратиться для обратной связ�
                 "Как поблагодарить коллегу?", "Как создать опрос в экосистеме?",
                 "Как купить товар со скидкой в Казахтелеком магазине?", "Как купить мерч Казахтелеком?",
                 "Где увидеть скидки и акции для работников Компании?"]
+lte_ = ['📞Пилот LTE', "Об акции 'NAME'", "А как продать?", "Я продал!", "Админ панель LTE"]
+pp = ['ALEM PLUS (1 год) c Bereke 2', 'ALEM PLUS (1 год) c Bereke 1', 'ALEM PLUS (без контракта) c Bereke 1',
+      'ALEM PLUS (без контракта) c Bereke 2', 'ALEM TV (без контракта)', 'ALEM TV (1 год)',
+      'ALEM MOBILE (без контракта) c Bereke 1', 'ALEM MOBILE (без контракта) c Bereke 2',
+      'ALEM MOBILE (1 год) c Bereke 1', 'ALEM MOBILE (1 год) c Bereke 2']
 faq_1 = {
     'Ha кого направлена программа “Демеу” в AO “Казахтелеком”?':
         'Социальная поддержка Программы «Демеу» AO «Казахтелеком»:  (далее - Программа) направлена работникам по статусу: \
@@ -116,29 +122,29 @@ faq_2 = {
     'Обходной лист. Когда ero оформлять?': '1) При оформление заявления на увольнение, автоматически сформирован в третьем листе обходной лист и указаны подписанты.\n2) При переводе/одностороннем порядке/ в филиал обходной лист оформляем в своих рабочих базах',
 }
 faq_procurement_portal = {
-    'Не могу войти на сайт':'Возможно Вы ввели некоректный адрес. Вам нужно ввести в адресную строку следующий адрес: '
-                            'zakup.telecom.kz/app ',
-    'Какие логин и пароль нужно ввести для входа?':'Логин и пароль такие же как на mail.telecom.kz, '
-                                                   'CheckPoint или при входе в Ваш ПК',
-    'Логин и пароль корректный, но все равно не удалось войти':'"Возможно Вы еще не зарегистрированы на портале '
-                                                               'закупок. Для регистрации Вам нужно обратититься к '
-                                                               'одному из специалитов технической поддержки портала '
-                                                               'закупок. Для обращения Вы можете перейти главное меню '
-                                                               'ktbot и оставить Ваше обращения в разделе '
-                                                               '""У меня есть вопрос""."',
+    'Не могу войти на сайт': 'Возможно Вы ввели некоректный адрес. Вам нужно ввести в адресную строку следующий адрес: '
+                             'zakup.telecom.kz/app ',
+    'Какие логин и пароль нужно ввести для входа?': 'Логин и пароль такие же как на mail.telecom.kz, '
+                                                    'CheckPoint или при входе в Ваш ПК',
+    'Логин и пароль корректный, но все равно не удалось войти': '"Возможно Вы еще не зарегистрированы на портале '
+                                                                'закупок. Для регистрации Вам нужно обратититься к '
+                                                                'одному из специалитов технической поддержки портала '
+                                                                'закупок. Для обращения Вы можете перейти главное меню '
+                                                                'ktbot и оставить Ваше обращения в разделе '
+                                                                '""У меня есть вопрос""."',
     'Не могу зайти на сайт хотя ввожу адрес сайта верно': 'Возможно у вас проблемы с интернетом или не подключили '
                                                           'CheckPoint(если входите через ноутбук)'
 }
 faq_procurement_activities = {
     'Чем регулируются закупки в АО «Казахтелеком»?': 'Порядок осуществления закупок акционерным обществом «Фонд '
-                                                    'национального благосостояния «Самрук-Қазына» и юридическими лицами,'
-                                                    ' пятьдесят и более процентов голосующих акций (долей участия) '
-                                                    'которых прямо или косвенно принадлежат АО «Самрук-Қазына» на праве'
-                                                    ' собственности или доверительного управления и Регламент '
-                                                    'взаимодействия Дирекции «Телеком Комплект» с филиалами '
-                                                    'АО «Казахтелеком».',
+                                                     'национального благосостояния «Самрук-Қазына» и юридическими лицами,'
+                                                     ' пятьдесят и более процентов голосующих акций (долей участия) '
+                                                     'которых прямо или косвенно принадлежат АО «Самрук-Қазына» на праве'
+                                                     ' собственности или доверительного управления и Регламент '
+                                                     'взаимодействия Дирекции «Телеком Комплект» с филиалами '
+                                                     'АО «Казахтелеком».',
     'Как определяется способ закупа и какие виды закупок?':
-"""1) тендер: 
+        """1) тендер: 
 - двухэтапный 
 - с торгами на понижение (на усмотрение Заказчика, нельзя по СМР, экспертизе, тех.надзору) 
 - с ограниченным участием (после 2 несост.тендеров) 
@@ -148,9 +154,9 @@ faq_procurement_activities = {
 5) посредством электронного магазина – до 8 млн.тг по 32 категориям товаров на площадке skstore.kz.
 6) особый порядок (соответствие с ст. 73 Порядка)""",
     'Какие виды плана закупок существуют в компании?': 'План закупок (предварительный, годовой, долгосрочный) - документ'
-                                                      ', содержащий сведения о закупке товаров, работ, услуг, '
-                                                      'необходимых для удовлетворения нужд заказчика в течение периода,'
-                                                      ' определённого планом и в соответствии с графиком плана. ',
+                                                       ', содержащий сведения о закупке товаров, работ, услуг, '
+                                                       'необходимых для удовлетворения нужд заказчика в течение периода,'
+                                                       ' определённого планом и в соответствии с графиком плана. ',
     'Что такое демпинг и как применяется в закупках?': """
 Демпинг - продажа товаров и услуг по искусственно заниженным ценам, ниже рыночных. 
 Ценовое предложение признаётся демпинговым в следующих случаях: 
@@ -167,11 +173,11 @@ faq_procurement_activities = {
 Для приобретения товара, производимого потенциальным поставщиком в рамках реализации Проекта по созданию новых производств, посредством заключения офтейк-контракта, проводится закупка способом из одного источника на основании пп.8 п.1 Ст.59 Порядка осуществления закупок. 
         """,
     'Что такое пул товаров импортозамещения?': 'Пул товаров всех ПК Фонда, в которых имеется постоянная и стабильная '
-                                              'востребованность группы компаний, но отсутствует производство в стране.',
+                                               'востребованность группы компаний, но отсутствует производство в стране.',
     'Как определяется маркетинговая цена?': 'Маркетинговая цена - цена на товар, применяемая заказчиком для формирования'
-                                           ' бюджетов расходов/плана(ов) закупок и не включающая в себя налог на '
-                                           'добавленную стоимость. Маркетинговые цены на товары определяются в '
-                                           'соответствии с Приложением № 3 к Порядку."'
+                                            ' бюджетов расходов/плана(ов) закупок и не включающая в себя налог на '
+                                            'добавленную стоимость. Маркетинговые цены на товары определяются в '
+                                            'соответствии с Приложением № 3 к Порядку."'
 
 }
 branches = ['Центральный Аппарат', 'Обьединение Дивизион "Сеть"', 'Дивизион по Розничному Бизнесу',
@@ -186,12 +192,23 @@ button4 = types.KeyboardButton("👷Заполнить карточку БиОТ
 button5 = types.KeyboardButton("📄У меня есть вопрос")
 button6 = types.KeyboardButton("🧐Мой профиль")
 button7 = types.KeyboardButton('🖥Портал "Бірлік"')
-# button8 = types.KeyboardButton('Пилот LTE')
-markup.add(button, button3, button7, button5, button4, button6)
+button8 = types.KeyboardButton('📞Пилот LTE')
+markup.add(button, button8, button3, button7, button5, button4, button6)
 
 
 def send_welcome_message(bot, message):
     welcome_message = f'Привет, {db_connect.get_firstname(message)} 👋'
+    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+    button = types.KeyboardButton("😊Welcome курс | Адаптация")
+    button3 = types.KeyboardButton("🗃️База знаний")
+    button4 = types.KeyboardButton("👷Заполнить карточку БиОТ")
+    button5 = types.KeyboardButton("📄У меня есть вопрос")
+    button6 = types.KeyboardButton("🧐Мой профиль")
+    button7 = types.KeyboardButton('🖥Портал "Бірлік"')
+    button8 = types.KeyboardButton('📞Пилот LTE')
+    markup.add(button, button8, button3, button7, button5, button4, button6)
+    if db_connect.check_id(str(message.chat.id)):
+        markup.add(types.KeyboardButton("Админ панель для обращений"))
     bot.send_message(message.chat.id, welcome_message, reply_markup=markup)
     with open("images/menu.jpg", 'rb') as photo_file:
         bot.send_photo(message.chat.id, photo_file)
@@ -384,13 +401,17 @@ def call_back(bot, call):
         button_p1 = types.InlineKeyboardButton(text="Ссылка на App Store",
                                                url="https://apps.apple.com/ru/app/check-point-capsule-connect/id506669652")
         markup_p.add(button_p1)
-        bot.send_message(str(call.message.chat.id), "Ссылка на видео инструкцию checkpoint на iOS\nhttps://youtu.be/giK26_GgVgE ", reply_markup=markup_p)
+        bot.send_message(str(call.message.chat.id),
+                         "Ссылка на видео инструкцию checkpoint на iOS\nhttps://youtu.be/giK26_GgVgE ",
+                         reply_markup=markup_p)
     elif call.data == portal_[6]:
         markup_p = types.InlineKeyboardMarkup()
         button_p2 = types.InlineKeyboardButton(text="Ссылка на PlayMarket",
                                                url="https://play.google.com/store/apps/details?id=com.checkpoint.VPN&hl=en&gl=US&pli=1")
         markup_p.add(button_p2)
-        bot.send_message(str(call.message.chat.id), "Ссылка на видео инструкцию checkpoint на Android\nhttps://youtu.be/KjL9tpunb4U", reply_markup=markup_p)
+        bot.send_message(str(call.message.chat.id),
+                         "Ссылка на видео инструкцию checkpoint на Android\nhttps://youtu.be/KjL9tpunb4U",
+                         reply_markup=markup_p)
     elif str(call.data).isdigit():
         appeal_id = str(call.data)
         appeal_info = db_connect.get_appeal_by_id(appeal_id)[0]
@@ -531,7 +552,8 @@ def appeal(bot, message, message_text):
         markup_a = types.ReplyKeyboardMarkup(one_time_keyboard=True)
         markup_a = db_connect.generate_buttons(db_connect.get_subcategories("Закупочная деятельность"), markup_a)
         bot.send_message(message.chat.id, "Выберите категорию", reply_markup=markup_a)
-    elif message_text in db_connect.list_categories() or message_text in db_connect.get_subcategories("Закупочная деятельность"):
+    elif message_text in db_connect.list_categories() or message_text in db_connect.get_subcategories(
+            "Закупочная деятельность"):
         db_connect.set_category(message, message.text)
         bot.send_message(message.chat.id, 'Пожалуйста, опишите ваше обращение:')
     elif message_text == "Добавить фото":
@@ -882,7 +904,9 @@ def instructions(bot, message):
         bot.send_message(message.chat.id, "https://youtu.be/RsNAa02QO0M")
         bot.send_document(message.chat.id, open("files/Инструкция по работе в системе Портал закупок 2.0.docx", "rb"))
     elif message.text == "Для секретарей | Инструкции":
-        bot.send_message(message.chat.id, "инструкции для секретарей")
+        bot.send_message(message.chat.id, "Инструкции для секретарей"
+                                          "\nhttps://disk.telecom.kz/index.php/s/kc8PfD44Qw6X8jM")
+        bot.send_message(message.chat.id, "Пароль:\nsF21hOvUOp")
 
 
 def kb(bot, message):
@@ -943,6 +967,8 @@ def kb(bot, message):
     elif message.text == "Регламентирующие документы":
         bot.send_document(message.chat.id, open("files/Регламент взаимодействия.doc", 'rb'))
         bot.send_document(message.chat.id, open("files/Порядок осуществления закупок.docx", "rb"))
+
+
 # def kb_service(bot, message):
 #     if message.text == "Личный кабинет telecom.kz":
 #         markup_instr = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
@@ -1072,7 +1098,19 @@ def kb(bot, message):
 
 def menu(bot, message):
     db_connect.set_bool(message, False, False)
+    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+    button = types.KeyboardButton("😊Welcome курс | Адаптация")
+    button3 = types.KeyboardButton("🗃️База знаний")
+    button4 = types.KeyboardButton("👷Заполнить карточку БиОТ")
+    button5 = types.KeyboardButton("📄У меня есть вопрос")
+    button6 = types.KeyboardButton("🧐Мой профиль")
+    button7 = types.KeyboardButton('🖥Портал "Бірлік"')
+    button8 = types.KeyboardButton('📞Пилот LTE')
+    markup.add(button, button8, button3, button7, button5, button4, button6)
+    if db_connect.check_id(str(message.chat.id)):
+        markup.add(types.KeyboardButton("Админ панель для обращений"))
     bot.send_message(message.chat.id, "Вы в главном меню", reply_markup=markup)
+
 
 
 def glossary(bot, message):
@@ -1107,8 +1145,6 @@ def questions(bot, message):
     button_q2 = types.KeyboardButton("Часто задаваемые вопросы")
     markup_q = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
     markup_q.add(button_q2, button_q1, button_q)
-    if db_connect.check_id(str(message.chat.id)):
-        markup_q.add(types.KeyboardButton("Админ панель для обращений"))
     bot.send_message(str(message.chat.id), "B данном разделе Вы можете оставить свое обращение или "
                                            "посмотреть ответы на часто задаваемые вопросы", reply_markup=markup_q)
     time.sleep(0.75)
@@ -1193,18 +1229,204 @@ def checkpoint(bot, message, message_text):
     return True
 
 
-lte_ = ['Пилот LTE', "Об Акции", "А как продать?", "Я продал!"]
-# def lte(bot, message):
-#     if message.text == 'Пилот LTE':
-#         markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True)
-#         button1_l = types.KeyboardButton(lte_[1])
-#         button2_l = types.KeyboardButton(lte_[2])
-#         button3_l = types.KeyboardButton(lte_[3])
-#         markup_l.add(button1_l, button2_l, button3_l)
-#         bot.send_message(message.chat.id, "Выберите категорию", reply_markup=markup_l)
-#     # elif message.text == lte_[1]:
-#     #     bot.send_message(message.chat.id, "Информация")
-#     # elif message.text == lte_[2]:
-#     #     bot.send_message(message.chat.id, "Информация2")
-#     # elif message.text == lte_[3]:
-#     #     bot.send_message(message.chat.id, "Информация")
+subscriber_types = ['Новый', 'Действующий']
+
+
+def lte(message, bot, message_text=None):
+    if message_text == None:
+        message_text = message.text
+    if message.text == '📞Пилот LTE':
+        markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+        button1_l = types.KeyboardButton(lte_[1])
+        button2_l = types.KeyboardButton(lte_[2])
+        button3_l = types.KeyboardButton(lte_[3])
+        markup_l.add(button1_l, button2_l, button3_l)
+        bot.send_message(message.chat.id, "Выберите категорию", reply_markup=markup_l)
+    elif message.text == lte_[1]:
+        bot.send_message(message.chat.id, "Информация")
+    elif message.text == lte_[2]:
+        bot.send_message(message.chat.id, "Информация2")
+    elif message_text == lte_[3]:
+        id_ = db_connect.add_internal_sale(str(message.chat.id))
+        markup_lte = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+        markup_lte = db_connect.generate_buttons(subscriber_types, markup_lte)
+        msg = bot.send_message(message.chat.id, "Выберите тип абонента", reply_markup=markup_lte)
+        bot.register_next_step_handler(msg, add_subscriber, bot, id_)
+
+
+def add_subscriber(message, bot, id_i_s):
+    if message.text not in subscriber_types:
+        markup_lte = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+        markup_lte = db_connect.generate_buttons(subscriber_types, markup_lte)
+        msg = bot.send_message(message.chat.id, "Выберите тип абонента из списка", reply_markup=markup_lte)
+        bot.register_next_step_handler(msg, add_subscriber, bot, id_i_s)
+        return
+    db_connect.set_subscriber_type(id_i_s, message.text)
+    regions = db_connect.get_regions()
+    markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+    markup_l = db_connect.generate_buttons(regions, markup_l)
+    msg = bot.send_message(message.chat.id, "Выберите регион", reply_markup=markup_l)
+    bot.register_next_step_handler(msg, get_region, bot, id_i_s, regions)
+
+
+def get_region(message, bot, id_i_s, regions):
+    cities = db_connect.get_subcategories(message.text)
+    if len(cities) == 0:
+        markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+        markup_l = db_connect.generate_buttons(regions, markup_l)
+        msg = bot.send_message(message.chat.id, "Выберите регион из списка", reply_markup=markup_l)
+        bot.register_next_step_handler(msg, get_region, bot, id_i_s, regions)
+        return
+    markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+    markup_l = db_connect.generate_buttons(cities, markup_l)
+    msg = bot.send_message(message.chat.id, "Выберите город", reply_markup=markup_l)
+    bot.register_next_step_handler(msg, get_performer_internal_sale, bot, id_i_s, cities)
+
+
+def get_performer_internal_sale(message, bot, id_i_s, cities):
+    performer_id = db_connect.get_performer_id_by_category(message.text)
+    if performer_id is None or str(performer_id) == '':
+        markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+        markup_l = db_connect.generate_buttons(cities, markup_l)
+        msg = bot.send_message(message.chat.id, "Выберите город из списка", reply_markup=markup_l)
+        bot.register_next_step_handler(msg, get_performer_internal_sale, bot, id_i_s, cities)
+        return
+    db_connect.set_category_i_s(id_i_s, message.text)
+    db_connect.set_performer_id_i_s(id_i_s, performer_id)
+    markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+    markup_l.add(types.KeyboardButton("Да"), types.KeyboardButton("Нет"))
+    msg = bot.send_message(message.chat.id,
+                           "Абонент уведомлен о необходимости  предоставления следующих кодов/SMS работнику отдела CRM "
+                           "и КС: \nкод для цифровых документов;\nSMS для верификации номера;\nкод для автоподписания "
+                           "бланка заявления.", reply_markup=markup_l)
+    bot.register_next_step_handler(msg, get_is_notified, bot, id_i_s)
+
+
+def get_is_notified(message, bot, id_i_s):
+    if message.text != "Нет" and message.text != "Да":
+        markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+        markup_l.add(types.KeyboardButton("Да"), types.KeyboardButton("Нет"))
+        msg = bot.send_message(message.chat.id, "Выберите варианты из предложенного списка", reply_markup=markup_l)
+        bot.register_next_step_handler(msg, get_is_notified, bot, id_i_s)
+        return
+    is_notified = True
+    if message.text == "Нет":
+        is_notified = False
+    db_connect.set_is_notified(id_i_s, is_notified)
+    msg = bot.send_message(message.chat.id, "Введите ФИО")
+    bot.register_next_step_handler(msg, get_full_name, bot, id_i_s)
+
+
+def get_full_name(message, bot, id_i_s):
+    db_connect.set_full_name(id_i_s, message.text)
+    msg = bot.send_message(message.chat.id, "Введите ИИН")
+    bot.register_next_step_handler(msg, get_iin, bot, id_i_s)
+
+
+def get_iin(message, bot, id_i_s):
+    if not message.text.isdigit():
+        msg = bot.send_message(message.chat.id, "Введенная информация не соответствует шаблону ИИН, введите еще раз")
+        bot.register_next_step_handler(msg, get_iin, bot, id_i_s)
+        return
+    db_connect.set_iin(id_i_s, message.text)
+    msg = bot.send_message(message.chat.id, "Введите номер телефона")
+    bot.register_next_step_handler(msg, get_phone_num_i_s, bot, id_i_s)
+
+
+def get_phone_num_i_s(message, bot, id_i_s):
+    pattern = r'^(\+?7|8)(\d{10})$'
+    if not re.match(pattern, message.text):
+        msg = bot.send_message(message.chat.id, "Введенная информация не соответствует шаблону 87001110000")
+        bot.register_next_step_handler(msg, get_phone_num_i_s, bot, id_i_s)
+        return
+    db_connect.set_phone_num_subscriber(id_i_s, message.text)
+    msg = bot.send_message(message.chat.id, "Введите адрес абонента")
+    bot.register_next_step_handler(msg, get_address_subscriber, bot, id_i_s)
+
+
+def get_address_subscriber(message, bot, id_i_s):
+    db_connect.set_subscriber_address(id_i_s, message.text)
+    markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+    markup_l = db_connect.generate_buttons(pp, markup_l)
+    msg = bot.send_message(message.chat.id, "Выберите ПП из списка", reply_markup=markup_l)
+    bot.register_next_step_handler(msg, get_pp, bot, id_i_s)
+
+
+delivery = ["Самостоятельно", "Силами другого подразделения"]
+
+
+def get_pp(message, bot, id_i_s):
+    if message.text not in pp:
+        markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+        markup_l = db_connect.generate_buttons(pp, markup_l)
+        msg = bot.send_message(message.chat.id, "Выберите ПП из списка", reply_markup=markup_l)
+        bot.register_next_step_handler(msg, get_pp, bot, id_i_s)
+        return
+    db_connect.set_product_name(id_i_s, message.text)
+    markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+    markup_l = db_connect.generate_buttons(delivery, markup_l)
+    msg = bot.send_message(message.chat.id, "Как будет осуществлена доставка?", reply_markup=markup_l)
+    bot.register_next_step_handler(msg, get_delivery, bot, id_i_s)
+
+
+def get_delivery(message, bot, id_i_s):
+    if message.text not in delivery:
+        markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+        markup_l = db_connect.generate_buttons(delivery, markup_l)
+        msg = bot.send_message(message.chat.id, "Как будет осуществлена доставка?", reply_markup=markup_l)
+        bot.register_next_step_handler(msg, get_delivery, bot, id_i_s)
+        return
+    db_connect.set_delivery(id_i_s, message.text)
+    if message.text == "Самостоятельно":
+        msg = bot.send_message(message.chat.id, "Введите номер Sim карты")
+        bot.register_next_step_handler(msg, get_simcard, bot, id_i_s)
+    else:
+        add_lte_appeal(bot, message, id_i_s)
+
+
+def get_simcard(message, bot, id_i_s):
+    db_connect.set_simcard(id_i_s, message.text)
+    msg = bot.send_message(message.chat.id, "Введите серийный номер модема")
+    bot.register_next_step_handler(msg, get_modem, bot, id_i_s)
+
+
+def get_modem(message, bot, id_i_s):
+    db_connect.set_modem(id_i_s, message.text)
+    add_lte_appeal(bot, message, id_i_s)
+
+
+def add_lte_appeal(bot, message, id_i_s):
+    lte_info = db_connect.get_lte(id_i_s)
+    now = datetime.now() + timedelta(hours=6)
+    now_updated = db_connect.remove_milliseconds(now)
+    is_notified = "Да"
+    if not lte_info[7]:
+        is_notified = "Нет"
+    text = f"\nФИО абонента: {lte_info[3]}\n" \
+           f"ИИН: {lte_info[4]}\n" \
+           f"Номер телефона абонента: {lte_info[5]}\n" \
+           f"Тип абонента: {lte_info[6]}\n" \
+           f"Уведомлен? {is_notified}\n" \
+           f"Адрес абонента: {lte_info[8]}\n" \
+           f"ПП: {lte_info[9]}\n" \
+           f"Доставка: {lte_info[10]}\n" \
+           f"Simcard: {is_none(lte_info[11])}\n" \
+           f"Модем: {is_none(lte_info[12])}"
+    db_connect.add_appeal(message.chat.id, 'Обращение принято', lte_info[13], text, now_updated, now_updated,
+                          lte_info[2], ' ', False)
+    user = db_connect.get_user(message.chat.id)
+    text += f"\n\nПользователь\n" \
+           f" ФИО: {str(user[2])} {str(user[3])}\n" \
+           f" Номер телефона: {str(user[5])}\n" \
+           f" Email: {str(user[6])}\n" \
+           f" Telegram: {str(user[1])}\n" \
+           f" Филиал: {str(user[7])}\n\n" \
+           f" Комментарий: "
+    bot.send_message(lte_info[2], text)
+    bot.send_message(message.chat.id, "Ваша информация сохранена")
+
+
+def is_none(line):
+    if line is None:
+        return " "
+    return line

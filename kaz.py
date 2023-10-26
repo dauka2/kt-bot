@@ -68,6 +68,8 @@ portal_guide = ["Кері байланыс үшін қайда жүгіну ке
                 "Қазақтелеком дүкенінен жеңілдікпен тауарды қалай сатып алуға болады?",
                 "Қазақтелеком саудасын қалай сатып алуға болады?",
                 "Компания қызметкерлеріне жеңілдіктер мен акцияларды қайдан көруге болады?"]
+lte_ = ['📞LTE ұшқышы',"Памятка/Общая Информация", "Инструкции настойки", "Заполнить Данные"]
+
 faq_1 = {
     'Қазақтелеком "АҚ-да "Демеу" бағдарламасы кімге бағытталған?':
         'Қазақтелеком" АҚ "Демеу" бағдарламасын әлеуметтік қолдау: (бұдан әрі-Бағдарлама) жұмыскерлерге мәртебесі бойынша жіберілді: \
@@ -174,12 +176,23 @@ button4 = types.KeyboardButton("👷ҚТ ж ЕҚ кәртішкесін толт
 button5 = types.KeyboardButton("📄Менің сұрағым бар")
 button6 = types.KeyboardButton("🧐Менің профилім")
 button7 = types.KeyboardButton('🖥Портал "Бірлік"')
-# button8 = types.KeyboardButton('LTE ұшқышы')
-markup.add(button, button3, button7, button5, button4, button6)
+button8 = types.KeyboardButton('📞LTE ұшқышы')
+markup.add(button, button8, button3, button7, button5, button4, button6)
 
 
 def send_welcome_message(bot, message):
     welcome_message = f'Сәлем {db_connect.get_firstname(message)}👋'
+    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+    button = types.KeyboardButton("😊Welcome курс | Бейімделу")
+    button3 = types.KeyboardButton("🗃️Білім базасы")
+    button4 = types.KeyboardButton("👷ҚТ ж ЕҚ кәртішкесін толтыру")
+    button5 = types.KeyboardButton("📄Менің сұрағым бар")
+    button6 = types.KeyboardButton("🧐Менің профилім")
+    button7 = types.KeyboardButton('🖥Портал "Бірлік"')
+    button8 = types.KeyboardButton('📞LTE ұшқышы')
+    markup.add(button, button8, button3, button7, button5, button4, button6)
+    if db_connect.check_id(str(message.chat.id)):
+        markup.add(types.KeyboardButton("Админ панель для обращений"))
     bot.send_message(message.chat.id, welcome_message, reply_markup=markup)
     with open("images/menu.jpg", 'rb') as photo_file:
         bot.send_photo(message.chat.id, photo_file)
@@ -867,7 +880,9 @@ def instructions(bot, message):
         bot.send_message(message.chat.id, "https://youtu.be/RsNAa02QO0M")
         bot.send_document(message.chat.id, open("files/Инструкция по работе в системе Портал закупок 2.0.docx", "rb"))
     elif message.text == "Хатшылар үшін | Нұсқаулар":
-        bot.send_message(message.chat.id, "инструкции для секретарей")
+        bot.send_message(message.chat.id, "Хатшыларға арналған нұсқаулар"
+                                          "\nhttps://disk.telecom.kz/index.php/s/kc8PfD44Qw6X8jM")
+        bot.send_message(message.chat.id, "Құпия сөз:\nsF21hOvUOp")
 
 
 def kb(bot, message):
@@ -925,6 +940,17 @@ def kb(bot, message):
 
 def menu(bot, message):
     db_connect.set_bool(message, False, False)
+    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+    button = types.KeyboardButton("😊Welcome курс | Бейімделу")
+    button3 = types.KeyboardButton("🗃️Білім базасы")
+    button4 = types.KeyboardButton("👷ҚТ ж ЕҚ кәртішкесін толтыру")
+    button5 = types.KeyboardButton("📄Менің сұрағым бар")
+    button6 = types.KeyboardButton("🧐Менің профилім")
+    button7 = types.KeyboardButton('🖥Портал "Бірлік"')
+    button8 = types.KeyboardButton('📞LTE ұшқышы')
+    markup.add(button, button8, button3, button7, button5, button4, button6)
+    if db_connect.check_id(str(message.chat.id)):
+        markup.add(types.KeyboardButton("Админ панель для обращений"))
     bot.send_message(message.chat.id, "Сіз негізгі мәзірдесіз", reply_markup=markup)
 
 
@@ -960,8 +986,6 @@ def questions(bot, message):
     button_q2 = types.KeyboardButton("Жиі қойылатын сұрақтар")
     markup_q = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
     markup_q.add(button_q2, button_q1, button_q)
-    if db_connect.check_id(str(message.chat.id)):
-        markup_q.add(types.KeyboardButton("Админ панель для обращений"))
     bot.send_message(str(message.chat.id), "Бұл бөлімде сіз өзіңіздің өтінішіңізді қалдыра аласыз немесе жиі "
                                            "қойылатын сұрақтарға жауаптарды көре аласыз", reply_markup=markup_q)
     time.sleep(0.75)
@@ -1046,12 +1070,204 @@ def checkpoint(bot, message, message_text):
     return True
 
 
-lte_ = ["Памятка/Общая Информация", "Инструкции настойки", "Заполнить Данные"]
-# def lte(bot, message):
-#     if message.text == 'Пилот LTE':
-#         markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True)
-#         button1_l = types.KeyboardButton(lte_[0])
-#         button2_l = types.KeyboardButton(lte_[0])
-#         button3_l = types.KeyboardButton(lte_[0])
-#         markup_l.add(button1_l, button2_l, button3_l)
-#         bot.send_message(message.chat.id, "Выберите категорию", reply_markup=markup_l)
+subscriber_types = ['Новый', 'Действующий']
+
+
+def lte(message, bot, message_text=None):
+    if message_text == None:
+        message_text = message.text
+    if message.text == '📞Пилот LTE':
+        markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+        button1_l = types.KeyboardButton(lte_[1])
+        button2_l = types.KeyboardButton(lte_[2])
+        button3_l = types.KeyboardButton(lte_[3])
+        markup_l.add(button1_l, button2_l, button3_l)
+        bot.send_message(message.chat.id, "Выберите категорию", reply_markup=markup_l)
+    elif message.text == lte_[1]:
+        bot.send_message(message.chat.id, "Информация")
+    elif message.text == lte_[2]:
+        bot.send_message(message.chat.id, "Информация2")
+    elif message_text == lte_[3]:
+        id_ = db_connect.add_internal_sale(str(message.chat.id))
+        markup_lte = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+        markup_lte = db_connect.generate_buttons(subscriber_types, markup_lte)
+        msg = bot.send_message(message.chat.id, "Выберите тип абонента", reply_markup=markup_lte)
+        bot.register_next_step_handler(msg, add_subscriber, bot, id_)
+
+
+def add_subscriber(message, bot, id_i_s):
+    if message.text not in subscriber_types:
+        markup_lte = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+        markup_lte = db_connect.generate_buttons(subscriber_types, markup_lte)
+        msg = bot.send_message(message.chat.id, "Выберите тип абонента из списка", reply_markup=markup_lte)
+        bot.register_next_step_handler(msg, add_subscriber, bot, id_i_s)
+        return
+    db_connect.set_subscriber_type(id_i_s, message.text)
+    regions = db_connect.get_regions()
+    markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+    markup_l = db_connect.generate_buttons(regions, markup_l)
+    msg = bot.send_message(message.chat.id, "Выберите регион", reply_markup=markup_l)
+    bot.register_next_step_handler(msg, get_region, bot, id_i_s, regions)
+
+
+def get_region(message, bot, id_i_s, regions):
+    cities = db_connect.get_subcategories(message.text)
+    if len(cities) == 0:
+        markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+        markup_l = db_connect.generate_buttons(regions, markup_l)
+        msg = bot.send_message(message.chat.id, "Выберите регион из списка", reply_markup=markup_l)
+        bot.register_next_step_handler(msg, get_region, bot, id_i_s, regions)
+        return
+    markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+    markup_l = db_connect.generate_buttons(cities, markup_l)
+    msg = bot.send_message(message.chat.id, "Выберите город", reply_markup=markup_l)
+    bot.register_next_step_handler(msg, get_performer_internal_sale, bot, id_i_s, cities)
+
+
+def get_performer_internal_sale(message, bot, id_i_s, cities):
+    performer_id = db_connect.get_performer_id_by_category(message.text)
+    if performer_id is None or str(performer_id) == '':
+        markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+        markup_l = db_connect.generate_buttons(cities, markup_l)
+        msg = bot.send_message(message.chat.id, "Выберите город из списка", reply_markup=markup_l)
+        bot.register_next_step_handler(msg, get_performer_internal_sale, bot, id_i_s, cities)
+        return
+    db_connect.set_category_i_s(id_i_s, message.text)
+    db_connect.set_performer_id_i_s(id_i_s, performer_id)
+    markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+    markup_l.add(types.KeyboardButton("Да"), types.KeyboardButton("Нет"))
+    msg = bot.send_message(message.chat.id,
+                           "Абонент уведомлен о необходимости  предоставления следующих кодов/SMS работнику отдела CRM "
+                           "и КС: \nкод для цифровых документов;\nSMS для верификации номера;\nкод для автоподписания "
+                           "бланка заявления.", reply_markup=markup_l)
+    bot.register_next_step_handler(msg, get_is_notified, bot, id_i_s)
+
+
+def get_is_notified(message, bot, id_i_s):
+    if message.text != "Нет" and message.text != "Да":
+        markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+        markup_l.add(types.KeyboardButton("Да"), types.KeyboardButton("Нет"))
+        msg = bot.send_message(message.chat.id, "Выберите варианты из предложенного списка", reply_markup=markup_l)
+        bot.register_next_step_handler(msg, get_is_notified, bot, id_i_s)
+        return
+    is_notified = True
+    if message.text == "Нет":
+        is_notified = False
+    db_connect.set_is_notified(id_i_s, is_notified)
+    msg = bot.send_message(message.chat.id, "Введите ФИО")
+    bot.register_next_step_handler(msg, get_full_name, bot, id_i_s)
+
+
+def get_full_name(message, bot, id_i_s):
+    db_connect.set_full_name(id_i_s, message.text)
+    msg = bot.send_message(message.chat.id, "Введите ИИН")
+    bot.register_next_step_handler(msg, get_iin, bot, id_i_s)
+
+
+def get_iin(message, bot, id_i_s):
+    if not message.text.isdigit():
+        msg = bot.send_message(message.chat.id, "Введенная информация не соответствует шаблону ИИН, введите еще раз")
+        bot.register_next_step_handler(msg, get_iin, bot, id_i_s)
+        return
+    db_connect.set_iin(id_i_s, message.text)
+    msg = bot.send_message(message.chat.id, "Введите номер телефона")
+    bot.register_next_step_handler(msg, get_phone_num_i_s, bot, id_i_s)
+
+
+def get_phone_num_i_s(message, bot, id_i_s):
+    pattern = r'^(\+?7|8)(\d{10})$'
+    if not re.match(pattern, message.text):
+        msg = bot.send_message(message.chat.id, "Введенная информация не соответствует шаблону 87001110000")
+        bot.register_next_step_handler(msg, get_phone_num_i_s, bot, id_i_s)
+        return
+    db_connect.set_phone_num_subscriber(id_i_s, message.text)
+    msg = bot.send_message(message.chat.id, "Введите адрес абонента")
+    bot.register_next_step_handler(msg, get_address_subscriber, bot, id_i_s)
+
+
+def get_address_subscriber(message, bot, id_i_s):
+    db_connect.set_subscriber_address(id_i_s, message.text)
+    markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+    markup_l = db_connect.generate_buttons(pp, markup_l)
+    msg = bot.send_message(message.chat.id, "Выберите ПП из списка", reply_markup=markup_l)
+    bot.register_next_step_handler(msg, get_pp, bot, id_i_s)
+
+
+delivery = ["Самостоятельно", "Силами другого подразделения"]
+
+
+def get_pp(message, bot, id_i_s):
+    if message.text not in pp:
+        markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+        markup_l = db_connect.generate_buttons(pp, markup_l)
+        msg = bot.send_message(message.chat.id, "Выберите ПП из списка", reply_markup=markup_l)
+        bot.register_next_step_handler(msg, get_pp, bot, id_i_s)
+        return
+    db_connect.set_product_name(id_i_s, message.text)
+    markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+    markup_l = db_connect.generate_buttons(delivery, markup_l)
+    msg = bot.send_message(message.chat.id, "Как будет осуществлена доставка?", reply_markup=markup_l)
+    bot.register_next_step_handler(msg, get_delivery, bot, id_i_s)
+
+
+def get_delivery(message, bot, id_i_s):
+    if message.text not in delivery:
+        markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+        markup_l = db_connect.generate_buttons(delivery, markup_l)
+        msg = bot.send_message(message.chat.id, "Как будет осуществлена доставка?", reply_markup=markup_l)
+        bot.register_next_step_handler(msg, get_delivery, bot, id_i_s)
+        return
+    db_connect.set_delivery(id_i_s, message.text)
+    if message.text == "Самостоятельно":
+        msg = bot.send_message(message.chat.id, "Введите номер Sim карты")
+        bot.register_next_step_handler(msg, get_simcard, bot, id_i_s)
+    else:
+        add_lte_appeal(bot, message, id_i_s)
+
+
+def get_simcard(message, bot, id_i_s):
+    db_connect.set_simcard(id_i_s, message.text)
+    msg = bot.send_message(message.chat.id, "Введите серийный номер модема")
+    bot.register_next_step_handler(msg, get_modem, bot, id_i_s)
+
+
+def get_modem(message, bot, id_i_s):
+    db_connect.set_modem(id_i_s, message.text)
+    add_lte_appeal(bot, message, id_i_s)
+
+
+def add_lte_appeal(bot, message, id_i_s):
+    lte_info = db_connect.get_lte(id_i_s)
+    now = datetime.now() + timedelta(hours=6)
+    now_updated = db_connect.remove_milliseconds(now)
+    is_notified = "Да"
+    if not lte_info[7]:
+        is_notified = "Нет"
+    text = f"\nФИО абонента: {lte_info[3]}\n" \
+           f"ИИН: {lte_info[4]}\n" \
+           f"Номер телефона абонента: {lte_info[5]}\n" \
+           f"Тип абонента: {lte_info[6]}\n" \
+           f"Уведомлен? {is_notified}\n" \
+           f"Адрес абонента: {lte_info[8]}\n" \
+           f"ПП: {lte_info[9]}\n" \
+           f"Доставка: {lte_info[10]}\n" \
+           f"Simcard: {is_none(lte_info[11])}\n" \
+           f"Модем: {is_none(lte_info[12])}"
+    db_connect.add_appeal(message.chat.id, 'Обращение принято', lte_info[13], text, now_updated, now_updated,
+                          lte_info[2], ' ', False)
+    user = db_connect.get_user(message.chat.id)
+    text += f"\n\nПользователь\n" \
+           f" ФИО: {str(user[2])} {str(user[3])}\n" \
+           f" Номер телефона: {str(user[5])}\n" \
+           f" Email: {str(user[6])}\n" \
+           f" Telegram: {str(user[1])}\n" \
+           f" Филиал: {str(user[7])}\n\n" \
+           f" Комментарий: "
+    bot.send_message(lte_info[2], text)
+    bot.send_message(message.chat.id, "Ваша информация сохранена")
+
+
+def is_none(line):
+    if line is None:
+        return " "
+    return line
