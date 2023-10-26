@@ -868,8 +868,7 @@ def instructions(bot, message):
         bot.send_document(message.chat.id, open("files/Инструкция по работе в системе Портал закупок 2.0.docx", "rb"))
     elif message.text == "Хатшылар үшін | Нұсқаулар":
         bot.send_message(message.chat.id, "Хатшыларға арналған нұсқаулар"
-                                          "\nhttps://disk.telecom.kz/index.php/s/kc8PfD44Qw6X8jM")
-        bot.send_message(message.chat.id, "Құпия сөз:\nsF21hOvUOp")
+                                          "\nhttps://youtu.be/Fk26OXm6vhU")
 
 
 def kb(bot, message):
