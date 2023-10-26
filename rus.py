@@ -882,7 +882,9 @@ def instructions(bot, message):
         bot.send_message(message.chat.id, "https://youtu.be/RsNAa02QO0M")
         bot.send_document(message.chat.id, open("files/Инструкция по работе в системе Портал закупок 2.0.docx", "rb"))
     elif message.text == "Для секретарей | Инструкции":
-        bot.send_message(message.chat.id, "инструкции для секретарей")
+        bot.send_message(message.chat.id, "Инструкции для секретарей"
+                                          "\nhttps://disk.telecom.kz/index.php/s/kc8PfD44Qw6X8jM")
+        bot.send_message(message.chat.id, "Пароль:\nsF21hOvUOp")
 
 
 def kb(bot, message):
