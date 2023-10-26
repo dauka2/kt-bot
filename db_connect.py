@@ -955,7 +955,7 @@ def set_modem(id, modem):
 def add_internal_sale(user_id):
     conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
     cur = conn.cursor()
-    cur.execute("INSERT INTO internal_sale (user_id) VALUES (%s) RETURNING id" % (user_id,))
+    cur.execute("INSERT INTO internal_sale (user_id) VALUES (%s) RETURNING id", (user_id,))
     id = cur.fetchone()[0]
     conn.commit()
     cur.close()
