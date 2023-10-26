@@ -14,7 +14,7 @@ from email.mime.text import MIMEText
 import requests
 import io
 
-TOKEN = '6220689869:AAHktyMsUH1kA8XePSq3sGIw-zPviXEGEfg'
+TOKEN = '6145415028:AAEdgPMvSsi3FJw2ccyzWf2QiJrPa_Ycz0A'
 admins_id = ['187663574', '760906879']
 
 
@@ -200,7 +200,6 @@ def alter_table_users():
                 'values (%s, %s)', ("Обратиться в службу комплаенс", "must.dilnaz@gmail.com"))
     cur.execute("insert into performers (category, email) "
                 "values (%s, %s)", ('Портал "Бірлік"', "must.dilnaz@gmail.com"))
-
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
                 'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("6391020204",
                                                                              "Портал закупок 2.0 | Техническая поддержка",
