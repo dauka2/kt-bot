@@ -14,6 +14,7 @@ from email.mime.text import MIMEText
 import requests
 import io
 
+
 TOKEN = '6220689869:AAHktyMsUH1kA8XePSq3sGIw-zPviXEGEfg'
 admins_id = ['187663574', '760906879']
 
@@ -93,7 +94,7 @@ def create_db():
         'CREATE TABLE IF NOT EXISTS appeals(id serial primary key, user_id varchar(50), status varchar(30), '
         'category varchar(100), appeal_text varchar(1000), date varchar(30), date_status varchar(30), '
         'id_performer varchar(30), comment varchar(1000), is_appeal_anon bool, evaluation int, '
-        'image_data bytea)')
+        'image_data bytea, lte_id int)')
     cur.execute(
         'CREATE TABLE IF NOT EXISTS performers(id serial primary key, performer_id varchar(50), category varchar(50), '
         'firstname varchar(50), lastname varchar(50), phone_num varchar(13), email varchar(50), telegram varchar(50), '
@@ -115,7 +116,6 @@ def create_db():
     simcard VARCHAR(21),
     modem VARCHAR(30),
     category varchar(50)
-
     );
     """
     )
@@ -173,7 +173,8 @@ def change_language(message, language):
 def alter_table_users():
     conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
     cur = conn.cursor()
-    # cur.execute('DROP TABLE performers')
+    cur.execute('alter table appeals add column lte_id')
+    # cur.execute('DROP TABLE appeals')
     # cur.execute(
     #     'CREATE TABLE IF NOT EXISTS performers(id serial primary key, performer_id varchar(50), category varchar(50),'
     #     'firstname varchar(50), lastname varchar(50), phone_num varchar(13), email varchar(50), telegram varchar(50),'
@@ -236,8 +237,29 @@ def alter_table_users():
     #                                                                          "Азанбеков", "Улан", "+77001117777",
     #                                                                          "kk@gmail.com",
     #                                                                          "@", "Закупочная деятельность"))
-
-
+    #
+    # cur.execute("DROP TABLE internal_sale")
+    # cur.execute(
+    #     """
+    # CREATE TABLE IF NOT EXISTS internal_sale (
+    # id SERIAL PRIMARY KEY ,
+    # user_id VARCHAR(50) NOT NULL,
+    # performer_id VARCHAR(50),
+    # full_name VARCHAR(200),
+    # iin VARCHAR(13),
+    # phone_num VARCHAR(14),
+    # subscriber_type VARCHAR(15),
+    # is_notified BOOLEAN,
+    # subscriber_address VARCHAR(200),
+    # product_name VARCHAR(45),
+    # delivery VARCHAR(30),
+    # simcard VARCHAR(21),
+    # modem VARCHAR(30),
+    # category varchar(50)
+    #
+    # );
+    # """
+    # )
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
                 'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("760906879", "Атырау",
                                                         "Дильназ", "Мустафина", "87089081808", "must.dilnaz@gmail.com",
@@ -254,6 +276,58 @@ def alter_table_users():
                 'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("760906879", "Павлодар",
                                                         "Дильназ", "Мустафина", "87089081808", "must.dilnaz@gmail.com",
                                                         "@dilnazmustafina", "Восток"))
+    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
+                'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("760906879", "Актобе",
+                                                        "Дильназ", "Мустафина", "87089081808", "must.dilnaz@gmail.com",
+                                                        "@dilnazmustafina", "Запад"))
+    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
+                'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("760906879", "Уральск",
+                                                        "Дильназ", "Мустафина", "87089081808", "must.dilnaz@gmail.com",
+                                                        "@dilnazmustafina", "Запад"))
+    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
+                'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("760906879", "Усть-Каменогорск",
+                                                        "Дильназ", "Мустафина", "87089081808", "must.dilnaz@gmail.com",
+                                                        "@dilnazmustafina", "Восток"))
+    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
+                'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("760906879", "Кызылорда",
+                                                        "Дильназ", "Мустафина", "87089081808", "must.dilnaz@gmail.com",
+                                                        "@dilnazmustafina", "Юг"))
+    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
+                'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("760906879", "Тараз",
+                                                        "Дильназ", "Мустафина", "87089081808", "must.dilnaz@gmail.com",
+                                                        "@dilnazmustafina", "Юг"))
+    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
+                'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("760906879", "Шымкент",
+                                                        "Дильназ", "Мустафина", "87089081808", "must.dilnaz@gmail.com",
+                                                        "@dilnazmustafina", "Юг"))
+    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
+                'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("760906879", "Астана",
+                                                        "Дильназ", "Мустафина", "87089081808", "must.dilnaz@gmail.com",
+                                                        "@dilnazmustafina", "Центр"))
+    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
+                'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("760906879", "Караганда",
+                                                        "Дильназ", "Мустафина", "87089081808", "must.dilnaz@gmail.com",
+                                                        "@dilnazmustafina", "Центр"))
+    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
+                'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("760906879", "Кокшетау",
+                                                        "Дильназ", "Мустафина", "87089081808", "must.dilnaz@gmail.com",
+                                                        "@dilnazmustafina", "Центр"))
+    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
+                'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("760906879", "Костанай",
+                                                        "Дильназ", "Мустафина", "87089081808", "must.dilnaz@gmail.com",
+                                                        "@dilnazmustafina", "Север"))
+    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
+                'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("760906879", "Петропавловск",
+                                                        "Дильназ", "Мустафина", "87089081808", "must.dilnaz@gmail.com",
+                                                        "@dilnazmustafina", "Север"))
+    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
+                'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("760906879", "Алматы",
+                                                        "Дильназ", "Мустафина", "87089081808", "must.dilnaz@gmail.com",
+                                                        "@dilnazmustafina", "Алматы и область"))
+    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
+                'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("760906879", "Талдыкорган",
+                                                        "Дильназ", "Мустафина", "87089081808", "must.dilnaz@gmail.com",
+                                                        "@dilnazmustafina", "Алматы и область"))
     conn.commit()
     cur.close()
     conn.close()
@@ -450,13 +524,15 @@ def set_date_status(appeal_id, date_status):
     execute_set_sql_query(sql_query, params)
 
 
-def add_appeal(user_id, status, category, appeal_text, date, date_status, id_performer, comment, is_appeal_anon):
+def add_appeal(user_id, status, category, appeal_text, date, date_status, id_performer, comment, is_appeal_anon,
+               lte_id=None):
     conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
     cur = conn.cursor()
     cur.execute(
-        "INSERT INTO appeals (user_id, status, category, appeal_text, date, date_status, id_performer, comment, is_appeal_anon) "
-        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
-        (user_id, status, category, appeal_text, date, date_status, id_performer, comment, is_appeal_anon))
+        "INSERT INTO appeals(user_id, status, category, appeal_text, date, date_status, id_performer, comment, "
+        "is_appeal_anon, lte_id) "
+        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
+        (user_id, status, category, appeal_text, date, date_status, id_performer, comment, is_appeal_anon, lte_id))
     appeal = cur.fetchone()[0]
     conn.commit()
     cur.close()
@@ -475,7 +551,8 @@ def add_appeal_gmail(user_id, category, appeal_text, date):
 
 
 def get_appeals(message):
-    sql_query = 'SELECT id, category FROM appeals WHERE user_id=%s and status <> %s'
+    sql_query = "SELECT * FROM appeals inner join performers on performers.category = appeals.category " \
+                "WHERE appeals.user_id=%s and status <> %s and performers.id < 5"
     params = (str(message.chat.id), "Решено",)
     return execute_get_sql_query(sql_query, params)
 
@@ -535,7 +612,7 @@ def get_all_anonymous_appeals_by_id_performer(id_performer, status_1, status_2):
 def get_appeal_by_id_inner_join_users(id):
     sql_query = (
         'SELECT appeals.id, status, category, appeal_text, date, date_status, comment, '
-        'username, firstname, lastname, table_number, phone_number, email, branch, id_performer '
+        'username, firstname, lastname, table_number, phone_number, email, branch, id_performer, lte_id '
         'FROM appeals INNER JOIN users ON appeals.user_id = users.id '
         'WHERE appeals.id=%s'
     )
@@ -729,12 +806,23 @@ def get_excel_admin1(bot, message, status="Решено"):
 def appealInlineMarkup(message, lang="rus", kaz_categories=None):
     markup_a = types.InlineKeyboardMarkup()
     appeals_ = get_appeals(message)
+    if appeals_ is None:
+        return markup_a
     for appeal in appeals_:
         if lang == "kaz":
             text = str(appeal[0]) + " - " + rename_category_to_kaz(kaz_categories, str(appeal[1]))
         else:
             text = str(appeal[0]) + " - " + appeal[1]
         markup_a.add(types.InlineKeyboardButton(text=text, callback_data=str(appeal[0])))
+    return markup_a
+
+
+def my_lte(user_id):
+    markup_a = types.InlineKeyboardMarkup()
+    my_sales = get_sales_by_user_id(user_id)
+    for sale in my_sales:
+        text = str(sale[0]) + " - " + str(sale[1])
+        markup_a.add(types.InlineKeyboardButton(text=text, callback_data=str(sale[0])))
     return markup_a
 
 
@@ -748,7 +836,7 @@ def admin_appeal_callback(call, bot, add_comment):
         except:
             print("error")
         callback_d = f"{appeal_id}statusdecided"
-        btn_text = "Изменить статус на Решено"
+        btn_text = "Изменить статус на 'Решено'"
         if appeal_info[9]:
             text = f"ID обращения {appeal_id}\n\n" \
                    f" Статус: {str(appeal_info[2])}\n" \
@@ -841,7 +929,7 @@ def check_portal_guide(bot, message, message_text, portal_guide):
 
 def rename_category_to_kaz(kaz_categories, category):
     list_rus_categories = list_categories()
-    for i in range(len(list_rus_categories)):
+    for i in range(len(kaz_categories)):
         if list_rus_categories[i] == category:
             return kaz_categories[i]
     return category
@@ -978,14 +1066,36 @@ def get_regions():
     return regions_
 
 
-def get_lte(id_i_s):
+def get_sale(id_i_s):
     sql_query = "SELECT * from internal_sale where id = %s"
     params = (id_i_s,)
     return execute_get_sql_query(sql_query, params)[0]
+
+
+def get_sales_by_user_id(user_id):
+    sql_query = 'SELECT appeals.id, full_name  FROM appeals inner join internal_sale on ' \
+                'internal_sale.id = appeals.lte_id WHERE appeals.user_id=%s and status <> %s'
+    params = (str(user_id), "Решено",)
+    return execute_get_sql_query(sql_query, params)
 
 
 def get_user(user_id):
     sql_query = "SELECT * FROM users where id = %s"
     params = (str(user_id),)
     return execute_get_sql_query(sql_query, params)[0]
+
+
+def cities_all():
+    regions = get_regions()
+    cities = []
+    for region in regions:
+        cities = cities[:] + get_subcategories(region)[:]
+    return cities
+
+
+def delete_internal_sale(id_):
+    sql_query = "DELETE from internal_sale where id=%s"
+    params = (id_,)
+    execute_set_sql_query(sql_query, params)
+
 

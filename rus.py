@@ -419,14 +419,17 @@ def call_back(bot, call):
         except:
             print("error")
         text = performer_text(appeal_info)
-        if appeal_info[12] != "" and db_connect.get_sale(appeal_info[12])[10] == "Самостоятельно":
-            markup = types.InlineKeyboardMarkup()
-            button_ = types.InlineKeyboardButton("Добавить модем | симкарту",
-                                                 callback_data=str(appeal_info[12])+"add_modem")
-            button_1 = types.InlineKeyboardButton("Добавить фотографию Акта",
-                                                  callback_data=str(appeal_info[12])+"add_act")
-            markup.add(button_, button_1)
-            bot.send_message(call.message.chat.id, text, reply_markup=markup)
+        if appeal_info[12] != "" and appeal_info[12] is not None and appeal_info[12] != " ":
+            bot.send_message(call.message.chat.id, str(db_connect.get_sale(appeal_info[12])))
+            if db_connect.get_sale(appeal_info[12])[10] == "Самостоятельно":
+                markup = types.InlineKeyboardMarkup()
+                button_ = types.InlineKeyboardButton("Добавить модем | симкарту",
+                                                     callback_data=str(appeal_info[12]) + "add_modem")
+                button_1 = types.InlineKeyboardButton("Добавить фотографию Акта",
+                                                      callback_data=str(appeal_info[12]) + "add_act")
+                markup.add(button_, button_1)
+                bot.send_message(call.message.chat.id, text, reply_markup=markup)
+                return
             return
         bot.send_message(call.message.chat.id, text)
     elif db_connect.extract_number_from_status_change(str(call.data), r'^(\d+)add_act') is not None:
