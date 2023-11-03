@@ -38,7 +38,8 @@ categories_ = ['Learning.telecom.kz | Техникалық қолдау', 'Оқ�
                'Сатып алу порталы 2.0 | Техникалық қолдау', 'Ашық тендер', 'Баға ұсыныстарын сұрау',
                'Бір дереккөз және электронды дүкен', 'Шарттар жасасу', 'Логистика', 'Тасымалдау']
 
-faq_field = ["Жиі қойылатын сұрақтар", "Демеу", "HR сұрақтары", "Қарыздар бойынша сұрақтар","Сатып алу қызметі бойынша сұрақтар", "Сатып алу порталы бойынша сұрақтар"]
+faq_field = ["Жиі қойылатын сұрақтар", "Демеу", "HR сұрақтары", "Қарыздар бойынша сұрақтар",
+             "Сатып алу қызметі бойынша сұрақтар", "Сатып алу порталы бойынша сұрақтар"]
 drb_regions = ["Алматинский регион, г.Алматы", "Западный, Центральный регион", "Северный, Южный, Восточный регионы"]
 ods_regions = ["ДЭСД 'Алматытелеком'", "Южно-Казахстанский ДЭСД", "Кызылординский ДЭСД", "Костанайский ДЭСД",
                "Восточно-Казахстанский ДЭСД", "Атырауский ДЭСД", "Актюбинский ДЭСД",
@@ -68,8 +69,11 @@ portal_guide = ["Кері байланыс үшін қайда жүгіну ке
                 "Қазақтелеком дүкенінен жеңілдікпен тауарды қалай сатып алуға болады?",
                 "Қазақтелеком саудасын қалай сатып алуға болады?",
                 "Компания қызметкерлеріне жеңілдіктер мен акцияларды қайдан көруге болады?"]
-lte_ = ['📞LTE ұшқышы',"Памятка/Общая Информация", "Инструкции настойки", "Заполнить Данные"]
-
+lte_ = ['🛜 Акция "Пилот LTE"', "Об акции", "А как продать?", "Отправить заявку", "Мои продажи"]
+pp = ['ALEM PLUS (1 год) c Bereke 2', 'ALEM PLUS (1 год) c Bereke 1', 'ALEM PLUS (без контракта) c Bereke 1',
+      'ALEM PLUS (без контракта) c Bereke 2', 'ALEM TV (без контракта)', 'ALEM TV (1 год)',
+      'ALEM MOBILE (без контракта) c Bereke 1', 'ALEM MOBILE (без контракта) c Bereke 2',
+      'ALEM MOBILE (1 год) c Bereke 1', 'ALEM MOBILE (1 год) c Bereke 2']
 faq_1 = {
     'Қазақтелеком "АҚ-да "Демеу" бағдарламасы кімге бағытталған?':
         'Қазақтелеком" АҚ "Демеу" бағдарламасын әлеуметтік қолдау: (бұдан әрі-Бағдарлама) жұмыскерлерге мәртебесі бойынша жіберілді: \
@@ -78,8 +82,8 @@ faq_1 = {
     \n2) Мүгедек балалары бар отбасы-өз құрамында он сегіз жасқа дейінгі баласы (балалары) бар, бар, тұрмыс-тіршілігінің шектелуіне және оны әлеуметтік қорғау қажеттігіне әкеп соқтыратын, ауруларға, мертігулерге (жаралануға, жарақаттарға, контузияларға), олардың зардаптарына, кемістіктерге байланысты ағзаның қызметінде тұрақты бұзылуы бар отбасын (оларды) әлеуметтік қорғау; \
     \n3) 2-ден астам бала асырап алған/асырап алған отбасы - құрамында 2-ден астам кәмелетке толмаған асырап алған/асырап алынған балалары бар, денсаулық жағдайы бойынша диспансерлік есепте тұрған және жалғыз асыраушысы бар отбасы.\
     \n4) A8-B4 грейдінің жұмыскерлеріне балаларының орта арнаулы оқу орнында (бұдан әрі - CYZ) жоғары оқу орнында (бұдан әрі - BYZ) түлектердің оқу курсына (тұруға және тамақтануға арналған шығыстарды есептемегенде) ақы төлеу бойынша әлеуметтік қолдау белгіленеді. Барлық әлеуметтік қолдау түрлері әлеуметтік қолдау көрсету мерзімінде Қоғамда кемінде 3 жыл үздіксіз жұмыс өтілі бар Қоғам жұмыскерлеріне көрсетіледі.',
-        'Жұмыскерлерге әлеуметтік қолдау түрлері':
-            '1) балалардың сауықтыру лагерьлеріне жолдамалар сатып алуға байланысты шығыстарды өтеу; \
+    'Жұмыскерлерге әлеуметтік қолдау түрлері':
+        '1) балалардың сауықтыру лагерьлеріне жолдамалар сатып алуға байланысты шығыстарды өтеу; \
     \n2) Балалардың сауықтыру санаторийлеріне (мүгедек балалар үшін) жолдамалар сатып алуға байланысты шығыстарды өтеу; \
     \n3) Балаларға арналған дәрілік заттарды сатып алуға материалдық көмек; \
     \n4) Мектеп оқушыларының тамақтануына материалдық көмек; \
@@ -106,29 +110,29 @@ faq_2 = {
     'Айналып өту парағы. Ол қашан ресімделеді?': '1) Жұмыстан босату туралы өтінішті ресімдегенде, үшінші парақта автоматты түрде кету парағы жасалады және қол қоюшылар көрсетіледі.\n2) филиалға/біржақты тәртіппен/ ауыстыру кезінде кету парағын өз жұмыс базаларында ресімделеді,'
 }
 faq_procurement_portal = {
-    'Не могу войти на сайт':'Возможно Вы ввели некоректный адрес. Вам нужно ввести в адресную строку следующий адрес: '
-                            'zakup.telecom.kz/app ',
-    'Какие логин и пароль нужно ввести для входа?':'Логин и пароль такие же как на mail.telecom.kz, '
-                                                   'CheckPoint или при входе в Ваш ПК',
-    'Логин и пароль корректный, но все равно не удалось войти':'"Возможно Вы еще не зарегистрированы на портале '
-                                                               'закупок. Для регистрации Вам нужно обратититься к '
-                                                               'одному из специалитов технической поддержки портала '
-                                                               'закупок. Для обращения Вы можете перейти главное меню '
-                                                               'ktbot и оставить Ваше обращения в разделе '
-                                                               '""У меня есть вопрос""."',
+    'Не могу войти на сайт': 'Возможно Вы ввели некоректный адрес. Вам нужно ввести в адресную строку следующий адрес: '
+                             'zakup.telecom.kz/app ',
+    'Какие логин и пароль нужно ввести для входа?': 'Логин и пароль такие же как на mail.telecom.kz, '
+                                                    'CheckPoint или при входе в Ваш ПК',
+    'Логин и пароль корректный, но все равно не удалось войти': '"Возможно Вы еще не зарегистрированы на портале '
+                                                                'закупок. Для регистрации Вам нужно обратититься к '
+                                                                'одному из специалитов технической поддержки портала '
+                                                                'закупок. Для обращения Вы можете перейти главное меню '
+                                                                'ktbot и оставить Ваше обращения в разделе '
+                                                                '""У меня есть вопрос""."',
     'Не могу зайти на сайт хотя ввожу адрес сайта верно': 'Возможно у вас проблемы с интернетом или не подключили '
                                                           'CheckPoint(если входите через ноутбук)'
 }
 faq_procurement_activities = {
     'Чем регулируются закупки в АО «Казахтелеком»?': 'Порядок осуществления закупок акционерным обществом «Фонд '
-                                                    'национального благосостояния «Самрук-Қазына» и юридическими лицами,'
-                                                    ' пятьдесят и более процентов голосующих акций (долей участия) '
-                                                    'которых прямо или косвенно принадлежат АО «Самрук-Қазына» на праве'
-                                                    ' собственности или доверительного управления и Регламент '
-                                                    'взаимодействия Дирекции «Телеком Комплект» с филиалами '
-                                                    'АО «Казахтелеком».',
+                                                     'национального благосостояния «Самрук-Қазына» и юридическими лицами,'
+                                                     ' пятьдесят и более процентов голосующих акций (долей участия) '
+                                                     'которых прямо или косвенно принадлежат АО «Самрук-Қазына» на праве'
+                                                     ' собственности или доверительного управления и Регламент '
+                                                     'взаимодействия Дирекции «Телеком Комплект» с филиалами '
+                                                     'АО «Казахтелеком».',
     'Как определяется способ закупа и какие виды закупок?':
-"""1) тендер: 
+        """1) тендер: 
 - двухэтапный 
 - с торгами на понижение (на усмотрение Заказчика, нельзя по СМР, экспертизе, тех.надзору) 
 - с ограниченным участием (после 2 несост.тендеров) 
@@ -138,9 +142,9 @@ faq_procurement_activities = {
 5) посредством электронного магазина – до 8 млн.тг по 32 категориям товаров на площадке skstore.kz.
 6) особый порядок (соответствие с ст. 73 Порядка)""",
     'Какие виды плана закупок существуют в компании?': 'План закупок (предварительный, годовой, долгосрочный) - документ'
-                                                      ', содержащий сведения о закупке товаров, работ, услуг, '
-                                                      'необходимых для удовлетворения нужд заказчика в течение периода,'
-                                                      ' определённого планом и в соответствии с графиком плана. ',
+                                                       ', содержащий сведения о закупке товаров, работ, услуг, '
+                                                       'необходимых для удовлетворения нужд заказчика в течение периода,'
+                                                       ' определённого планом и в соответствии с графиком плана. ',
     'Что такое демпинг и как применяется в закупках?': """
 Демпинг - продажа товаров и услуг по искусственно заниженным ценам, ниже рыночных. 
 Ценовое предложение признаётся демпинговым в следующих случаях: 
@@ -157,31 +161,20 @@ faq_procurement_activities = {
 Для приобретения товара, производимого потенциальным поставщиком в рамках реализации Проекта по созданию новых производств, посредством заключения офтейк-контракта, проводится закупка способом из одного источника на основании пп.8 п.1 Ст.59 Порядка осуществления закупок. 
         """,
     'Что такое пул товаров импортозамещения?': 'Пул товаров всех ПК Фонда, в которых имеется постоянная и стабильная '
-                                              'востребованность группы компаний, но отсутствует производство в стране.',
+                                               'востребованность группы компаний, но отсутствует производство в стране.',
     'Как определяется маркетинговая цена?': 'Маркетинговая цена - цена на товар, применяемая заказчиком для формирования'
-                                           ' бюджетов расходов/плана(ов) закупок и не включающая в себя налог на '
-                                           'добавленную стоимость. Маркетинговые цены на товары определяются в '
-                                           'соответствии с Приложением № 3 к Порядку."'
+                                            ' бюджетов расходов/плана(ов) закупок и не включающая в себя налог на '
+                                            'добавленную стоимость. Маркетинговые цены на товары определяются в '
+                                            'соответствии с Приложением № 3 к Порядку."'
 
-}   
+}
 branches = ['Центральный Аппарат', 'Обьединение Дивизион "Сеть"', 'Дивизион по Розничному Бизнесу',
             'Дивизион по Корпоративному Бизнесу', 'Корпоративный Университет', 'Дивизион Информационных Технологий',
             'Дирекция Телеком Комплект', 'Дирекция Управления Проектами',
             'Сервисная Фабрика']
 
-markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-button = types.KeyboardButton("😊Welcome курс | Бейімделу")
-button3 = types.KeyboardButton("🗃️Білім базасы")
-button4 = types.KeyboardButton("👷ҚТ ж ЕҚ кәртішкесін толтыру")
-button5 = types.KeyboardButton("📄Менің сұрағым бар")
-button6 = types.KeyboardButton("🧐Менің профилім")
-button7 = types.KeyboardButton('🖥Портал "Бірлік"')
-button8 = types.KeyboardButton('📞LTE ұшқышы')
-markup.add(button, button8, button3, button7, button5, button4, button6)
 
-
-def send_welcome_message(bot, message):
-    welcome_message = f'Сәлем {db_connect.get_firstname(message)}👋'
+def get_markup(message):
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
     button = types.KeyboardButton("😊Welcome курс | Бейімделу")
     button3 = types.KeyboardButton("🗃️Білім базасы")
@@ -189,8 +182,17 @@ def send_welcome_message(bot, message):
     button5 = types.KeyboardButton("📄Менің сұрағым бар")
     button6 = types.KeyboardButton("🧐Менің профилім")
     button7 = types.KeyboardButton('🖥Портал "Бірлік"')
-    button8 = types.KeyboardButton('📞LTE ұшқышы')
-    markup.add(button, button8, button3, button7, button5, button4, button6)
+    button8 = types.KeyboardButton(lte_[0])
+    markup.add(button)
+    if db_connect.get_branch(message.chat.id) == branches[2]:
+        markup.add(button8)
+    markup.add(button3, button7, button5, button4, button6)
+    return markup
+
+
+def send_welcome_message(bot, message):
+    welcome_message = f'Сәлем {db_connect.get_firstname(message)}👋'
+    markup = get_markup(message)
     if db_connect.check_id(str(message.chat.id)):
         markup.add(types.KeyboardButton("Админ панель для обращений"))
     bot.send_message(message.chat.id, welcome_message, reply_markup=markup)
@@ -230,11 +232,11 @@ def performer_text(appeal_info, message):
     status = kaz_get_status(message, appeal_info[0])
     performer_info = db_connect.get_performer_by_category(category=appeal_info[3])
     category = db_connect.rename_category_to_kaz(categories_, appeal_info[3])
-    text = f"Өтініш <b>ID</b> {appeal_info[0]}\n\n" \
+    text = f"<b>ID</b> {appeal_info[0]}\n\n" \
            f" Мәртебесі: {status}\n" \
            f" Құрылған күні: {str(appeal_info[5])}\n" \
            f" Санат: {category}\n" \
-           f" Өтініш мәтіні: {str(appeal_info[4])}\n" \
+           f" Мәтін: {str(appeal_info[4])}\n" \
            f" Соңғы мәртебе өзгерген күн: {str(appeal_info[6])}\n\n" \
            f"Орындаушы\n" \
            f" ТАӘ: {performer_info[4]} {performer_info[3]}\n" \
@@ -428,8 +430,24 @@ def call_back(bot, call):
             bot.send_photo(appeal_info[1], image_data)
         except:
             print("error")
-        text = performer_text(appeal_info, message=call.message)
+        text = performer_text(appeal_info)
+        if appeal_info[12] != "" and db_connect.get_sale(appeal_info[12])[10] == "Самостоятельно":
+            markup = types.InlineKeyboardMarkup()
+            button_ = types.InlineKeyboardButton("Добавить модем | симкарту",
+                                                 callback_data=str(appeal_info[12]) + "add_modem")
+            button_1 = types.InlineKeyboardButton("Добавить фотографию Акта",
+                                                  callback_data=str(appeal_info[12]) + "add_act")
+            markup.add(button_, button_1)
+            bot.send_message(call.message.chat.id, text, reply_markup=markup)
+            return
         bot.send_message(call.message.chat.id, text)
+    elif db_connect.extract_number_from_status_change(str(call.data), r'^(\d+)add_act') is not None:
+        db_connect.set_appeal_field(call.message, True)
+        bot.send_message(call.message.chat.id, "Отправьте фотографию акта")
+    elif db_connect.extract_number_from_status_change(str(call.data), r'^(\d+)add_modem') is not None:
+        lte_id = db_connect.extract_number_from_status_change(str(call.data), r'^(\d+)add_modem')
+        msg = bot.send_message(call.message.chat.id, "Введите серийный номер симкарты")
+        bot.register_next_step_handler(msg, get_simcard, bot, lte_id)
     elif db_connect.extract_number_from_status_change(str(call.data), r'^(\d+)statusinprocess') is not None \
             or db_connect.extract_number_from_status_change(str(call.data), r'^(\d+)statusdecided$') is not None:
         appeal_id = db_connect.extract_number_from_status_change(str(call.data), r'^(\d+)statusinprocess')
@@ -445,7 +463,7 @@ def call_back(bot, call):
         db_connect.admin_appeal_callback(call, bot, add_comment)
         appeal_info = db_connect.get_appeal_by_id(appeal_id)[0]
         text = performer_text(appeal_info, message=call.message)
-        bot.send_message(appeal_info[1], "Сіздің өтінішіңіздің мәртебесі өзгертілді")
+        bot.send_message(appeal_info[1], "Мәртебесі өзгертілді")
         image_data = db_connect.get_image_data(appeal_id)
         try:
             bot.send_photo(appeal_info[1], image_data)
@@ -453,6 +471,10 @@ def call_back(bot, call):
             print("error")
         bot.send_message(appeal_info[1], text)
         if db_connect.get_status(appeal_id)[0][0] == "Решено":
+            appeal_ = db_connect.get_appeal_by_id(appeal_id)
+            if appeal_[0][3] in db_connect.cities_all():
+                bot.send_message(appeal_info[1], "Выша заявка принята. Спасибо большое за содейтвие")
+                return
             markup_callback = types.InlineKeyboardMarkup(row_width=5)
             for i in range(1, 6):
                 callback_d = str(i) + "evaluation" + str(appeal_info[0])
@@ -466,6 +488,23 @@ def call_back(bot, call):
         bot.edit_message_text("Пікіріңіз үшін және жақсы адам болуға көмектескеніңіз үшін рахмет", call.message.chat.id,
                               call.message.message_id)
         bot.answer_callback_query(call.id)
+    elif db_connect.extract_number_from_status_change(str(call.data), r'^(\d+)lte') is not None:
+        sale_id = db_connect.extract_number_from_status_change(str(call.data), r'^(\d+)lte')
+        lte_info = db_connect.get_sale(sale_id)
+        is_notified = "Да"
+        if not lte_info[7]:
+            is_notified = "Нет"
+        text = f"\nФИО абонента: {lte_info[3]}\n" \
+               f"ИИН: {lte_info[4]}\n" \
+               f"Номер телефона абонента: {lte_info[5]}\n" \
+               f"Тип абонента: {lte_info[6]}\n" \
+               f"Уведомлен? {is_notified}\n" \
+               f"Адрес абонента: {lte_info[8]}\n" \
+               f"ПП: {lte_info[9]}\n" \
+               f"Доставка: {lte_info[10]}\n" \
+               f"Simcard: {is_none(lte_info[11])}\n" \
+               f"Модем: {is_none(lte_info[12])}"
+        bot.send_message(call.message.chat.id, text)
     else:
         db_connect.admin_appeal_callback(call, bot, add_comment)
 
@@ -552,8 +591,9 @@ def appeal(bot, message, message_text):
             db_connect.add_appeal_gmail(message.chat.id, category, message.text, now_updated)
         else:
             performer_id = db_connect.get_performer_by_category(category)[1]
-            db_connect.add_appeal(message.chat.id, "Обращение принято", category, message.text, now_updated,now_updated,
-                              performer_id, ' ', False)
+            db_connect.add_appeal(message.chat.id, "Обращение принято", category, message.text, now_updated,
+                                  now_updated,
+                                  performer_id, ' ', False)
         markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True)
         button1_ap = types.KeyboardButton("Фотосурет қосыңыз")
         button2_ap = types.KeyboardButton("Өтініш жіберу")
@@ -564,23 +604,23 @@ def appeal(bot, message, message_text):
 
 
 def end_appeal(bot, message, appeal_id):
-    appeal = db_connect.get_appeal_by_id_inner_join_users(appeal_id)[0]
+    appeal_ = db_connect.get_appeal_by_id_inner_join_users(appeal_id)[0]
     category_ = db_connect.rename_category_to_kaz(categories_, db_connect.get_category_users_info(message))
     status = kaz_get_status(message, appeal_id)
-    text = f"Өтініш ID {appeal_id}\n\n" \
+    text = f"ID {appeal_id}\n\n" \
            f"Мәртебесі: {status}\n" \
-           f"Аты Тегі: {appeal[8]} {appeal[9]}\n" \
-           f"Табель нөмірі: {appeal[10]}\n" \
-           f"Телефон нөмірі: {appeal[11]}\n" \
-           f"Email: {appeal[12]}\n" \
+           f"Аты Тегі: {appeal_[8]} {appeal_[9]}\n" \
+           f"Табель нөмірі: {appeal_[10]}\n" \
+           f"Телефон нөмірі: {appeal_[11]}\n" \
+           f"Email: {appeal_[12]}\n" \
            f"Санат: {category_}\n" \
-           f"Өтініш: {appeal[3]}\n" \
-           f"Құрылған күні: {appeal[5]}"
+           f"Мәтін: {appeal_[3]}\n" \
+           f"Құрылған күні: {appeal_[5]}"
     markup_a1 = types.InlineKeyboardMarkup()
     callback_d = f"{appeal_id}statusinprocess"
     button_a = types.InlineKeyboardButton("Обращение просмотрено", callback_data=callback_d)
     markup_a1.add(button_a)
-    bot.send_message(appeal[14], text, reply_markup=markup_a1)
+    bot.send_message(appeal_[14], text, reply_markup=markup_a1)
     db_connect.clear_appeals(message)
     bot.send_message(message.chat.id, "Сіздің өтініштеріңіз қабылданды")
     bot.send_message(message.chat.id, "Егер сіз артқа қайтқыңыз келсе, /menu таңдаңыз /menu енгізу жолағының "
@@ -940,15 +980,7 @@ def kb(bot, message):
 
 def menu(bot, message):
     db_connect.set_bool(message, False, False)
-    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-    button = types.KeyboardButton("😊Welcome курс | Бейімделу")
-    button3 = types.KeyboardButton("🗃️Білім базасы")
-    button4 = types.KeyboardButton("👷ҚТ ж ЕҚ кәртішкесін толтыру")
-    button5 = types.KeyboardButton("📄Менің сұрағым бар")
-    button6 = types.KeyboardButton("🧐Менің профилім")
-    button7 = types.KeyboardButton('🖥Портал "Бірлік"')
-    button8 = types.KeyboardButton('📞LTE ұшқышы')
-    markup.add(button, button8, button3, button7, button5, button4, button6)
+    markup = get_markup(message)
     if db_connect.check_id(str(message.chat.id)):
         markup.add(types.KeyboardButton("Админ панель для обращений"))
     bot.send_message(message.chat.id, "Сіз негізгі мәзірдесіз", reply_markup=markup)
@@ -1069,33 +1101,79 @@ def checkpoint(bot, message, message_text):
         return False
     return True
 
-
 subscriber_types = ['Новый', 'Действующий']
+lte_files = ["Инструкция 'Пилот LTE'", "Как подписать договор онлайн", "Скрипт на Алем",
+             "Акт сдачи-приема выполненных работ", "Тарифы"]
 
 
 def lte(message, bot, message_text=None):
-    if message_text == None:
+    if message_text is None:
         message_text = message.text
-    if message.text == '📞Пилот LTE':
+    if message.text == lte_[0]:
         markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         button1_l = types.KeyboardButton(lte_[1])
         button2_l = types.KeyboardButton(lte_[2])
         button3_l = types.KeyboardButton(lte_[3])
-        markup_l.add(button1_l, button2_l, button3_l)
+        button4_l = types.KeyboardButton(lte_[4])
+        markup_l.add(button1_l, button2_l, button3_l, button4_l)
         bot.send_message(message.chat.id, "Выберите категорию", reply_markup=markup_l)
     elif message.text == lte_[1]:
-        bot.send_message(message.chat.id, "Информация")
+        bot.send_message(message.chat.id,
+                         """
+Представляем вам проект "Пилот LTE", нацеленный на укрепление нашей позиции на рынке и увеличение продаж в сегменте LTE. 
+
+Наша цель
+Достичь новых высот в продажах и увеличить нашу долю на растущем рынке LTE.
+
+Длительность
+до 31.12.2023 года.
+
+Участники
+ - по продаже услуги «LTE», проект открыт для всех сотрудников структурных подразделений Дивизиона по розничному бизнесу АО "Казахтелеком", исключая участников ЕМП.
+  - по доставке клиентского оборудования, проект открыт для всех сотрудников структурных подразделений Дивизиона по розничному бизнесу АО "Казахтелеком", исключая участников ЕМП, кроме работников канала продаж «УП» и работников Отдела управления внешними каналами продаж
+
+Преимущество участи""")
     elif message.text == lte_[2]:
-        bot.send_message(message.chat.id, "Информация2")
+        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+        button1 = types.KeyboardButton(lte_files[0])
+        button2 = types.KeyboardButton(lte_files[1])
+        button3 = types.KeyboardButton(lte_files[2])
+        button4 = types.KeyboardButton(lte_files[3])
+        button5 = types.KeyboardButton(lte_files[4])
+        markup.add(button1, button2, button3, button4, button5)
+        bot.send_message(message.chat.id, "Выберите файл", reply_markup=markup)
     elif message_text == lte_[3]:
         id_ = db_connect.add_internal_sale(str(message.chat.id))
         markup_lte = types.ReplyKeyboardMarkup(one_time_keyboard=True)
         markup_lte = db_connect.generate_buttons(subscriber_types, markup_lte)
         msg = bot.send_message(message.chat.id, "Выберите тип абонента", reply_markup=markup_lte)
         bot.register_next_step_handler(msg, add_subscriber, bot, id_)
+    elif message_text == lte_[4]:
+        markup_a = db_connect.my_lte(message.chat.id)
+        if markup_a.keyboard:
+            bot.send_message(message.chat.id, "Здесь вы можете отслеживать статусы ваших продаж",
+                             reply_markup=markup_a)
+        else:
+            bot.send_message(message.chat.id, "Продаж не было")
+    elif message_text == lte_files[0]:
+        bot.send_document(message.chat.id, open('files/Инструкция Пилот LTE.pdf', 'rb'))
+    elif message_text == lte_files[1]:
+        bot.send_document(message.chat.id, open('files/Как подписать договор онлайн.pdf', 'rb'))
+    elif message_text == lte_files[2]:
+        bot.send_document(message.chat.id, open('files/Скрипт на Алем.docx', 'rb'))
+        bot.send_document(message.chat.id, open('files/Скрипт на Алем.pdf', 'rb'))
+    elif message_text == lte_files[3]:
+        bot.send_document(message.chat.id, open('files/Акт сдачи-приема выполненных работ, '
+                                                'оборудования и материалов.docx', 'rb'))
+        bot.send_document(message.chat.id, open('files/Орындалған жұмыстарды, жабдықтар мен материалдарды қабылдау '
+                                                'өткізу актісі.docx', 'rb'))
+    elif message_text == lte_files[4]:
+        bot.send_document(message.chat.id, open('files/Тарифы.pdf', 'rb'))
 
 
 def add_subscriber(message, bot, id_i_s):
+    if redirect(bot, message, id_i_s):
+        return
     if message.text not in subscriber_types:
         markup_lte = types.ReplyKeyboardMarkup(one_time_keyboard=True)
         markup_lte = db_connect.generate_buttons(subscriber_types, markup_lte)
@@ -1111,6 +1189,8 @@ def add_subscriber(message, bot, id_i_s):
 
 
 def get_region(message, bot, id_i_s, regions):
+    if redirect(bot, message, id_i_s):
+        return
     cities = db_connect.get_subcategories(message.text)
     if len(cities) == 0:
         markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True)
@@ -1125,6 +1205,8 @@ def get_region(message, bot, id_i_s, regions):
 
 
 def get_performer_internal_sale(message, bot, id_i_s, cities):
+    if redirect(bot, message, id_i_s):
+        return
     performer_id = db_connect.get_performer_id_by_category(message.text)
     if performer_id is None or str(performer_id) == '':
         markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True)
@@ -1144,6 +1226,8 @@ def get_performer_internal_sale(message, bot, id_i_s, cities):
 
 
 def get_is_notified(message, bot, id_i_s):
+    if redirect(bot, message, id_i_s):
+        return
     if message.text != "Нет" and message.text != "Да":
         markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True)
         markup_l.add(types.KeyboardButton("Да"), types.KeyboardButton("Нет"))
@@ -1159,13 +1243,17 @@ def get_is_notified(message, bot, id_i_s):
 
 
 def get_full_name(message, bot, id_i_s):
+    if redirect(bot, message, id_i_s):
+        return
     db_connect.set_full_name(id_i_s, message.text)
     msg = bot.send_message(message.chat.id, "Введите ИИН")
     bot.register_next_step_handler(msg, get_iin, bot, id_i_s)
 
 
 def get_iin(message, bot, id_i_s):
-    if not message.text.isdigit():
+    if redirect(bot, message, id_i_s):
+        return
+    if not message.text.isdigit() and len(message.text) != 12:
         msg = bot.send_message(message.chat.id, "Введенная информация не соответствует шаблону ИИН, введите еще раз")
         bot.register_next_step_handler(msg, get_iin, bot, id_i_s)
         return
@@ -1175,6 +1263,8 @@ def get_iin(message, bot, id_i_s):
 
 
 def get_phone_num_i_s(message, bot, id_i_s):
+    if redirect(bot, message, id_i_s):
+        return
     pattern = r'^(\+?7|8)(\d{10})$'
     if not re.match(pattern, message.text):
         msg = bot.send_message(message.chat.id, "Введенная информация не соответствует шаблону 87001110000")
@@ -1186,6 +1276,8 @@ def get_phone_num_i_s(message, bot, id_i_s):
 
 
 def get_address_subscriber(message, bot, id_i_s):
+    if redirect(bot, message, id_i_s):
+        return
     db_connect.set_subscriber_address(id_i_s, message.text)
     markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
     markup_l = db_connect.generate_buttons(pp, markup_l)
@@ -1194,9 +1286,12 @@ def get_address_subscriber(message, bot, id_i_s):
 
 
 delivery = ["Самостоятельно", "Силами другого подразделения"]
+arr = ["Я продал!", "Я доставил!"]
 
 
 def get_pp(message, bot, id_i_s):
+    if redirect(bot, message, id_i_s):
+        return
     if message.text not in pp:
         markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         markup_l = db_connect.generate_buttons(pp, markup_l)
@@ -1205,12 +1300,34 @@ def get_pp(message, bot, id_i_s):
         return
     db_connect.set_product_name(id_i_s, message.text)
     markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-    markup_l = db_connect.generate_buttons(delivery, markup_l)
-    msg = bot.send_message(message.chat.id, "Как будет осуществлена доставка?", reply_markup=markup_l)
-    bot.register_next_step_handler(msg, get_delivery, bot, id_i_s)
+    markup_l = db_connect.generate_buttons(arr, markup_l)
+    msg = bot.send_message(message.chat.id, "Выберите действие", reply_markup=markup_l)
+    bot.register_next_step_handler(msg, func_lte, bot, id_i_s)
+
+
+def func_lte(message, bot, id_i_s):
+    if redirect(bot, message, id_i_s):
+        return
+    if message.text not in arr:
+        markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+        markup_l = db_connect.generate_buttons(arr, markup_l)
+        msg = bot.send_message(message.chat.id, "Выберите действие", reply_markup=markup_l)
+        bot.register_next_step_handler(msg, func_lte, bot, id_i_s)
+        return
+
+    if message.text == arr[0]:
+        markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+        markup_l = db_connect.generate_buttons(delivery, markup_l)
+        msg = bot.send_message(message.chat.id, "Как будет осуществлена доставка?", reply_markup=markup_l)
+        bot.register_next_step_handler(msg, get_delivery, bot, id_i_s)
+    else:
+        db_connect.set_delivery(id_i_s, delivery[0])
+        add_lte_appeal(bot, message, id_i_s)
 
 
 def get_delivery(message, bot, id_i_s):
+    if redirect(bot, message, id_i_s):
+        return
     if message.text not in delivery:
         markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         markup_l = db_connect.generate_buttons(delivery, markup_l)
@@ -1218,52 +1335,67 @@ def get_delivery(message, bot, id_i_s):
         bot.register_next_step_handler(msg, get_delivery, bot, id_i_s)
         return
     db_connect.set_delivery(id_i_s, message.text)
-    if message.text == "Самостоятельно":
-        msg = bot.send_message(message.chat.id, "Введите номер Sim карты")
-        bot.register_next_step_handler(msg, get_simcard, bot, id_i_s)
-    else:
-        add_lte_appeal(bot, message, id_i_s)
+    add_lte_appeal(bot, message, id_i_s)
 
 
 def get_simcard(message, bot, id_i_s):
+    if redirect(bot, message, id_i_s):
+        return
     db_connect.set_simcard(id_i_s, message.text)
     msg = bot.send_message(message.chat.id, "Введите серийный номер модема")
     bot.register_next_step_handler(msg, get_modem, bot, id_i_s)
 
 
 def get_modem(message, bot, id_i_s):
+    if redirect(bot, message, id_i_s):
+        return
     db_connect.set_modem(id_i_s, message.text)
-    add_lte_appeal(bot, message, id_i_s)
+    bot.send_message(message.chat.id, "Информация сохранена")
 
 
 def add_lte_appeal(bot, message, id_i_s):
-    lte_info = db_connect.get_lte(id_i_s)
+    if redirect(bot, message, id_i_s):
+        return
+    lte_info = db_connect.get_sale(id_i_s)
     now = datetime.now() + timedelta(hours=6)
     now_updated = db_connect.remove_milliseconds(now)
     is_notified = "Да"
     if not lte_info[7]:
         is_notified = "Нет"
-    text = f"\nФИО абонента: {lte_info[3]}\n" \
-           f"ИИН: {lte_info[4]}\n" \
-           f"Номер телефона абонента: {lte_info[5]}\n" \
-           f"Тип абонента: {lte_info[6]}\n" \
-           f"Уведомлен? {is_notified}\n" \
-           f"Адрес абонента: {lte_info[8]}\n" \
-           f"ПП: {lte_info[9]}\n" \
-           f"Доставка: {lte_info[10]}\n" \
-           f"Simcard: {is_none(lte_info[11])}\n" \
-           f"Модем: {is_none(lte_info[12])}"
-    db_connect.add_appeal(message.chat.id, 'Обращение принято', lte_info[13], text, now_updated, now_updated,
-                          lte_info[2], ' ', False)
+    text = f"\n\tФИО абонента: {lte_info[3]}\n" \
+           f"\tИИН: {lte_info[4]}\n" \
+           f"\tНомер телефона абонента: {lte_info[5]}\n" \
+           f"\tТип абонента: {lte_info[6]}\n" \
+           f"\tУведомлен? {is_notified}\n" \
+           f"\tАдрес абонента: {lte_info[8]}\n" \
+           f"\tПП: {lte_info[9]}\n" \
+           f"\tДоставка: {lte_info[10]}\n"
+    if lte_info[10] == "Самостоятельно":
+        text += f"\tSimcard: {is_none(lte_info[11])}\n" \
+                f"\tМодем: {is_none(lte_info[12])}"
+    appeal_id = db_connect.add_appeal(message.chat.id, 'Обращение принято', lte_info[13], text, now_updated,
+                                      now_updated,
+                                      lte_info[2], ' ', False, id_i_s)
     user = db_connect.get_user(message.chat.id)
-    text += f"\n\nПользователь\n" \
-           f" ФИО: {str(user[2])} {str(user[3])}\n" \
-           f" Номер телефона: {str(user[5])}\n" \
-           f" Email: {str(user[6])}\n" \
-           f" Telegram: {str(user[1])}\n" \
-           f" Филиал: {str(user[7])}\n\n" \
-           f" Комментарий: "
-    bot.send_message(lte_info[2], text)
+    text += f"\n\nРаботник\n" \
+            f" ФИО: {str(user[2])} {str(user[3])}\n" \
+            f" Номер телефона: {str(user[5])}\n" \
+            f" Email: {str(user[6])}\n" \
+            f" Telegram: {str(user[1])}\n" \
+            f" Филиал: {str(user[7])}\n\n" \
+            f" Комментарий: "
+    markup_a = types.InlineKeyboardMarkup(row_width=1)
+    if lte_info[10] != "Самостоятельно":
+        callback_d = f"{appeal_id}statusdecided"
+        btn_text = "Изменить статус на 'Решено'"
+    else:
+        callback_d = f"{appeal_id}statusinprocess"
+        btn_text = "Изменить статус на 'В процессе'"
+    button_a = types.InlineKeyboardButton(btn_text, callback_data=callback_d)
+    callback_d = f"{appeal_id}addcomment"
+    button_a1 = types.InlineKeyboardButton("Добавить комментарий", callback_data=callback_d)
+    markup_a.add(button_a, button_a1)
+    bot.send_message(lte_info[2], text, reply_markup=markup_a)
     bot.send_message(message.chat.id, "Ваша информация сохранена")
 
 
@@ -1271,3 +1403,16 @@ def is_none(line):
     if line is None:
         return " "
     return line
+
+
+def redirect(bot, message, id_i_s):
+    text = message.text
+    if text == "/menu":
+        db_connect.delete_internal_sale(id_i_s)
+        menu(bot, message)
+        return True
+    elif text == "/start":
+        db_connect.delete_internal_sale(id_i_s)
+        send_welcome_message(bot, message)
+        return True
+    return False

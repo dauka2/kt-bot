@@ -41,10 +41,12 @@ def check_is_command(text):
 
 
 def check_register(message, func):
-    arr = [rus.markup, rus, "Изменения сохранены", "Оставить обращение"]
+    markup = rus.get_markup(message)
+    arr = [markup, rus, "Изменения сохранены", "Оставить обращение"]
     language = db_connect.get_language(message)
     if language == "kaz":
-        arr = [kaz.markup, kaz, "Өзгерістер сақталды", "Өтінішті қалдыру"]
+        markup = kaz.get_markup(message)
+        arr = [markup, kaz, "Өзгерістер сақталды", "Өтінішті қалдыру"]
     if func == "profile":
         bot.send_message(message.chat.id, arr[2], reply_markup=arr[0])
         return 1
@@ -406,7 +408,8 @@ def get_excel(message):
             performers.firstname AS performer_firstname,
             performers.lastname AS performer_lastname,
             performers.email AS performer_email,
-            telegram
+            telegram,
+            lte_id
         FROM appeals
         left outer JOIN users ON appeals.user_id = users.id
         left outer JOIN performers ON performers.category = appeals.category
@@ -543,7 +546,7 @@ def text(message, get_message, lang_py):
             or get_message in lang_py.portal_guide:
         db_connect.clear_appeals(message)
         lang_py.portal(bot, message)
-    elif get_message in lang_py.lte_ or get_message == "📞Пилот LTE":
+    elif get_message in lang_py.lte_ or get_message in lang_py.lte_files:
         lang_py.lte(message, bot)
     elif str(message.chat.id) in db_connect.get_users_id():
         if db_connect.get_glossary(message):
