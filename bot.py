@@ -1,9 +1,9 @@
+import openpyxl
 import psycopg2
 from telebot import *
 import kaz
 import rus
 import db_connect
-
 
 bot = telebot.TeleBot(db_connect.TOKEN, parse_mode="HTML")
 admin_id = ['484489968', '760906879', '187663574', '577247261', '204504707', '531622371']
@@ -24,18 +24,8 @@ def check_id(categories, input_id):
     return False
 
 
-# def check_is_portal(message, language):
-#     if db_connect.get_appeal_field(message):
-#         if language == "rus":
-#             rus.portal(bot, message)
-#         else:
-#             kaz.portal(bot, message)
-#         return True
-#     return False
-
-
-def check_is_command(text):
-    if text == "/menu" or text == "/start" or text == "/help" or text == "/language":
+def check_is_command(text_):
+    if text_ == "/menu" or text_ == "/start" or text_ == "/help" or text_ == "/language":
         return False
     return True
 
@@ -59,24 +49,30 @@ def check_register(message, func):
 @bot.message_handler(commands=['delete_me'])
 def delete_me(message):
     db_connect.delete_user(message)
+    bot.send_message(message.chat.id, "Изменения сохранены")
 
 
+@bot.message_handler(commands=['register_start'])
 def register(message, func="menu"):
     db_connect.cm_sv_db(message, '/start_register')
     language = db_connect.get_language(message)
     arr = ["Приветствую, друг!🫡 \nМеня зовут ktbot, \nТвой личный помощник в компании АО'Казахтелеком'.",
            "Перед началом пользования,\nДавай пройдем регистрацию и познакомимся😊",
-           "Введите свое имя"]
+           "Выберите филиал из списка"]
     if language == "kaz":
         arr = ["Сәлем досым!🫡 \nМенің атым ktbot\n'Қазақтелеком' АҚ-дағы сіздің жеке көмекшіңізбін",
-               "Пайдалануды бастамас бұрын,\nТіркеуден өтіп танысайық😊", "Атыңызды енгізіңіз"]
+               "Пайдалануды бастамас бұрын,\nТіркеуден өтіп танысайық😊", "Тізімнен филиалды таңдаңыз"]
     if func == "start":
         bot.send_message(message.chat.id, arr[0])
         time.sleep(0.75)
         bot.send_message(message.chat.id, arr[1])
         time.sleep(0.75)
-    msg = bot.send_message(message.chat.id, arr[2])
-    bot.register_next_step_handler(msg, change_firstname, func)
+    markup_b = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+    markup_b = db_connect.generate_buttons(branches, markup_b)
+    msg = bot.send_message(message.chat.id, arr[2], reply_markup=markup_b)
+    bot.register_next_step_handler(msg, change_branch, func)
+    # msg = bot.send_message(message.chat.id, arr[2])
+    # bot.register_next_step_handler(msg, change_firstname, func)
 
 
 def change_firstname(message, func):
@@ -120,12 +116,44 @@ def change_lastname(message, func):
 def change_table_num(message, func):
     language = db_connect.get_language(message)
     arr = ["Вы ввели некорректные данные, введите в таком шаблоне:\n123456",
-           "Введите Ваш номер телефона\n\nНапример: +77001112233"]
+           "Подтвердите ваши данные: ", "Введите Ваше имя",
+           "Введенный табельный номер не найден, хотите еще раз ввести табельный номер?", "Это я", "Это не я"]
     if language == "kaz":
         arr = ["Сіз деректерді қате енгіздіңіз, осы үлгіде енгізіңіз:\n123456",
-               "Телефон нөміріңізді енгізіңіз\n\nМысалы: +77001112233"]
+               "Деректеріңізді растаңыз: ", "Атыңызды енгізіңіз",
+               "Енгізілген табель нөмірі табылмады, табель нөмірін қайтадан енгізгіңіз келе ме?", "Бұл мен",
+               "Бұл мен емес"]
     try:
-        int(message.text)
+        table_num = int(message.text)
+        if db_connect.get_branch(message.chat.id) == branches[2]:
+            wb = openpyxl.load_workbook('ДРБ Табельные номера.xlsx')
+            excel = wb['ШР на 01.10.2023']
+            tab_nums, full_names = [], []
+            for row in excel.iter_rows(min_row=2, max_row=3510, values_only=True):
+                tab_nums.append(row[1])
+                full_names.append(row[2])
+            if table_num in tab_nums:
+                index = tab_nums.index(table_num)
+                full_name = full_names[index]
+                full_name_arr = full_name.split(' ')
+                db_connect.set_firstname(message, full_name_arr[1])
+                db_connect.set_lastname(message, full_name_arr[0])
+                markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+                button1 = types.KeyboardButton(arr[4])
+                button2 = types.KeyboardButton(arr[5])
+                markup.add(button1, button2)
+                msg = bot.send_message(message.chat.id, arr[1] + str(full_name),reply_markup=markup)
+                bot.register_next_step_handler(msg, is_it_you, func)
+                return
+            else:
+                func_1(message, func)
+                return
+        else:
+            db_connect.set_table_number(message, message.text)
+            if check_register(message, func) != 0:
+                return
+            msg = bot.send_message(message.chat.id, arr[2])
+            bot.register_next_step_handler(msg, change_firstname, func)
     except ValueError:
         msg = bot.send_message(message.chat.id, arr[0])
         bot.register_next_step_handler(msg, change_table_num, func)
@@ -137,8 +165,44 @@ def change_table_num(message, func):
         db_connect.set_table_number(message, message.text)
         if check_register(message, func) != 0:
             return
-        msg = bot.send_message(message.chat.id, arr[1])
+        msg = bot.send_message(message.chat.id, arr[2])
+        bot.register_next_step_handler(msg, change_firstname, func)
+
+
+def func_1(message, func):
+    language = db_connect.get_language(message)
+    arr = ["Введенный табельный номер не найден, хотите еще раз ввести табельный номер?"]
+    if language == "kaz":
+        arr = ["Енгізілген табель нөмірі табылмады, табель нөмірін қайтадан енгізгіңіз келе ме?"]
+    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+    button1 = types.KeyboardButton("Да")
+    button2 = types.KeyboardButton("Нет")
+    markup.add(button1, button2)
+    msg = bot.send_message(message.chat.id, arr[0], reply_markup=markup)
+    bot.register_next_step_handler(msg, yes_no, func)
+
+
+def is_it_you(message, func):
+    language = db_connect.get_language(message)
+    arr = ["Введите Ваш номер телефона\n\nНапример: +77001112233", "Войти по табельному номеру", "Это я"]
+    if language == "kaz":
+        arr = ["Телефон нөміріңізді енгізіңіз\n\nМысалы: +77001112233", "Табель нөмірі бойынша кіру", "Бұл мен"]
+    if message.text == arr[2]:
+        msg = bot.send_message(message.chat.id, arr[0])
         bot.register_next_step_handler(msg, change_phone_num, func)
+    else:
+        in_table(message, func, arr[1])
+
+
+def yes_no(message, func):
+    language = db_connect.get_language(message)
+    arr = ["Регистрация", "Войти по табельному номеру"]
+    if language == "kaz":
+        arr = [ "Тіркеу", "Табель нөмірі бойынша кіру"]
+    if message.text == "Да":
+        in_table(message, func, arr[1])
+    else:
+        in_table(message, func, arr[0])
 
 
 def change_phone_num(message, func):
@@ -168,13 +232,15 @@ def change_email(message, func):
     email = message.text
     regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
     language = db_connect.get_language(message)
-    arr = ["И завершающий этап\nВыберите Ваш филиал из списка",
+    arr = ["Регистрация пройдена!\n\nПриятно познакомиться!😇",
            "Вы ввели некорректные данные, введите в таком шаблоне dilnaz@telecom.kz",
-           "Для использования команд необходимо ввести email"]
+           "Для использования команд необходимо ввести email",
+           "Если вы хотите изменить информацию то перейдите во вкладку Мой профиль"]
     if language == "kaz":
-        arr = ["Соңғы кезең тізімнен филиалды таңдаңыз",
+        arr = ["Тіркеуден өттіңіз!\n\nТанысқаныма қуаныштымын!😇",
                "Сіз деректерді қате енгіздіңіз, осы үлгіде енгізіңіз dilnaz@telecom.kz",
-               "Пәрмендерді пайдалану үшін email енгізу керек"]
+               "Пәрмендерді пайдалану үшін email енгізу керек",
+               "Сіз ақпаратты өзгерткіңіз келсе, онда Менің профилім қосымшасына өтіңіз"]
     if not check_is_command(message.text):
         msg = bot.send_message(message.chat.id, arr[2])
         bot.register_next_step_handler(msg, change_email, func)
@@ -183,45 +249,69 @@ def change_email(message, func):
         db_connect.set_email(message, email)
         if check_register(message, func) != 0:
             return
-        markup_b = types.ReplyKeyboardMarkup(one_time_keyboard=True)
-        markup_b = db_connect.generate_buttons(branches, markup_b)
-        msg = bot.send_message(message.chat.id, arr[0], reply_markup=markup_b)
-        bot.register_next_step_handler(msg, change_branch, func)
-    else:
-        msg = bot.send_message(message.chat.id,arr[1])
-        bot.register_next_step_handler(msg, change_email, func)
-
-
-def change_branch(message, func):
-    branch = message.text
-    language = db_connect.get_language(message)
-    arr = ["Регистрация пройдена!\n\nПриятно познакомиться!😇",
-           "Если вы хотите изменить информацию то перейдите во вкладку Мой профиль",
-           "Вы ввели некорректные данные, выберите филиал из списка"]
-    if language == "kaz":
-        arr = ["Тіркеуден өттіңіз!\n\nТанысқаныма қуаныштымын!😇",
-               "Сіз ақпаратты өзгерткіңіз келсе, онда Менің профилім қосымшасына өтіңіз",
-               "Сіз қате деректерді енгіздіңіз, тізімнен филиалды таңдаңыз"]
-    if branch in branches:
-        db_connect.set_branch(message.chat.id, branch)
-        if func == "start" or func == "menu":
-            bot.send_message(message.chat.id, arr[0])
-            time.sleep(0.75)
-            bot.send_message(message.chat.id, arr[1])
-            time.sleep(0.75)
-        if check_register(message, func) != 0:
-            return
+        bot.send_message(message.chat.id, arr[0])
+        bot.send_message(message.chat.id, arr[3])
         db_connect.cm_sv_db(message, '/end_register')
         if func == "menu":
             menu(message)
         elif func == 'start':
             start(message)
     else:
+        msg = bot.send_message(message.chat.id, arr[1])
+        bot.register_next_step_handler(msg, change_email, func)
+
+
+def change_branch(message, func):
+    branch = message.text
+    language = db_connect.get_language(message)
+    arr = ["Введите табельный номер", "Вы ввели некорректные данные, выберите филиал из списка", "Введите Имя",
+           "Выберите способ входа", "Регистрация", "Войти по табельному номеру"]
+    if language == "kaz":
+        arr = ["Табель нөмірін енгізіңіз", "Сіз қате деректерді енгіздіңіз, тізімнен филиалды таңдаңыз",
+               "Атыңызды енгізіңіз", "Кіру әдісін таңдаңыз", "Тіркеу", "Табель нөмірі бойынша кіру"]
+    if branch in branches:
+        db_connect.set_branch(message.chat.id, branch)
+        if check_register(message, func) != 0:
+            return
+        if branch == branches[2]:
+            markup_b = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+            button1_b = types.KeyboardButton(arr[4])
+            button2_b = types.KeyboardButton(arr[5])
+            markup_b.add(button1_b, button2_b)
+            msg = bot.send_message(message.chat.id, arr[3], reply_markup=markup_b)
+            bot.register_next_step_handler(msg, in_table, func)
+        else:
+            msg = bot.send_message(message.chat.id, arr[2])
+            bot.register_next_step_handler(msg, change_firstname, func)
+    else:
         markup_b = types.ReplyKeyboardMarkup(one_time_keyboard=True)
         markup_b = db_connect.generate_buttons(branches, markup_b)
-
-        msg = bot.send_message(message.chat.id, arr[2], reply_markup=markup_b)
+        msg = bot.send_message(message.chat.id, arr[1], reply_markup=markup_b)
         bot.register_next_step_handler(msg, change_branch, func)
+
+
+def in_table(message, func, message_text=None):
+    if message_text is None:
+        message_text = message.text
+    language = db_connect.get_language(message)
+    arr = ["Введите табельный номер", "Введите Имя", "Регистрация", "Войти по табельному номеру",
+           "Выберите способ входа"]
+    if language == "kaz":
+        arr = ["Табель нөмірін енгізіңіз", "Атыңызды енгізіңіз", "Тіркеу", "Табель нөмірі бойынша кіру",
+               "Кіру әдісін таңдаңыз"]
+    if message_text == arr[2]:
+        msg = bot.send_message(message.chat.id, arr[1])
+        bot.register_next_step_handler(msg, change_firstname, func)
+    elif message_text == arr[3]:
+        msg = bot.send_message(message.chat.id, arr[0])
+        bot.register_next_step_handler(msg, change_table_num, func)
+    else:
+        markup_b = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+        button1_b = types.KeyboardButton(arr[2])
+        button2_b = types.KeyboardButton(arr[3])
+        markup_b.add(button1_b, button2_b)
+        msg = bot.send_message(message.chat.id, arr[4], reply_markup=markup_b)
+        bot.register_next_step_handler(msg, in_table, func)
 
 
 @bot.message_handler(commands=['alter_table_users'])
@@ -241,12 +331,12 @@ def start(message):
         return
     language = db_connect.get_language(message)
     if language == 'rus':
-        if db_connect.get_branch(str(message.chat.id)) == ' ':
+        if db_connect.get_email(message) == ' ':
             register(message, 'start')
             return
         rus.send_welcome_message(bot, message)
     elif language == 'kaz':
-        if db_connect.get_branch(str(message.chat.id)) == ' ':
+        if db_connect.get_email(message) == ' ':
             register(message, 'start')
             return
         kaz.send_welcome_message(bot, message)
@@ -288,8 +378,14 @@ def menu(message):
         return
     language = db_connect.get_language(message)
     if language == 'rus':
+        if db_connect.get_email(message) == ' ':
+            register(message, 'start')
+            return
         rus.menu(bot, message)
     elif language == 'kaz':
+        if db_connect.get_email(message) == ' ':
+            register(message, 'start')
+            return
         kaz.menu(bot, message)
     else:
         lang(message)
@@ -496,12 +592,15 @@ def mess(message):
     if str(message.chat.id)[0] == '-':
         return
     language = db_connect.get_language(message)
-    if language == 'rus':
-        text(message, get_message, rus)
-    elif language == 'kaz':
-        text(message, get_message, kaz)
-    else:
-        lang(message)
+    try:
+        if language == 'rus':
+            text(message, get_message, rus)
+        elif language == 'kaz':
+            text(message, get_message, kaz)
+        else:
+            lang(message)
+    except:
+        register(message)
 
 
 def text(message, get_message, lang_py):

@@ -420,7 +420,6 @@ def call_back(bot, call):
             print("error")
         text = performer_text(appeal_info)
         if appeal_info[12] != "" and appeal_info[12] is not None and appeal_info[12] != " ":
-            bot.send_message(call.message.chat.id, str(db_connect.get_sale(appeal_info[12])))
             if db_connect.get_sale(appeal_info[12])[10] == "Самостоятельно":
                 markup = types.InlineKeyboardMarkup()
                 button_ = types.InlineKeyboardButton("Добавить модем | симкарту",
@@ -466,7 +465,6 @@ def call_back(bot, call):
             if appeal_[0][3] in db_connect.cities_all():
                 bot.send_message(appeal_info[1], "Выша заявка принята. Спасибо большое за содейтвие")
                 return
-
             markup_callback = types.InlineKeyboardMarkup(row_width=5)
             for i in range(1, 6):
                 callback_d = str(i) + "evaluation" + str(appeal_info[0])
@@ -534,7 +532,6 @@ def appeal(bot, message, message_text):
         bot.send_message(message.chat.id, "Информация верна?", reply_markup=markup_ap)
     elif message_text == "Да":
         if db_connect.get_category_users_info(message) == 'Портал "Бірлік"':
-            # appeal(bot, message, "portal")
             appeal(bot, message, "portal")
             return
         markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True)
@@ -583,8 +580,7 @@ def appeal(bot, message, message_text):
         else:
             performer_id = db_connect.get_performer_by_category(category)[1]
             db_connect.add_appeal(message.chat.id, "Обращение принято", category, message.text, now_updated,
-                                  now_updated,
-                                  performer_id, ' ', False)
+                                  now_updated, performer_id, ' ', False)
         markup_ap = types.ReplyKeyboardMarkup()
         button1_ap = types.KeyboardButton("Добавить фото")
         button2_ap = types.KeyboardButton("Отправить обращение")
@@ -607,7 +603,10 @@ def end_appeal(bot, message, appeal_id):
            f"Дата создания: {appeal_[5]}"
     markup_a1 = types.InlineKeyboardMarkup()
     callback_d = f"{appeal_id}statusinprocess"
-    button_a = types.InlineKeyboardButton("Обращение просмотрено", callback_data=callback_d)
+    button_a = types.InlineKeyboardButton("Изменить статус на 'В процессе'", callback_data=callback_d)
+    if appeal_[1] == "В процессе":
+        callback_d = f"{appeal_id}statusdecided"
+        button_a = types.InlineKeyboardButton("Изменить статус на 'Решено'", callback_data=callback_d)
     markup_a1.add(button_a)
     bot.send_message(appeal_[14], text, reply_markup=markup_a1)
     db_connect.clear_appeals(message)
@@ -837,7 +836,11 @@ def instructions(bot, message):
         markup_instr.add(button1_i, button2_i, button3_i)
         bot.send_message(message.chat.id, "Выберете категорию", reply_markup=markup_instr)
     elif message.text == "CheckPoint VPN | Удаленная работа":
-        checkpoint(bot, message, portal_bts[1])
+        markup_instr = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+        button1_i = types.KeyboardButton("Инструкция по установке CheckPoint")
+        button2_i = types.KeyboardButton("Установочный файл CheckPoint")
+        markup_instr.add(button1_i, button2_i)
+        bot.send_message(message.chat.id, "Выберете категорию", reply_markup=markup_instr)
     elif message.text == "Личный кабинет telecom.kz":
         markup_instr = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         button1_i = types.KeyboardButton("Как оплатить услугу")
@@ -1245,7 +1248,13 @@ def lte(message, bot, message_text=None):
  - по продаже услуги «LTE», проект открыт для всех сотрудников структурных подразделений Дивизиона по розничному бизнесу АО "Казахтелеком", исключая участников ЕМП.
   - по доставке клиентского оборудования, проект открыт для всех сотрудников структурных подразделений Дивизиона по розничному бизнесу АО "Казахтелеком", исключая участников ЕМП, кроме работников канала продаж «УП» и работников Отдела управления внешними каналами продаж
 
-Преимущество участи""")
+Преимущество участия в проекте заключается в том, что вы сможете увеличить свой доход, получая следующие бонусы:
+ - 2500 тенге за успешную продажу услуги LTE.
+ - 1591 тенге за доставку и настройку модема и сим-карты.
+ - 
+Присоединитесь к "Пилоту LTE" и помогите нам достичь новых успехов на рынке, а также увеличить вашу прибыль. 
+
+Вместе мы сможем добиться больших результатов!""")
     elif message.text == lte_[2]:
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         button1 = types.KeyboardButton(lte_files[0])
@@ -1463,7 +1472,29 @@ def get_modem(message, bot, id_i_s):
     if redirect(bot, message, id_i_s):
         return
     db_connect.set_modem(id_i_s, message.text)
+    appeal_ = db_connect.get_appeal_by_lte_id(id_i_s)
+    simcard = db_connect.get_simcard(id_i_s)
+    lte_info = db_connect.get_sale(id_i_s)
+    is_notified = "Да"
+    if not lte_info[7]:
+        is_notified = "Нет"
+    text = f"\n\tФИО абонента: {lte_info[3]}\n" \
+           f"\tИИН: {lte_info[4]}\n" \
+           f"\tНомер телефона абонента: {lte_info[5]}\n" \
+           f"\tТип абонента: {lte_info[6]}\n" \
+           f"\tУведомлен? {is_notified}\n" \
+           f"\tАдрес абонента: {lte_info[8]}\n" \
+           f"\tПП: {lte_info[9]}\n" \
+           f"\tДоставка: {lte_info[10]}" \
+           f"\n\tSimcard: {simcard}\n" \
+           f"\tМодем: {message.text}"
+    db_connect.set_appeal_text(appeal_[0], text)
     bot.send_message(message.chat.id, "Информация сохранена")
+    appeal_info = db_connect.get_appeal_by_id(appeal_[0])[0]
+    text = performer_text(appeal_info)
+    bot.send_message(appeal_info[7], "Информация по серийному номеру сим карты и модема добавлен")
+    bot.send_message(appeal_info[7], text)
+
 
 
 def add_lte_appeal(bot, message, id_i_s):

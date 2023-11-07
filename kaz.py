@@ -430,15 +430,17 @@ def call_back(bot, call):
             bot.send_photo(appeal_info[1], image_data)
         except:
             print("error")
-        text = performer_text(appeal_info)
-        if appeal_info[12] != "" and db_connect.get_sale(appeal_info[12])[10] == "Самостоятельно":
-            markup = types.InlineKeyboardMarkup()
-            button_ = types.InlineKeyboardButton("Добавить модем | симкарту",
-                                                 callback_data=str(appeal_info[12]) + "add_modem")
-            button_1 = types.InlineKeyboardButton("Добавить фотографию Акта",
-                                                  callback_data=str(appeal_info[12]) + "add_act")
-            markup.add(button_, button_1)
-            bot.send_message(call.message.chat.id, text, reply_markup=markup)
+        text = performer_text(appeal_info, message=call.message)
+        if appeal_info[12] != "" and appeal_info[12] is not None and appeal_info[12] != " ":
+            if db_connect.get_sale(appeal_info[12])[10] == "Самостоятельно":
+                markup = types.InlineKeyboardMarkup()
+                button_ = types.InlineKeyboardButton("Добавить модем | симкарту",
+                                                     callback_data=str(appeal_info[12]) + "add_modem")
+                button_1 = types.InlineKeyboardButton("Добавить фотографию Акта",
+                                                      callback_data=str(appeal_info[12]) + "add_act")
+                markup.add(button_, button_1)
+                bot.send_message(call.message.chat.id, text, reply_markup=markup)
+                return
             return
         bot.send_message(call.message.chat.id, text)
     elif db_connect.extract_number_from_status_change(str(call.data), r'^(\d+)add_act') is not None:
@@ -532,8 +534,8 @@ def appeal(bot, message, message_text):
             bot.send_message(message.chat.id, "Мұнда сіз өтініштеріңіздің күйін бақылай аласыз",
                              reply_markup=markup_a)
         else:
-            bot.send_message(message.chat.id,
-                             "Бұл жерде әлі бос,\nбірақ сіз апелляцияны қалдыра аласыз және ол осы жерде көрсетіледі")
+            bot.send_message(message.chat.id, "Бұл жерде әлі бос,\nбірақ сіз апелляцияны қалдыра аласыз және ол "
+                                              "осы жерде көрсетіледі")
     elif message_text == "Өтінішті қалдыру" or message_text == portal_bts[2]:
         markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         button2_ap = types.KeyboardButton("Иә")
@@ -573,7 +575,6 @@ def appeal(bot, message, message_text):
             end_appeal_gmail(bot, message, appeal_id, file_url)
         else:
             bot.send_photo(appeal_[7], image_data)
-            db_connect.set_appeal_text(appeal_id, message.caption)
             end_appeal(bot, message, appeal_id)
     elif message_text == "Өтініш жіберу":
         appeal_id = db_connect.get_last_appeal(message.chat.id)[0][0]
@@ -592,8 +593,7 @@ def appeal(bot, message, message_text):
         else:
             performer_id = db_connect.get_performer_by_category(category)[1]
             db_connect.add_appeal(message.chat.id, "Обращение принято", category, message.text, now_updated,
-                                  now_updated,
-                                  performer_id, ' ', False)
+                                  now_updated, performer_id, ' ', False)
         markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True)
         button1_ap = types.KeyboardButton("Фотосурет қосыңыз")
         button2_ap = types.KeyboardButton("Өтініш жіберу")
@@ -619,6 +619,9 @@ def end_appeal(bot, message, appeal_id):
     markup_a1 = types.InlineKeyboardMarkup()
     callback_d = f"{appeal_id}statusinprocess"
     button_a = types.InlineKeyboardButton("Обращение просмотрено", callback_data=callback_d)
+    if appeal_[1] == "В процессе":
+        callback_d = f"{appeal_id}statusdecided"
+        button_a = types.InlineKeyboardButton("Изменить статус на 'Решено'", callback_data=callback_d)
     markup_a1.add(button_a)
     bot.send_message(appeal_[14], text, reply_markup=markup_a1)
     db_connect.clear_appeals(message)
@@ -856,7 +859,11 @@ def instructions(bot, message):
         markup_instr.add(button1_i, button2_i, button3_i)
         bot.send_message(message.chat.id, "Санатты таңдаңыз", reply_markup=markup_instr)
     elif message.text == "Checkpoint VPN | Қашықтан жұмыс":
-        checkpoint(bot, message, portal_bts[1])
+        markup_instr = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+        button1_i = types.KeyboardButton("CheckPoint Орнату нұсқаулығы")
+        button2_i = types.KeyboardButton("Checkpoint орнату файлы")
+        markup_instr.add(button1_i, button2_i)
+        bot.send_message(message.chat.id, "Санатты таңдаңыз", reply_markup=markup_instr)
     elif message.text == "Жеке кабинет telecom.kz":
         markup_instr = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         button1_i = types.KeyboardButton("Қызметті қалай төлеуге болады")
@@ -1101,6 +1108,8 @@ def checkpoint(bot, message, message_text):
         return False
     return True
 
+
+
 subscriber_types = ['Новый', 'Действующий']
 lte_files = ["Инструкция 'Пилот LTE'", "Как подписать договор онлайн", "Скрипт на Алем",
              "Акт сдачи-приема выполненных работ", "Тарифы"]
@@ -1132,7 +1141,13 @@ def lte(message, bot, message_text=None):
  - по продаже услуги «LTE», проект открыт для всех сотрудников структурных подразделений Дивизиона по розничному бизнесу АО "Казахтелеком", исключая участников ЕМП.
   - по доставке клиентского оборудования, проект открыт для всех сотрудников структурных подразделений Дивизиона по розничному бизнесу АО "Казахтелеком", исключая участников ЕМП, кроме работников канала продаж «УП» и работников Отдела управления внешними каналами продаж
 
-Преимущество участи""")
+Преимущество участия в проекте заключается в том, что вы сможете увеличить свой доход, получая следующие бонусы:
+ - 2500 тенге за успешную продажу услуги LTE.
+ - 1591 тенге за доставку и настройку модема и сим-карты.
+ - 
+Присоединитесь к "Пилоту LTE" и помогите нам достичь новых успехов на рынке, а также увеличить вашу прибыль. 
+
+Вместе мы сможем добиться больших результатов!""")
     elif message.text == lte_[2]:
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         button1 = types.KeyboardButton(lte_files[0])
@@ -1350,7 +1365,28 @@ def get_modem(message, bot, id_i_s):
     if redirect(bot, message, id_i_s):
         return
     db_connect.set_modem(id_i_s, message.text)
+    appeal_ = db_connect.get_appeal_by_lte_id(id_i_s)
+    simcard = db_connect.get_simcard(id_i_s)
+    lte_info = db_connect.get_sale(id_i_s)
+    is_notified = "Да"
+    if not lte_info[7]:
+        is_notified = "Нет"
+    text = f"\n\tФИО абонента: {lte_info[3]}\n" \
+           f"\tИИН: {lte_info[4]}\n" \
+           f"\tНомер телефона абонента: {lte_info[5]}\n" \
+           f"\tТип абонента: {lte_info[6]}\n" \
+           f"\tУведомлен? {is_notified}\n" \
+           f"\tАдрес абонента: {lte_info[8]}\n" \
+           f"\tПП: {lte_info[9]}\n" \
+           f"\tДоставка: {lte_info[10]}" \
+           f"\n\tSimcard: {simcard}\n" \
+           f"\tМодем: {message.text}"
+    db_connect.set_appeal_text(appeal_[0], text)
     bot.send_message(message.chat.id, "Информация сохранена")
+    appeal_info = db_connect.get_appeal_by_id(appeal_[0])[0]
+    text = performer_text(appeal_info, message)
+    bot.send_message(appeal_info[7], "Информация по серийному номеру сим карты и модема добавлен")
+    bot.send_message(appeal_info[7], text)
 
 
 def add_lte_appeal(bot, message, id_i_s):
@@ -1369,9 +1405,9 @@ def add_lte_appeal(bot, message, id_i_s):
            f"\tУведомлен? {is_notified}\n" \
            f"\tАдрес абонента: {lte_info[8]}\n" \
            f"\tПП: {lte_info[9]}\n" \
-           f"\tДоставка: {lte_info[10]}\n"
+           f"\tДоставка: {lte_info[10]}"
     if lte_info[10] == "Самостоятельно":
-        text += f"\tSimcard: {is_none(lte_info[11])}\n" \
+        text += f"\n\tSimcard: {is_none(lte_info[11])}\n" \
                 f"\tМодем: {is_none(lte_info[12])}"
     appeal_id = db_connect.add_appeal(message.chat.id, 'Обращение принято', lte_info[13], text, now_updated,
                                       now_updated,
