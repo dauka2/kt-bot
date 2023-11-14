@@ -194,7 +194,7 @@ def send_welcome_message(bot, message):
     welcome_message = f'Сәлем {db_connect.get_firstname(message)}👋'
     markup = get_markup(message)
     if db_connect.check_id(str(message.chat.id)):
-        markup.add(types.KeyboardButton("Админ панель для обращений"))
+        markup.add(types.KeyboardButton("Админ панель"))
     bot.send_message(message.chat.id, welcome_message, reply_markup=markup)
     with open("images/menu.jpg", 'rb') as photo_file:
         bot.send_photo(message.chat.id, photo_file)
@@ -474,7 +474,7 @@ def call_back(bot, call):
         bot.send_message(appeal_info[1], text)
         if db_connect.get_status(appeal_id)[0][0] == "Решено":
             appeal_ = db_connect.get_appeal_by_id(appeal_id)
-            if appeal_[0][3] in db_connect.cities_all():
+            if appeal_[0][3] in db_connect.get_regions():
                 bot.send_message(appeal_info[1], "Выша заявка принята. Спасибо большое за содейтвие")
                 return
             markup_callback = types.InlineKeyboardMarkup(row_width=5)
@@ -989,7 +989,7 @@ def menu(bot, message):
     db_connect.set_bool(message, False, False)
     markup = get_markup(message)
     if db_connect.check_id(str(message.chat.id)):
-        markup.add(types.KeyboardButton("Админ панель для обращений"))
+        markup.add(types.KeyboardButton("Админ панель"))
     bot.send_message(message.chat.id, "Сіз негізгі мәзірдесіз", reply_markup=markup)
 
 
@@ -1206,29 +1206,13 @@ def add_subscriber(message, bot, id_i_s):
 def get_region(message, bot, id_i_s, regions):
     if redirect(bot, message, id_i_s):
         return
-    cities = db_connect.get_subcategories(message.text)
-    if len(cities) == 0:
+    if message.text  not in regions:
         markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True)
         markup_l = db_connect.generate_buttons(regions, markup_l)
         msg = bot.send_message(message.chat.id, "Выберите регион из списка", reply_markup=markup_l)
         bot.register_next_step_handler(msg, get_region, bot, id_i_s, regions)
         return
-    markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True)
-    markup_l = db_connect.generate_buttons(cities, markup_l)
-    msg = bot.send_message(message.chat.id, "Выберите город", reply_markup=markup_l)
-    bot.register_next_step_handler(msg, get_performer_internal_sale, bot, id_i_s, cities)
-
-
-def get_performer_internal_sale(message, bot, id_i_s, cities):
-    if redirect(bot, message, id_i_s):
-        return
     performer_id = db_connect.get_performer_id_by_category(message.text)
-    if performer_id is None or str(performer_id) == '':
-        markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True)
-        markup_l = db_connect.generate_buttons(cities, markup_l)
-        msg = bot.send_message(message.chat.id, "Выберите город из списка", reply_markup=markup_l)
-        bot.register_next_step_handler(msg, get_performer_internal_sale, bot, id_i_s, cities)
-        return
     db_connect.set_category_i_s(id_i_s, message.text)
     db_connect.set_performer_id_i_s(id_i_s, performer_id)
     markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True)

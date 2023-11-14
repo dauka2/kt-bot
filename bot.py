@@ -52,6 +52,13 @@ def delete_me(message):
     bot.send_message(message.chat.id, "Изменения сохранены")
 
 
+@bot.message_handler(commands=['insert_into_performers'])
+def delete_me(message):
+    db_connect.insert_into_performers()
+    bot.send_message(message.chat.id, "Изменения сохранены")
+
+
+
 @bot.message_handler(commands=['register_start'])
 def register(message, func="menu"):
     db_connect.cm_sv_db(message, '/start_register')
@@ -398,13 +405,38 @@ def help(message):
     language = db_connect.get_language(message)
     if str(message.chat.id)[0] == '-':
         return
+    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
     if language == 'rus':
+        button = types.KeyboardButton("Написать сообщение")
+        markup.add(button)
         bot.send_message(message.chat.id,
-                         "Вы можете помочь нам стать лучше и отправить нам письмо на info.ktcu@telecom.kz.")
+                         "Помогите нам стать лучше! Ждем вашего мнения и предложений. Вы можете отправить письмо на "
+                         "info.ktcu@telecom.kz или воспользоваться ботом, нажав на экранную кнопку и написав нам "
+                         "сообщение.")
     elif language == 'kaz':
+        button = types.KeyboardButton("Хабарлама жазу")
         bot.send_message(message.chat.id,
-                         "Сіз бізге жақсы адам болуға көмектесе аласыз және бізге хат жібере аласыз "
-                         "info.ktcu@telecom.kz.")
+                         "Бізге жақсы адам болуға көмектесіңіз! Біз сіздің пікіріңіз бен ұсыныстарыңызды күтеміз. "
+                         "Сіз хат жібере аласыз info.ktcu@telecom.kz немесе экрандағы түймені басып, бізге хабарлама "
+                         "жазу арқылы ботты пайдаланыңыз.")
+
+
+def get_help_message(message):
+    language = db_connect.get_language(message)
+    text = message.text + "\n" + f"Пользователь\n" \
+           f" ФИО: {str(appeal_info[9])} {str(appeal_info[8])}\n" \
+           f" Номер телефона: {str(appeal_info[11])}\n" \
+           f" Email: {str(appeal_info[12])}\n" \
+           f" Telegram: {str(appeal_info[7])}\n" \
+           f" Филиал: {str(appeal_info[13])}\n\n"
+    if language == 'rus':
+        bot.send_message(message.chat.id, "Ваш запрос успешно сохранен.")
+    else:
+        bot.send_message(message.chat.id, "Сіздің сұрауыңыз сәтті сақталды.")
+    bot.send_message('187663574', text)
+
+
+
 
 
 @bot.callback_query_handler(func=lambda call: True)
@@ -486,29 +518,29 @@ def get_excel(message):
 def get_excel(message):
     sql_query = """
         SELECT
-            appeals.id,
-            users.firstname AS user_firstname,
-            users.lastname AS user_lastname,
-            table_number,
-            users.phone_number AS user_phone,
-            users.email AS user_email,
-            branch,
-            status,
-            appeals.category,
-            appeal_text,
-            date,
-            date_status,
-            comment,
-            evaluation,
-            image_data,
-            performers.firstname AS performer_firstname,
-            performers.lastname AS performer_lastname,
-            performers.email AS performer_email,
-            telegram,
-            lte_id
+            appeals.id AS "ID",
+            users.firstname AS "Имя работника",
+            users.lastname AS "Фамилия работника",
+            table_number AS "Табельный номер",
+            users.phone_number AS "Номер телефона работника",
+            users.email AS "Почта",
+            branch AS "Филиал",
+            status AS "Статус",
+            appeals.category AS "Категория",
+            appeal_text AS "Текст заявки",
+            date AS "Дата создания",
+            date_status AS "Дата последнего изменения статуса",
+            comment AS "Комментарий",
+            evaluation AS "Оценка",
+            image_data AS "Фото",
+            performers.firstname AS "Имя исполнителя",
+            performers.lastname AS "Фамилия исполнителя",
+            performers.email AS "Почта исполнителя",
+            performers.telegram AS "Телеграм исполнителя"
         FROM appeals
-        left outer JOIN users ON appeals.user_id = users.id
-        left outer JOIN performers ON performers.category = appeals.category
+        LEFT OUTER JOIN users ON appeals.user_id = users.id
+        LEFT OUTER JOIN performers ON performers.category = appeals.category
+        order by appeals.id 
     """
     db_connect.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
 
@@ -523,6 +555,40 @@ def get_excel(message):
 def get_excel(message):
     sql_query = "SELECT * from internal_sale"
     db_connect.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
+
+
+@bot.message_handler(commands=['get_sales'])
+def get_excel(message):
+    sql_query = """
+       SELECT
+            appeals.id AS "ID",
+            users.firstname AS "Имя работника",
+            users.lastname AS "Фамилия работника",
+            table_number AS "Табельный номер",
+            users.phone_number AS "Номер телефона работника",
+            users.email AS "Почта",
+            branch AS "Филиал",
+            status AS "Статус",
+            appeals.category AS "Категория",
+            appeal_text AS "Текст заявки",
+            date AS "Дата создания",
+            date_status AS "Дата последнего изменения статуса",
+            comment AS "Комментарий",
+            evaluation AS "Оценка",
+            image_data AS "Фото",
+            performers.firstname AS "Имя исполнителя",
+            performers.lastname AS "Фамилия исполнителя",
+            performers.email AS "Почта исполнителя",
+            performers.telegram AS "Телеграм исполнителя"
+        FROM appeals
+        LEFT OUTER JOIN users ON appeals.user_id = users.id
+        LEFT OUTER JOIN performers ON performers.category = appeals.category 
+        RIGHT OUTER JOIN internal_sale ON appeals.lte_id = internal_sale.id
+        order by appeals.id 
+    """
+
+    db_connect.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
+
 
 
 def send_error(message):
@@ -553,6 +619,7 @@ def text_check(message):
 
 
 def message_sender(message, broadcast_message):
+    global broadcast_count
     if message.text.upper() == "ДА":
         conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
         cur = conn.cursor()
@@ -578,6 +645,7 @@ def message_sender(message, broadcast_message):
                     bot.send_message(id[0], broadcast_message.text)
             except:
                 continue
+
         bot.send_message(message.chat.id, "Рассылка отправлена")
     elif message.text.upper() == "НЕТ":
         bot.send_message(message.chat.id, "Вызовите функцию /broadcast чтобы вызвать комманду рассылки еще раз")
@@ -638,7 +706,7 @@ def text(message, get_message, lang_py):
         lang_py.questions(bot, message)
     elif get_message == "Мои обращения" or get_message == "Менің өтініштерім" \
             or get_message == "Оставить обращение" or get_message == "Өтінішті қалдыру" \
-            or get_message == "Админ панель для обращений" \
+            or get_message == "Админ панель" \
             or db_connect.get_appeal_field(message):
         lang_py.appeal(bot, message, message.text)
     elif get_message == '🖥Портал "Бірлік"' or get_message in lang_py.portal_bts or get_message in lang_py.portal_ \
