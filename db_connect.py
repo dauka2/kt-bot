@@ -36,7 +36,7 @@ def get_excel(bot, message, admin_id, excel_file, sql_query, params=None):
     # conn = psycopg2.connect(user="postgres", password="j7hPC180")
     conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
     if str(message.chat.id) not in admin_id:
-        send_error(message)
+        send_error(bot, message)
         return
     df = pd.read_sql_query(sql_query, conn, params=params)
     if df.empty:
@@ -113,8 +113,8 @@ def create_db():
     subscriber_address VARCHAR(200),
     product_name VARCHAR(45),
     delivery VARCHAR(30),
-    simcard VARCHAR(21),
-    modem VARCHAR(30),
+    simcard VARCHAR(100),
+    modem VARCHAR(100),
     category varchar(50)
     );
     """
@@ -190,9 +190,10 @@ def insert_into_performers():
                 "values  (%s, %s)", ('Служба поддержки \"Нысана\"', 'must.dilnaz@gmail.com'))
     cur.execute('insert into performers (category, email) '
                 'values (%s, %s)', ("Обратиться в службу комплаенс", "must.dilnaz@gmail.com"))
-    cur.execute("insert into performers (category, email) "
-                "values (%s, %s)", ('Портал "Бірлік"', "must.dilnaz@gmail.com"))
-
+    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) '
+                'values (%s, %s, %s, %s, %s, %s, %s)', ("760906879", 'Портал "Бірлік"',
+                                                        "Мустафина", "Дильназ", "+77009145025", "must.dilnaz@gmail.com",
+                                                        "@"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
                 'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("6391020304",
                                                                              "Портал закупок 2.0 | Техническая поддержка",
@@ -235,14 +236,12 @@ def insert_into_performers():
                                                                              "Азанбеков", "Улан", "+77001117777",
                                                                              "kk@gmail.com",
                                                                              "@", "Закупочная деятельность"))
-
-
-    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) values (%s, %s, %s, %s, %s, %s, %s)', ("530582651", "Восточно-Казахстанская ОДТ",
-                                                        "Айжан", "Мұхтарқанова", "87771111222", "@gmail.com", "@mukhtarkanova"))
-    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) values (%s, %s, %s, %s, %s, %s, %s)', ("530582651", "Павлодарская ОДТ",
-                                                        "Айжан", "Мұхтарқанова", "87771111222", "@gmail.com", "@mukhtarkanova"))
-    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) values (%s, %s, %s, %s, %s, %s, %s)', ("530582651", "  ",
-                                                        "Айжан", "Мұхтарқанова", "87771111222", "@gmail.com", "@mukhtarkanova"))
+    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) values (%s, %s, %s, %s, %s, %s, %s)', ("5050239407", "Восточно-Казахстанская ОДТ",
+                                                        "Айнур", "Жексимбаева", "87771111222", "@gmail.com", "@"))
+    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) values (%s, %s, %s, %s, %s, %s, %s)', ("404353369", "Павлодарская ОДТ",
+                                                        "Екатерина", "Стельмах", "87771111222", "@gmail.com", "@"))
+    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) values (%s, %s, %s, %s, %s, %s, %s)', ("5469612023", "Семипалатинск",
+                                                        "Сауле", "Кажиева", "87771111222", "@gmail.com", "@"))
 
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) values (%s, %s, %s, %s, %s, %s, %s)', ("523859246", "Актюбинская ОДТ",
                                                         "Айнур", "Маукенова", "87771111222", "@gmail.com", "@"))
@@ -289,8 +288,8 @@ def insert_into_performers():
 def alter_table_users():
     conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
     cur = conn.cursor()
-    cur.execute("drop table internal_sale")
-
+    cur.execute("drop table performers")
+    # cur.execute("alter table internal_sale add column action varchar(20)")
     conn.commit()
     cur.close()
     conn.close()
@@ -644,7 +643,7 @@ def delete_user(message):
     conn.close()
 
 
-def glossary(bot, message, text1, text2):
+def glossary(bot, message, text1, text2, button_text):
     wb = openpyxl.load_workbook('glossary.xlsx')
     excel = wb['Лист1']
     abbr, defs = [], []
@@ -657,7 +656,10 @@ def glossary(bot, message, text1, text2):
         bot.send_message(message.chat.id, text1)
     else:
         bot.send_photo(message.chat.id, photo=open('images/oops.jpg', 'rb'))
-        bot.send_message(message.chat.id, text2)
+        markup = types.InlineKeyboardMarkup()
+        button = types.InlineKeyboardButton(button_text, callback_data="abbr")
+        markup.add(button)
+        bot.send_message(message.chat.id, text2, reply_markup=markup)
 
 
 def generate_buttons(bts_names, markup_g):
@@ -683,7 +685,17 @@ def useful_links():
 def extract_number_from_status_change(input_string, pattern):
     match = re.match(pattern, input_string)
     if match:
-        return int(match.group(1))
+        try:
+            return int(match.group(1))
+        except:
+            return None
+    return None
+
+
+def extract_text(input_string, pattern, t):
+    match = re.search(pattern, input_string)
+    if match:
+        return input_string.replace(t, "")
     else:
         return None
 
@@ -692,7 +704,6 @@ def extract_numbers_from_status_change_decided(input_string):
     pattern = r'(\d+)evaluation(\d+)'
     match = re.search(pattern, input_string)
     if match:
-        # Возвращает кортеж из двух чисел
         return int(match.group(1)), int(match.group(2))
     else:
         return None
@@ -764,10 +775,18 @@ WHERE
     id_performer = %s AND status = %s
 ORDER BY
     appeals.id;
-
     """
     params = (str(message.chat.id), str(status),)
-    get_excel(bot, message, admins_id, 'output_file.xlsx', sql_query, params)
+    get_excel(bot, message, get_performers_id(), 'output_file.xlsx', sql_query, params)
+
+
+def get_performers_id():
+    sql_query = "SELECT DISTINCT performer_id from performers"
+    perfromers_id_result = execute_get_sql_query(sql_query)
+    perfromers_id = []
+    for id in perfromers_id_result:
+        perfromers_id.append(id[0])
+    return perfromers_id
 
 
 def appealInlineMarkup(message, lang="rus", kaz_categories=None):
@@ -777,9 +796,9 @@ def appealInlineMarkup(message, lang="rus", kaz_categories=None):
         return markup_a
     for appeal in appeals_:
         if lang == "kaz":
-            text = str(appeal[0]) + " - " + rename_category_to_kaz(kaz_categories, str(appeal[1]))
+            text = str(appeal[0]) + " - " + rename_category_to_kaz(kaz_categories, str(appeal[3]))
         else:
-            text = str(appeal[0]) + " - " + appeal[1]
+            text = str(appeal[0]) + " - " + appeal[3]
         markup_a.add(types.InlineKeyboardButton(text=text, callback_data=str(appeal[0])))
     return markup_a
 
@@ -804,35 +823,15 @@ def admin_appeal_callback(call, bot, add_comment):
             print("error")
         callback_d = f"{appeal_id}statusdecided"
         btn_text = "Изменить статус на 'Решено'"
-        if appeal_info[9]:
-            text = f"ID обращения {appeal_id}\n\n" \
-                   f" Статус: {str(appeal_info[2])}\n" \
-                   f" Дата создания: {str(appeal_info[5])}\n" \
-                   f" Категория: {str(appeal_info[3])}\n" \
-                   f" Текст обращения: {str(appeal_info[4])}\n" \
-                   f" Дата последнего изменения статуса: {str(appeal_info[6])}" \
-                   f" Комментарий: {str(appeal_info[8])}\n\n"
-            if str(appeal_info[2]) == "Обращение принято":
-                callback_d = f"{appeal_id}statusinprocess"
-                btn_text = "Изменить статус на 'В процессе'"
-        else:
-            appeal_info = get_appeal_by_id_inner_join_users(appeal_id)[0]
-            text = f"Обращения <b>ID</b> {appeal_id}\n\n" \
-                   f" Статус: {str(appeal_info[1])}\n" \
-                   f" Дата создания: {str(appeal_info[4])}\n" \
-                   f" Категория: {str(appeal_info[2])}\n" \
-                   f" Текст обращения: {str(appeal_info[3])}\n" \
-                   f" Дата последнего изменения статуса: {str(appeal_info[5])}\n\n" \
-                   f"Пользователь\n" \
-                   f" ФИО: {str(appeal_info[9])} {str(appeal_info[8])}\n" \
-                   f" Номер телефона: {str(appeal_info[11])}\n" \
-                   f" Email: {str(appeal_info[12])}\n" \
-                   f" Telegram: {str(appeal_info[7])}\n" \
-                   f" Филиал: {str(appeal_info[13])}\n\n" \
-                   f" Комментарий: {str(appeal_info[6])}"
-            if str(appeal_info[1]) == "Обращение принято":
-                callback_d = f"{appeal_id}statusinprocess"
-                btn_text = "Изменить статус на 'В процессе'"
+        text = get_appeal_text_all(appeal_id)
+        if str(appeal_info[2]) == "Обращение принято":
+            callback_d = f"{appeal_id}statusinprocess"
+            btn_text = "Изменить статус на 'В процессе'"
+            if appeal_info[12] is not None and appeal_info[12] != "":
+                lte_info = get_sale(appeal_info[12])
+                if lte_info[10] != "Самостоятельно":
+                    callback_d = f"{appeal_id}statusdecided"
+                    btn_text = "Изменить статус на 'Решено'"
         markup_a = types.InlineKeyboardMarkup(row_width=1)
         button_a = types.InlineKeyboardButton(btn_text, callback_data=callback_d)
         callback_d = f"{appeal_id}addcomment"
@@ -855,6 +854,37 @@ def admin_appeal_callback(call, bot, add_comment):
         appeal_id = extract_number_from_status_change(str(call.data), r'^(\d+)addcomment')
         msg = bot.send_message(call.message.chat.id, 'Введите комментарий')
         bot.register_next_step_handler(msg, add_comment, bot, appeal_id)
+
+
+def get_appeal_text_all(appeal_id):
+    appeal_info = get_appeal_by_id_inner_join_users(appeal_id)[0]
+    text = f"Обращения <b>ID</b> {appeal_id}\n\n" \
+           f" Статус: {str(appeal_info[1])}\n" \
+           f" Дата создания: {str(appeal_info[4])}\n" \
+           f" Категория: {str(appeal_info[2])}\n" \
+           f" Текст обращения: {str(appeal_info[3])}\n" \
+           f" Дата последнего изменения статуса: {str(appeal_info[5])}\n\n" \
+           f"Работник\n" \
+           f" ФИО: {str(appeal_info[9])} {str(appeal_info[8])}\n" \
+           f" Табельный номер: {str(appeal_info[10])}\n" \
+           f" Номер телефона: {str(appeal_info[11])}\n" \
+           f" Email: {str(appeal_info[12])}\n" \
+           f" Telegram: {str(appeal_info[7])}\n" \
+           f" Филиал: {str(appeal_info[13])}\n\n" \
+           f" Комментарий: {str(appeal_info[6])}"
+    return text
+
+
+def get_user_info(user_id):
+    user_info = get_user(user_id)
+    text = f"Работник\n" \
+           f" ФИО: {str(user_info[2])} {str(user_info[3])}\n" \
+           f" Табельный номер: {str(user_info[4])}\n" \
+           f" Номер телефона: {str(user_info[5])}\n" \
+           f" Email: {str(user_info[6])}\n" \
+           f" Telegram: {str(user_info[1])}\n" \
+           f" Филиал: {str(user_info[7])}\n"
+    return text
 
 
 def get_last_appeal(user_id):
@@ -989,6 +1019,12 @@ def set_product_name(id, product_name):
     execute_set_sql_query(sql_query, params)
 
 
+def set_action(id, action):
+    sql_query = "UPDATE internal_sale SET action = %s where id=%s"
+    params = (action, id,)
+    execute_set_sql_query(sql_query, params)
+
+
 def set_delivery(id, delivery):
     sql_query = "UPDATE internal_sale SET delivery = %s where id=%s"
     params = (delivery, id,)
@@ -1046,7 +1082,6 @@ def get_appeal_by_lte_id(lte_id):
     return execute_get_sql_query(sql_query, params)[0]
 
 
-
 def get_sale(id_i_s):
     sql_query = "SELECT * from internal_sale where id = %s"
     params = (id_i_s,)
@@ -1078,5 +1113,7 @@ def delete_internal_sale(id_):
     sql_query = "DELETE from internal_sale where id=%s"
     params = (id_,)
     execute_set_sql_query(sql_query, params)
+
+
 
 

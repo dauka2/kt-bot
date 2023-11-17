@@ -58,7 +58,6 @@ def delete_me(message):
     bot.send_message(message.chat.id, "Изменения сохранены")
 
 
-
 @bot.message_handler(commands=['register_start'])
 def register(message, func="menu"):
     db_connect.cm_sv_db(message, '/start_register')
@@ -143,6 +142,7 @@ def change_table_num(message, func):
                 index = tab_nums.index(table_num)
                 full_name = full_names[index]
                 full_name_arr = full_name.split(' ')
+                db_connect.set_table_number(message, table_num)
                 db_connect.set_firstname(message, full_name_arr[1])
                 db_connect.set_lastname(message, full_name_arr[0])
                 markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
@@ -405,38 +405,32 @@ def help(message):
     language = db_connect.get_language(message)
     if str(message.chat.id)[0] == '-':
         return
-    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+    markup = types.InlineKeyboardMarkup(row_width=1)
     if language == 'rus':
-        button = types.KeyboardButton("Написать сообщение")
+        button = types.InlineKeyboardButton("Написать сообщение", callback_data="send_m")
         markup.add(button)
         bot.send_message(message.chat.id,
                          "Помогите нам стать лучше! Ждем вашего мнения и предложений. Вы можете отправить письмо на "
                          "info.ktcu@telecom.kz или воспользоваться ботом, нажав на экранную кнопку и написав нам "
-                         "сообщение.")
+                         "сообщение.", reply_markup = markup)
     elif language == 'kaz':
-        button = types.KeyboardButton("Хабарлама жазу")
+        button = types.InlineKeyboardButton("Хабарлама жазу", callback_data="send_m")
+        markup.add(button)
         bot.send_message(message.chat.id,
                          "Бізге жақсы адам болуға көмектесіңіз! Біз сіздің пікіріңіз бен ұсыныстарыңызды күтеміз. "
                          "Сіз хат жібере аласыз info.ktcu@telecom.kz немесе экрандағы түймені басып, бізге хабарлама "
-                         "жазу арқылы ботты пайдаланыңыз.")
+                         "жазу арқылы ботты пайдаланыңыз.", reply_markup = markup)
 
 
 def get_help_message(message):
     language = db_connect.get_language(message)
-    text = message.text + "\n" + f"Пользователь\n" \
-           f" ФИО: {str(appeal_info[9])} {str(appeal_info[8])}\n" \
-           f" Номер телефона: {str(appeal_info[11])}\n" \
-           f" Email: {str(appeal_info[12])}\n" \
-           f" Telegram: {str(appeal_info[7])}\n" \
-           f" Филиал: {str(appeal_info[13])}\n\n"
+    text = message.text + "\n\n" + db_connect.get_user_info(message.chat.id)
     if language == 'rus':
-        bot.send_message(message.chat.id, "Ваш запрос успешно сохранен.")
+        bot.send_message(message.chat.id, "Ваше сообщение успешно сохранено")
     else:
-        bot.send_message(message.chat.id, "Сіздің сұрауыңыз сәтті сақталды.")
-    bot.send_message('187663574', text)
-
-
-
+        bot.send_message(message.chat.id, "Сіздің хабарламаңыз сәтті сақталды")
+    # bot.send_message('187663574', text)
+    bot.send_message('760906879', text)
 
 
 @bot.callback_query_handler(func=lambda call: True)
@@ -488,6 +482,13 @@ def callback_handler(call):
             bot.register_next_step_handler(msg, change_branch, "end")
         else:
             bot.register_next_step_handler(msg, change_branch, "profile")
+    elif call.data == "send_m":
+        if language == 'rus':
+            msg = bot.send_message(call.message.chat.id, "Отправьте ваше сообщение")
+            bot.register_next_step_handler(msg, get_help_message)
+        elif language == 'kaz':
+            msg = bot.send_message(call.message.chat.id, "Хабарламаңызды жіберіңіз")
+            bot.register_next_step_handler(msg, change_branch)
     else:
         if language == 'rus':
             rus.call_back(bot, call)
@@ -588,7 +589,6 @@ def get_excel(message):
     """
 
     db_connect.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
-
 
 
 def send_error(message):
