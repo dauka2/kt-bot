@@ -115,7 +115,7 @@ def create_db():
     simcard VARCHAR(100),
     modem VARCHAR(100),
     category varchar(50), 
-    action varchar()
+    action varchar(30)
     );
     """
     )

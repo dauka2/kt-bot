@@ -430,7 +430,7 @@ def get_help_message(message):
     else:
         bot.send_message(message.chat.id, "Сіздің хабарламаңыз сәтті сақталды")
     # bot.send_message('187663574', text)
-    bot.send_message('760906879', text)
+    bot.send_message('187663574', text)
 
 
 @bot.callback_query_handler(func=lambda call: True)

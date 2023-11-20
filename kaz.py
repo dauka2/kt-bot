@@ -72,7 +72,7 @@ lte_ = ['🛜 Акция "Пилот LTE"', "Об акции", "А как про
 pp = ['ALEM PLUS (1 год) c Bereke 2', 'ALEM PLUS (1 год) c Bereke 1', 'ALEM PLUS (без контракта) c Bereke 1',
       'ALEM PLUS (без контракта) c Bereke 2', 'ALEM TV (без контракта)', 'ALEM TV (1 год)',
       'ALEM MOBILE (без контракта) c Bereke 1', 'ALEM MOBILE (без контракта) c Bereke 2',
-      'ALEM MOBILE (1 год) c Bereke 1', 'ALEM MOBILE (1 год) c Bereke 2']
+      'ALEM MOBILE (1 год) c Bereke 1', 'ALEM MOBILE (1 год) c Bereke 2', 'ТП Алем']
 faq_1 = {
     'Қазақтелеком "АҚ-да "Демеу" бағдарламасы кімге бағытталған?':
         'Қазақтелеком" АҚ "Демеу" бағдарламасын әлеуметтік қолдау: (бұдан әрі-Бағдарлама) жұмыскерлерге мәртебесі бойынша жіберілді: \
@@ -512,15 +512,15 @@ def call_back(bot, call):
 
 def get_abbr(message, bot):
     markup = types.InlineKeyboardMarkup(row_width=1)
-    button1 = types.InlineKeyboardButton("Отправить аббревиатуру", callback_data=message.text + "abbr_save")
-    button2 = types.InlineKeyboardButton("Добавить расшифровку", callback_data=message.text + "abbr_add")
+    button1 = types.InlineKeyboardButton("Аббревиатураны жіберу", callback_data=message.text + "abbr_save")
+    button2 = types.InlineKeyboardButton("Транскрипт қосу", callback_data=message.text + "abbr_add")
     markup.add(button1, button2)
-    bot.send_message(message.chat.id, "Выберите следующий шаг", reply_markup=markup)
+    bot.send_message(message.chat.id, "Келесі қадамды таңдаңыз", reply_markup=markup)
 
 
 def send_abbr(bot, message, text):
-    bot.send_message(message.chat.id, "Аббревиатура сохранена, спасибо Вам за помощь")
-    bot.send_message('760906879', "Предложение добавления глоссария\n" + text)
+    bot.send_message(message.chat.id, "Аббревиатура сақталды, көмек үшін рахмет")
+    bot.send_message('187663574', "Предложение добавления глоссария\n" + text)
 
 
 def get_decoding(message, bot, text):
@@ -988,8 +988,9 @@ def menu(bot, message):
 
 def glossary(bot, message):
     text1 = f"Сіздің сұранысыңыз бойынша келесі мән табылды:"
-    text2 = "Біздің info.ktcu@telecom.kz поштамызға хат жолдау арқылы жұмысымызды жақсартуға көмектесе аласыз - " \
-            "біз міндетті түрде қарастырамыз."
+    text2 = ("Бізге жақсы адам болуға көмектесіңіз!\nБіз сіздің пікіріңіз бен ұсыныстарыңызды күтеміз.\n\n"
+             "Сіз бізге 'хабарлама Жазу' батырмасын басу немесе хат жіберу арқылы кері байланысыңызды жібере аласыз "
+             "info.ktcu@telecom.kz.")
     button_text = "Аббревиатураны жазыңыз"
     db_connect.glossary(bot, message, text1, text2, button_text)
 
