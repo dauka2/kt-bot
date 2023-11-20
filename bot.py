@@ -53,8 +53,8 @@ def delete_me(message):
 
 
 @bot.message_handler(commands=['insert_into_performers'])
-def delete_me(message):
-    db_connect.insert_into_performers()
+def insert_into_performers(message):
+    db_connect.insert_into_performers_right()
     bot.send_message(message.chat.id, "Изменения сохранены")
 
 
@@ -412,14 +412,14 @@ def help(message):
         bot.send_message(message.chat.id,
                          "Помогите нам стать лучше! Ждем вашего мнения и предложений. Вы можете отправить письмо на "
                          "info.ktcu@telecom.kz или воспользоваться ботом, нажав на экранную кнопку и написав нам "
-                         "сообщение.", reply_markup = markup)
+                         "сообщение.", reply_markup=markup)
     elif language == 'kaz':
         button = types.InlineKeyboardButton("Хабарлама жазу", callback_data="send_m")
         markup.add(button)
         bot.send_message(message.chat.id,
                          "Бізге жақсы адам болуға көмектесіңіз! Біз сіздің пікіріңіз бен ұсыныстарыңызды күтеміз. "
                          "Сіз хат жібере аласыз info.ktcu@telecom.kz немесе экрандағы түймені басып, бізге хабарлама "
-                         "жазу арқылы ботты пайдаланыңыз.", reply_markup = markup)
+                         "жазу арқылы ботты пайдаланыңыз.", reply_markup=markup)
 
 
 def get_help_message(message):
@@ -488,7 +488,7 @@ def callback_handler(call):
             bot.register_next_step_handler(msg, get_help_message)
         elif language == 'kaz':
             msg = bot.send_message(call.message.chat.id, "Хабарламаңызды жіберіңіз")
-            bot.register_next_step_handler(msg, change_branch)
+            bot.register_next_step_handler(msg, get_help_message)
     else:
         if language == 'rus':
             rus.call_back(bot, call)

@@ -447,8 +447,8 @@ def call_back(bot, call):
     elif db_connect.extract_text(call.data, r'^.*abbr_save$', 'abbr_save') is not None:
         text = db_connect.extract_text(call.data, r'^.*abbr_save$', 'abbr_save')
         send_abbr(bot, call.message, text)
-    elif db_connect.extract_text(call.data, r'^.*abbr_add$', 'abbr_add' ) is not None:
-        text = db_connect.extract_text(call.data, r'^.*abbr_add$', 'abbr_add' )
+    elif db_connect.extract_text(call.data, r'^.*abbr_add$', 'abbr_add') is not None:
+        text = db_connect.extract_text(call.data, r'^.*abbr_add$', 'abbr_add')
         msg = bot.send_message(call.message.chat.id, "Аббревиатураның транскрипциясын енгізіңіз")
         bot.register_next_step_handler(msg, get_decoding, bot, text)
     elif db_connect.extract_number_from_status_change(str(call.data), r'^(\d+)add_act') is not None:
@@ -512,14 +512,14 @@ def call_back(bot, call):
 
 def get_abbr(message, bot):
     markup = types.InlineKeyboardMarkup(row_width=1)
-    button1 = types.InlineKeyboardButton("Аббревиатураны жіберіңіз", callback_data=message.text + " | abbr_save")
-    button2 = types.InlineKeyboardButton("Транскрипт қосу", callback_data=message.text + " | abbr_add")
+    button1 = types.InlineKeyboardButton("Отправить аббревиатуру", callback_data=message.text + "abbr_save")
+    button2 = types.InlineKeyboardButton("Добавить расшифровку", callback_data=message.text + "abbr_add")
     markup.add(button1, button2)
-    bot.send_message(message.chat.id, "Келесі қадамды таңдаңыз", reply_markup=markup)
+    bot.send_message(message.chat.id, "Выберите следующий шаг", reply_markup=markup)
 
 
 def send_abbr(bot, message, text):
-    bot.send_message(message.chat.id, "Аббревиатура сақталды, көмек үшін рахмет")
+    bot.send_message(message.chat.id, "Аббревиатура сохранена, спасибо Вам за помощь")
     bot.send_message('760906879', "Предложение добавления глоссария\n" + text)
 
 
