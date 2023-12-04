@@ -238,29 +238,35 @@ def insert_into_performers():
                                                                              "@", "Закупочная деятельность"))
     cur.execute(
         'insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) values (%s, %s, %s, %s, %s, %s, %s)',
-        ("5050239407", "Восточно-Казахстанская ОДТ",
-         "Айнур", "Жексимбаева", "87771111222", "@gmail.com", "@"))
+        ("760906879", "Восточно-Казахстанская ОДТ",
+          "Дильназ", "Мустафина", "87089081808", "must.dilnaz@gmail.com",
+         "@dilnazmustafina"))
     cur.execute(
         'insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) values (%s, %s, %s, %s, %s, %s, %s)',
-        ("404353369", "Павлодарская ОДТ",
-         "Екатерина", "Стельмах", "87771111222", "@gmail.com", "@"))
+        ("760906879", "Павлодарская ОДТ",
+          "Дильназ", "Мустафина", "87089081808", "must.dilnaz@gmail.com",
+         "@dilnazmustafina"))
     cur.execute(
         'insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) values (%s, %s, %s, %s, %s, %s, %s)',
-        ("5469612023", "Семипалатинск",
-         "Сауле", "Кажиева", "87771111222", "@gmail.com", "@"))
+        ("760906879", "Семипалатинск",
+          "Дильназ", "Мустафина", "87089081808", "must.dilnaz@gmail.com",
+         "@dilnazmustafina"))
 
     cur.execute(
         'insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) values (%s, %s, %s, %s, %s, %s, %s)',
-        ("523859246", "Актюбинская ОДТ",
-         "Айнур", "Маукенова", "87771111222", "@gmail.com", "@"))
+        ("760906879", "Актюбинская ОДТ",
+          "Дильназ", "Мустафина", "87089081808", "must.dilnaz@gmail.com",
+         "@dilnazmustafina"))
     cur.execute(
         'insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) values (%s, %s, %s, %s, %s, %s, %s)',
-        ("523859246", "Атырауская ОДТ",
-         "Айнур", "Маукенова", "87771111222", "@gmail.com", "@"))
+        ("760906879", "Атырауская ОДТ",
+          "Дильназ", "Мустафина", "87089081808", "must.dilnaz@gmail.com",
+         "@dilnazmustafina"))
     cur.execute(
         'insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) values (%s, %s, %s, %s, %s, %s, %s)',
-        ("523859246", "Западно-Казахстанская ОДТ",
-         "Айнур", "Маукенова", "87771111222", "@gmail.com", "@"))
+        ("760906879", "Западно-Казахстанская ОДТ",
+          "Дильназ", "Мустафина", "87089081808", "must.dilnaz@gmail.com",
+         "@dilnazmustafina"))
 
     cur.execute(
         'insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) values (%s, %s, %s, %s, %s, %s, %s)',
@@ -466,8 +472,8 @@ def alter_table_users():
     conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
     cur = conn.cursor()
     cur.execute("drop table performers")
-    cur.execute("drop table internal_sale")
-    cur.execute("alter table appeals add column lte_id int")
+    # cur.execute("drop table internal_sale")
+    # cur.execute("alter table appeals add column lte_id int")
     conn.commit()
     cur.close()
     conn.close()
@@ -752,8 +758,9 @@ def get_all_anonymous_appeals_by_id_performer(id_performer, status_1, status_2):
 def get_appeal_by_id_inner_join_users(id):
     sql_query = (
         'SELECT appeals.id, status, category, appeal_text, date, date_status, comment, '
-        'username, firstname, lastname, table_number, phone_number, email, branch, id_performer, lte_id '
+        'username, firstname, lastname, table_number, phone_number, email, branch, performers.performer_id, lte_id '
         'FROM appeals INNER JOIN users ON appeals.user_id = users.id '
+        'INNER JOIN performers ON appeals.category = performers.category'
         'WHERE appeals.id=%s'
     )
     params = (str(id),)
@@ -1016,18 +1023,6 @@ def admin_appeal_callback(call, bot, add_comment):
         button_a1 = types.InlineKeyboardButton("Добавить комментарий", callback_data=callback_d)
         markup_a.add(button_a, button_a1)
         bot.send_message(call.message.chat.id, text, reply_markup=markup_a)
-    # elif extract_number_from_status_change(str(call.data), r'^(\d+)statusinprocess') is not None \
-    #      or extract_number_from_status_change(str(call.data), r'^(\d+)statusdecided$') is not None:
-    #     appeal_id = extract_number_from_status_change(str(call.data), r'^(\d+)statusinprocess')
-    #     if appeal_id is None:
-    #         appeal_id = extract_number_from_status_change(str(call.data), r'^(\d+)statusdecided$')
-    #         set_status(appeal_id, "Решено")
-    #     else:
-    #         set_status(appeal_id, "В процессе")
-    #     now = datetime.now() + timedelta(hours=6)
-    #     now_updated = remove_milliseconds(now)
-    #     set_date_status(appeal_id, str(now_updated))
-    #     bot.send_message(call.message.chat.id, "Статус изменен")
     elif extract_number_from_status_change(str(call.data), r'^(\d+)addcomment') is not None:
         appeal_id = extract_number_from_status_change(str(call.data), r'^(\d+)addcomment')
         msg = bot.send_message(call.message.chat.id, 'Введите комментарий')

@@ -1,9 +1,12 @@
 import openpyxl
 import psycopg2
+from openai import OpenAI
 from telebot import *
+import g4f
+
+import db_connect
 import kaz
 import rus
-import db_connect
 
 bot = telebot.TeleBot(db_connect.TOKEN, parse_mode="HTML")
 admin_id = ['484489968', '760906879', '187663574', '577247261', '204504707', '531622371']
@@ -16,12 +19,58 @@ ods_regions = ["ДЭСД 'Алматытелеком'", "Южно-Казахст
                "Восточно-Казахстанский ДЭСД", "Атырауский ДЭСД", "Актюбинский ДЭСД",
                "ДЭСД 'Астана'", "ТУСМ-1", "ТУСМ-6", "ТУСМ-8", "ТУСМ-10", "ТУСМ-11", "ТУСМ-13", "ТУСМ-14", "ГА"]
 
+API_KEY = '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'
+
 
 def check_id(categories, input_id):
     for category, details in categories.items():
         if details.get("id") == input_id:
             return True
     return False
+
+
+@bot.message_handler(commands=['chatgpt'])
+def start_gpt(message):
+    msg = bot.send_message(message.chat.id, "Напишите свой запрос, чтобы выйти из режима chatgpt напишите exit")
+    bot.register_next_step_handler(msg, chatgpt)
+
+
+client = OpenAI(
+    api_key=API_KEY,
+)
+
+
+def chatgpt(message):
+    if message.text == 'exit':
+        menu(message)
+        return
+    response = g4f.ChatCompletion.create(
+        model='gpt-3.5-turbo',
+        messages=[{'role': 'user', "content": message.text}],
+        stream=True
+    )
+    text = "Ответ на ваш вопрос может занять некоторое время.\n\n "
+    bot.send_message(message.chat.id, text)
+    message_id = message.message_id + 1
+    try:
+        for mes in response:
+            try:
+                if text != text+mes:
+                    text += mes
+                    bot.edit_message_text(chat_id=message.chat.id, message_id=message_id, text=text)
+            except telebot.apihelper.ApiTelegramException as e:
+                if e.error_code == 429:
+                    time.sleep(1)
+                continue
+            except Exception as e:
+                bot.send_message('760906879', str(e))
+    except telebot.apihelper.ApiTelegramException as e:
+        bot.send_message('760906879', str(e))
+
+    text += "\n\nОтвет на ваш запрос закончен"
+    bot.send_message(message.chat.id, text)
+    msg = bot.send_message(message.chat.id, "Напишите свой запрос, чтобы выйти из режима chatgpt напишите exit")
+    bot.register_next_step_handler(msg, chatgpt)
 
 
 def check_is_command(text_):
@@ -54,7 +103,7 @@ def delete_me(message):
 
 @bot.message_handler(commands=['insert_into_performers'])
 def insert_into_performers(message):
-    db_connect.insert_into_performers_right()
+    db_connect.insert_into_performers()
     bot.send_message(message.chat.id, "Изменения сохранены")
 
 
@@ -149,7 +198,7 @@ def change_table_num(message, func):
                 button1 = types.KeyboardButton(arr[4])
                 button2 = types.KeyboardButton(arr[5])
                 markup.add(button1, button2)
-                msg = bot.send_message(message.chat.id, arr[1] + str(full_name),reply_markup=markup)
+                msg = bot.send_message(message.chat.id, arr[1] + str(full_name), reply_markup=markup)
                 bot.register_next_step_handler(msg, is_it_you, func)
                 return
             else:
@@ -205,7 +254,7 @@ def yes_no(message, func):
     language = db_connect.get_language(message)
     arr = ["Регистрация", "Войти по табельному номеру"]
     if language == "kaz":
-        arr = [ "Тіркеу", "Табель нөмірі бойынша кіру"]
+        arr = ["Тіркеу", "Табель нөмірі бойынша кіру"]
     if message.text == "Да":
         in_table(message, func, arr[1])
     else:
@@ -587,7 +636,6 @@ def get_excel(message):
         RIGHT OUTER JOIN internal_sale ON appeals.lte_id = internal_sale.id
         order by appeals.id 
     """
-
     db_connect.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
 
 
@@ -645,7 +693,6 @@ def message_sender(message, broadcast_message):
                     bot.send_message(id[0], broadcast_message.text)
             except:
                 continue
-
         bot.send_message(message.chat.id, "Рассылка отправлена")
     elif message.text.upper() == "НЕТ":
         bot.send_message(message.chat.id, "Вызовите функцию /broadcast чтобы вызвать комманду рассылки еще раз")

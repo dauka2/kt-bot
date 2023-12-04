@@ -592,7 +592,7 @@ def appeal(bot, message, message_text):
         if performer_id is None or performer_id == '' or len(str(performer_id)) == 0:
             db_connect.add_appeal_gmail(message.chat.id, category, message.text, now_updated)
         else:
-            performer_id = db_connect.get_performer_by_category(category)[1]
+            performer_id = db_connect.get_performer_by_category(category)[0]
             db_connect.add_appeal(message.chat.id, "Обращение принято", category, message.text, now_updated,
                                   now_updated, performer_id, ' ', False)
         markup_ap = types.ReplyKeyboardMarkup()
@@ -1314,7 +1314,7 @@ def get_region(message, bot, id_i_s, regions):
         msg = bot.send_message(message.chat.id, "Выберите регион из списка", reply_markup=markup_l)
         bot.register_next_step_handler(msg, get_region, bot, id_i_s, regions)
         return
-    performer_id = db_connect.get_performer_id_by_category(message.text)
+    performer_id = db_connect.get_performer_by_category(message.text)[0]
     db_connect.set_category_i_s(id_i_s, message.text)
     db_connect.set_performer_id_i_s(id_i_s, performer_id)
     markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True)
@@ -1486,7 +1486,7 @@ def add_lte_appeal(bot, message, id_i_s):
     is_notified = "Да"
     if not lte_info[7]:
         is_notified = "Нет"
-    text = f"\n\tФИО абонента: {lte_info[3]}\n" \
+    text = f"ФИО абонента: {lte_info[3]}\n" \
            f"\tИИН: {lte_info[4]}\n" \
            f"\tНомер телефона абонента: {lte_info[5]}\n" \
            f"\tТип абонента: {lte_info[6]}\n" \
