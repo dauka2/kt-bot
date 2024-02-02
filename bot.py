@@ -1,12 +1,15 @@
 import openpyxl
 import psycopg2
-from openai import OpenAI
 from telebot import *
-import g4f
-
 import db_connect
 import kaz
 import rus
+import userClass
+import commands_historyClass
+import common_file
+import file
+import user_infoClass
+
 
 bot = telebot.TeleBot(db_connect.TOKEN, parse_mode="HTML")
 admin_id = ['484489968', '760906879', '187663574', '577247261', '204504707', '531622371']
@@ -29,50 +32,6 @@ def check_id(categories, input_id):
     return False
 
 
-@bot.message_handler(commands=['chatgpt'])
-def start_gpt(message):
-    msg = bot.send_message(message.chat.id, "Напишите свой запрос, чтобы выйти из режима chatgpt напишите exit")
-    bot.register_next_step_handler(msg, chatgpt)
-
-
-client = OpenAI(
-    api_key=API_KEY,
-)
-
-
-def chatgpt(message):
-    if message.text == 'exit':
-        menu(message)
-        return
-    response = g4f.ChatCompletion.create(
-        model='gpt-3.5-turbo',
-        messages=[{'role': 'user', "content": message.text}],
-        stream=True
-    )
-    text = "Ответ на ваш вопрос может занять некоторое время.\n\n "
-    bot.send_message(message.chat.id, text)
-    message_id = message.message_id + 1
-    try:
-        for mes in response:
-            try:
-                if text != text+mes:
-                    text += mes
-                    bot.edit_message_text(chat_id=message.chat.id, message_id=message_id, text=text)
-            except telebot.apihelper.ApiTelegramException as e:
-                if e.error_code == 429:
-                    time.sleep(1)
-                continue
-            except Exception as e:
-                bot.send_message('760906879', str(e))
-    except telebot.apihelper.ApiTelegramException as e:
-        bot.send_message('760906879', str(e))
-
-    text += "\n\nОтвет на ваш запрос закончен"
-    bot.send_message(message.chat.id, text)
-    msg = bot.send_message(message.chat.id, "Напишите свой запрос, чтобы выйти из режима chatgpt напишите exit")
-    bot.register_next_step_handler(msg, chatgpt)
-
-
 def check_is_command(text_):
     if text_ == "/menu" or text_ == "/start" or text_ == "/help" or text_ == "/language":
         return False
@@ -82,7 +41,7 @@ def check_is_command(text_):
 def check_register(message, func):
     markup = rus.get_markup(message)
     arr = [markup, rus, "Изменения сохранены", "Оставить обращение"]
-    language = db_connect.get_language(message)
+    language = userClass.get_language(message)
     if language == "kaz":
         markup = kaz.get_markup(message)
         arr = [markup, kaz, "Өзгерістер сақталды", "Өтінішті қалдыру"]
@@ -97,7 +56,7 @@ def check_register(message, func):
 
 @bot.message_handler(commands=['delete_me'])
 def delete_me(message):
-    db_connect.delete_user(message)
+    userClass.delete_user(message)
     bot.send_message(message.chat.id, "Изменения сохранены")
 
 
@@ -107,10 +66,16 @@ def insert_into_performers(message):
     bot.send_message(message.chat.id, "Изменения сохранены")
 
 
+@bot.message_handler(commands=['insert_into_performers_right'])
+def insert_into_performers(message):
+    db_connect.insert_into_performers_right()
+    bot.send_message(message.chat.id, "Изменения сохранены")
+
+
 @bot.message_handler(commands=['register_start'])
 def register(message, func="menu"):
-    db_connect.cm_sv_db(message, '/start_register')
-    language = db_connect.get_language(message)
+    commands_historyClass.cm_sv_db(message, '/start_register')
+    language = userClass.get_language(message)
     arr = ["Приветствую, друг!🫡 \nМеня зовут ktbot, \nТвой личный помощник в компании АО'Казахтелеком'.",
            "Перед началом пользования,\nДавай пройдем регистрацию и познакомимся😊",
            "Выберите филиал из списка"]
@@ -123,7 +88,7 @@ def register(message, func="menu"):
         bot.send_message(message.chat.id, arr[1])
         time.sleep(0.75)
     markup_b = types.ReplyKeyboardMarkup(one_time_keyboard=True)
-    markup_b = db_connect.generate_buttons(branches, markup_b)
+    markup_b = common_file.generate_buttons(branches, markup_b)
     msg = bot.send_message(message.chat.id, arr[2], reply_markup=markup_b)
     bot.register_next_step_handler(msg, change_branch, func)
     # msg = bot.send_message(message.chat.id, arr[2])
@@ -131,7 +96,7 @@ def register(message, func="menu"):
 
 
 def change_firstname(message, func):
-    language = db_connect.get_language(message)
+    language = userClass.get_language(message)
     if not check_is_command(message.text):
         if language == "kaz":
             msg = bot.send_message(message.chat.id, "Командаларды пайдалану үшін атауды енгізу керек")
@@ -139,7 +104,7 @@ def change_firstname(message, func):
             msg = bot.send_message(message.chat.id, "Для использования команд необходимо ввести имя")
         bot.register_next_step_handler(msg, change_firstname, func)
         return
-    db_connect.set_firstname(message, message.text)
+    userClass.set_firstname(message, message.text)
     if check_register(message, func) != 0:
         return
     if language == 'kaz':
@@ -150,7 +115,7 @@ def change_firstname(message, func):
 
 
 def change_lastname(message, func):
-    language = db_connect.get_language(message)
+    language = userClass.get_language(message)
     if not check_is_command(message.text):
         if language == "kaz":
             msg = bot.send_message(message.chat.id, "Командаларды пайдалану үшін фамилияны енгізу керек")
@@ -158,7 +123,7 @@ def change_lastname(message, func):
             msg = bot.send_message(message.chat.id, "Для использования команд необходимо ввести фамилию")
         bot.register_next_step_handler(msg, change_lastname, func)
         return
-    db_connect.set_lastname(message, message.text)
+    userClass.set_lastname(message, message.text)
     if check_register(message, func) != 0:
         return
     if language == 'kaz':
@@ -169,7 +134,7 @@ def change_lastname(message, func):
 
 
 def change_table_num(message, func):
-    language = db_connect.get_language(message)
+    language = userClass.get_language(message)
     arr = ["Вы ввели некорректные данные, введите в таком шаблоне:\n123456",
            "Подтвердите ваши данные: ", "Введите Ваше имя",
            "Введенный табельный номер не найден, хотите еще раз ввести табельный номер?", "Это я", "Это не я"]
@@ -180,7 +145,7 @@ def change_table_num(message, func):
                "Бұл мен емес"]
     try:
         table_num = int(message.text)
-        if db_connect.get_branch(message.chat.id) == branches[2]:
+        if userClass.get_branch(message.chat.id) == branches[2]:
             wb = openpyxl.load_workbook('ДРБ Табельные номера.xlsx')
             excel = wb['ШР на 01.10.2023']
             tab_nums, full_names = [], []
@@ -191,9 +156,9 @@ def change_table_num(message, func):
                 index = tab_nums.index(table_num)
                 full_name = full_names[index]
                 full_name_arr = full_name.split(' ')
-                db_connect.set_table_number(message, table_num)
-                db_connect.set_firstname(message, full_name_arr[1])
-                db_connect.set_lastname(message, full_name_arr[0])
+                userClass.set_table_number(message, table_num)
+                userClass.set_firstname(message, full_name_arr[1])
+                userClass.set_lastname(message, full_name_arr[0])
                 markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
                 button1 = types.KeyboardButton(arr[4])
                 button2 = types.KeyboardButton(arr[5])
@@ -205,7 +170,7 @@ def change_table_num(message, func):
                 func_1(message, func)
                 return
         else:
-            db_connect.set_table_number(message, message.text)
+            userClass.set_table_number(message, message.text)
             if check_register(message, func) != 0:
                 return
             msg = bot.send_message(message.chat.id, arr[2])
@@ -218,7 +183,7 @@ def change_table_num(message, func):
         msg = bot.send_message(message.chat.id, arr[0])
         bot.register_next_step_handler(msg, change_table_num, func)
     else:
-        db_connect.set_table_number(message, message.text)
+        userClass.set_table_number(message, message.text)
         if check_register(message, func) != 0:
             return
         msg = bot.send_message(message.chat.id, arr[2])
@@ -226,7 +191,7 @@ def change_table_num(message, func):
 
 
 def func_1(message, func):
-    language = db_connect.get_language(message)
+    language = userClass.get_language(message)
     arr = ["Введенный табельный номер не найден, хотите еще раз ввести табельный номер?"]
     if language == "kaz":
         arr = ["Енгізілген табель нөмірі табылмады, табель нөмірін қайтадан енгізгіңіз келе ме?"]
@@ -239,7 +204,7 @@ def func_1(message, func):
 
 
 def is_it_you(message, func):
-    language = db_connect.get_language(message)
+    language = userClass.get_language(message)
     arr = ["Введите Ваш номер телефона\n\nНапример: +77001112233", "Войти по табельному номеру", "Это я"]
     if language == "kaz":
         arr = ["Телефон нөміріңізді енгізіңіз\n\nМысалы: +77001112233", "Табель нөмірі бойынша кіру", "Бұл мен"]
@@ -251,7 +216,7 @@ def is_it_you(message, func):
 
 
 def yes_no(message, func):
-    language = db_connect.get_language(message)
+    language = userClass.get_language(message)
     arr = ["Регистрация", "Войти по табельному номеру"]
     if language == "kaz":
         arr = ["Тіркеу", "Табель нөмірі бойынша кіру"]
@@ -264,7 +229,7 @@ def yes_no(message, func):
 def change_phone_num(message, func):
     phone_num = message.text
     pattern = r'^(\+?7|8)(\d{10})$'
-    language = db_connect.get_language(message)
+    language = userClass.get_language(message)
     arr = ["Вы ввели некорректные данные, введите в таком шаблоне +77001112233",
            "Введите Ваш корпоративный E-mail\n\n(временно можете указать и Ваш личный)"]
     if language == "kaz":
@@ -277,7 +242,7 @@ def change_phone_num(message, func):
         msg = bot.send_message(message.chat.id, arr[0])
         bot.register_next_step_handler(msg, change_phone_num, func)
     else:
-        db_connect.set_phone_number(message, phone_num)
+        userClass.set_phone_number(message, phone_num)
         if check_register(message, func) != 0:
             return
         msg = bot.send_message(message.chat.id, arr[1])
@@ -287,7 +252,7 @@ def change_phone_num(message, func):
 def change_email(message, func):
     email = message.text
     regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
-    language = db_connect.get_language(message)
+    language = userClass.get_language(message)
     arr = ["Регистрация пройдена!\n\nПриятно познакомиться!😇",
            "Вы ввели некорректные данные, введите в таком шаблоне dilnaz@telecom.kz",
            "Для использования команд необходимо ввести email",
@@ -302,12 +267,12 @@ def change_email(message, func):
         bot.register_next_step_handler(msg, change_email, func)
         return
     elif re.fullmatch(regex, email):
-        db_connect.set_email(message, email)
+        userClass.set_email(message, email)
         if check_register(message, func) != 0:
             return
         bot.send_message(message.chat.id, arr[0])
         bot.send_message(message.chat.id, arr[3])
-        db_connect.cm_sv_db(message, '/end_register')
+        commands_historyClass.cm_sv_db(message, '/end_register')
         if func == "menu":
             menu(message)
         elif func == 'start':
@@ -319,14 +284,14 @@ def change_email(message, func):
 
 def change_branch(message, func):
     branch = message.text
-    language = db_connect.get_language(message)
+    language = userClass.get_language(message)
     arr = ["Введите табельный номер", "Вы ввели некорректные данные, выберите филиал из списка", "Введите Имя",
            "Выберите способ входа", "Регистрация", "Войти по табельному номеру"]
     if language == "kaz":
         arr = ["Табель нөмірін енгізіңіз", "Сіз қате деректерді енгіздіңіз, тізімнен филиалды таңдаңыз",
                "Атыңызды енгізіңіз", "Кіру әдісін таңдаңыз", "Тіркеу", "Табель нөмірі бойынша кіру"]
     if branch in branches:
-        db_connect.set_branch(message.chat.id, branch)
+        userClass.set_branch(message.chat.id, branch)
         if check_register(message, func) != 0:
             return
         if branch == branches[2]:
@@ -341,7 +306,7 @@ def change_branch(message, func):
             bot.register_next_step_handler(msg, change_firstname, func)
     else:
         markup_b = types.ReplyKeyboardMarkup(one_time_keyboard=True)
-        markup_b = db_connect.generate_buttons(branches, markup_b)
+        markup_b = common_file.generate_buttons(branches, markup_b)
         msg = bot.send_message(message.chat.id, arr[1], reply_markup=markup_b)
         bot.register_next_step_handler(msg, change_branch, func)
 
@@ -349,7 +314,7 @@ def change_branch(message, func):
 def in_table(message, func, message_text=None):
     if message_text is None:
         message_text = message.text
-    language = db_connect.get_language(message)
+    language = userClass.get_language(message)
     arr = ["Введите табельный номер", "Введите Имя", "Регистрация", "Войти по табельному номеру",
            "Выберите способ входа"]
     if language == "kaz":
@@ -381,18 +346,18 @@ def start(message):
     # bot.send_sticker(message.chat.id, sticker_file)
     db_connect.create_db()
     db_connect.addIfNotExistUser(message)
-    db_connect.cm_sv_db(message, '/start')
-    db_connect.clear_appeals(message)
+    commands_historyClass.cm_sv_db(message, '/start')
+    user_infoClass.clear_appeals(message)
     if str(message.chat.id)[0] == '-':
         return
-    language = db_connect.get_language(message)
+    language = userClass.get_language(message)
     if language == 'rus':
-        if db_connect.get_email(message) == ' ':
+        if userClass.get_email(message) == ' ':
             register(message, 'start')
             return
         rus.send_welcome_message(bot, message)
     elif language == 'kaz':
-        if db_connect.get_email(message) == ' ':
+        if userClass.get_email(message) == ' ':
             register(message, 'start')
             return
         kaz.send_welcome_message(bot, message)
@@ -404,7 +369,7 @@ def start(message):
 def lang(message):
     if str(message.chat.id)[0] == '-':
         return
-    if db_connect.get_branch(str(message.chat.id)) == ' ':
+    if userClass.get_branch(str(message.chat.id)) == ' ':
         bot.send_sticker(message.chat.id, open('images/AnimatedStickerHi.tgs', 'rb'))
     markup = types.InlineKeyboardMarkup()
     button1 = types.InlineKeyboardButton(text='🇷🇺 Русский язык', callback_data='rus')
@@ -415,13 +380,13 @@ def lang(message):
 
 @bot.callback_query_handler(func=lambda call: call.data == 'rus')
 def handle_button_rus(call):
-    db_connect.change_language(call.message, 'rus')
+    userClass.change_language(call.message, 'rus')
     start(call.message)
 
 
 @bot.callback_query_handler(func=lambda call: call.data == 'kaz')
 def handle_button_kaz(call):
-    db_connect.change_language(call.message, 'kaz')
+    userClass.change_language(call.message, 'kaz')
     start(call.message)
 
 
@@ -429,29 +394,29 @@ def handle_button_kaz(call):
 def menu(message):
     db_connect.create_db()
     db_connect.addIfNotExistUser(message)
-    db_connect.cm_sv_db(message, 'menu')
+    commands_historyClass.cm_sv_db(message, 'menu')
     if str(message.chat.id)[0] == '-':
         return
-    language = db_connect.get_language(message)
+    language = userClass.get_language(message)
     if language == 'rus':
-        if db_connect.get_email(message) == ' ':
+        if userClass.get_email(message) == ' ':
             register(message, 'start')
             return
         rus.menu(bot, message)
     elif language == 'kaz':
-        if db_connect.get_email(message) == ' ':
+        if userClass.get_email(message) == ' ':
             register(message, 'start')
             return
         kaz.menu(bot, message)
     else:
         lang(message)
-    db_connect.clear_appeals(message)
+    user_infoClass.clear_appeals(message)
 
 
 @bot.message_handler(commands=["help"])
-def help(message):
-    db_connect.cm_sv_db(message, '/help')
-    language = db_connect.get_language(message)
+def help_command(message):
+    commands_historyClass.cm_sv_db(message, '/help')
+    language = userClass.get_language(message)
     if str(message.chat.id)[0] == '-':
         return
     markup = types.InlineKeyboardMarkup(row_width=1)
@@ -459,8 +424,8 @@ def help(message):
         button = types.InlineKeyboardButton("Написать сообщение", callback_data="send_m")
         markup.add(button)
         bot.send_message(message.chat.id,
-                         "Помогите нам стать лучше! Ждем вашего мнения и предложений. Вы можете отправить письмо на "
-                         "info.ktcu@telecom.kz или воспользоваться ботом, нажав на экранную кнопку и написав нам "
+                         "Помогите нам стать лучше! Ждем вашего мнения и предложений. Вы можете отправить письмо "
+                         "на info.ktcu@telecom.kz или воспользоваться ботом, нажав на экранную кнопку и написав нам "
                          "сообщение.", reply_markup=markup)
     elif language == 'kaz':
         button = types.InlineKeyboardButton("Хабарлама жазу", callback_data="send_m")
@@ -472,20 +437,19 @@ def help(message):
 
 
 def get_help_message(message):
-    language = db_connect.get_language(message)
-    text = message.text + "\n\n" + db_connect.get_user_info(message.chat.id)
+    language = userClass.get_language(message)
+    help_message = message.text + "\n\n" + file.get_user_info(message.chat.id)
     if language == 'rus':
         bot.send_message(message.chat.id, "Ваше сообщение успешно сохранено")
     else:
         bot.send_message(message.chat.id, "Сіздің хабарламаңыз сәтті сақталды")
-    # bot.send_message('187663574', text)
-    bot.send_message('187663574', text)
+    bot.send_message('187663574', help_message)
 
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_handler(call):
-    db_connect.cm_sv_db(call.message, str(call.data))
-    language = db_connect.get_language(call.message)
+    commands_historyClass.cm_sv_db(call.message, str(call.data))
+    language = userClass.get_language(call.message)
     arr = ["Введите Имя", "Введите Фамилию", "Введите номер телефона",
            "Введите Ваш корпоративный E-mail\n\n(временно можете указать и Ваш личный)", "Введите табельный номер",
            "Выберите Ваш филиал из списка"]
@@ -495,39 +459,39 @@ def callback_handler(call):
                "Табель нөмірін енгізіңіз", "Тізімнен филиалды таңдаңыз"]
     if call.data == "Изменить Имя":
         msg = bot.send_message(call.message.chat.id, arr[0])
-        if db_connect.get_appeal_field(call.message):
+        if user_infoClass.get_appeal_field(call.message):
             bot.register_next_step_handler(msg, change_firstname, "end")
         else:
             bot.register_next_step_handler(msg, change_firstname, "profile")
     elif call.data == "Изменить Фамилию":
         msg = bot.send_message(call.message.chat.id, arr[1])
-        if db_connect.get_appeal_field(call.message):
+        if user_infoClass.get_appeal_field(call.message):
             bot.register_next_step_handler(msg, change_lastname, "end")
         else:
             bot.register_next_step_handler(msg, change_lastname, "profile")
     elif call.data == "Изменить номер телефона":
         msg = bot.send_message(call.message.chat.id, arr[2])
-        if db_connect.get_appeal_field(call.message):
+        if user_infoClass.get_appeal_field(call.message):
             bot.register_next_step_handler(msg, change_phone_num, "end")
         else:
             bot.register_next_step_handler(msg, change_phone_num, "profile")
     elif call.data == "Изменить email":
         msg = bot.send_message(call.message.chat.id, arr[3])
-        if db_connect.get_appeal_field(call.message):
+        if user_infoClass.get_appeal_field(call.message):
             bot.register_next_step_handler(msg, change_email, "end")
         else:
             bot.register_next_step_handler(msg, change_email, "profile")
     elif call.data == "Изменить табельный номер":
         msg = bot.send_message(call.message.chat.id, arr[4])
-        if db_connect.get_appeal_field(call.message):
+        if user_infoClass.get_appeal_field(call.message):
             bot.register_next_step_handler(msg, change_table_num, "end")
         else:
             bot.register_next_step_handler(msg, change_table_num, "profile")
     elif call.data == "Изменить филиал":
         markup_b = types.ReplyKeyboardMarkup(one_time_keyboard=True)
-        markup_b = db_connect.generate_buttons(branches, markup_b)
+        markup_b = common_file.generate_buttons(branches, markup_b)
         msg = bot.send_message(call.message.chat.id, arr[5], reply_markup=markup_b)
-        if db_connect.get_appeal_field(call.message):
+        if user_infoClass.get_appeal_field(call.message):
             bot.register_next_step_handler(msg, change_branch, "end")
         else:
             bot.register_next_step_handler(msg, change_branch, "profile")
@@ -549,19 +513,19 @@ def callback_handler(call):
 def get_excel(message):
     sql_query = "SELECT users.id, firstname, lastname, commands_name, commands_history.date FROM commands_history " \
                 "full outer join users on commands_history.id = users.id"
-    db_connect.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
+    common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
 
 
 @bot.message_handler(commands=['get_users'])
 def get_excel(message):
     sql_query = "SELECT * from users"
-    db_connect.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
+    common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
 
 
 @bot.message_handler(commands=['get_users_info'])
 def get_excel(message):
     sql_query = "SELECT * from users_info"
-    db_connect.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
+    common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
 
 
 @bot.message_handler(commands=['get_appeals'])
@@ -592,19 +556,25 @@ def get_excel(message):
         LEFT OUTER JOIN performers ON performers.category = appeals.category
         order by appeals.id 
     """
-    db_connect.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
+    common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
+
+
+@bot.message_handler(commands=['get_appeals_'])
+def get_excel(message):
+    sql_query = "SELECT * from appeals"
+    common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
 
 
 @bot.message_handler(commands=['get_performers'])
 def get_excel(message):
     sql_query = "SELECT * from performers"
-    db_connect.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
+    common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
 
 
 @bot.message_handler(commands=['get_internal_sale'])
 def get_excel(message):
     sql_query = "SELECT * from internal_sale"
-    db_connect.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
+    common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
 
 
 @bot.message_handler(commands=['get_sales'])
@@ -636,11 +606,11 @@ def get_excel(message):
         RIGHT OUTER JOIN internal_sale ON appeals.lte_id = internal_sale.id
         order by appeals.id 
     """
-    db_connect.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
+    common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
 
 
 def send_error(message):
-    language = db_connect.get_language(message)
+    language = userClass.get_language(message)
     if language == 'rus':
         rus.send_error(bot, message)
     elif language == 'kaz':
@@ -675,22 +645,22 @@ def message_sender(message, broadcast_message):
         users_id = cur.fetchall()
         cur.close()
         conn.close()
-        for id in users_id:
+        for user_id in users_id:
             try:
                 if broadcast_message.photo:
                     photo_id = broadcast_message.photo[-1].file_id
-                    bot.send_photo(id[0], photo_id, broadcast_message.caption)
+                    bot.send_photo(user_id[0], photo_id, broadcast_message.caption)
                 if broadcast_message.audio:
                     audio_id = broadcast_message.audio.file_id
-                    bot.send_video(id[0], audio_id, broadcast_message.caption)
+                    bot.send_video(user_id[0], audio_id, broadcast_message.caption)
                 if broadcast_message.video:
                     video_id = broadcast_message.video.file_id
-                    bot.send_video(id[0], video_id, broadcast_message.caption)
+                    bot.send_video(user_id[0], video_id, broadcast_message.caption)
                 if broadcast_message.voice:
                     voice_id = broadcast_message.voice.file_id
-                    bot.send_voice(id[0], voice_id, broadcast_message.caption)
+                    bot.send_voice(user_id[0], voice_id, broadcast_message.caption)
                 if broadcast_message.text:
-                    bot.send_message(id[0], broadcast_message.text)
+                    bot.send_message(user_id[0], broadcast_message.text)
             except:
                 continue
         bot.send_message(message.chat.id, "Рассылка отправлена")
@@ -703,82 +673,83 @@ def message_sender(message, broadcast_message):
 @bot.message_handler(content_types=['text'])
 def mess(message):
     get_message = message.text
-    db_connect.cm_sv_db(message, get_message)
+    commands_historyClass.cm_sv_db(message, get_message)
     if str(message.chat.id)[0] == '-':
         return
-    language = db_connect.get_language(message)
-    try:
-        if language == 'rus':
-            text(message, get_message, rus)
-        elif language == 'kaz':
-            text(message, get_message, kaz)
-        else:
-            lang(message)
-    except:
-        register(message)
+    language = userClass.get_language(message)
+    if language == 'rus':
+        text(message, get_message, rus)
+    elif language == 'kaz':
+        text(message, get_message, kaz)
+    else:
+        lang(message)
+    # except Exception as ex:
+    #     send_error(message)
+    #     bot.send_message(message.chat.id, str(ex.args))
+        # register(message)
 
 
 def text(message, get_message, lang_py):
-    if get_message in lang_py.faq_field or get_message in branches:
-        db_connect.clear_appeals(message)
-        lang_py.faq(bot, message)
-    elif get_message in drb_regions or get_message in ods_regions:
-        db_connect.clear_appeals(message)
-        lang_py.func_region(bot, message)
-    elif get_message == "🧐Мой профиль" or get_message == "🧐Менің профилім":
-        db_connect.clear_appeals(message)
+    if get_message == "🧐Мой профиль" or get_message == "🧐Менің профилім":
+        user_infoClass.clear_appeals(message)
         lang_py.profile(bot, message)
     elif get_message in lang_py.faq_1.keys():
-        db_connect.clear_appeals(message)
+        user_infoClass.clear_appeals(message)
         bot.send_message(message.chat.id, lang_py.faq_1[message.text])
     elif get_message in lang_py.faq_2.keys():
-        db_connect.clear_appeals(message)
+        user_infoClass.clear_appeals(message)
         bot.send_message(message.chat.id, lang_py.faq_2[message.text])
     elif get_message in lang_py.faq_procurement_portal.keys():
-        db_connect.clear_appeals(message)
+        user_infoClass.clear_appeals(message)
         bot.send_message(message.chat.id, lang_py.faq_procurement_portal[message.text])
     elif get_message in lang_py.faq_procurement_activities.keys():
-        db_connect.clear_appeals(message)
+        user_infoClass.clear_appeals(message)
         bot.send_message(message.chat.id, lang_py.faq_procurement_activities[message.text])
     elif get_message in lang_py.biot_field:
-        db_connect.clear_appeals(message)
+        user_infoClass.clear_appeals(message)
         lang_py.biot(bot, message)
     elif get_message in lang_py.kb_field:
-        db_connect.clear_appeals(message)
+        user_infoClass.clear_appeals(message)
         lang_py.kb(bot, message)
     elif get_message in lang_py.adapt_field:
-        db_connect.clear_appeals(message)
+        user_infoClass.clear_appeals(message)
         lang_py.adaption(bot, message)
     elif get_message == "📄У меня есть вопрос" or get_message == "📄Менің сұрағым бар":
         lang_py.questions(bot, message)
     elif get_message == "Мои обращения" or get_message == "Менің өтініштерім" \
             or get_message == "Оставить обращение" or get_message == "Өтінішті қалдыру" \
             or get_message == "Админ панель" \
-            or db_connect.get_appeal_field(message):
+            or user_infoClass.get_appeal_field(message):
         lang_py.appeal(bot, message, message.text)
     elif get_message == '🖥Портал "Бірлік"' or get_message in lang_py.portal_bts or get_message in lang_py.portal_ \
             or get_message in lang_py.portal_guide:
-        db_connect.clear_appeals(message)
+        user_infoClass.clear_appeals(message)
         lang_py.portal(bot, message)
     elif get_message in lang_py.lte_ or get_message in lang_py.lte_files:
         lang_py.lte(message, bot)
-    elif str(message.chat.id) in db_connect.get_users_id():
-        if db_connect.get_glossary(message):
+    elif str(message.chat.id) in userClass.get_users_id():
+        if user_infoClass.get_glossary(message):
             lang_py.glossary(bot, message)
-        elif db_connect.get_instr(message) and message.text in lang_py.kb_field_all:
+        elif user_infoClass.get_instr(message) and message.text in lang_py.kb_field_all:
             lang_py.instructions(bot, message)
         else:
-            db_connect.clear_appeals(message)
+            user_infoClass.clear_appeals(message)
             lang_py.send_error(bot, message)
+    elif get_message in lang_py.faq_field or get_message in branches:
+        user_infoClass.clear_appeals(message)
+        lang_py.faq(bot, message)
+    elif get_message in drb_regions or get_message in ods_regions:
+        user_infoClass.clear_appeals(message)
+        lang_py.func_region(bot, message)
     else:
-        db_connect.clear_appeals(message)
+        user_infoClass.clear_appeals(message)
         lang_py.send_error(bot, message)
 
 
 @bot.message_handler(content_types=['photo'])
 def get_photo(message):
-    language = db_connect.get_language(message)
-    if db_connect.get_appeal_field(message):
+    language = userClass.get_language(message)
+    if user_infoClass.get_appeal_field(message):
         if language == 'rus':
             rus.appeal(bot, message, message.text)
         elif language == 'kaz':
