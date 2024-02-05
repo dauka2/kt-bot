@@ -12,7 +12,7 @@ from appealsClass import set_status, set_date_status, get_appeal_by_id, get_imag
     get_appeal_text_all, get_comment, set_comment, set_image_data, add_appeal_gmail, add_appeal, get_appeal_text, \
     set_appeal_text
 from commands_historyClass import cm_sv_db
-from common_file import extract_text, extract_number_from_status_change, remove_milliseconds, \
+from common_file import extract_text, extract_number, remove_milliseconds, \
     extract_numbers_from_status_change_decided, generate_buttons, send_gmails, useful_links, check_portal_guide
 from file import check_id, admin_appeal_callback, appeal_inline_markup, admin_appeal, get_user_info, \
     rename_category_to_kaz, rename_category_to_rus
@@ -500,10 +500,11 @@ def call_back(bot, call):
             bot.send_photo(appeal_info[1], image_data)
         except:
             print("error")
+        markup = types.InlineKeyboardMarkup()
+        btn = types.InlineKeyboardButton('Написать исполнителю', callback_data=str(appeal_info[0]) + 'texting_')
         text = performer_text(appeal_info, message=call.message)
         if appeal_info[12] != "" and appeal_info[12] is not None and appeal_info[12] != " ":
             if db_connect.get_sale(appeal_info[12])[10] == "Самостоятельно":
-                markup = types.InlineKeyboardMarkup()
                 button_ = types.InlineKeyboardButton("Добавить модем | симкарту",
                                                      callback_data=str(appeal_info[12]) + "add_modem")
                 button_1 = types.InlineKeyboardButton("Добавить фотографию Акта",
@@ -511,7 +512,8 @@ def call_back(bot, call):
                 markup.add(button_, button_1)
                 bot.send_message(call.message.chat.id, text, reply_markup=markup)
                 return
-        bot.send_message(call.message.chat.id, text)
+        markup.add(btn)
+        bot.send_message(call.message.chat.id, text, reply_markup=markup)
     elif extract_text(call.data, r'^.*abbr_save$', 'abbr_save') is not None:
         text = extract_text(call.data, r'^.*abbr_save$', 'abbr_save')
         send_abbr(bot, call.message, text)
@@ -519,21 +521,21 @@ def call_back(bot, call):
         text = extract_text(call.data, r'^.*abbr_add$', 'abbr_add')
         msg = bot.send_message(call.message.chat.id, "Аббревиатураның транскрипциясын енгізіңіз")
         bot.register_next_step_handler(msg, get_decoding, bot, text)
-    elif extract_number_from_status_change(str(call.data), r'^(\d+)add_act') is not None:
+    elif extract_number(str(call.data), r'^(\d+)add_act') is not None:
         set_appeal_field(call.message, True)
         bot.send_message(call.message.chat.id, "Отправьте фотографию акта")
-    elif extract_number_from_status_change(str(call.data), r'^(\d+)add_act') is not None:
+    elif extract_number(str(call.data), r'^(\d+)add_act') is not None:
         set_appeal_field(call.message, True)
         bot.send_message(call.message.chat.id, "Отправьте фотографию акта")
-    elif extract_number_from_status_change(str(call.data), r'^(\d+)add_modem') is not None:
-        lte_id = extract_number_from_status_change(str(call.data), r'^(\d+)add_modem')
+    elif extract_number(str(call.data), r'^(\d+)add_modem') is not None:
+        lte_id = extract_number(str(call.data), r'^(\d+)add_modem')
         msg = bot.send_message(call.message.chat.id, "Введите серийный номер симкарты")
         bot.register_next_step_handler(msg, get_simcard, bot, lte_id)
-    elif extract_number_from_status_change(str(call.data), r'^(\d+)statusinprocess') is not None \
-            or extract_number_from_status_change(str(call.data), r'^(\d+)statusdecided$') is not None:
-        appeal_id = extract_number_from_status_change(str(call.data), r'^(\d+)statusinprocess')
+    elif extract_number(str(call.data), r'^(\d+)statusinprocess') is not None \
+            or extract_number(str(call.data), r'^(\d+)statusdecided$') is not None:
+        appeal_id = extract_number(str(call.data), r'^(\d+)statusinprocess')
         if appeal_id is None:
-            appeal_id = extract_number_from_status_change(str(call.data), r'^(\d+)statusdecided$')
+            appeal_id = extract_number(str(call.data), r'^(\d+)statusdecided$')
             set_status(appeal_id, "Решено")
         else:
             set_status(appeal_id, "В процессе")
@@ -569,8 +571,8 @@ def call_back(bot, call):
         bot.edit_message_text("Пікіріңіз үшін рахмет.\nСіз бізге жақсы адам болуға көмектесесіз", call.message.chat.id,
                               call.message.message_id)
         bot.answer_callback_query(call.id)
-    elif extract_number_from_status_change(str(call.data), r'^(\d+)lte') is not None:
-        sale_id = extract_number_from_status_change(str(call.data), r'^(\d+)lte')
+    elif extract_number(str(call.data), r'^(\d+)lte') is not None:
+        sale_id = extract_number(str(call.data), r'^(\d+)lte')
         appeal_id = db_connect.get_appeal_by_lte_id(sale_id)
         text = get_appeal_text_all(appeal_id)
         bot.send_message(call.message.chat.id, text)

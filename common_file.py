@@ -111,7 +111,7 @@ def useful_links():
     return markup
 
 
-def extract_number_from_status_change(input_string, pattern):
+def extract_number(input_string, pattern):
     match = re.match(pattern, input_string)
     if match:
         try:
