@@ -1,6 +1,6 @@
 from telebot import *
 from appealsClass import get_appeal_by_id, get_image_data, get_appeal_text_all
-from common_file import send_error, get_excel, extract_number_from_status_change
+from common_file import send_error, get_excel, extract_number
 from db_connect import get_all_appeals_by_id_performer, get_sale, get_appeals
 from performerClass import list_categories, get_all_anonymous_appeals_by_id_performer, get_performers_id, \
     get_performers, get_regions, get_subcategories, get_performer_id
@@ -79,8 +79,8 @@ def get_excel_admin1(bot, message, status="Решено"):
 
 
 def admin_appeal_callback(call, bot, add_comment):
-    if extract_number_from_status_change(str(call.data), r'^(\d+)admin$') is not None:
-        appeal_id = extract_number_from_status_change(str(call.data), r'^(\d+)admin$')
+    if extract_number(str(call.data), r'^(\d+)admin$') is not None:
+        appeal_id = extract_number(str(call.data), r'^(\d+)admin$')
         appeal_info = get_appeal_by_id(appeal_id)[0]
         image_data = get_image_data(appeal_id)
         try:
@@ -104,8 +104,8 @@ def admin_appeal_callback(call, bot, add_comment):
         button_a1 = types.InlineKeyboardButton("Добавить комментарий", callback_data=callback_d)
         markup_a.add(button_a, button_a1)
         bot.send_message(call.message.chat.id, text, reply_markup=markup_a)
-    elif extract_number_from_status_change(str(call.data), r'^(\d+)addcomment') is not None:
-        appeal_id = extract_number_from_status_change(str(call.data), r'^(\d+)addcomment')
+    elif extract_number(str(call.data), r'^(\d+)addcomment') is not None:
+        appeal_id = extract_number(str(call.data), r'^(\d+)addcomment')
         msg = bot.send_message(call.message.chat.id, 'Введите комментарий')
         bot.register_next_step_handler(msg, add_comment, bot, appeal_id)
 
