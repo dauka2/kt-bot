@@ -1210,7 +1210,8 @@ def profile(bot, message):
 def questions(bot, message):
     button_q = types.KeyboardButton("Мои обращения")
     button_q1 = types.KeyboardButton("Оставить обращение")
-    button_q2 = types.KeyboardButton("Чendасто задаваемые вопросы")
+    button_q2 = types.KeyboardButton("Часто задаваемые вопросы")
+    #Сверху убрал end
     markup_q = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
     markup_q.add(button_q2, button_q1, button_q)
     bot.send_message(str(message.chat.id), "B данном разделе Вы можете оставить свое обращение или "
