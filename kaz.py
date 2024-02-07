@@ -1,19 +1,20 @@
 from datetime import timedelta
 import requests
-from numpy.distutils.misc_util import get_language
 from telebot import *
 
 import appealsClass
 import common_file
 import db_connect
 import lteClass
+import userClass
 
 from appealsClass import set_status, set_date_status, get_appeal_by_id, get_image_data, get_status, set_evaluation, \
     get_appeal_text_all, get_comment, set_comment, set_image_data, add_appeal_gmail, add_appeal, get_appeal_text, \
     set_appeal_text
 from commands_historyClass import cm_sv_db
-from common_file import extract_text, extract_number, remove_milliseconds, \
-    extract_numbers_from_status_change_decided, generate_buttons, send_gmails, useful_links, check_portal_guide
+from common_file import (extract_text, extract_number, remove_milliseconds, \
+    extract_numbers_from_status_change_decided, generate_buttons, send_gmails, useful_links, check_portal_guide,
+                         send_photo_)
 from file import check_id, admin_appeal_callback, appeal_inline_markup, admin_appeal, get_user_info, \
     rename_category_to_kaz, rename_category_to_rus
 from lteClass import add_internal_sale, set_subscriber_type, set_category_i_s, set_performer_id_i_s, set_is_notified, \
@@ -260,8 +261,7 @@ def send_welcome_message(bot, message):
     welcome_message = f'Сәлем {get_firstname(message)}👋'
     markup = get_markup(message)
     bot.send_message(message.chat.id, welcome_message, reply_markup=markup)
-    with open("images/menu.jpg", 'rb') as photo_file:
-        bot.send_photo(message.chat.id, photo_file)
+    send_photo_(bot, message.chat.id, "images/menu.jpg")
     time.sleep(0.5)
     bot.send_message(message.chat.id, "Менің сценарийімде бірнеше пәрмендер бар:\
         \n/menu — негізгі мәзірге оралу (сіз мұны демонстрация кезінде кез келген уақытта жасай аласыз!)\
@@ -274,7 +274,7 @@ def send_welcome_message(bot, message):
 
 
 def send_error(bot, message):
-    bot.send_photo(message.chat.id, photo=open('images/oops_error kaz.jpg', 'rb'))
+    common_file.send_photo_(bot, message.chat.id, 'images/oops_error kaz.jpg')
     time.sleep(0.5)
     bot.send_message(message.chat.id,
                      "Ой, бірдеңе дұрыс болмады... /menu түймесін басу арқылы ботты қайта іске қосып көріңіз")
@@ -286,7 +286,7 @@ def adaption(bot, message):
         button_adapt = types.InlineKeyboardButton('Айтыңызшы!', callback_data='Айтыңызшы!')
         markup_adapt.add(button_adapt)
         bot.send_message(message.chat.id, f'"Қазақтелеком" АҚ - ға қош келдіңіз🥳')
-        bot.send_photo(message.chat.id, photo=open('images/dear_collegue_kaz.jpg', 'rb'))
+        send_photo_(bot, message.chat.id, 'images/dear_collegue_kaz.jpg')
         time.sleep(0.75)
         bot.send_message(message.chat.id, 'Бастау үшін сізге мені қалай пайдалану керектігін айтамын 🫡',
                          reply_markup=markup_adapt)
@@ -312,7 +312,7 @@ def performer_text(appeal_info, message):
 
 
 def kaz_get_status(message, appeal_id):
-    language = get_language(message)
+    language = userClass.get_language(message)
     status = get_status(appeal_id)[0][0]
     if language == "kaz":
         if status == "Решено":
@@ -326,7 +326,7 @@ def kaz_get_status(message, appeal_id):
 def call_back(bot, call):
     if call.data == 'Айтыңызшы!':
         cm_sv_db(call.message, 'Айтыңызшы!')
-        bot.send_photo(call.message.chat.id, photo=open('images/picture kaz.jpg', 'rb'))
+        send_photo_(bot, call.message.chat.id, 'images/picture kaz.jpg')
         time.sleep(0.75)
         markup_callback = types.InlineKeyboardMarkup()
         button_callback = types.InlineKeyboardButton("Түсінікті", callback_data="Түсінікті")
@@ -336,6 +336,8 @@ def call_back(bot, call):
                          reply_markup=markup_callback)
     elif call.data == "Түсінікті":
         bot.send_photo(call.message.chat.id, photo=open('images/hello kaz.jpg', 'rb'))
+        send_photo_(bot, call.message.chat.id, 'images/picture.jpg')
+
         time.sleep(0.75)
         markup_callback = types.InlineKeyboardMarkup()
         button_callback = types.InlineKeyboardButton("Кеттік!", callback_data="Кеттік!")
@@ -501,7 +503,7 @@ def call_back(bot, call):
         except:
             print("error")
         markup = types.InlineKeyboardMarkup()
-        btn = types.InlineKeyboardButton('Написать исполнителю', callback_data=str(appeal_info[0]) + 'texting_')
+        btn = types.InlineKeyboardButton('Орындаушыға жазыңыз', callback_data=str(appeal_info[0]) + 'texting')
         text = performer_text(appeal_info, message=call.message)
         if appeal_info[12] != "" and appeal_info[12] is not None and appeal_info[12] != " ":
             if db_connect.get_sale(appeal_info[12])[10] == "Самостоятельно":
@@ -514,6 +516,10 @@ def call_back(bot, call):
                 return
         markup.add(btn)
         bot.send_message(call.message.chat.id, text, reply_markup=markup)
+    elif extract_number(call.data, r'^(\d+)texting') is not None:
+        appeal_id = extract_number(call.data, r'^(\d+)texting')
+        msg = bot.send_message(call.message.chat.id, 'Түсініктеме енгізіңіз')
+        bot.register_next_step_handler(msg, add_comment, bot, appeal_id, False)
     elif extract_text(call.data, r'^.*abbr_save$', 'abbr_save') is not None:
         text = extract_text(call.data, r'^.*abbr_save$', 'abbr_save')
         send_abbr(bot, call.message, text)
@@ -597,19 +603,26 @@ def get_decoding(message, bot, text):
     send_abbr(bot, message, text + " - " + message.text)
 
 
-def add_comment(message, bot, appeal_id):
-    comment = message.text + " \n" + str(get_comment(appeal_id)[0][0])
+def add_comment(message, bot, appeal_id, isAdmin=True):
+    comment_ = '\n' + "Пользователь: "
+    if isAdmin:
+        comment_ = '\n' + "Исполнитель: "
+    comment = str(get_comment(appeal_id)[0][0]) + comment_ + message.text
     set_comment(appeal_id, comment)
     appeal_info = get_appeal_by_id(appeal_id)[0]
-    bot.send_message(appeal_info[1], "Сіздің үндеуіңізге түсініктеме қосылды")
     image_data = get_image_data(appeal_id)
+    text = performer_text(appeal_info, message)
     try:
         bot.send_photo(appeal_info[1], image_data)
     except:
         print("error")
-    text = performer_text(appeal_info, message)
-    bot.send_message(appeal_info[1], text)
-    bot.send_message(message.chat.id, "Комментарий добавлен")
+
+    if isAdmin:
+        bot.send_message(appeal_info[1], text)
+        bot.send_message(message.chat.id, "Түсініктеме қосылды")
+    else:
+        bot.send_message(appeal_info[7], text)
+        bot.send_message(message.chat.id, "Түсініктеме қосылды")
 
 
 def appeal(bot, message, message_text):

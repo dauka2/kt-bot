@@ -1,6 +1,8 @@
 import re
 from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
+
+import telebot
 from telebot import types
 import openpyxl
 import pandas as pd
@@ -24,7 +26,7 @@ def remove_milliseconds(dt):
 
 
 def send_error(bot, message):
-    bot.send_photo(message.chat.id, photo=open('images/oops_error.jpg', 'rb'))
+    send_photo_(bot, message.chat.id, 'images/oops_error.jpg')
     time.sleep(0.5)
     bot.send_message(message.chat.id,
                      "Упс, что-то пошло не так...\nПoжaлyйcтa, попробуйте заново запустить бота нажав кнопку /menu")
@@ -81,7 +83,7 @@ def glossary(bot, message, text1, text2, button_text):
         close_matches = get_close_matches(message.text.upper(), abbr, n=5, cutoff=0.6)
         matches_markup = types.ReplyKeyboardMarkup()
         matches_markup = generate_buttons(close_matches, matches_markup)
-        bot.send_photo(message.chat.id, photo=open('images/oops.jpg', 'rb'))
+        send_photo_(bot, message.chat.id, 'images/oops.jpg')
         markup = types.InlineKeyboardMarkup()
         button = types.InlineKeyboardButton(button_text, callback_data="abbr")
         markup.add(button)
@@ -116,7 +118,8 @@ def extract_number(input_string, pattern):
     if match:
         try:
             return int(match.group(1))
-        except:
+        except Exception as ex:
+            print(ex.args)
             return None
     return None
 
@@ -159,3 +162,12 @@ def check_portal_guide(bot, message, message_text, portal_guide):
         bot.send_message(str(message.chat.id), "ФФФАААЙЙЙЛЛЛ9")
     else:
         send_error(bot, message)
+
+
+def send_photo_(bot, message_id, file_path):
+    try:
+        photo = open(file_path, 'rb')
+        bot.send_photo(message_id, photo)
+        photo.close()
+    except telebot.apihelper.ApiTelegramException as e:
+        print(f"An error occurred while sending a photo: {e}")

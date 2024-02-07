@@ -11,8 +11,9 @@ from appealsClass import set_status, set_date_status, get_appeal_by_id, get_imag
     get_appeal_text_all, get_comment, set_comment, set_image_data, add_appeal_gmail, add_appeal, get_appeal_text, \
     set_appeal_text
 from commands_historyClass import cm_sv_db
-from common_file import extract_text, extract_number, remove_milliseconds, \
-    extract_numbers_from_status_change_decided, generate_buttons, send_gmails, useful_links, check_portal_guide
+from common_file import (extract_text, extract_number, remove_milliseconds, \
+    extract_numbers_from_status_change_decided, generate_buttons, send_gmails, useful_links, check_portal_guide,
+                         send_photo_)
 from file import check_id, admin_appeal_callback, appeal_inline_markup, admin_appeal, get_user_info
 from lteClass import add_internal_sale, set_subscriber_type, set_category_i_s, set_performer_id_i_s, set_is_notified, \
     set_full_name, set_iin, set_phone_num_subscriber, set_subscriber_address, set_product_name, set_action, \
@@ -272,8 +273,7 @@ def send_welcome_message(bot, message):
     welcome_message = f'Привет, {get_firstname(message)} 👋'
     markup = get_markup(message)
     bot.send_message(message.chat.id, welcome_message, reply_markup=markup)
-    with open("images/menu.jpg", 'rb') as photo_file:
-        bot.send_photo(message.chat.id, photo_file)
+    send_photo_(bot, message.chat.id, "images/menu.jpg")
     time.sleep(0.5)
     bot.send_message(message.chat.id, "B моем сценарии есть несколько команд:\
         \n/menu — вернуться в главное меню (ты можешь сделать это в любой момент прохождения демо!)\
@@ -286,7 +286,7 @@ def send_welcome_message(bot, message):
 
 
 def send_error(bot, message):
-    bot.send_photo(message.chat.id, photo=open('images/oops_error.jpg', 'rb'))
+    common_file.send_photo_(bot, message.chat.id, 'images/oops_error.jpg')
     time.sleep(0.5)
     bot.send_message(message.chat.id,
                      "Упс, что-то пошло не так...\nПoжaлyйcтa, попробуйте заново запустить бота нажав кнопку /menu")
@@ -298,7 +298,7 @@ def adaption(bot, message):
         button_adapt = types.InlineKeyboardButton("Рассказывай!", callback_data="Рассказывай!")
         markup_adapt.add(button_adapt)
         bot.send_message(message.chat.id, f'Добро пожаловать в AO “Казахтелеком”🥳')
-        bot.send_photo(message.chat.id, photo=open('images/dear_collegue.jpeg', 'rb'))
+        send_photo_(bot, message.chat.id, 'images/dear_collegue.jpeg')
         time.sleep(0.75)
         bot.send_message(message.chat.id, "Только для начала расскажу тебе, как мной пользоваться 🫡",
                          reply_markup=markup_adapt)
@@ -324,7 +324,7 @@ def performer_text(appeal_info):
 def call_back(bot, call):
     if call.data == 'Рассказывай!':
         cm_sv_db(call.message, 'Рассказывай!')
-        bot.send_photo(call.message.chat.id, photo=open('images/picture.jpg', 'rb'))
+        send_photo_(bot, call.message.chat.id, 'images/picture.jpg')
         time.sleep(0.75)
         markup_callback = types.InlineKeyboardMarkup()
         button_callback = types.InlineKeyboardButton("Понятно", callback_data="Понятно")
@@ -333,7 +333,7 @@ def call_back(bot, call):
                                                "разделам и получать нужную для тебя информацию",
                          reply_markup=markup_callback)
     elif call.data == "Понятно":
-        bot.send_photo(call.message.chat.id, photo=open('images/hello.jpg', 'rb'))
+        send_photo_(bot, call.message.chat.id, 'images/hello.jpg')
         time.sleep(0.75)
         markup_callback = types.InlineKeyboardMarkup()
         button_callback = types.InlineKeyboardButton("Поехали!", callback_data="Поехали!")
@@ -590,24 +590,24 @@ def get_decoding(message, bot, text):
 
 def add_comment(message, bot, appeal_id, isAdmin=True):
     if isAdmin:
-        comment = '\n' + "Исполнитель: "
+        comment_ = '\n' + "Исполнитель: "
     else:
-        comment = '\n' + "Пользовательн: "
-    comment += message.text + " \n" + str(get_comment(appeal_id)[0][0])
+        comment_ = '\n' + "Пользователь: "
+    comment = str(get_comment(appeal_id)[0][0]) + comment_ + message.text
     set_comment(appeal_id, comment)
     appeal_info = get_appeal_by_id(appeal_id)[0]
     image_data = get_image_data(appeal_id)
     text = performer_text(appeal_info)
-    bot.send_message(appeal_info[1], "Добавлен комментарий")
     try:
         bot.send_photo(appeal_info[1], image_data)
     except:
         print("error")
     if isAdmin:
         bot.send_message(appeal_info[1], text)
+        bot.send_message(message.chat.id, "Комментарий добавлен")
     else:
         bot.send_message(appeal_info[7], text)
-    bot.send_message(message.chat.id, "Комментарий добавлен")
+        bot.send_message(message.chat.id, "Комментарий добавлен")
 
 
 def appeal(bot, message, message_text):
@@ -1221,7 +1221,6 @@ def questions(bot, message):
     button_q = types.KeyboardButton("Мои обращения")
     button_q1 = types.KeyboardButton("Оставить обращение")
     button_q2 = types.KeyboardButton("Часто задаваемые вопросы")
-    #Сверху убрал end
     markup_q = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
     markup_q.add(button_q2, button_q1, button_q)
     bot.send_message(str(message.chat.id), "B данном разделе Вы можете оставить свое обращение или "
