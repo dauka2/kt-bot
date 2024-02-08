@@ -99,8 +99,6 @@ def register(message, func="menu"):
     markup_b = common_file.generate_buttons(branches, markup_b)
     msg = bot.send_message(message.chat.id, arr[2], reply_markup=markup_b)
     bot.register_next_step_handler(msg, change_branch, func)
-    # msg = bot.send_message(message.chat.id, arr[2])
-    # bot.register_next_step_handler(msg, change_firstname, func)
 
 
 def change_firstname(message, func):
@@ -351,7 +349,6 @@ def alter_table(message):
 
 @bot.message_handler(commands=['start'])
 def start(message):
-    # bot.send_sticker(message.chat.id, sticker_file)
     db_connect.create_db()
     db_connect.addIfNotExistUser(message)
     commands_historyClass.cm_sv_db(message, '/start')
@@ -691,10 +688,6 @@ def mess(message):
         text(message, get_message, kaz)
     else:
         lang(message)
-    # except Exception as ex:
-    #     send_error(message)
-    #     bot.send_message(message.chat.id, str(ex.args))
-        # register(message)
 
 
 def text(message, get_message, lang_py):

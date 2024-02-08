@@ -468,19 +468,6 @@ def get_all_appeals_by_id_performer(id_performer, status_1, status_2):
     return None
 
 
-# def get_appeal_by_id_inner_join_users(id):
-#     sql_query = (
-#         'SELECT appeals.id, status, category, appeal_text, date, date_status, comment, '
-#         'username, firstname, lastname, table_number, phone_number, email, branch, performers.performer_id, lte_id '
-#         'FROM appeals INNER JOIN users ON appeals.user_id = users.id '
-#         'INNER JOIN performers ON appeals.category = performers.category'
-#         'WHERE appeals.id=%s'
-#     )
-#     params = (str(id),)
-#     appeals = execute_get_sql_query(sql_query, params)
-#     return appeals
-
-
 def get_appeal_by_id_inner_join_users(id):
     sql_query = (
         'SELECT appeals.id, status, category, appeal_text, date, date_status, comment, '
