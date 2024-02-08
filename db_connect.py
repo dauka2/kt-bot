@@ -1,8 +1,8 @@
 from telebot import types
 import psycopg2
 
-TOKEN = '6053200189:AAHVGsQDJOnyvW0o4xwCZJ_X_zBdn7kRKNA'
-admins_id = ['187663574', '760906879']
+TOKEN = '6145415028:AAEdgPMvSsi3FJw2ccyzWf2QiJrPa_Ycz0A'
+admins_id = ['187663574', '760906879', '1066191569']
 
 
 def execute_get_sql_query(sql_query, params=None):
@@ -120,9 +120,9 @@ def insert_into_performers():
                                                         "Мустафина", "Дильназ", "+77009145025", "must.dilnaz@gmail.com",
                                                         "@"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) '
-                'values (%s, %s, %s, %s, %s, %s, %s)', ("187663574", "Обучение | Корпоративный Университет",
-                                                        "Тамирлан", "Оспанов", "87079089665", "must.dilnaz@gmail.com",
-                                                        "@tamirlanospanov"))
+                'values (%s, %s, %s, %s, %s, %s, %s)', ("1066191569", "Обучение | Корпоративный Университет",
+                                                        "Даулет", "Марат", "+77788184151", "must.dilnaz@gmail.com",
+                                                        "@mkDauka"))
     cur.execute("insert into performers (category, email) "
                 "values  (%s, %s)", ('Служба поддержки \"Нысана\"', 'must.dilnaz@gmail.com'))
     cur.execute('insert into performers (category, email) '

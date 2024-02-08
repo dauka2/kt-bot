@@ -701,6 +701,12 @@ def text(message, get_message, lang_py):
     if get_message == "🧐Мой профиль" or get_message == "🧐Менің профилім":
         user_infoClass.clear_appeals(message)
         lang_py.profile(bot, message)
+    elif get_message in lang_py.faq_field or get_message in branches:
+        user_infoClass.clear_appeals(message)
+        lang_py.faq(bot, message)
+    elif get_message in drb_regions or get_message in ods_regions:
+        user_infoClass.clear_appeals(message)
+        lang_py.func_region(bot, message)
     elif get_message in lang_py.faq_1.keys():
         user_infoClass.clear_appeals(message)
         bot.send_message(message.chat.id, lang_py.faq_1[message.text])
@@ -743,12 +749,6 @@ def text(message, get_message, lang_py):
         else:
             user_infoClass.clear_appeals(message)
             lang_py.send_error(bot, message)
-    elif get_message in lang_py.faq_field or get_message in branches:
-        user_infoClass.clear_appeals(message)
-        lang_py.faq(bot, message)
-    elif get_message in drb_regions or get_message in ods_regions:
-        user_infoClass.clear_appeals(message)
-        lang_py.func_region(bot, message)
     else:
         user_infoClass.clear_appeals(message)
         lang_py.send_error(bot, message)

@@ -24,43 +24,7 @@ from userClass import get_branch, get_firstname, get_user
 from user_infoClass import set_appeal_field, get_category_users_info, set_category, get_appeal_field, clear_appeals, \
     set_bool
 
-# categories = {
-#     'Learning.telecom.kz | Техническая поддержка': 'info.ktcu@telecom.kz',
-#     'Обучение | Корпоративный Университет': 'info.ktcu@telecom.kz',
-#     'Служба поддержки “Нысана"': 'nysana@cscc.kz',
-#     'Обратиться в службу комплаенс': 'tlek.issakov@telecom.kz',
-# }
 
-# categories = {
-#     'Learning.telecom.kz | Техническая поддержка': {
-#         "id": "187663574",
-#         "name": "Оспанов Тамирлан",
-#         "phone_num": "87777777777",
-#         "email": "info.ktcu@telecom.kz",
-#         "telegram": "@tamirlan"
-#     },
-#     'Обучение | Корпоративный Университет': {
-#         "id": "1483219013",
-#         "name": "Нам Людмила",
-#         "phone_num": "+77009145025",
-#         "email": "Nam.l@telecom.is",
-#         "telegram": "@"
-#     },
-#     'Служба поддержки "Нысана"': {
-#         "id": "760906879",
-#         "name": "Мустафина Дильназ",
-#         "phone_num": "87089081808",
-#         "email": "nysana@cscc.kz",
-#         "telegram": "@dilnaz.mustafina"
-#     },
-#     'Обратиться в службу комплаенс': {
-#         "id": "760906879",
-#         "name": "Мустафина Дильназ",
-#         "phone_num": "87089081808",
-#         "email": "tlek.issakov@telecom.kz",
-#         "telegram": "@dilnaz.mustafina"
-#     },
-# }
 faq_field = ["Часто задаваемые вопросы", "Демеу", "Вопросы к HR", "Вопросы по займам",
              "Вопросы по закупочной деятельности", "Вопросы по порталу закупок"]
 drb_regions = ["Алматинский регион, г.Алматы", "Западный, Центральный регион", "Северный, Южный, Восточный регионы"]
