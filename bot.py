@@ -22,8 +22,6 @@ ods_regions = ["ДЭСД 'Алматытелеком'", "Южно-Казахст
                "Восточно-Казахстанский ДЭСД", "Атырауский ДЭСД", "Актюбинский ДЭСД",
                "ДЭСД 'Астана'", "ТУСМ-1", "ТУСМ-6", "ТУСМ-8", "ТУСМ-10", "ТУСМ-11", "ТУСМ-13", "ТУСМ-14", "ГА"]
 
-API_KEY = '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'
-
 
 def check_id(categories, input_id):
     for category, details in categories.items():

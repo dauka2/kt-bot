@@ -1,7 +1,7 @@
 from telebot import types
 import psycopg2
 
-TOKEN = '6053200189:AAHVGsQDJOnyvW0o4xwCZJ_X_zBdn7kRKNA'
+TOKEN = '6145415028:AAEdgPMvSsi3FJw2ccyzWf2QiJrPa_Ycz0A'
 admins_id = ['187663574', '760906879']
 
 
