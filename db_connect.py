@@ -102,6 +102,11 @@ def addIfNotExistUser(message):
     conn.close()
 
 
+def delete_performers():
+    sql_query = "DROP TABLE IF EXISTS performers"
+    execute_set_sql_query(sql_query)
+
+
 def insert_into_performers():
     conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
     cur = conn.cursor()
@@ -300,7 +305,7 @@ def insert_into_performers_right():
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
                 'parent_category) '
                 'values (%s, %s, %s, %s, %s, %s, %s, %s)', ("6391020304", "Портал закупок 2.0 | Техническая поддержка",
-                                                            "Тотиева", "Жансая", "87001183042", "kk@gmail.com",
+                                                            "Тотиева", "Жансая", "87001183042", "@gmail.com",
                                                             "@", "Закупочная деятельность"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
                 'parent_category) '
@@ -339,8 +344,7 @@ def insert_into_performers_right():
                                                             "@", "Закупочная деятельность"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
                 'parent_category) '
-                'values (%s, %s, %s, %s, %s, %s, %s, %s)', ("6955085517",
-                                                            "Транспортировка",
+                'values (%s, %s, %s, %s, %s, %s, %s, %s)', ("6955085517", "Транспортировка",
                                                             "Азанбеков", "Улан", "87077296181",
                                                             "@gmail.com",
                                                             "@", "Закупочная деятельность"))
@@ -359,7 +363,6 @@ def insert_into_performers_right():
         '(%s, %s, %s, %s, %s, %s, %s)',
         ("5469612023", "Семипалатинск",
          "Сауле", "Кажиева", "87232200363", "kazhieva.s@telecom.kz", "@"))
-
     cur.execute(
         'insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) values '
         '(%s, %s, %s, %s, %s, %s, %s)',

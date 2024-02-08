@@ -1295,7 +1295,7 @@ def get_region(message, bot, id_i_s, regions):
         msg = bot.send_message(message.chat.id, "Выберите регион из списка", reply_markup=markup_l)
         bot.register_next_step_handler(msg, get_region, bot, id_i_s, regions)
         return
-    performer_id = get_performer_id_by_category(message.text)
+    performer_id = get_performer_id_by_category(message.text)[1]
     set_category_i_s(id_i_s, message.text)
     set_performer_id_i_s(id_i_s, performer_id)
     markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True)

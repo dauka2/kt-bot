@@ -62,13 +62,21 @@ def delete_me(message):
 
 @bot.message_handler(commands=['insert_into_performers'])
 def insert_into_performers(message):
+    db_connect.create_db()
     db_connect.insert_into_performers()
     bot.send_message(message.chat.id, "Изменения сохранены")
 
 
 @bot.message_handler(commands=['insert_into_performers_right'])
 def insert_into_performers(message):
+    db_connect.create_db()
     db_connect.insert_into_performers_right()
+    bot.send_message(message.chat.id, "Изменения сохранены")
+
+
+@bot.message_handler(commands=['delete_performers'])
+def delete_performers(message):
+    db_connect.delete_performers()
     bot.send_message(message.chat.id, "Изменения сохранены")
 
 
@@ -285,7 +293,7 @@ def change_email(message, func):
 def change_branch(message, func):
     branch = message.text
     language = userClass.get_language(message)
-    arr = ["Введите табельный номер", "Вы ввели некорректные данные, выберите филиал из списка", "Введите Имя",
+    arr = ["Введите табельный номер", "Вы ввели некорректные данные, выберите филиал из списка", "Введите имя",
            "Выберите способ входа", "Регистрация", "Войти по табельному номеру"]
     if language == "kaz":
         arr = ["Табель нөмірін енгізіңіз", "Сіз қате деректерді енгіздіңіз, тізімнен филиалды таңдаңыз",
@@ -315,7 +323,7 @@ def in_table(message, func, message_text=None):
     if message_text is None:
         message_text = message.text
     language = userClass.get_language(message)
-    arr = ["Введите табельный номер", "Введите Имя", "Регистрация", "Войти по табельному номеру",
+    arr = ["Введите табельный номер", "Введите имя", "Регистрация", "Войти по табельному номеру",
            "Выберите способ входа"]
     if language == "kaz":
         arr = ["Табель нөмірін енгізіңіз", "Атыңызды енгізіңіз", "Тіркеу", "Табель нөмірі бойынша кіру",
@@ -450,7 +458,7 @@ def get_help_message(message):
 def callback_handler(call):
     commands_historyClass.cm_sv_db(call.message, str(call.data))
     language = userClass.get_language(call.message)
-    arr = ["Введите Имя", "Введите Фамилию", "Введите номер телефона",
+    arr = ["Введите имя", "Введите Фамилию", "Введите номер телефона",
            "Введите Ваш корпоративный E-mail\n\n(временно можете указать и Ваш личный)", "Введите табельный номер",
            "Выберите Ваш филиал из списка"]
     if language == "kaz":

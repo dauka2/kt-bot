@@ -1409,7 +1409,7 @@ def get_region(message, bot, id_i_s, regions):
         msg = bot.send_message(message.chat.id, "Выберите регион из списка", reply_markup=markup_l)
         bot.register_next_step_handler(msg, get_region, bot, id_i_s, regions)
         return
-    performer_id = get_performer_by_category(message.text)[0]
+    performer_id = get_performer_by_category(message.text)[1]
     set_category_i_s(id_i_s, message.text)
     set_performer_id_i_s(id_i_s, performer_id)
     markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True)
@@ -1567,7 +1567,7 @@ def get_modem(message, bot, id_i_s):
     bot.send_message(message.chat.id, "Информация сохранена")
     appeal_info = get_appeal_by_id(appeal_[0])[0]
     text = performer_text(appeal_info)
-    bot.send_message(appeal_info[7], "Информация по серийному номеру сим карты и модема добавлен")
+    bot.send_message(appeal_info[7], "Информация по серийному номеру сим карты и модема добавлена")
     bot.send_message(appeal_info[7], text)
 
 
