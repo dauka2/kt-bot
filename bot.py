@@ -22,8 +22,6 @@ ods_regions = ["ДЭСД 'Алматытелеком'", "Южно-Казахст
                "Восточно-Казахстанский ДЭСД", "Атырауский ДЭСД", "Актюбинский ДЭСД",
                "ДЭСД 'Астана'", "ТУСМ-1", "ТУСМ-6", "ТУСМ-8", "ТУСМ-10", "ТУСМ-11", "ТУСМ-13", "ТУСМ-14", "ГА"]
 
-API_KEY = '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'
-
 
 def check_id(categories, input_id):
     for category, details in categories.items():
@@ -99,8 +97,6 @@ def register(message, func="menu"):
     markup_b = common_file.generate_buttons(branches, markup_b)
     msg = bot.send_message(message.chat.id, arr[2], reply_markup=markup_b)
     bot.register_next_step_handler(msg, change_branch, func)
-    # msg = bot.send_message(message.chat.id, arr[2])
-    # bot.register_next_step_handler(msg, change_firstname, func)
 
 
 def change_firstname(message, func):
@@ -351,7 +347,6 @@ def alter_table(message):
 
 @bot.message_handler(commands=['start'])
 def start(message):
-    # bot.send_sticker(message.chat.id, sticker_file)
     db_connect.create_db()
     db_connect.addIfNotExistUser(message)
     commands_historyClass.cm_sv_db(message, '/start')
@@ -691,10 +686,6 @@ def mess(message):
         text(message, get_message, kaz)
     else:
         lang(message)
-    # except Exception as ex:
-    #     send_error(message)
-    #     bot.send_message(message.chat.id, str(ex.args))
-        # register(message)
 
 
 def text(message, get_message, lang_py):
@@ -766,4 +757,8 @@ def get_photo(message):
         send_error(message)
 
 
-bot.polling(none_stop=True)
+try:
+    bot.polling(none_stop=True)
+except (ConnectionError, TimeoutError) as ex:
+    print(str(ex.args))
+

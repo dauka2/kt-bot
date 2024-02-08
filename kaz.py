@@ -26,36 +26,7 @@ from userClass import get_branch, get_firstname, get_user, get_lastname, get_pho
 from user_infoClass import set_appeal_field, get_category_users_info, set_category, get_appeal_field, clear_appeals, \
     set_bool
 
-# categories = {
-#     'Learning.telecom.kz | Техникалық қолдау': {
-#         "id": "187663574",
-#         "name": "Оспанов Тамирлан",
-#         "phone_num": "87777777777",
-#         "email": "info.ktcu@telecom.kz",
-#         "telegram": "@tamirlan"
-#     },
-#     'Оқыту | Корпоративтік Университет': {
-#         "id": "760906879",
-#         "name": "Мустафина Дильназ",
-#         "phone_num": "87089081808",
-#         "email": "info.ktcu@telecom.kz",
-#         "telegram": "@dilnaz.mustafina"
-#     },
-#     '"Нысана" қолдау қызметі': {
-#         "id": "760906879",
-#         "name": "Мустафина Дильназ",
-#         "phone_num": "87089081808",
-#         "email": "nysana@cscc.kz",
-#         "telegram": "@dilnaz.mustafina"
-#     },
-#     'Комплаенс қызметіне хабарласыңыз': {
-#         "id": "760906879",
-#         "name": "Мустафина Дильназ",
-#         "phone_num": "87089081808",
-#         "email": "tlek.issakov@telecom.kz",
-#         "telegram": "@dilnaz.mustafina"
-#     },
-# }
+
 categories_ = ['Learning.telecom.kz | Техникалық қолдау', 'Оқыту | Корпоративтік Университет',
                '"Нысана" қолдау қызметі', 'Комплаенс қызметіне хабарласыңыз',
                'Сатып алу порталы 2.0 | Техникалық қолдау', 'Ашық тендер', 'Баға ұсыныстарын сұрау',
