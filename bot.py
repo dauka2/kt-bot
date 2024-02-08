@@ -766,4 +766,8 @@ def get_photo(message):
         send_error(message)
 
 
-bot.polling(none_stop=True)
+try:
+    bot.polling(none_stop=True)
+except (ConnectionError, TimeoutError) as ex:
+    print(str(ex.args))
+
