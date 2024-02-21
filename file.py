@@ -3,7 +3,7 @@ from appealsClass import get_appeal_by_id, get_image_data, get_appeal_text_all
 from common_file import send_error, get_excel, extract_number
 from db_connect import get_all_appeals_by_id_performer, get_sale, get_appeals
 from performerClass import list_categories, get_all_anonymous_appeals_by_id_performer, get_performers_id, \
-    get_performers, get_regions, get_subcategories, get_performer_id
+    get_performers, get_regions, get_categories_by_parentcategory, get_performer_id
 from userClass import get_user
 from user_infoClass import clear_appeals
 
@@ -163,5 +163,5 @@ def cities_all():
     regions = get_regions()
     cities = []
     for region in regions:
-        cities = cities[:] + get_subcategories(region)[:]
+        cities = cities[:] + get_categories_by_parentcategory(region)[:]
     return cities

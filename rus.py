@@ -18,8 +18,8 @@ from file import check_id, admin_appeal_callback, appeal_inline_markup, admin_ap
 from lteClass import add_internal_sale, set_subscriber_type, set_category_i_s, set_performer_id_i_s, set_is_notified, \
     set_full_name, set_iin, set_phone_num_subscriber, set_subscriber_address, set_product_name, set_action, \
     set_delivery, set_simcard, set_modem, delete_internal_sale
-from performerClass import get_performer_by_category, get_regions, list_categories, get_subcategories, \
-    get_performer_id_by_category
+from performerClass import get_performer_by_category, get_regions, list_categories, get_categories_by_parentcategory, \
+    get_performer_id_by_category, get_subcategories
 from userClass import get_branch, get_firstname, get_user
 from user_infoClass import set_appeal_field, get_category_users_info, set_category, get_appeal_field, clear_appeals, \
     set_bool
@@ -545,7 +545,7 @@ def get_abbr(message, bot):
 
 def send_abbr(bot, message, text):
     bot.send_message(message.chat.id, "Аббревиатура сохранена, спасибо Вам за помощь")
-    bot.send_message('187663574', "Предложение добавления глоссария\n" + text)
+    bot.send_message('6682886650', "Предложение добавления глоссария\n" + text)
 
 
 def get_decoding(message, bot, text):
@@ -597,14 +597,24 @@ def appeal(bot, message, message_text):
         markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True)
         markup_ap = generate_buttons(list(list_categories())[:4], markup_ap)
         markup_ap.add(types.KeyboardButton("Закупочная деятельность"))
+        markup_ap.add(types.KeyboardButton("Вопросы к EX"))
         bot.send_message(message.chat.id, "Выберите категорию обращения", reply_markup=markup_ap)
     elif message_text == "portal":
         bot.send_message(message.chat.id, 'Пожалуйста, опишите ваше обращение:')
     elif message_text == "Закупочная деятельность":
         markup_a = types.ReplyKeyboardMarkup(one_time_keyboard=True)
-        markup_a = generate_buttons(get_subcategories("Закупочная деятельность"), markup_a)
+        markup_a = generate_buttons(get_categories_by_parentcategory("Закупочная деятельность"), markup_a)
         bot.send_message(message.chat.id, "Выберите категорию", reply_markup=markup_a)
-    elif message_text in list_categories() or message_text in get_subcategories("Закупочная деятельность"):
+    elif message_text == "Вопросы к EX":
+        branch = get_branch(message.chat.id)
+        set_category(message, branch)
+        if branch == 'Обьединение Дивизион "Сеть"':
+            markup_a = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+            markup_a = generate_buttons(get_subcategories('Обьединение Дивизион "Сеть"'), markup_a)
+            bot.send_message(message.chat.id, "Выберите категорию", reply_markup=markup_a)
+        else:
+            bot.send_message(message.chat.id, 'Пожалуйста, опишите ваше обращение:')
+    elif message_text in list_categories() or message_text in get_categories_by_parentcategory("Закупочная деятельность"):
         set_category(message, message.text)
         bot.send_message(message.chat.id, 'Пожалуйста, опишите ваше обращение:')
     elif message_text == "Добавить фото":

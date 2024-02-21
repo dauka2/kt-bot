@@ -67,7 +67,7 @@ def get_performer_id(category):
         return None
 
 
-def get_subcategories(parent_category):
+def get_categories_by_parentcategory(parent_category):
     sql_query = "SELECT category from performers where parent_category = %s"
     params = (parent_category,)
     categories = execute_get_sql_query(sql_query, params)
@@ -75,6 +75,16 @@ def get_subcategories(parent_category):
     for category in categories:
         categories_.append(category[0])
     return categories_
+
+
+def get_subcategories(category):
+    sql_query = "SELECT subcategory from performers where category = %s"
+    params = (category,)
+    subcategories = execute_get_sql_query(sql_query, params)
+    subcategories_ = []
+    for subcategory in subcategories:
+        subcategories_.append(subcategory[0])
+    return subcategories_
 
 
 def get_regions():

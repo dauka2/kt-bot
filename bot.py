@@ -12,7 +12,7 @@ import user_infoClass
 
 
 bot = telebot.TeleBot(db_connect.TOKEN, parse_mode="HTML")
-admin_id = ['484489968', '760906879', '187663574', '577247261', '204504707', '531622371']
+admin_id = ['484489968', '760906879', '187663574', '577247261', '204504707', '531622371', '6682886650']
 branches = ['Центральный Аппарат', 'Обьединение Дивизион "Сеть"', 'Дивизион по Розничному Бизнесу',
             'Дивизион по Корпоративному Бизнесу', 'Корпоративный Университет', 'Дивизион Информационных Технологий',
             'Дирекция Телеком Комплект', 'Дирекция Управления Проектами',
@@ -75,6 +75,12 @@ def insert_into_performers(message):
 @bot.message_handler(commands=['delete_performers'])
 def delete_performers(message):
     db_connect.delete_performers()
+    bot.send_message(message.chat.id, "Изменения сохранены")
+
+
+@bot.message_handler(commands=['add_column_performers'])
+def delete_performers(message):
+    db_connect.add_column()
     bot.send_message(message.chat.id, "Изменения сохранены")
 
 
@@ -446,7 +452,7 @@ def get_help_message(message):
         bot.send_message(message.chat.id, "Ваше сообщение успешно сохранено")
     else:
         bot.send_message(message.chat.id, "Сіздің хабарламаңыз сәтті сақталды")
-    bot.send_message('187663574', help_message)
+    bot.send_message('6682886650', help_message)
 
 
 @bot.callback_query_handler(func=lambda call: True)
@@ -760,5 +766,5 @@ def get_photo(message):
 try:
     bot.polling(none_stop=True)
 except (ConnectionError, TimeoutError) as ex:
-    print(str(ex.args))
+    bot.send_message('760906879', str(ex.args))
 
