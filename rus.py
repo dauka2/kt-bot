@@ -648,7 +648,7 @@ def appeal(bot, message, message_text):
         category = get_category_users_info(message)
         branch = get_branch(message.chat.id)
         if category == "Вопросы к EX":
-            if branch == "Обьединение Дивизион 'Сеть'":
+            if branch != "Обьединение Дивизион 'Сеть'":
                 performer_id = get_performer_by_subsubcategory(get_subcategory(message.chat.id))
             else:
                 performer_id = get_performer_by_category_and_subcategory(category, branch)[0]
