@@ -297,58 +297,58 @@ def insert_into_performers():
                 ("1066191569", "Вопрос к EX", "Д", "Д", "+77001117777",
                  "mail.com", "@", "Центральный Аппарат"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
-                'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)',
+                'subcategory) values (%s, %s, %s, %s, %s, %s, %s, %s)',
                 ("1066191569",  "Вопрос к EX", "Д", "Д", "+77001117777",
                  "mail.com", "@", "Дивизион по Розничному Бизнесу"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
-                'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)',
+                'subcategory) values (%s, %s, %s, %s, %s, %s, %s, %s)',
                 ("1066191569", "Вопрос к EX", "Д", "Д", "+77001117777",
                  "mail.com", "@", "Дивизион по Корпоративному Бизнесу"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
-                'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)',
+                'subcategory) values (%s, %s, %s, %s, %s, %s, %s, %s)',
                 ("1066191569",  "Вопрос к EX", "Д", "Д", "+77001117777",
                  "mail.com", "@", "Дивизион Информационных Технологий"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
-                'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)',
+                'subcategory) values (%s, %s, %s, %s, %s, %s, %s, %s)',
                 ("760906879", "Вопрос к EX", "Д", "Д", "+77001117777",
                  "mail.com", "@", "Корпоративный Университет"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
-                'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)',
+                'subcategory) values (%s, %s, %s, %s, %s, %s, %s, %s)',
                 ("760906879", "Вопрос к EX", "Д", "Д", "+77001117777",
                  "mail.com", "@", "Сервисная Фабрика"))
-    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
-                'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)',
+    cur.execute('insert into performers (performer_id, category, firstname, lastnamsubcategorymail, telegram, '
+                'subcategory) values (%s, %s, %s, %s, %s, %s, %s, %s)',
                 ("760906879", "Вопрос к EX", "Д", "Д", "+77001117777",
                  "mail.com", "@", "Дирекция Телеком Комплект"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
-                'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)',
+                'subcategory) values (%s, %s, %s, %s, %s, %s, %s, %s)',
                 ("760906879", "Вопрос к EX", "Д", "Д", "+77001117777",
                  "mail.com", "@", "Дирекция Управления Проектами"))
 
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
-                'parent_category, subcategory) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
-                ("1066191569", "Обьединение Дивизион 'Сеть'", "Д", "Д", "+77001117777",
-                 "mail.com", "@", "EX", "Центр"))
+                'subcategory, subsubcategory) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
+                ("1066191569", "Вопрос к EX", "Д", "Д", "+77001117777",
+                 "mail.com", "@", "Обьединение Дивизион 'Сеть'", "Центр"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
-                'parent_category, subcategory) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
-                ("1066191569", "Обьединение Дивизион 'Сеть'", "Д", "Д", "+77001117777",
-                 "mail.com", "@", "EX", "Север"))
+                'subcategory, subsubcategory) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
+                ("1066191569", "Вопрос к EX", "Д", "Д", "+77001117777",
+                 "mail.com", "@", "Обьединение Дивизион 'Сеть'", "Север"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
-                'parent_category, subcategory) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
-                ("1066191569", "Обьединение Дивизион 'Сеть'", "Д", "Д", "+77001117777",
-                 "mail.com", "@", "EX", "Юг"))
+                'subcategory, subsubcategory) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
+                ("1066191569", "Вопрос к EX", "Д", "Д", "+77001117777",
+                 "mail.com", "@", "Обьединение Дивизион 'Сеть'", "Юг"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
-                'parent_category, subcategory) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
-                ("760906879", "Обьединение Дивизион 'Сеть'", "Д", "Д", "+77001117777",
-                 "mail.com", "@", "EX", "Запад"))
+                'subcategory, subsubcategory) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
+                ("760906879", "Вопрос к EX", "Д", "Д", "+77001117777",
+                 "mail.com", "@", "Обьединение Дивизион 'Сеть'", "Запад"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
-                'parent_category, subcategory) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
-                ("760906879", "Обьединение Дивизион 'Сеть'", "Д", "Д", "+77001117777",
-                 "mail.com", "@", "EX", "Восток"))
+                'subcategory, subsubcategory) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
+                ("760906879", "Вопрос к EX", "Д", "Д", "+77001117777",
+                 "mail.com", "@", "Обьединение Дивизион 'Сеть'", "Восток"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
-                'parent_category, subcategory) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
-                ("760906879", "Обьединение Дивизион 'Сеть'", "Д", "Д", "+77001117777",
-                 "mail.com", "@", "EX", "Алматы"))
+                'subcategory, subsubcategory) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
+                ("760906879", "Вопрос к EX", "Д", "Д", "+77001117777",
+                 "mail.com", "@", "Обьединение Дивизион 'Сеть'", "Алматы"))
     conn.commit()
     cur.close()
     conn.close()
