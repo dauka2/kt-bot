@@ -120,7 +120,8 @@ def delete_performers():
 
 def add_column():
     # sql_query = "ALTER TABLE performers ADD COLUMN IF NOT EXISTS subcategory char(50)"
-    sql_query = "ALTER TABLE performers ADD COLUMN IF NOT EXISTS subsubcategory char(50)"
+    sql_query = "ALTER TABLE performers ADD COLUMN IF NOT EXISTS subsubcategory char(50);"
+    sql_query += "ALTER TABLE users_info ADD COLUMN IF NOT EXISTS subcategory char(50);"
     execute_set_sql_query(sql_query)
 
 
@@ -316,7 +317,7 @@ def insert_into_performers():
                 'subcategory) values (%s, %s, %s, %s, %s, %s, %s, %s)',
                 ("760906879", "Вопрос к EX", "Д", "Д", "+77001117777",
                  "mail.com", "@", "Сервисная Фабрика"))
-    cur.execute('insert into performers (performer_id, category, firstname, lastnamsubcategorymail, telegram, '
+    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
                 'subcategory) values (%s, %s, %s, %s, %s, %s, %s, %s)',
                 ("760906879", "Вопрос к EX", "Д", "Д", "+77001117777",
                  "mail.com", "@", "Дирекция Телеком Комплект"))

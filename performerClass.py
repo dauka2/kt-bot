@@ -47,12 +47,12 @@ def get_email_by_category(category):
     return execute_get_sql_query(sql_query, params)[0][0]
 
 
-def get_performer_id_by_category(category):
+def get_performer_id_by_category(performer_id):
     sql_query = "SELECT performer_id from performers where category = %s"
-    params = (category,)
-    category = execute_get_sql_query(sql_query, params)
-    if category:
-        return category[0][0]
+    params = (performer_id,)
+    performer_id = execute_get_sql_query(sql_query, params)
+    if performer_id:
+        return performer_id[0][0]
     else:
         return None
 
@@ -87,6 +87,16 @@ def get_subcategories(category):
     return subcategories_
 
 
+def get_subsubcategories_by_subcategory(subcategory):
+    sql_query = "SELECT subsubcategory from performers where subcategory = %s"
+    params = (subcategory,)
+    subsubcategories = execute_get_sql_query(sql_query, params)
+    subsubcategories_ = []
+    for subcategory in subsubcategories:
+        subsubcategories_.append(subcategory[0])
+    return subsubcategories_
+
+
 def get_regions():
     sql_query = "SELECT category from performers where id > 12"
     regions = execute_get_sql_query(sql_query)
@@ -94,3 +104,17 @@ def get_regions():
     for region in regions:
         regions_.append(region[0])
     return regions_
+
+
+def get_performer_by_category_and_subcategory(category, subcategory):
+    sql_query = "select * from performers where category = %s and subcategory = %s"
+    params = (category, subcategory,)
+    return execute_get_sql_query(sql_query, params)[0]
+
+
+def get_performer_by_subsubcategory(subsubcategory):
+    sql_query = "select * from performers where subsubcategory = %s"
+    params = (subsubcategory,)
+    return execute_get_sql_query(sql_query, params)[0]
+
+
