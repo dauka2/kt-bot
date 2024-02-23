@@ -40,8 +40,8 @@ def set_category(message, category):
 
 def clear_appeals(message):
     sql_query = 'UPDATE users_info SET appeal_id = %s, category = %s, appeal_field = %s, ' \
-                'is_appeal_anon=False WHERE id=%s'
-    params = (0, ' ', False, str(message.chat.id),)
+                'is_appeal_anon=False, subcategory = %s WHERE id=%s'
+    params = (0, ' ', False, '', str(message.chat.id))
     execute_set_sql_query(sql_query, params)
 
 

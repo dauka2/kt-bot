@@ -622,10 +622,6 @@ def appeal(bot, message, message_text):
     elif message_text in get_subsubcategories_by_subcategory('Обьединение Дивизион "Сеть"'):
         set_subcategory(message.chat.id, message_text)
         bot.send_message(message.chat.id, 'Пожалуйста, опишите ваше обращение:')
-    elif message_text in ['Север', 'Юг', 'Запад', 'Восток', 'Центр', 'Алматы']:
-        set_subcategory(message.chat.id, message_text)
-        bot.send_message(message.chat.id, str(get_subsubcategories_by_subcategory('Обьединение Дивизион "Сеть"')))
-        bot.send_message(message.chat.id, 'Пожалуйста, опишите ваше обращение:')
     elif message.photo:
         file_info: object = bot.get_file(message.photo[-1].file_id)
         file_url = 'https://api.telegram.org/file/bot{}/{}'.format(db_connect.TOKEN, file_info.file_path)
@@ -676,8 +672,9 @@ def appeal(bot, message, message_text):
 
 def end_appeal(bot, message, appeal_id):
     category = appealsClass.get_category_by_appeal_id(appeal_id)[0][0]
-    subsubcategory = get_subsubcategory(message.chat.id)
-    if subsubcategory is not None:
+    subsubcategory = str(get_subsubcategory(message.chat.id)).strip()
+    bot.send_message(message.chat.id , "asdf:" + str(subsubcategory) + 'sdf')
+    if subsubcategory is not None and len(str(subsubcategory)) != 0:
         performer_id = get_performer_by_subsubcategory(subsubcategory)[0][1]
     else:
         performer_id = get_performer_by_category(category=category)[1]
