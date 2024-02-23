@@ -9,7 +9,7 @@ import commands_historyClass
 import common_file
 import file
 import user_infoClass
-
+from performerClass import get_subcategories_
 
 bot = telebot.TeleBot(db_connect.TOKEN, parse_mode="HTML")
 admin_id = ['484489968', '760906879', '187663574', '577247261', '204504707', '531622371', '6682886650']
@@ -535,6 +535,14 @@ def get_excel(message):
 def get_excel(message):
     sql_query = "SELECT * from users_info"
     common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
+
+
+@bot.message_handler(commands=['functionn'])
+def get_excel(message):
+    sql_query = "select * from performers where category = %s and subcategory = %s"
+    params = ('Обьединение Дивизион "Сеть"', 'Запад',)
+    result = db_connect.execute_get_sql_query(sql_query, params)
+    bot.send_message(message.chat.id, str(result[0]))
 
 
 @bot.message_handler(commands=['get_appeals'])

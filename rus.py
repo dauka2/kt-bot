@@ -19,11 +19,11 @@ from lteClass import add_internal_sale, set_subscriber_type, set_category_i_s, s
     set_full_name, set_iin, set_phone_num_subscriber, set_subscriber_address, set_product_name, set_action, \
     set_delivery, set_simcard, set_modem, delete_internal_sale
 from performerClass import get_performer_by_category, get_regions, list_categories, get_categories_by_parentcategory, \
-    get_performer_id_by_category, get_subcategories, get_subsubcategories_by_subcategory, \
+    get_performer_id_by_category, get_subcategories_, get_subsubcategories_by_subcategory, \
     get_performer_by_category_and_subcategory, get_performer_by_subsubcategory
 from userClass import get_branch, get_firstname, get_user
 from user_infoClass import set_appeal_field, get_category_users_info, set_category, get_appeal_field, clear_appeals, \
-    set_bool, set_subcategory, get_subcategory
+    set_bool, set_subcategory, get_subsubcategory
 
 faq_field = ["Часто задаваемые вопросы", "Демеу", "Вопросы к HR", "Вопросы по займам",
              "Вопросы по закупочной деятельности", "Вопросы по порталу закупок"]
@@ -597,7 +597,7 @@ def appeal(bot, message, message_text):
         markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True)
         markup_ap = generate_buttons(list(list_categories())[:4], markup_ap)
         markup_ap.add(types.KeyboardButton("Закупочная деятельность"))
-        markup_ap.add(types.KeyboardButton("Вопросы к EX"))
+        markup_ap.add(types.KeyboardButton("Вопрос к EX"))
         bot.send_message(message.chat.id, "Выберите категорию обращения", reply_markup=markup_ap)
     elif message_text == "portal":
         bot.send_message(message.chat.id, 'Пожалуйста, опишите ваше обращение:')
@@ -605,7 +605,7 @@ def appeal(bot, message, message_text):
         markup_a = types.ReplyKeyboardMarkup(one_time_keyboard=True)
         markup_a = generate_buttons(get_categories_by_parentcategory("Закупочная деятельность"), markup_a)
         bot.send_message(message.chat.id, "Выберите категорию", reply_markup=markup_a)
-    elif message_text == "Вопросы к EX":
+    elif message_text == "Вопрос к EX":
         branch = get_branch(message.chat.id)
         set_category(message, message_text)
         if branch == 'Обьединение Дивизион "Сеть"':
@@ -621,6 +621,10 @@ def appeal(bot, message, message_text):
         bot.send_message(message.chat.id, "Отправьте фотографию")
     elif message_text in get_subsubcategories_by_subcategory('Обьединение Дивизион "Сеть"'):
         set_subcategory(message.chat.id, message_text)
+        bot.send_message(message.chat.id, 'Пожалуйста, опишите ваше обращение:')
+    elif message_text in ['Север', 'Юг', 'Запад', 'Восток', 'Центр', 'Алматы']:
+        set_subcategory(message.chat.id, message_text)
+        bot.send_message(message.chat.id, str(get_subsubcategories_by_subcategory('Обьединение Дивизион "Сеть"')))
         bot.send_message(message.chat.id, 'Пожалуйста, опишите ваше обращение:')
     elif message.photo:
         file_info: object = bot.get_file(message.photo[-1].file_id)
@@ -647,18 +651,18 @@ def appeal(bot, message, message_text):
         now_updated = remove_milliseconds(now)
         category = get_category_users_info(message)
         branch = get_branch(message.chat.id)
-        if category == "Вопросы к EX":
-            if branch != "Обьединение Дивизион 'Сеть'":
-                performer_id = get_performer_by_subsubcategory(get_subcategory(message.chat.id))
+        if category == "Вопрос к EX":
+            if branch == 'Обьединение Дивизион "Сеть"':
+                subsubcategory = get_subsubcategory(message.chat.id)
+                performer_id = get_performer_by_subsubcategory(subsubcategory)[0][1]
             else:
-                performer_id = get_performer_by_category_and_subcategory(category, branch)[0]
+                performer_id = get_performer_by_category_and_subcategory(category, branch)[0][1]
         else:
             performer_id = get_performer_id_by_category(category)
 
         if performer_id is None or performer_id == '' or len(str(performer_id)) == 0:
             add_appeal_gmail(message.chat.id, category, message.text, now_updated)
         else:
-            performer_id = get_performer_by_category(category)[1]
             add_appeal(message.chat.id, "Обращение принято", category, message.text, now_updated,
                        now_updated, performer_id, ' ', False)
         markup_ap = types.ReplyKeyboardMarkup()
@@ -672,7 +676,11 @@ def appeal(bot, message, message_text):
 
 def end_appeal(bot, message, appeal_id):
     category = appealsClass.get_category_by_appeal_id(appeal_id)[0][0]
-    performer_id = get_performer_by_category(category=category)[1]
+    subsubcategory = get_subsubcategory(message.chat.id)
+    if subsubcategory is not None:
+        performer_id = get_performer_by_subsubcategory(subsubcategory)[0][1]
+    else:
+        performer_id = get_performer_by_category(category=category)[1]
     text = get_appeal_text_all(appeal_id)
     bot.send_message(performer_id, text)
     bot.send_message(message.chat.id, "Ваше обращения принято")

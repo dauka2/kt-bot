@@ -93,7 +93,7 @@ def get_subsubcategories_by_subcategory(subcategory):
     subsubcategories = execute_get_sql_query(sql_query, params)
     subsubcategories_ = []
     for subcategory in subsubcategories:
-        subsubcategories_.append(subcategory[0])
+        subsubcategories_.append(str(subcategory[0]).strip())
     return subsubcategories_
 
 
@@ -109,12 +109,17 @@ def get_regions():
 def get_performer_by_category_and_subcategory(category, subcategory):
     sql_query = "select * from performers where category = %s and subcategory = %s"
     params = (category, subcategory,)
-    return execute_get_sql_query(sql_query, params)[0]
+    return execute_get_sql_query(sql_query, params)
 
 
 def get_performer_by_subsubcategory(subsubcategory):
     sql_query = "select * from performers where subsubcategory = %s"
     params = (subsubcategory,)
-    return execute_get_sql_query(sql_query, params)[0]
+    return execute_get_sql_query(sql_query, params)
+
+
+def get_subcategories_():
+    sql_query = "select subcategory from performers"
+    return execute_get_sql_query(sql_query)
 
 

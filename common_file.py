@@ -67,6 +67,7 @@ def send_gmails(text, category, file_url=None):
     s.quit()
 
 
+
 def glossary(bot, message, text1, text2, button_text):
     wb = openpyxl.load_workbook('glossary.xlsx')
     excel = wb['Лист1']

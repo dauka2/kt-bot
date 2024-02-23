@@ -43,7 +43,7 @@ def create_db():
         'CREATE TABLE IF NOT EXISTS commands_history (id varchar(50), commands_name varchar(50), date timestamp)')
     cur.execute(
         'CREATE TABLE IF NOT EXISTS users_info(id varchar(50), instr bool, glossar bool, appeal_field bool, '
-        'category varchar(50), appeal_id int, is_appeal_anon bool)')
+        'category varchar(50), appeal_id int, is_appeal_anon bool, subcategory varchar(50))')
     cur.execute(
         'CREATE TABLE IF NOT EXISTS appeals(id serial primary key, user_id varchar(50), status varchar(30), '
         'category varchar(100), appeal_text varchar(1000), date varchar(30), date_status varchar(30), '
@@ -60,7 +60,8 @@ def create_db():
         'email varchar(50), '
         'telegram varchar(50), '
         'parent_category varchar(50), '
-        'subcategory varchar(50)'
+        'subcategory varchar(50), '
+        'subsubcategory varchar(50) '
         ');'
     )
 
@@ -329,27 +330,27 @@ def insert_into_performers():
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
                 'subcategory, subsubcategory) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
                 ("1066191569", "Вопрос к EX", "Д", "Д", "+77001117777",
-                 "mail.com", "@", "Обьединение Дивизион 'Сеть'", "Центр"))
+                 "mail.com", "@", 'Обьединение Дивизион "Сеть"', "Центр"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
                 'subcategory, subsubcategory) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
                 ("1066191569", "Вопрос к EX", "Д", "Д", "+77001117777",
-                 "mail.com", "@", "Обьединение Дивизион 'Сеть'", "Север"))
+                 "mail.com", "@", 'Обьединение Дивизион "Сеть"', "Север"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
                 'subcategory, subsubcategory) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
                 ("1066191569", "Вопрос к EX", "Д", "Д", "+77001117777",
-                 "mail.com", "@", "Обьединение Дивизион 'Сеть'", "Юг"))
+                 "mail.com", "@", 'Обьединение Дивизион "Сеть"', "Юг"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
                 'subcategory, subsubcategory) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
                 ("760906879", "Вопрос к EX", "Д", "Д", "+77001117777",
-                 "mail.com", "@", "Обьединение Дивизион 'Сеть'", "Запад"))
+                 "mail.com", "@", 'Обьединение Дивизион "Сеть"', "Запад"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
                 'subcategory, subsubcategory) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
                 ("760906879", "Вопрос к EX", "Д", "Д", "+77001117777",
-                 "mail.com", "@", "Обьединение Дивизион 'Сеть'", "Восток"))
+                 "mail.com", "@", 'Обьединение Дивизион "Сеть"', "Восток"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
                 'subcategory, subsubcategory) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
                 ("760906879", "Вопрос к EX", "Д", "Д", "+77001117777",
-                 "mail.com", "@", "Обьединение Дивизион 'Сеть'", "Алматы"))
+                 "mail.com", "@", 'Обьединение Дивизион "Сеть"', "Алматы"))
     conn.commit()
     cur.close()
     conn.close()
@@ -525,7 +526,7 @@ def alter_table_users():
 
 def get_appeals(message):
     sql_query = "SELECT * FROM appeals inner join performers on performers.category = appeals.category " \
-                "WHERE appeals.user_id=%s and status <> %s and performers.id < 13 order by appeals.id"
+                "WHERE appeals.user_id=%s and status <> %s and (performers.id < 13 or performers.id > 29) order by appeals.id"
     params = (str(message.chat.id), "Решено",)
     return execute_get_sql_query(sql_query, params)
 
