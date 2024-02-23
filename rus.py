@@ -650,6 +650,10 @@ def appeal(bot, message, message_text):
         if category == "Вопрос к EX":
             if branch == 'Обьединение Дивизион "Сеть"':
                 subsubcategory = get_subsubcategory(message.chat.id)
+                bot.send_message(message.chat.id, "sub "+subsubcategory)
+                bot.send_message(message.chat.id, "sub "+str(get_performer_by_subsubcategory(subsubcategory)))
+                bot.send_message(message.chat.id, "sub "+str(get_performer_by_subsubcategory(subsubcategory)[0]))
+                bot.send_message(message.chat.id, "sub "+str(get_performer_by_subsubcategory(subsubcategory)[0][1]))
                 performer_id = get_performer_by_subsubcategory(subsubcategory)[0][1]
             else:
                 performer_id = get_performer_by_category_and_subcategory(category, branch)[0][1]
@@ -673,7 +677,6 @@ def appeal(bot, message, message_text):
 def end_appeal(bot, message, appeal_id):
     category = appealsClass.get_category_by_appeal_id(appeal_id)[0][0]
     subsubcategory = str(get_subsubcategory(message.chat.id)).strip()
-    bot.send_message(message.chat.id , "asdf:" + str(subsubcategory) + 'sdf')
     if subsubcategory is not None and len(str(subsubcategory)) != 0:
         performer_id = get_performer_by_subsubcategory(subsubcategory)[0][1]
     else:
