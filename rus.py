@@ -649,15 +649,10 @@ def appeal(bot, message, message_text):
         now_updated = remove_milliseconds(now)
         category = get_category_users_info(message)
         branch = get_branch(message.chat.id)
-        performer_id = 0
         if category == "Вопрос к EX":
             if branch == 'Обьединение Дивизион "Сеть"':
-                subsubcategory = get_subsubcategory(message.chat.id)
-                bot.send_message(message.chat.id, "sub " + subsubcategory)
-                performers = get_performers_()
-                for perm in performers:
-                    if perm[3] == subsubcategory:
-                        performer_id = perm[1]
+                subsubcategory = str(get_subsubcategory(message.chat.id)).strip()
+                performer_id = get_performer_by_subsubcategory(subsubcategory)[0][0]
             else:
                 performer_id = get_performer_by_category_and_subcategory(category, branch)[0][1]
         else:
