@@ -11,15 +11,16 @@ from appealsClass import set_status, set_date_status, get_appeal_by_id, get_imag
     get_appeal_text_all, get_comment, set_comment, set_image_data, add_appeal_gmail, add_appeal, get_appeal_text, \
     set_appeal_text
 from commands_historyClass import cm_sv_db
-from common_file import (extract_text, extract_number, remove_milliseconds, \
-    extract_numbers_from_status_change_decided, generate_buttons, send_gmails, useful_links, check_portal_guide,
+from common_file import (extract_text, extract_number, remove_milliseconds,
+                         extract_numbers_from_status_change_decided, generate_buttons, send_gmails, useful_links,
+                         check_portal_guide,
                          send_photo_)
 from file import check_id, admin_appeal_callback, appeal_inline_markup, admin_appeal, get_user_info
 from lteClass import add_internal_sale, set_subscriber_type, set_category_i_s, set_performer_id_i_s, set_is_notified, \
     set_full_name, set_iin, set_phone_num_subscriber, set_subscriber_address, set_product_name, set_action, \
     set_delivery, set_simcard, set_modem, delete_internal_sale
 from performerClass import get_performer_by_category, get_regions, list_categories, get_categories_by_parentcategory, \
-    get_performer_id_by_category, get_subcategories_, get_subsubcategories_by_subcategory, \
+    get_performer_id_by_category, get_subsubcategories_by_subcategory, \
     get_performer_by_category_and_subcategory, get_performer_by_subsubcategory, get_performers_
 from userClass import get_branch, get_firstname, get_user
 from user_infoClass import set_appeal_field, get_category_users_info, set_category, get_appeal_field, clear_appeals, \
@@ -456,7 +457,7 @@ def call_back(bot, call):
             print("error")
         text = performer_text(appeal_info)
         markup = types.InlineKeyboardMarkup()
-        btn = types.InlineKeyboardButton('Написать исполнителю', callback_data= str(appeal_info[0]) + 'texting')
+        btn = types.InlineKeyboardButton('Написать исполнителю', callback_data=str(appeal_info[0]) + 'texting')
         if appeal_info[12] != "" and appeal_info[12] is not None and appeal_info[12] != " ":
             if db_connect.get_sale(appeal_info[12])[10] == "Самостоятельно":
                 button_ = types.InlineKeyboardButton("Добавить модем | симкарту",
@@ -614,7 +615,8 @@ def appeal(bot, message, message_text):
             bot.send_message(message.chat.id, "Выберите категорию", reply_markup=markup_a)
         else:
             bot.send_message(message.chat.id, 'Пожалуйста, опишите ваше обращение:')
-    elif message_text in list_categories() or message_text in get_categories_by_parentcategory("Закупочная деятельность"):
+    elif message_text in list_categories() or message_text in get_categories_by_parentcategory(
+            "Закупочная деятельность"):
         set_category(message, message.text)
         bot.send_message(message.chat.id, 'Пожалуйста, опишите ваше обращение:')
     elif message_text == "Добавить фото":
@@ -647,18 +649,15 @@ def appeal(bot, message, message_text):
         now_updated = remove_milliseconds(now)
         category = get_category_users_info(message)
         branch = get_branch(message.chat.id)
+        performer_id = 0
         if category == "Вопрос к EX":
             if branch == 'Обьединение Дивизион "Сеть"':
                 subsubcategory = get_subsubcategory(message.chat.id)
-                bot.send_message(message.chat.id, "sub "+subsubcategory)
-
+                bot.send_message(message.chat.id, "sub " + subsubcategory)
                 performers = get_performers_()
-                bot.send_message(message.chat.id, str(performers))
-
-                bot.send_message(message.chat.id, "sub "+str(get_performer_by_subsubcategory(subsubcategory)))
-                bot.send_message(message.chat.id, "sub "+str(get_performer_by_subsubcategory(subsubcategory)[0]))
-                bot.send_message(message.chat.id, "sub "+str(get_performer_by_subsubcategory(subsubcategory)[0][1]))
-                performer_id = get_performer_by_subsubcategory(subsubcategory)[0][1]
+                for perm in performers:
+                    if perm[3] == subsubcategory:
+                        performer_id = perm[1]
             else:
                 performer_id = get_performer_by_category_and_subcategory(category, branch)[0][1]
         else:
