@@ -21,11 +21,11 @@ from lteClass import add_internal_sale, set_subscriber_type, set_category_i_s, s
     set_full_name, set_iin, set_phone_num_subscriber, set_subscriber_address, set_product_name, set_action, \
     set_delivery, set_simcard, set_modem, delete_internal_sale
 from performerClass import get_performer_by_category, get_regions, list_categories, get_categories_by_parentcategory, \
-    get_performer_id_by_category
+    get_performer_id_by_category, get_subsubcategories_by_subcategory, get_performer_by_subsubcategory, \
+    get_performer_by_category_and_subcategory
 from userClass import get_branch, get_firstname, get_user, get_lastname, get_phone_number, get_email, get_table_number
 from user_infoClass import set_appeal_field, get_category_users_info, set_category, get_appeal_field, clear_appeals, \
-    set_bool
-
+    set_bool, get_subsubcategory
 
 categories_ = ['Learning.telecom.kz | Техникалық қолдау', 'Оқыту | Корпоративтік Университет',
                '"Нысана" қолдау қызметі', 'Комплаенс қызметіне хабарласыңыз',
@@ -619,6 +619,7 @@ def appeal(bot, message, message_text):
         markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True)
         markup_ap = generate_buttons(categories_[:4], markup_ap)
         markup_ap.add(types.KeyboardButton("Сатып алу қызметі"))
+        markup_ap.add(types.KeyboardButton("EX-ке сұрақ"))
         bot.send_message(message.chat.id, "Өтініш санатын таңдаңыз", reply_markup=markup_ap)
     elif message_text == "portal":
         bot.send_message(message.chat.id, 'Өтінішіңізді сипаттаңыз:')
@@ -626,6 +627,15 @@ def appeal(bot, message, message_text):
         markup_a = types.ReplyKeyboardMarkup(one_time_keyboard=True)
         markup_a = generate_buttons(categories_[4:], markup_a)
         bot.send_message(message.chat.id, "Санатты таңдаңыз", reply_markup=markup_a)
+    elif message_text == "EX-ке сұрақ":
+        branch = get_branch(message.chat.id)
+        set_category(message, message_text)
+        if branch == 'Обьединение Дивизион "Сеть"':
+            markup_a = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+            markup_a = generate_buttons(get_subsubcategories_by_subcategory('Обьединение Дивизион "Сеть"'), markup_a)
+            bot.send_message(message.chat.id, "Санатты таңдаңыз", reply_markup=markup_a)
+        else:
+            bot.send_message(message.chat.id, 'Өтінішіңізді сипаттаңыз:')
     elif message_text in list_categories() or message_text in categories_ \
             or message_text in get_categories_by_parentcategory("Закупочная деятельность"):
         category = rename_category_to_rus(categories_, message.text)
@@ -657,7 +667,16 @@ def appeal(bot, message, message_text):
         now = datetime.now() + timedelta(hours=6)
         now_updated = remove_milliseconds(now)
         category = get_category_users_info(message)
-        performer_id = get_performer_id_by_category(category)
+        branch = get_branch(message.chat.id)
+        if category == "Вопрос к EX":
+            if branch == 'Обьединение Дивизион "Сеть"':
+                subsubcategory = str(get_subsubcategory(message.chat.id)).strip()
+                performer_id = get_performer_by_subsubcategory(subsubcategory)[0][0]
+            else:
+                performer_id = get_performer_by_category_and_subcategory(category, branch)[0][1]
+        else:
+            performer_id = get_performer_id_by_category(category)
+
         if performer_id is None or performer_id == '' or len(str(performer_id)) == 0:
             add_appeal_gmail(message.chat.id, category, message.text, now_updated)
         else:

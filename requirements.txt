@@ -19,7 +19,3 @@ telebot==0.0.5
 tzdata==2023.3
 urllib3
 datetime
-
-
-openai
-g4f~=0.1.9.0

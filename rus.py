@@ -1411,7 +1411,6 @@ def get_region(message, bot, id_i_s, regions):
                            "бланка заявления.", reply_markup=markup_l)
     bot.register_next_step_handler(msg, get_is_notified, bot, id_i_s)
 
-
 def get_is_notified(message, bot, id_i_s):
     if redirect(bot, message, id_i_s):
         return

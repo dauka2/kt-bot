@@ -13,7 +13,7 @@ def get_performer_by_category(category):
 
 
 def list_categories():
-    sql_query = 'SELECT category FROM performers WHERE id <> 5'
+    sql_query = 'SELECT category FROM performers'
     categories = execute_get_sql_query(sql_query)
     categories_result = []
     for category in categories:
