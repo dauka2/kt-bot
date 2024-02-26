@@ -20,7 +20,7 @@ from lteClass import add_internal_sale, set_subscriber_type, set_category_i_s, s
     set_delivery, set_simcard, set_modem, delete_internal_sale
 from performerClass import get_performer_by_category, get_regions, list_categories, get_categories_by_parentcategory, \
     get_performer_id_by_category, get_subcategories_, get_subsubcategories_by_subcategory, \
-    get_performer_by_category_and_subcategory, get_performer_by_subsubcategory
+    get_performer_by_category_and_subcategory, get_performer_by_subsubcategory, get_performers_
 from userClass import get_branch, get_firstname, get_user
 from user_infoClass import set_appeal_field, get_category_users_info, set_category, get_appeal_field, clear_appeals, \
     set_bool, set_subcategory, get_subsubcategory
@@ -651,6 +651,10 @@ def appeal(bot, message, message_text):
             if branch == 'Обьединение Дивизион "Сеть"':
                 subsubcategory = get_subsubcategory(message.chat.id)
                 bot.send_message(message.chat.id, "sub "+subsubcategory)
+
+                performers = get_performers_()
+                bot.send_message(message.chat.id, str(performers))
+
                 bot.send_message(message.chat.id, "sub "+str(get_performer_by_subsubcategory(subsubcategory)))
                 bot.send_message(message.chat.id, "sub "+str(get_performer_by_subsubcategory(subsubcategory)[0]))
                 bot.send_message(message.chat.id, "sub "+str(get_performer_by_subsubcategory(subsubcategory)[0][1]))

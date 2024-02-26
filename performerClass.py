@@ -118,6 +118,11 @@ def get_performer_by_subsubcategory(subsubcategory):
     return execute_get_sql_query(sql_query, params)
 
 
+def get_performers_():
+    sql_query = "select id, category, subcategory, subsubcategory from performers"
+    return execute_get_sql_query(sql_query)
+
+
 def get_subcategories_():
     sql_query = "select subcategory from performers"
     return execute_get_sql_query(sql_query)
