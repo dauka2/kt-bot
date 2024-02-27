@@ -1,7 +1,7 @@
 from telebot import types
 import psycopg2
 
-TOKEN = '6596307940:AAHFTIL-1DMZLvrg0r0HgwpdJIxOFr5Eb9w'
+TOKEN = '6053200189:AAHVGsQDJOnyvW0o4xwCZJ_X_zBdn7kRKNA'
 admins_id = ['187663574', '760906879', '1066191569', '6682886650']
 
 
@@ -48,7 +48,7 @@ def create_db():
         'CREATE TABLE IF NOT EXISTS appeals(id serial primary key, user_id varchar(50), status varchar(30), '
         'category varchar(100), appeal_text varchar(1000), date varchar(30), date_status varchar(30), '
         'id_performer varchar(30), comment varchar(1000), is_appeal_anon bool, evaluation int, '
-        'image_data bytea, lte_id int)')
+        'image_data bytea, lte_id int, subsubcategory varchar(50))')
     cur.execute(
         'CREATE TABLE IF NOT EXISTS performers('
         'id serial primary key, '
