@@ -22,10 +22,10 @@ from lteClass import add_internal_sale, set_subscriber_type, set_category_i_s, s
     set_delivery, set_simcard, set_modem, delete_internal_sale
 from performerClass import get_performer_by_category, get_regions, list_categories, get_categories_by_parentcategory, \
     get_performer_id_by_category, get_subsubcategories_by_subcategory, get_performer_by_subsubcategory, \
-    get_performer_by_category_and_subcategory
+    get_performer_by_category_and_subcategory, get_performers_
 from userClass import get_branch, get_firstname, get_user, get_lastname, get_phone_number, get_email, get_table_number
 from user_infoClass import set_appeal_field, get_category_users_info, set_category, get_appeal_field, clear_appeals, \
-    set_bool, get_subsubcategory
+    set_bool, get_subsubcategory, set_subcategory
 
 categories_ = ['Learning.telecom.kz | Техникалық қолдау', 'Оқыту | Корпоративтік Университет',
                '"Нысана" қолдау қызметі', 'Комплаенс қызметіне хабарласыңыз',
@@ -629,7 +629,7 @@ def appeal(bot, message, message_text):
         bot.send_message(message.chat.id, "Санатты таңдаңыз", reply_markup=markup_a)
     elif message_text == "EX-ке сұрақ":
         branch = get_branch(message.chat.id)
-        set_category(message, message_text)
+        set_category(message, "Вопрос к EX")
         if branch == 'Обьединение Дивизион "Сеть"':
             markup_a = types.ReplyKeyboardMarkup(one_time_keyboard=True)
             markup_a = generate_buttons(get_subsubcategories_by_subcategory('Обьединение Дивизион "Сеть"'), markup_a)
@@ -643,6 +643,9 @@ def appeal(bot, message, message_text):
         bot.send_message(message.chat.id, 'Өтінішіңізді сипаттаңыз:')
     elif message_text == "Фотосурет қосыңыз":
         bot.send_message(message.chat.id, "Фотосуретті жіберіңіз")
+    elif message_text in get_subsubcategories_by_subcategory('Обьединение Дивизион "Сеть"'):
+        set_subcategory(message.chat.id, message_text)
+        bot.send_message(message.chat.id, 'Өтінішіңізді сипаттаңыз:')
     elif message.photo:
         file_info: object = bot.get_file(message.photo[-1].file_id)
         file_url = 'https://api.telegram.org/file/bot{}/{}'.format(db_connect.TOKEN, file_info.file_path)
