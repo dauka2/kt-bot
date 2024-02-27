@@ -1,7 +1,7 @@
 from telebot import types
 import psycopg2
 
-TOKEN = '6053200189:AAHVGsQDJOnyvW0o4xwCZJ_X_zBdn7kRKNA'
+TOKEN = '6596307940:AAHFTIL-1DMZLvrg0r0HgwpdJIxOFr5Eb9w'
 admins_id = ['187663574', '760906879', '1066191569', '6682886650']
 
 
@@ -119,10 +119,16 @@ def delete_performers():
     execute_set_sql_query(sql_query)
 
 
+def delete_appeals():
+    sql_query = "DROP TABLE IF EXISTS appeals"
+    execute_set_sql_query(sql_query)
+
+
 def add_column():
     # sql_query = "ALTER TABLE performers ADD COLUMN IF NOT EXISTS subcategory char(50)"
-    sql_query = "ALTER TABLE performers ADD COLUMN IF NOT EXISTS subsubcategory char(50);"
-    sql_query += "ALTER TABLE users_info ADD COLUMN IF NOT EXISTS subcategory char(50);"
+    # sql_query = "ALTER TABLE performers ADD COLUMN IF NOT EXISTS subsubcategory char(50);"
+    # sql_query += "ALTER TABLE users_info ADD COLUMN IF NOT EXISTS subcategory char(50);"
+    sql_query = "ALTER TABLE appeals ADD COLUMN IF NOT EXISTS subsubcategory char(50);"
     execute_set_sql_query(sql_query)
 
 

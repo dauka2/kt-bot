@@ -649,6 +649,7 @@ def appeal(bot, message, message_text):
         now_updated = remove_milliseconds(now)
         category = get_category_users_info(message)
         branch = get_branch(message.chat.id)
+        subsubcategory = None
         if category == "Вопрос к EX":
             if branch == 'Обьединение Дивизион "Сеть"':
                 subsubcategory = str(get_subsubcategory(message.chat.id)).strip()
@@ -662,7 +663,7 @@ def appeal(bot, message, message_text):
             add_appeal_gmail(message.chat.id, category, message.text, now_updated)
         else:
             add_appeal(message.chat.id, "Обращение принято", category, message.text, now_updated,
-                       now_updated, performer_id, ' ', False)
+                       now_updated, performer_id, ' ', False, None, subsubcategory)
         markup_ap = types.ReplyKeyboardMarkup()
         button1_ap = types.KeyboardButton("Добавить фото")
         button2_ap = types.KeyboardButton("Отправить обращение")
@@ -675,10 +676,13 @@ def appeal(bot, message, message_text):
 def end_appeal(bot, message, appeal_id):
     category = appealsClass.get_category_by_appeal_id(appeal_id)[0][0]
     subsubcategory = str(get_subsubcategory(message.chat.id)).strip()
+    bot.send_message(message.chat.id, "subcategory: " + str(subsubcategory))
     if subsubcategory is not None and len(str(subsubcategory)) != 0:
         performer_id = get_performer_by_subsubcategory(subsubcategory)[0][1]
+        bot.send_message(message.chat.id, "sub...: " + str(performer_id))
     else:
         performer_id = get_performer_by_category(category=category)[1]
+        bot.send_message(message.chat.id, "...: " + str(performer_id))
     text = get_appeal_text_all(appeal_id)
     bot.send_message(performer_id, text)
     bot.send_message(message.chat.id, "Ваше обращения принято")

@@ -78,6 +78,12 @@ def delete_performers(message):
     bot.send_message(message.chat.id, "Изменения сохранены")
 
 
+@bot.message_handler(commands=['delete_appeals'])
+def delete_appeals(message):
+    db_connect.delete_appeals()
+    bot.send_message(message.chat.id, "Изменения сохранены")
+
+
 @bot.message_handler(commands=['add_column_performers'])
 def delete_performers(message):
     db_connect.add_column()

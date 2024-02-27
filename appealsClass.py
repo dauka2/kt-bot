@@ -40,16 +40,48 @@ def set_date_status(appeal_id, date_status):
     execute_set_sql_query(sql_query, params)
 
 
+# def add_appeal(user_id, status, category, appeal_text, date, date_status, id_performer, comment, is_appeal_anon,
+#                lte_id=None):
+#     conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
+#     cur = conn.cursor()
+#     cur.execute(
+#         "INSERT INTO appeals(user_id, status, category, appeal_text, date, date_status, id_performer, comment, "
+#         "is_appeal_anon, lte_id) "
+#         "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
+#         (user_id, status, category, appeal_text, date, date_status, id_performer, comment, is_appeal_anon, lte_id))
+#     appeal = cur.fetchone()[0]
+#     conn.commit()
+#     cur.close()
+#     conn.close()
+#     return appeal
+
+
 def add_appeal(user_id, status, category, appeal_text, date, date_status, id_performer, comment, is_appeal_anon,
-               lte_id=None):
+               lte_id=None, subsubcategory=None):
     conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
     cur = conn.cursor()
-    cur.execute(
-        "INSERT INTO appeals(user_id, status, category, appeal_text, date, date_status, id_performer, comment, "
-        "is_appeal_anon, lte_id) "
-        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
-        (user_id, status, category, appeal_text, date, date_status, id_performer, comment, is_appeal_anon, lte_id))
-    appeal = cur.fetchone()[0]
+
+    # Проверьте, существует ли уже обращение с такой же категорией
+    cur.execute("SELECT id FROM appeals WHERE category = %s and subsubcategory = %s and appeal_text = %s and "
+                "user_id = %s and status = %s and date=%s",
+                (category, subsubcategory, appeal_text, str(user_id), status, str(date)))
+
+    existing_appeal = cur.fetchone()
+
+    if existing_appeal:
+        # Если обращение с такой же категорией уже существует, верните его id, а не вставляйте новое.
+        appeal = existing_appeal[0]
+    else:
+        # Вставляем новое обращение, если не найдено ни одного существующего обращения с той же категорией
+        cur.execute(
+            "INSERT INTO appeals(user_id, status, category, appeal_text, date, date_status, id_performer, comment, "
+            "is_appeal_anon, lte_id, subsubcategory) "
+            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
+            (str(user_id), str(status), str(category), str(appeal_text), str(date), str(date_status), str(id_performer),
+             str(comment), is_appeal_anon, lte_id, str(subsubcategory)))
+
+        appeal = cur.fetchone()[0]
+
     conn.commit()
     cur.close()
     conn.close()
