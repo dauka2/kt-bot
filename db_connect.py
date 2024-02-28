@@ -56,7 +56,7 @@ def create_db():
         'category varchar(50), '
         'firstname varchar(50), '
         'lastname varchar(50), '
-        'phone_num varchar(13), '
+        'phone_num varchar(50), '
         'email varchar(50), '
         'telegram varchar(50), '
         'parent_category varchar(50), '
@@ -516,6 +516,64 @@ def insert_into_performers_right():
         '(%s, %s, %s, %s, %s, %s, %s)',
         ("530582651", "Южно-Казахстанская ОДТ",
          "Айжан", "Мухтарканова", "87714371087", "Aizhanmukhtarkanova@gmail.com", "@mukhtarkanova"))
+
+    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
+                'subcategory) values (%s, %s, %s, %s, %s, %s, %s, %s)',
+                ("388952664", "Вопрос к EX", "Асель", "Шабданова", "+7(707)4052452",
+                 "shabdanova.a@telecom.kz", "@", "Центральный Аппарат"))
+    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
+                'subcategory) values (%s, %s, %s, %s, %s, %s, %s, %s)',
+                ("1011899729", "Вопрос к EX", "Айгуль", "Аскарова", "+7(777)0520244",
+                 "Askarova.Ai@telecom.kz", "@", "Дивизион по Розничному Бизнесу"))
+    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
+                'subcategory) values (%s, %s, %s, %s, %s, %s, %s, %s)',
+                ("809913678", "Вопрос к EX", "Камилла", "Шалимбекова", "+7(778)3199991",
+                 "shalimbekova.k@telecom.kz", "@", "Дивизион по Корпоративному Бизнесу"))
+    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
+                'subcategory) values (%s, %s, %s, %s, %s, %s, %s, %s)',
+                ("521786863", "Вопрос к EX", "Дина", "Шагина", "+7(701)7650833 / +7(727)3989123",
+                 "Dina Shagina/ISA/KAZAKTELEKOM/KZ" "@", "Дивизион Информационных Технологий"))
+    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
+                'subcategory) values (%s, %s, %s, %s, %s, %s, %s, %s)',
+                ("1298491861", "Вопрос к EX", "Лаззат", "Баелова", "+7(701)7368842",
+                 "Bayelova.L@telecom.kz", "@", "Корпоративный Университет"))
+    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
+                'subcategory) values (%s, %s, %s, %s, %s, %s, %s, %s)',
+                ("1289357013", "Вопрос к EX", "Гульбану", "Габдуллина", "+7(701)1114673",
+                 "Gabdullina.Gl@telecom.kz", "@", "Сервисная Фабрика"))
+    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
+                'subcategory) values (%s, %s, %s, %s, %s, %s, %s, %s)',
+                ("6481069445", "Вопрос к EX", "Бакыт", "Саятова", "+7(701)2222141 / +7(717)2249732",
+                 "Sayatova.Bk@telecom.kz", "@", "Дирекция Телеком Комплект"))
+    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
+                'subcategory) values (%s, %s, %s, %s, %s, %s, %s, %s)',
+                ("1009535782", "Вопрос к EX", "Карина", "Смагулова", "+7(701)2207060",
+                 "Smagulova.Kr@mail.telecom.kz", "@", "Дирекция Управления Проектами"))
+    #_------------------------------
+    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
+                'subcategory, subsubcategory) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
+                ("1293170656", "Вопрос к EX", "Гульмира", "Сыздыкова", "+7(701)2997704",
+                 "11071977@inbox.ru", "@", 'Обьединение Дивизион "Сеть"', "Центр"))
+    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
+                'subcategory, subsubcategory) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
+                ("727014348", "Вопрос к EX", "Светлана", "Григорьевская", "+7(705)5059330",
+                 "grigoryevskaya@mail.ru", "@", 'Обьединение Дивизион "Сеть"', "Север"))
+    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
+                'subcategory, subsubcategory) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
+                ("537685658", "Вопрос к EX", "Наркиза", "Джулдыбаева", "+7(771)8861230",
+                 "d.nargiza@mail.ru", "@", 'Обьединение Дивизион "Сеть"', "Юг"))
+    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
+                'subcategory, subsubcategory) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
+                ("1741335968", "Вопрос к EX", "Жемис", "Абсатарова", "+7(701)9120810",
+                 "GemisAbsatarova@mail.ru", "@", 'Обьединение Дивизион "Сеть"', "Запад"))
+    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
+                'subcategory, subsubcategory) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
+                ("1995668845", "Вопрос к EX", "Айнура", "Батебаева", "+7(771)9990095",
+                 "abatebaeva@mail.ru", "@", 'Обьединение Дивизион "Сеть"', "Восток"))
+    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
+                'subcategory, subsubcategory) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
+                ("365934808", "Вопрос к EX", "Толкын", "Сапарбаева", "+7(775)7693283",
+                 "radost7575@mail.ru", "@", 'Обьединение Дивизион "Сеть"', "Алматы"))
     conn.commit()
     cur.close()
     conn.close()
@@ -531,18 +589,28 @@ def alter_table_users():
 
 
 def get_appeals(message):
-    sql_query = "SELECT * FROM appeals inner join performers on performers.category = appeals.category " \
-                "WHERE appeals.user_id=%s and status <> %s and (performers.id < 13 or performers.id > 29) order by appeals.id"
+    # sql_query = "SELECT * FROM appeals inner join performers on performers.category = appeals.category " \
+    #             "WHERE appeals.user_id=%s and status <> %s and (performers.id < 13 or performers.id > 29) order by appeals.id"
+    sql_query = ("""
+SELECT * FROM appeals
+INNER JOIN performers ON performers.category = appeals.category 
+INNER JOIN users ON appeals.user_id = users.id
+WHERE appeals.user_id = %s 
+AND appeals.status <> %s 
+AND performers.id < 13 OR performers.id > 29 
+AND users.branch = performers.subcategory
+AND appeals.subsubcategory = performers.subsubcategory 
+ORDER BY appeals.id""")
+
     params = (str(message.chat.id), "Решено",)
     return execute_get_sql_query(sql_query, params)
 
 
 def get_all_appeals_by_id_performer(id_performer, status_1, status_2):
     sql_query = (
-        'SELECT appeals.id, status, category, appeal_text, date, date_status, comment, '
-        'username, firstname, lastname, table_number, phone_number, email '
+        'SELECT appeals.id, firstname, lastname '
         'FROM appeals INNER JOIN users ON appeals.user_id = users.id '
-        'WHERE appeals.id_performer=%s AND appeals.is_appeal_anon=False AND (status=%s OR status=%s) order by appeals.id'
+        'WHERE appeals.id_performer=%s AND (status=%s OR status=%s) order by appeals.id'
     )
     params = (str(id_performer), status_1, status_2,)
     appeals = execute_get_sql_query(sql_query, params)
