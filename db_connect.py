@@ -1,7 +1,7 @@
 from telebot import types
 import psycopg2
 
-TOKEN = '6053200189:AAHVGsQDJOnyvW0o4xwCZJ_X_zBdn7kRKNA'
+TOKEN = '6860898290:AAGx9-79kz8oWV15Thf8UdC62R3vv_M_M9M'
 admins_id = ['187663574', '760906879', '1066191569', '6682886650']
 
 
@@ -125,9 +125,9 @@ def delete_appeals():
 
 
 def add_column():
-    # sql_query = "ALTER TABLE performers ADD COLUMN IF NOT EXISTS subcategory char(50)"
-    # sql_query = "ALTER TABLE performers ADD COLUMN IF NOT EXISTS subsubcategory char(50);"
-    # sql_query += "ALTER TABLE users_info ADD COLUMN IF NOT EXISTS subcategory char(50);"
+    sql_query = "ALTER TABLE performers ADD COLUMN IF NOT EXISTS subcategory char(50)"
+    sql_query += "ALTER TABLE performers ADD COLUMN IF NOT EXISTS subsubcategory char(50);"
+    sql_query += "ALTER TABLE users_info ADD COLUMN IF NOT EXISTS subcategory char(50);"
     sql_query = "ALTER TABLE appeals ADD COLUMN IF NOT EXISTS subsubcategory char(50);"
     execute_set_sql_query(sql_query)
 
@@ -531,8 +531,8 @@ def insert_into_performers_right():
                  "shalimbekova.k@telecom.kz", "@", "Дивизион по Корпоративному Бизнесу"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
                 'subcategory) values (%s, %s, %s, %s, %s, %s, %s, %s)',
-                ("521786863", "Вопрос к EX", "Дина", "Шагина", "+7(701)7650833 / +7(727)3989123",
-                 "Dina Shagina/ISA/KAZAKTELEKOM/KZ" "@", "Дивизион Информационных Технологий"))
+                ("521786863", "Вопрос к EX", "Дина", "Шагина", "+7(701)7650833",
+                 "Dina Shagina/ISA/KAZAKTELEKOM/KZ", "@", "Дивизион Информационных Технологий"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
                 'subcategory) values (%s, %s, %s, %s, %s, %s, %s, %s)',
                 ("1298491861", "Вопрос к EX", "Лаззат", "Баелова", "+7(701)7368842",
