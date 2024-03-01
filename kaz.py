@@ -617,9 +617,9 @@ def appeal(bot, message, message_text):
             appeal(bot, message, "portal")
             return
         markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+        markup_ap.add(types.KeyboardButton("EX-ке сұрақ"))
         markup_ap = generate_buttons(categories_[:4], markup_ap)
         markup_ap.add(types.KeyboardButton("Сатып алу қызметі"))
-        markup_ap.add(types.KeyboardButton("EX-ке сұрақ"))
         bot.send_message(message.chat.id, "Өтініш санатын таңдаңыз", reply_markup=markup_ap)
     elif message_text == "portal":
         bot.send_message(message.chat.id, 'Өтінішіңізді сипаттаңыз:')
@@ -671,10 +671,12 @@ def appeal(bot, message, message_text):
         now_updated = remove_milliseconds(now)
         category = get_category_users_info(message)
         branch = get_branch(message.chat.id)
+        subsubcategory = None
         if category == "Вопрос к EX":
             if branch == 'Обьединение Дивизион "Сеть"':
                 subsubcategory = str(get_subsubcategory(message.chat.id)).strip()
-                performer_id = get_performer_by_subsubcategory(subsubcategory)[0][0]
+                performer_ = get_performer_by_subsubcategory(subsubcategory)
+                performer_id = performer_[0][1]
             else:
                 performer_id = get_performer_by_category_and_subcategory(category, branch)[0][1]
         else:
@@ -697,10 +699,18 @@ def appeal(bot, message, message_text):
 
 def end_appeal(bot, message, appeal_id):
     category = appealsClass.get_category_by_appeal_id(appeal_id)[0][0]
-    performer_id = get_performer_by_category(category=category)[1]
+    subsubcategory = str(get_subsubcategory(message.chat.id)).strip()
+    if subsubcategory is not None and len(str(subsubcategory)) != 0:
+        performer_id = get_performer_by_subsubcategory(subsubcategory)[0][1]
+    else:
+        if category == "Вопрос к EX":
+            subcategory = get_branch(message.chat.id)
+            performer_id = get_performer_by_category_and_subcategory(category, subcategory)[0][1]
+        else:
+            performer_id = get_performer_by_category(category=category)[1]
     text = get_appeal_text_all(appeal_id)
     bot.send_message(performer_id, text)
-    bot.send_message(message.chat.id, "Ваше обращения принято")
+    bot.send_message(message.chat.id, "Сіздің өтінішіңіз қабылданды")
     clear_appeals(message)
     menu(bot, message)
 

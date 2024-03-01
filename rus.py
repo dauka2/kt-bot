@@ -7,6 +7,7 @@ import appealsClass
 import common_file
 import db_connect
 import lteClass
+import userClass
 from appealsClass import set_status, set_date_status, get_appeal_by_id, get_image_data, get_status, set_evaluation, \
     get_appeal_text_all, get_comment, set_comment, set_image_data, add_appeal_gmail, add_appeal, get_appeal_text, \
     set_appeal_text
@@ -664,7 +665,7 @@ def appeal(bot, message, message_text):
             add_appeal_gmail(message.chat.id, category, message.text, now_updated)
         else:
             add_appeal(message.chat.id, "Обращение принято", category, message.text, now_updated,
-                       now_updated, performer_id, ' ', False, None, subsubcategory)
+                         now_updated, performer_id, ' ', False, None, subsubcategory)
         markup_ap = types.ReplyKeyboardMarkup()
         button1_ap = types.KeyboardButton("Добавить фото")
         button2_ap = types.KeyboardButton("Отправить обращение")

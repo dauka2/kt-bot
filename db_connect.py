@@ -125,9 +125,9 @@ def delete_appeals():
 
 
 def add_column():
-    sql_query = "ALTER TABLE performers ADD COLUMN IF NOT EXISTS subcategory char(50)"
-    sql_query += "ALTER TABLE performers ADD COLUMN IF NOT EXISTS subsubcategory char(50);"
-    sql_query += "ALTER TABLE users_info ADD COLUMN IF NOT EXISTS subcategory char(50);"
+    # sql_query = "ALTER TABLE performers ADD COLUMN IF NOT EXISTS subcategory char(50)"
+    # sql_query += "ALTER TABLE performers ADD COLUMN IF NOT EXISTS subsubcategory char(50);"
+    # sql_query += "ALTER TABLE users_info ADD COLUMN IF NOT EXISTS subcategory char(50);"
     sql_query = "ALTER TABLE appeals ADD COLUMN IF NOT EXISTS subsubcategory char(50);"
     execute_set_sql_query(sql_query)
 
