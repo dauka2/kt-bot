@@ -596,9 +596,9 @@ def appeal(bot, message, message_text):
             appeal(bot, message, "portal")
             return
         markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+        markup_ap.add(types.KeyboardButton("Вопрос к EX"))
         markup_ap = generate_buttons(list(list_categories())[:4], markup_ap)
         markup_ap.add(types.KeyboardButton("Закупочная деятельность"))
-        markup_ap.add(types.KeyboardButton("Вопрос к EX"))
         bot.send_message(message.chat.id, "Выберите категорию обращения", reply_markup=markup_ap)
     elif message_text == "portal":
         bot.send_message(message.chat.id, 'Пожалуйста, опишите ваше обращение:')
@@ -680,7 +680,11 @@ def end_appeal(bot, message, appeal_id):
     if subsubcategory is not None and len(str(subsubcategory)) != 0:
         performer_id = get_performer_by_subsubcategory(subsubcategory)[0][1]
     else:
-        performer_id = get_performer_by_category(category=category)[1]
+        if category == "Вопрос к EX":
+            subcategory = get_branch(message.chat.id)
+            performer_id = get_performer_by_category_and_subcategory(category, subcategory)[0][1]
+        else:
+            performer_id = get_performer_by_category(category=category)[1]
     text = get_appeal_text_all(appeal_id)
     bot.send_message(performer_id, text)
     bot.send_message(message.chat.id, "Ваше обращения принято")

@@ -591,17 +591,18 @@ def alter_table_users():
 def get_appeals(message):
     # sql_query = "SELECT * FROM appeals inner join performers on performers.category = appeals.category " \
     #             "WHERE appeals.user_id=%s and status <> %s and (performers.id < 13 or performers.id > 29) order by appeals.id"
-    sql_query = ("""
-SELECT * FROM appeals
-INNER JOIN performers ON performers.category = appeals.category 
-INNER JOIN users ON appeals.user_id = users.id
-WHERE appeals.user_id = %s 
-AND appeals.status <> %s 
-AND performers.id < 13 OR performers.id > 29 
-AND users.branch = performers.subcategory
-AND appeals.subsubcategory = performers.subsubcategory 
-ORDER BY appeals.id""")
-
+#     sql_query = ("""
+# SELECT appeals.id, appeals.category FROM appeals
+# INNER JOIN performers ON performers.category = appeals.category
+# INNER JOIN users ON appeals.user_id = users.id
+# WHERE appeals.user_id = %s
+# AND appeals.status <> %s
+# AND performers.id < 13 OR performers.id > 29
+# AND users.branch = performers.subcategory
+# AND appeals.subsubcategory = performers.subsubcategory
+# ORDER BY appeals.id""")
+    sql_query = ("SELECT appeals.id, appeals.category from appeals "
+                 "where user_id = %s and appeals.status <> %s order by id")
     params = (str(message.chat.id), "Решено",)
     return execute_get_sql_query(sql_query, params)
 

@@ -582,6 +582,16 @@ def get_excel(message):
     common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
 
 
+@bot.message_handler(commands=['get_appeals_ex'])
+def get_excel(message):
+    sql_query = """
+        SELECT * from appeals
+    """
+    admin_id_new = admin_id[:]
+    admin_id_new.append('388952664')
+    common_file.get_excel(bot, message, admin_id_new, 'output_file.xlsx', sql_query)
+
+
 @bot.message_handler(commands=['get_appeals_'])
 def get_excel(message):
     sql_query = "SELECT * from appeals order by id"

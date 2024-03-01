@@ -140,9 +140,9 @@ def appeal_inline_markup(message, lang="rus", kaz_categories=None):
         return markup_a
     for appeal in appeals_:
         if lang == "kaz":
-            text = str(appeal[0]) + " - " + rename_category_to_kaz(kaz_categories, str(appeal[3]))
+            text = str(appeal[0]) + " - " + rename_category_to_kaz(kaz_categories, str(appeal[1]))
         else:
-            text = str(appeal[0]) + " - " + appeal[3]
+            text = str(appeal[0]) + " - " + appeal[1]
         markup_a.add(types.InlineKeyboardButton(text=text, callback_data=str(appeal[0])))
     return markup_a
 
