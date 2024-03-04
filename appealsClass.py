@@ -57,7 +57,7 @@ def set_date_status(appeal_id, date_status):
 
 
 def add_appeal(user_id, status, category, appeal_text, date, date_status, id_performer, comment, is_appeal_anon,
-               lte_id=None, subsubcategory=None):
+               lte_id=None, subcategory=None, subsubcategory=None):
     conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
     cur = conn.cursor()
 
@@ -75,10 +75,10 @@ def add_appeal(user_id, status, category, appeal_text, date, date_status, id_per
         # Вставляем новое обращение, если не найдено ни одного существующего обращения с той же категорией
         cur.execute(
             "INSERT INTO appeals(user_id, status, category, appeal_text, date, date_status, id_performer, comment, "
-            "is_appeal_anon, lte_id, subsubcategory) "
-            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
+            "is_appeal_anon, lte_id, subcategory, subsubcategory) "
+            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
             (str(user_id), str(status), str(category), str(appeal_text), str(date), str(date_status), str(id_performer),
-             str(comment), is_appeal_anon, lte_id, str(subsubcategory)))
+             str(comment), is_appeal_anon, lte_id, str(subcategory), str(subsubcategory)))
 
         appeal = cur.fetchone()[0]
 
@@ -157,3 +157,9 @@ def get_category_by_appeal_id(appeal_id):
     sql_query = "SELECT category from appeals where id=%s"
     params = (appeal_id,)
     return execute_get_sql_query(sql_query, params)
+
+
+def get_subcategory_by_appeal_id(appeal_id):
+    sql_query = "SELECT subcategory from appeals where id=%s"
+    params = (appeal_id,)
+    return execute_get_sql_query(sql_query, params)[0][0]

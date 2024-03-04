@@ -24,7 +24,7 @@ from performerClass import get_performer_by_category, get_regions, list_categori
     get_performer_by_category_and_subcategory, get_performer_by_subsubcategory, get_performers_
 from userClass import get_branch, get_firstname, get_user
 from user_infoClass import set_appeal_field, get_category_users_info, set_category, get_appeal_field, clear_appeals, \
-    set_bool, set_subcategory, get_subsubcategory
+    set_bool, set_subsubcategory_users_info, get_subsubsubcategory_users_info
 
 faq_field = ["Часто задаваемые вопросы", "Демеу", "Вопросы к HR", "Вопросы по займам",
              "Вопросы по закупочной деятельности", "Вопросы по порталу закупок"]
@@ -622,7 +622,7 @@ def appeal(bot, message, message_text):
     elif message_text == "Добавить фото":
         bot.send_message(message.chat.id, "Отправьте фотографию")
     elif message_text in get_subsubcategories_by_subcategory('Обьединение Дивизион "Сеть"'):
-        set_subcategory(message.chat.id, message_text)
+        set_subsubcategory_users_info(message.chat.id, message_text)
         bot.send_message(message.chat.id, 'Пожалуйста, опишите ваше обращение:')
     elif message.photo:
         file_info: object = bot.get_file(message.photo[-1].file_id)
@@ -652,7 +652,7 @@ def appeal(bot, message, message_text):
         subsubcategory = None
         if category == "Вопрос к EX":
             if branch == 'Обьединение Дивизион "Сеть"':
-                subsubcategory = str(get_subsubcategory(message.chat.id)).strip()
+                subsubcategory = str(get_subsubsubcategory_users_info(message.chat.id)).strip()
                 performer_ = get_performer_by_subsubcategory(subsubcategory)
                 performer_id = performer_[0][1]
             else:
@@ -664,7 +664,7 @@ def appeal(bot, message, message_text):
             add_appeal_gmail(message.chat.id, category, message.text, now_updated)
         else:
             add_appeal(message.chat.id, "Обращение принято", category, message.text, now_updated,
-                       now_updated, performer_id, ' ', False, None, subsubcategory)
+                       now_updated, performer_id, ' ', False, None, branch, subsubcategory)
         markup_ap = types.ReplyKeyboardMarkup()
         button1_ap = types.KeyboardButton("Добавить фото")
         button2_ap = types.KeyboardButton("Отправить обращение")
@@ -676,15 +676,18 @@ def appeal(bot, message, message_text):
 
 def end_appeal(bot, message, appeal_id):
     category = appealsClass.get_category_by_appeal_id(appeal_id)[0][0]
-    subsubcategory = str(get_subsubcategory(message.chat.id)).strip()
+    subsubcategory = str(get_subsubsubcategory_users_info(message.chat.id)).strip()
     if subsubcategory is not None and len(str(subsubcategory)) != 0:
         performer_id = get_performer_by_subsubcategory(subsubcategory)[0][1]
     else:
         if category == "Вопрос к EX":
-            subcategory = get_branch(message.chat.id)
+            subcategory = appealsClass.get_subcategory_by_appeal_id(appeal_id)
             performer_id = get_performer_by_category_and_subcategory(category, subcategory)[0][1]
+            bot.send_message(message.chat.id, "subcategory:" + subcategory)
+            bot.send_message(message.chat.id, "performer_id:" + performer_id)
         else:
             performer_id = get_performer_by_category(category=category)[1]
+            bot.send_message(message.chat.id, "performer_id 2:" + performer_id)
     text = get_appeal_text_all(appeal_id)
     bot.send_message(performer_id, text)
     bot.send_message(message.chat.id, "Ваше обращения принято")

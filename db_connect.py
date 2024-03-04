@@ -48,7 +48,7 @@ def create_db():
         'CREATE TABLE IF NOT EXISTS appeals(id serial primary key, user_id varchar(50), status varchar(30), '
         'category varchar(100), appeal_text varchar(1000), date varchar(30), date_status varchar(30), '
         'id_performer varchar(30), comment varchar(1000), is_appeal_anon bool, evaluation int, '
-        'image_data bytea, lte_id int, subsubcategory varchar(50))')
+        'image_data bytea, lte_id int, subcategory varchar(50), subsubcategory varchar(50))')
     cur.execute(
         'CREATE TABLE IF NOT EXISTS performers('
         'id serial primary key, '
@@ -589,18 +589,6 @@ def alter_table_users():
 
 
 def get_appeals(message):
-    # sql_query = "SELECT * FROM appeals inner join performers on performers.category = appeals.category " \
-    #             "WHERE appeals.user_id=%s and status <> %s and (performers.id < 13 or performers.id > 29) order by appeals.id"
-#     sql_query = ("""
-# SELECT appeals.id, appeals.category FROM appeals
-# INNER JOIN performers ON performers.category = appeals.category
-# INNER JOIN users ON appeals.user_id = users.id
-# WHERE appeals.user_id = %s
-# AND appeals.status <> %s
-# AND performers.id < 13 OR performers.id > 29
-# AND users.branch = performers.subcategory
-# AND appeals.subsubcategory = performers.subsubcategory
-# ORDER BY appeals.id""")
     sql_query = ("SELECT appeals.id, appeals.category from appeals "
                  "where user_id = %s and appeals.status <> %s order by id")
     params = (str(message.chat.id), "Решено",)

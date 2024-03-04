@@ -570,13 +570,14 @@ def get_excel(message):
             comment AS "Комментарий",
             evaluation AS "Оценка",
             image_data AS "Фото",
+            performers.id as "performers", 
             performers.firstname AS "Имя исполнителя",
             performers.lastname AS "Фамилия исполнителя",
             performers.email AS "Почта исполнителя",
             performers.telegram AS "Телеграм исполнителя"
         FROM appeals
-        LEFT OUTER JOIN users ON appeals.user_id = users.id
-        LEFT OUTER JOIN performers ON performers.category = appeals.category
+        INNER JOIN users ON appeals.user_id = users.id
+        INNER JOIN performers ON performers.category = appeals.category 
         order by appeals.id 
     """
     common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
