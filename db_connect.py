@@ -1,7 +1,7 @@
 from telebot import types
 import psycopg2
 
-TOKEN = '6053200189:AAHVGsQDJOnyvW0o4xwCZJ_X_zBdn7kRKNA'
+TOKEN = '6860898290:AAGx9-79kz8oWV15Thf8UdC62R3vv_M_M9M'
 admins_id = ['187663574', '760906879', '1066191569', '6682886650']
 
 
@@ -47,8 +47,8 @@ def create_db():
     cur.execute(
         'CREATE TABLE IF NOT EXISTS appeals(id serial primary key, user_id varchar(50), status varchar(30), '
         'category varchar(100), appeal_text varchar(1000), date varchar(30), date_status varchar(30), '
-        'id_performer int, comment varchar(1000), is_appeal_anon bool, evaluation int, '
-        'image_data bytea, lte_id int, subsubcategory varchar(50))')
+        'id_performer varchar(30), comment varchar(1000), is_appeal_anon bool, evaluation int, '
+        'image_data bytea, lte_id int, subcategory varchar(50), subsubcategory varchar(50))')
     cur.execute(
         'CREATE TABLE IF NOT EXISTS performers('
         'id serial primary key, '
@@ -142,7 +142,7 @@ def insert_into_performers():
 
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) '
                 'values (%s, %s, %s, %s, %s, %s, %s)', ("760906879", "Learning.telecom.kz | Техническая поддержка",
-                                                        "Дильназ", "Мустафина", "+77009145025", "must.dilnaz@gmail.com",
+                                                        "Мустафина", "Дильназ", "+77009145025", "must.dilnaz@gmail.com",
                                                         "@"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) '
                 'values (%s, %s, %s, %s, %s, %s, %s)', ("1066191569", "Обучение | Корпоративный Университет",
@@ -589,18 +589,6 @@ def alter_table_users():
 
 
 def get_appeals(message):
-    # sql_query = "SELECT * FROM appeals inner join performers on performers.category = appeals.category " \
-    #             "WHERE appeals.user_id=%s and status <> %s and (performers.id < 13 or performers.id > 29) order by appeals.id"
-#     sql_query = ("""
-# SELECT appeals.id, appeals.category FROM appeals
-# INNER JOIN performers ON performers.category = appeals.category
-# INNER JOIN users ON appeals.user_id = users.id
-# WHERE appeals.user_id = %s
-# AND appeals.status <> %s
-# AND performers.id < 13 OR performers.id > 29
-# AND users.branch = performers.subcategory
-# AND appeals.subsubcategory = performers.subsubcategory
-# ORDER BY appeals.id""")
     sql_query = ("SELECT appeals.id, appeals.category from appeals "
                  "where user_id = %s and appeals.status <> %s order by id")
     params = (str(message.chat.id), "Решено",)
