@@ -12,6 +12,11 @@ def get_performer_by_category(category):
     return execute_get_sql_query(sql_query, params)[0]
 
 
+def get_performer_by_id(id):
+    sql_query = 'SELECT * FROM performers where id = %s'
+    params = (id,)
+    return execute_get_sql_query(sql_query, params)
+
 def list_categories():
     sql_query = 'SELECT category FROM performers'
     categories = execute_get_sql_query(sql_query)
@@ -48,7 +53,7 @@ def get_email_by_category(category):
 
 
 def get_performer_id_by_category(performer_id):
-    sql_query = "SELECT performer_id from performers where category = %s"
+    sql_query = "SELECT id from performers where category = %s"
     params = (performer_id,)
     performer_id = execute_get_sql_query(sql_query, params)
     if performer_id:
@@ -65,6 +70,12 @@ def get_performer_id(category):
         return category[0][0]
     else:
         return None
+
+
+def get_performer_id_by_id(id):
+    sql_query = "SELECT performer_id from performers where id=%s"
+    params = (id,)
+    return execute_get_sql_query(sql_query, params)[0][0]
 
 
 def get_categories_by_parentcategory(parent_category):

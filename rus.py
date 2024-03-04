@@ -7,6 +7,7 @@ import appealsClass
 import common_file
 import db_connect
 import lteClass
+import performerClass
 import userClass
 from appealsClass import set_status, set_date_status, get_appeal_by_id, get_image_data, get_status, set_evaluation, \
     get_appeal_text_all, get_comment, set_comment, set_image_data, add_appeal_gmail, add_appeal, get_appeal_text, \
@@ -271,7 +272,7 @@ def adaption(bot, message):
 
 
 def performer_text(appeal_info):
-    performer_info = get_performer_by_category(category=appeal_info[3])
+    performer_info = performerClass.get_performer_by_id(appeal_info[7])[0]
     text = f"<b>ID</b> {appeal_info[0]}\n\n" \
            f" Статус: {str(appeal_info[2])}\n" \
            f" Дата создания: {str(appeal_info[5])}\n" \
@@ -564,15 +565,17 @@ def add_comment(message, bot, appeal_id, isAdmin=True):
     appeal_info = get_appeal_by_id(appeal_id)[0]
     image_data = get_image_data(appeal_id)
     text = performer_text(appeal_info)
+    bot.send_message(message.chat.id, str(appeal_info))
+    performer_id = performerClass.get_performer_id_by_id(appeal_info[7])
     try:
-        bot.send_photo(appeal_info[1], image_data)
+        bot.send_photo(performer_id, image_data)
     except:
         print("error")
     if isAdmin:
         bot.send_message(appeal_info[1], text)
         bot.send_message(message.chat.id, "Комментарий добавлен")
     else:
-        bot.send_message(appeal_info[7], text)
+        bot.send_message(performer_id, text)
         bot.send_message(message.chat.id, "Комментарий добавлен")
 
 
@@ -655,9 +658,9 @@ def appeal(bot, message, message_text):
             if branch == 'Обьединение Дивизион "Сеть"':
                 subsubcategory = str(get_subsubcategory(message.chat.id)).strip()
                 performer_ = get_performer_by_subsubcategory(subsubcategory)
-                performer_id = performer_[0][1]
+                performer_id = performer_[0][0]
             else:
-                performer_id = get_performer_by_category_and_subcategory(category, branch)[0][1]
+                performer_id = get_performer_by_category_and_subcategory(category, branch)[0][0]
         else:
             performer_id = get_performer_id_by_category(category)
 

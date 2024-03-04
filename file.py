@@ -46,7 +46,7 @@ def admin_appeal(bot, message, message_text):
 
 def get_excel_admin1(bot, message, status="Решено"):
     sql_query = """
-    SELECT
+    SELECT DISTINCT
     appeals.id AS "ID",
     users.firstname AS "Имя работника",
     users.lastname AS "Фамилия работника",
