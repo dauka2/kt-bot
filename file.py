@@ -1,4 +1,6 @@
 from telebot import *
+
+import performerClass
 from appealsClass import get_appeal_by_id, get_image_data, get_appeal_text_all
 from common_file import send_error, get_excel, extract_number
 from db_connect import get_all_appeals_by_id_performer, get_sale, get_appeals
@@ -18,6 +20,9 @@ def admin_appeal(bot, message, message_text):
         return
     elif check_id(str(message.chat.id)) and message_text == "Текущие Обращения":
         appeal_info = get_all_appeals_by_id_performer(str(message.chat.id), "Обращение принято","В процессе")
+        ids = performerClass.get_performer_ids(message.chat.id)
+        bot.send_message(message.chat.id, "appeals_info:" + str(appeal_info))
+        bot.send_message(message.chat.id, "ids:" + str(ids))
         markup_a = types.InlineKeyboardMarkup()
         if appeal_info is not None:
             for appeal_ in appeal_info:

@@ -70,7 +70,7 @@ def set_is_appeal_anon_users_info(user_id, is_appeal_anon):
     execute_set_sql_query(sql_query, params)
 
 
-def get_subsubsubcategory_users_info(user_id):
+def get_subsubcategory_users_info(user_id):
     sql_query = 'SELECT subcategory from users_info WHERE id=%s'
     params = (str(user_id),)
     return execute_get_sql_query(sql_query, params)[0][0]
@@ -80,3 +80,6 @@ def set_subsubcategory_users_info(user_id, subcategory):
     sql_query = 'UPDATE users_info SET subcategory=%s WHERE id=%s'
     params = (subcategory, str(user_id),)
     execute_set_sql_query(sql_query, params)
+
+
+

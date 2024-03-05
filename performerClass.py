@@ -109,7 +109,7 @@ def get_subsubcategories_by_subcategory(subcategory):
 
 
 def get_regions():
-    sql_query = "SELECT category from performers where id > 12"
+    sql_query = "SELECT category from performers where id > 12 and id < 30"
     regions = execute_get_sql_query(sql_query)
     regions_ = []
     for region in regions:
@@ -139,3 +139,8 @@ def get_subcategories_():
     return execute_get_sql_query(sql_query)
 
 
+def get_performer_ids(performer_id):
+    sql_query = "SELECT id FROM performers WHERE performer_id = %s"
+    params = (performer_id,)
+    ids = execute_get_sql_query(sql_query, params)
+    return ids

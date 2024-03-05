@@ -26,7 +26,7 @@ from performerClass import get_performer_by_category, get_regions, list_categori
     get_performer_by_category_and_subcategory, get_performer_by_subsubcategory, get_performers_
 from userClass import get_branch, get_firstname, get_user
 from user_infoClass import set_appeal_field, get_category_users_info, set_category, get_appeal_field, clear_appeals, \
-    set_bool, set_subcategory, get_subsubcategory
+    set_bool, set_subsubcategory_users_info, get_subsubcategory_users_info
 
 faq_field = ["Часто задаваемые вопросы", "Демеу", "Вопросы к HR", "Вопросы по займам",
              "Вопросы по закупочной деятельности", "Вопросы по порталу закупок"]
@@ -565,7 +565,6 @@ def add_comment(message, bot, appeal_id, isAdmin=True):
     appeal_info = get_appeal_by_id(appeal_id)[0]
     image_data = get_image_data(appeal_id)
     text = performer_text(appeal_info)
-    bot.send_message(message.chat.id, str(appeal_info))
     performer_id = performerClass.get_performer_id_by_id(appeal_info[7])
     try:
         bot.send_photo(performer_id, image_data)
@@ -626,7 +625,7 @@ def appeal(bot, message, message_text):
     elif message_text == "Добавить фото":
         bot.send_message(message.chat.id, "Отправьте фотографию")
     elif message_text in get_subsubcategories_by_subcategory('Обьединение Дивизион "Сеть"'):
-        set_subcategory(message.chat.id, message_text)
+        set_subsubcategory_users_info(message.chat.id, message_text)
         bot.send_message(message.chat.id, 'Пожалуйста, опишите ваше обращение:')
     elif message.photo:
         file_info: object = bot.get_file(message.photo[-1].file_id)
@@ -656,7 +655,7 @@ def appeal(bot, message, message_text):
         subsubcategory = None
         if category == "Вопрос к EX":
             if branch == 'Обьединение Дивизион "Сеть"':
-                subsubcategory = str(get_subsubcategory(message.chat.id)).strip()
+                subsubcategory = str(get_subsubcategory_users_info(message.chat.id)).strip()
                 performer_ = get_performer_by_subsubcategory(subsubcategory)
                 performer_id = performer_[0][0]
             else:
@@ -680,7 +679,7 @@ def appeal(bot, message, message_text):
 
 def end_appeal(bot, message, appeal_id):
     category = appealsClass.get_category_by_appeal_id(appeal_id)[0][0]
-    subsubcategory = str(get_subsubcategory(message.chat.id)).strip()
+    subsubcategory = str(get_subsubcategory_users_info(message.chat.id)).strip()
     if subsubcategory is not None and len(str(subsubcategory)) != 0:
         performer_id = get_performer_by_subsubcategory(subsubcategory)[0][1]
     else:

@@ -597,16 +597,19 @@ def get_appeals(message):
 
 def get_all_appeals_by_id_performer(id_performer, status_1, status_2):
     sql_query = (
-        'SELECT appeals.id, firstname, lastname '
-        'FROM appeals INNER JOIN users ON appeals.user_id = users.id '
-        'WHERE appeals.id_performer=%s AND (status=%s OR status=%s) order by appeals.id'
+        """
+SELECT appeals.id, users.firstname, users.lastname 
+FROM appeals 
+INNER JOIN users ON appeals.user_id = users.id 
+WHERE (status='Обращение принято' OR status='В процессе') 
+ORDER BY appeals.id;
+        """
     )
-    params = (str(id_performer), status_1, status_2,)
+    params = (status_1, status_2, str(id_performer),)
     appeals = execute_get_sql_query(sql_query, params)
     if appeals:
         return appeals
     return None
-
 
 # def get_appeal_by_id_inner_join_users(id):
 #     sql_query = (
