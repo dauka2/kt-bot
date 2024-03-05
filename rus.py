@@ -1601,9 +1601,6 @@ def add_lte_appeal(bot, message, id_i_s):
                            lte_info[2], ' ', False, id_i_s)
     text = get_appeal_text_all(appeal_id)
     performer_id = performerClass.get_performer_by_id(lte_info[2])[0][1]
-    bot.send_message(message.chat.id, "1"+str(lte_info))
-    bot.send_message(message.chat.id, "2"+str(lte_info[2]))
-    bot.send_message(message.chat.id, "3"+str(performer_id))
     bot.send_message(performer_id, text)
     bot.send_message(message.chat.id, "Ваша информация сохранена")
 
