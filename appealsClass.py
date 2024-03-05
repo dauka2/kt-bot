@@ -63,7 +63,7 @@ def add_appeal(user_id, status, category, appeal_text, date, date_status, id_per
 
     # Проверьте, существует ли уже обращение с такой же категорией
     cur.execute("SELECT id FROM appeals WHERE category = %s and subsubcategory = %s and appeal_text = %s and "
-                "user_id = %s and status = %s and date=%s",
+                "user_id = %s and status = %s and date = %s",
                 (category, subsubcategory, appeal_text, str(user_id), status, str(date)))
 
     existing_appeal = cur.fetchone()

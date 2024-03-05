@@ -643,7 +643,8 @@ def appeal(bot, message, message_text):
     elif message_text == "Отправить обращение":
         appeal_id = db_connect.get_last_appeal(message.chat.id)[0][0]
         appeal_ = get_appeal_by_id(appeal_id)[0]
-        if appeal_[7] is None or appeal_[7] == '' or len(str(appeal_[7])) == 0:
+        performer_id = performerClass.get_performer_by_id(appeal_[7])[0][1]
+        if performer_id is None or performer_id == '' or len(str(performer_id)) == 0:
             end_appeal_gmail(bot, message, appeal_id)
         else:
             end_appeal(bot, message, appeal_id)
