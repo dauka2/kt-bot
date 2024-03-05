@@ -17,6 +17,7 @@ def get_performer_by_id(id):
     params = (id,)
     return execute_get_sql_query(sql_query, params)
 
+
 def list_categories():
     sql_query = 'SELECT category FROM performers'
     categories = execute_get_sql_query(sql_query)

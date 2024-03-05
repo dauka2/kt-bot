@@ -1,7 +1,7 @@
 from telebot import types
 import psycopg2
 
-TOKEN = '6860898290:AAGx9-79kz8oWV15Thf8UdC62R3vv_M_M9M'
+TOKEN = '6145415028:AAEdgPMvSsi3FJw2ccyzWf2QiJrPa_Ycz0A'
 admins_id = ['187663574', '760906879', '1066191569', '6682886650']
 
 
@@ -125,10 +125,10 @@ def delete_appeals():
 
 
 def add_column():
-    # sql_query = "ALTER TABLE performers ADD COLUMN IF NOT EXISTS subcategory char(50)"
-    # sql_query += "ALTER TABLE performers ADD COLUMN IF NOT EXISTS subsubcategory char(50);"
-    # sql_query += "ALTER TABLE users_info ADD COLUMN IF NOT EXISTS subcategory char(50);"
-    sql_query = "ALTER TABLE appeals ADD COLUMN IF NOT EXISTS subsubcategory char(50);"
+    sql_query = "ALTER TABLE performers ADD COLUMN IF NOT EXISTS subcategory char(50)"
+    sql_query += "ALTER TABLE performers ADD COLUMN IF NOT EXISTS subsubcategory char(50);"
+    sql_query += "ALTER TABLE users_info ADD COLUMN IF NOT EXISTS subcategory char(50);"
+    sql_query += "ALTER TABLE appeals ADD COLUMN IF NOT EXISTS subsubcategory char(50);"
     execute_set_sql_query(sql_query)
 
 
@@ -669,3 +669,19 @@ def get_sales_by_user_id(user_id):
                  'internal_sale.id = appeals.lte_id WHERE appeals.user_id=%s and status <> %s  order by appeals.id')
     params = (str(user_id), "Решено",)
     return execute_get_sql_query(sql_query, params)
+
+
+def change(bot, message):
+    sql_query = "SELECT * FROM appeals"
+    appeals_ = execute_get_sql_query(sql_query)
+    for appeal in appeals_:
+        sql_query = "UPDATE appeals SET id_performer = %s WHERE id = %s"
+        performer_id = get_performer_by_category(appeal[3])
+        params = (performer_id, appeal[0])
+        execute_set_sql_query(sql_query, params)
+
+
+def get_performer_by_category(category):
+    sql_query = 'SELECT * FROM performers where category = %s'
+    params = (category,)
+    return execute_get_sql_query(sql_query, params)[0]

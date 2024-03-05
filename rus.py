@@ -8,7 +8,6 @@ import common_file
 import db_connect
 import lteClass
 import performerClass
-import userClass
 from appealsClass import set_status, set_date_status, get_appeal_by_id, get_image_data, get_status, set_evaluation, \
     get_appeal_text_all, get_comment, set_comment, set_image_data, add_appeal_gmail, add_appeal, get_appeal_text, \
     set_appeal_text
@@ -615,7 +614,7 @@ def appeal(bot, message, message_text):
         if branch == 'Обьединение Дивизион "Сеть"':
             markup_a = types.ReplyKeyboardMarkup(one_time_keyboard=True)
             markup_a = generate_buttons(get_subsubcategories_by_subcategory('Обьединение Дивизион "Сеть"'), markup_a)
-            bot.send_message(message.chat.id, "Выберите категорию", reply_markup=markup_a)
+            bot.send_message(message.chat.id, "Выберите регион филиала", reply_markup=markup_a)
         else:
             bot.send_message(message.chat.id, 'Пожалуйста, опишите ваше обращение:')
     elif message_text in list_categories() or message_text in get_categories_by_parentcategory(
@@ -641,7 +640,7 @@ def appeal(bot, message, message_text):
         else:
             bot.send_photo(performer_id, image_data)
             end_appeal(bot, message, appeal_id)
-    elif message_text == "Отправить обращение":
+    elif message_text == "Отправить без фото":
         appeal_id = db_connect.get_last_appeal(message.chat.id)[0][0]
         appeal_ = get_appeal_by_id(appeal_id)[0]
         performer_id = performerClass.get_performer_by_id(appeal_[7])[0][1]
@@ -672,9 +671,10 @@ def appeal(bot, message, message_text):
                          now_updated, performer_id, ' ', False, None, subsubcategory)
         markup_ap = types.ReplyKeyboardMarkup()
         button1_ap = types.KeyboardButton("Добавить фото")
-        button2_ap = types.KeyboardButton("Отправить обращение")
+        button2_ap = types.KeyboardButton("Отправить без фото")
         markup_ap.add(button2_ap, button1_ap)
-        bot.send_message(message.chat.id, "Вы можете отправить фотографию вместе с обращением", reply_markup=markup_ap)
+        bot.send_message(message.chat.id, "Хотели ли бы вы добавить фотографию к вашему обращению?",
+                         reply_markup=markup_ap)
     else:
         admin_appeal(bot, message, message_text)
 

@@ -1,6 +1,7 @@
 import openpyxl
 import psycopg2
 from telebot import *
+
 import db_connect
 import kaz
 import rus
@@ -9,7 +10,6 @@ import commands_historyClass
 import common_file
 import file
 import user_infoClass
-from performerClass import get_subcategories_
 
 bot = telebot.TeleBot(db_connect.TOKEN, parse_mode="HTML")
 admin_id = ['484489968', '760906879', '187663574', '577247261', '204504707', '531622371', '6682886650', '1066191569']
@@ -84,9 +84,15 @@ def delete_appeals(message):
     bot.send_message(message.chat.id, "Изменения сохранены")
 
 
-@bot.message_handler(commands=['add_column_performers'])
-def delete_performers(message):
+@bot.message_handler(commands=['add_column'])
+def add_column(message):
     db_connect.add_column()
+    bot.send_message(message.chat.id, "Изменения сохранены")
+
+
+@bot.message_handler(commands=['change'])
+def change(message):
+    db_connect.change(bot, message)
     bot.send_message(message.chat.id, "Изменения сохранены")
 
 
@@ -458,7 +464,7 @@ def get_help_message(message):
         bot.send_message(message.chat.id, "Ваше сообщение успешно сохранено")
     else:
         bot.send_message(message.chat.id, "Сіздің хабарламаңыз сәтті сақталды")
-    bot.send_message('6682886650', help_message)
+    bot.send_message('187663574', help_message)
 
 
 @bot.callback_query_handler(func=lambda call: True)
@@ -602,19 +608,40 @@ def get_excel(message):
         performers.telegram AS "Телеграм исполнителя"
         FROM appeals 
         INNER JOIN performers ON appeals.id_performer = CAST(performers.id AS VARCHAR) 
-        INNER JOIN users ON appeals.user_id = users.id 
-        where appeals.status = %s""")
+        INNER JOIN users ON appeals.user_id = users.id """)
     common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
 
 
 @bot.message_handler(commands=['get_appeals_ex'])
 def get_excel(message):
-    sql_query = """
-        SELECT * from appeals
-    """
+    sql_query = (f"""
+            SELECT appeals.id AS "ID",
+            users.firstname AS "Имя работника",
+            users.lastname AS "Фамилия работника",
+            table_number AS "Табельный номер",
+            users.phone_number AS "Номер телефона работника",
+            users.email AS "Почта",
+            branch AS "Филиал",
+            status AS "Статус",
+            appeals.category AS "Категория",
+            appeal_text AS "Текст заявки",
+            date AS "Дата создания",
+            date_status AS "Дата последнего изменения статуса",
+            comment AS "Комментарий",
+            evaluation AS "Оценка",
+            image_data AS "Фото",
+            performers.firstname AS "Имя исполнителя",
+            performers.lastname AS "Фамилия исполнителя",
+            performers.email AS "Почта исполнителя",
+            performers.telegram AS "Телеграм исполнителя"
+            FROM appeals 
+            INNER JOIN performers ON appeals.id_performer = CAST(performers.id AS VARCHAR) 
+            INNER JOIN users ON appeals.user_id = users.id 
+            where appeals.category = %s""")
+    params = ('Вопрос к EX',)
     admin_id_new = admin_id[:]
     admin_id_new.append('388952664')
-    common_file.get_excel(bot, message, admin_id_new, 'output_file.xlsx', sql_query)
+    common_file.get_excel(bot, message, admin_id_new, 'output_file.xlsx', sql_query, params)
 
 
 @bot.message_handler(commands=['get_appeals_'])
@@ -810,6 +837,9 @@ def get_photo(message):
             kaz.appeal(bot, message, message.text)
     else:
         send_error(message)
+
+
+
 
 
 try:

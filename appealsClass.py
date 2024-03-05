@@ -1,5 +1,4 @@
 import psycopg2
-import db_connect
 from db_connect import execute_get_sql_query, execute_set_sql_query
 from userClass import get_user
 
