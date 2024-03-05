@@ -53,9 +53,37 @@ def admin_appeal(bot, message, message_text):
 
 
 def get_excel_admin1(bot, message, status="Решено"):
-    sql_query = """
-    SELECT DISTINCT
-    appeals.id AS "ID",
+    # sql_query = """
+    # SELECT DISTINCT
+    # appeals.id AS "ID",
+    # users.firstname AS "Имя работника",
+    # users.lastname AS "Фамилия работника",
+    # table_number AS "Табельный номер",
+    # users.phone_number AS "Номер телефона работника",
+    # users.email AS "Почта",
+    # branch AS "Филиал",
+    # status AS "Статус",
+    # appeals.category AS "Категория",
+    # appeal_text AS "Текст заявки",
+    # date AS "Дата создания",
+    # date_status AS "Дата последнего изменения статуса",
+    # comment AS "Комментарий",
+    # evaluation AS "Оценка",
+    # image_data AS "Фото",
+    # performers.firstname AS "Имя исполнителя",
+    # performers.lastname AS "Фамилия исполнителя",
+    # performers.email AS "Почта исполнителя",
+    # performers.telegram AS "Телеграм исполнителя"
+    # FROM appeals
+    # LEFT OUTER JOIN users ON appeals.user_id = users.id
+    # LEFT OUTER JOIN performers ON performers.performer_id = appeals.id_performer
+    # WHERE
+    #     appeals.id_performer = %s AND status = %s
+    # ORDER BY
+    #     appeals.id;
+    #     """
+    sql_query = (f"""
+    SELECT appeals.id AS "ID",
     users.firstname AS "Имя работника",
     users.lastname AS "Фамилия работника",
     table_number AS "Табельный номер",
@@ -74,15 +102,11 @@ def get_excel_admin1(bot, message, status="Решено"):
     performers.lastname AS "Фамилия исполнителя",
     performers.email AS "Почта исполнителя",
     performers.telegram AS "Телеграм исполнителя"
-    FROM appeals
-    LEFT OUTER JOIN users ON appeals.user_id = users.id
-    LEFT OUTER JOIN performers ON performers.category = appeals.category 
-    WHERE
-        id_performer = %s AND status = %s
-    ORDER BY
-        appeals.id;
-        """
-    params = (str(message.chat.id), str(status),)
+    FROM appeals 
+    INNER JOIN performers ON appeals.id_performer = CAST(performers.id AS VARCHAR) 
+    INNER JOIN users ON appeals.user_id = users.id 
+    where appeals.status = %s and performers.performer_id = %s""")
+    params = (status, str(message.chat.id))
     get_excel(bot, message, get_performers_id(), 'output_file.xlsx', sql_query, params)
 
 

@@ -553,33 +553,57 @@ def get_excel(message):
 
 @bot.message_handler(commands=['get_appeals'])
 def get_excel(message):
-    sql_query = """
-        SELECT
-            appeals.id AS "ID",
-            users.firstname AS "Имя работника",
-            users.lastname AS "Фамилия работника",
-            table_number AS "Табельный номер",
-            users.phone_number AS "Номер телефона работника",
-            users.email AS "Почта",
-            branch AS "Филиал",
-            status AS "Статус",
-            appeals.category AS "Категория",
-            appeal_text AS "Текст заявки",
-            date AS "Дата создания",
-            date_status AS "Дата последнего изменения статуса",
-            comment AS "Комментарий",
-            evaluation AS "Оценка",
-            image_data AS "Фото",
-            performers.performer_id AS "ID",
-            performers.firstname AS "Имя исполнителя",
-            performers.lastname AS "Фамилия исполнителя",
-            performers.email AS "Почта исполнителя",
-            performers.telegram AS "Телеграм исполнителя"
-        FROM appeals
-        INNER JOIN users ON appeals.user_id = users.id
-        INNER JOIN performers ON performers.id = appeals.id_performer
-        order by appeals.id 
-    """
+    # sql_query = """
+    #     SELECT
+    #         appeals.id AS "ID",
+    #         users.firstname AS "Имя работника",
+    #         users.lastname AS "Фамилия работника",
+    #         table_number AS "Табельный номер",
+    #         users.phone_number AS "Номер телефона работника",
+    #         users.email AS "Почта",
+    #         branch AS "Филиал",
+    #         status AS "Статус",
+    #         appeals.category AS "Категория",
+    #         appeal_text AS "Текст заявки",
+    #         date AS "Дата создания",
+    #         date_status AS "Дата последнего изменения статуса",
+    #         comment AS "Комментарий",
+    #         evaluation AS "Оценка",
+    #         image_data AS "Фото",
+    #         performers.performer_id AS "ID",
+    #         performers.firstname AS "Имя исполнителя",
+    #         performers.lastname AS "Фамилия исполнителя",
+    #         performers.email AS "Почта исполнителя",
+    #         performers.telegram AS "Телеграм исполнителя"
+    #     FROM appeals
+    #     INNER JOIN users ON appeals.user_id = users.id
+    #     INNER JOIN performers ON performers.id = appeals.id_performer
+    #     order by appeals.id
+    # """
+    sql_query = (f"""
+        SELECT appeals.id AS "ID",
+        users.firstname AS "Имя работника",
+        users.lastname AS "Фамилия работника",
+        table_number AS "Табельный номер",
+        users.phone_number AS "Номер телефона работника",
+        users.email AS "Почта",
+        branch AS "Филиал",
+        status AS "Статус",
+        appeals.category AS "Категория",
+        appeal_text AS "Текст заявки",
+        date AS "Дата создания",
+        date_status AS "Дата последнего изменения статуса",
+        comment AS "Комментарий",
+        evaluation AS "Оценка",
+        image_data AS "Фото",
+        performers.firstname AS "Имя исполнителя",
+        performers.lastname AS "Фамилия исполнителя",
+        performers.email AS "Почта исполнителя",
+        performers.telegram AS "Телеграм исполнителя"
+        FROM appeals 
+        INNER JOIN performers ON appeals.id_performer = CAST(performers.id AS VARCHAR) 
+        INNER JOIN users ON appeals.user_id = users.id 
+        where appeals.status = %s""")
     common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
 
 

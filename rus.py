@@ -633,12 +633,13 @@ def appeal(bot, message, message_text):
         file = requests.get(file_url)
         appeal_id = db_connect.get_last_appeal(message.chat.id)[0][0]
         appeal_ = get_appeal_by_id(appeal_id)[0]
+        performer_id = performerClass.get_performer_by_id(str(appeal_[7]))[0][1]
         set_image_data(appeal_id, file)
         image_data = get_image_data(appeal_id)
-        if appeal_[7] is None or appeal_[7] == '' or len(str(appeal_[7])) == 0:
+        if performer_id is None or performer_id == '' or len(str(performer_id)) == 0:
             end_appeal_gmail(bot, message, appeal_id, file_url)
         else:
-            bot.send_photo(appeal_[7], image_data)
+            bot.send_photo(performer_id, image_data)
             end_appeal(bot, message, appeal_id)
     elif message_text == "Отправить обращение":
         appeal_id = db_connect.get_last_appeal(message.chat.id)[0][0]
@@ -1410,7 +1411,7 @@ def get_region(message, bot, id_i_s, regions):
         msg = bot.send_message(message.chat.id, "Выберите регион из списка", reply_markup=markup_l)
         bot.register_next_step_handler(msg, get_region, bot, id_i_s, regions)
         return
-    performer_id = get_performer_by_category(message.text)[1]
+    performer_id = get_performer_by_category(message.text)[0]
     set_category_i_s(id_i_s, message.text)
     set_performer_id_i_s(id_i_s, performer_id)
     markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True)
@@ -1420,6 +1421,7 @@ def get_region(message, bot, id_i_s, regions):
                            "и КС: \nкод для цифровых документов;\nSMS для верификации номера;\nкод для автоподписания "
                            "бланка заявления.", reply_markup=markup_l)
     bot.register_next_step_handler(msg, get_is_notified, bot, id_i_s)
+
 
 def get_is_notified(message, bot, id_i_s):
     if redirect(bot, message, id_i_s):
@@ -1567,8 +1569,9 @@ def get_modem(message, bot, id_i_s):
     bot.send_message(message.chat.id, "Информация сохранена")
     appeal_info = get_appeal_by_id(appeal_[0])[0]
     text = performer_text(appeal_info)
-    bot.send_message(appeal_info[7], "Информация по серийному номеру сим карты и модема добавлена")
-    bot.send_message(appeal_info[7], text)
+    performer_id = performerClass.get_performer_by_id(appeal_info[7])[0][1]
+    bot.send_message(performer_id, "Информация по серийному номеру сим карты и модема добавлена")
+    bot.send_message(performer_id, text)
 
 
 def add_lte_appeal(bot, message, id_i_s):
@@ -1597,7 +1600,11 @@ def add_lte_appeal(bot, message, id_i_s):
                            now_updated,
                            lte_info[2], ' ', False, id_i_s)
     text = get_appeal_text_all(appeal_id)
-    bot.send_message(lte_info[2], text)
+    performer_id = performerClass.get_performer_by_id(lte_info[2])[0][1]
+    bot.send_message(message.chat.id, "1"+str(lte_info))
+    bot.send_message(message.chat.id, "2"+str(lte_info[2]))
+    bot.send_message(message.chat.id, "3"+str(performer_id))
+    bot.send_message(performer_id, text)
     bot.send_message(message.chat.id, "Ваша информация сохранена")
 
 
