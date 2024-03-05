@@ -143,4 +143,7 @@ def get_performer_ids(performer_id):
     sql_query = "SELECT id FROM performers WHERE performer_id = %s"
     params = (performer_id,)
     ids = execute_get_sql_query(sql_query, params)
-    return ids
+    ids_ = []
+    for id in ids:
+        ids_.append(str(id[0]))
+    return ids_

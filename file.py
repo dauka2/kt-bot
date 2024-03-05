@@ -19,10 +19,13 @@ def admin_appeal(bot, message, message_text):
         bot.send_message(message.chat.id, "Выберите следующий шаг", reply_markup=markup_a)
         return
     elif check_id(str(message.chat.id)) and message_text == "Текущие Обращения":
-        appeal_info = get_all_appeals_by_id_performer(str(message.chat.id), "Обращение принято","В процессе")
-        ids = performerClass.get_performer_ids(message.chat.id)
-        bot.send_message(message.chat.id, "appeals_info:" + str(appeal_info))
-        bot.send_message(message.chat.id, "ids:" + str(ids))
+        appeal_info_ = get_all_appeals_by_id_performer("Обращение принято","В процессе")
+        ids = performerClass.get_performer_ids(str(message.chat.id))
+        appeal_info = []
+        for ap in appeal_info_:
+            if str(ap[3]) in ids:
+                appeal_info.append(ap)
+
         markup_a = types.InlineKeyboardMarkup()
         if appeal_info is not None:
             for appeal_ in appeal_info:

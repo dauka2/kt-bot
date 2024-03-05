@@ -1,7 +1,7 @@
 from telebot import types
 import psycopg2
 
-TOKEN = '6053200189:AAHVGsQDJOnyvW0o4xwCZJ_X_zBdn7kRKNA'
+TOKEN = '6860898290:AAGx9-79kz8oWV15Thf8UdC62R3vv_M_M9M'
 admins_id = ['187663574', '760906879', '1066191569', '6682886650']
 
 
@@ -595,17 +595,17 @@ def get_appeals(message):
     return execute_get_sql_query(sql_query, params)
 
 
-def get_all_appeals_by_id_performer(id_performer, status_1, status_2):
+def get_all_appeals_by_id_performer(status_1, status_2):
     sql_query = (
         """
-SELECT appeals.id, users.firstname, users.lastname 
-FROM appeals 
+SELECT appeals.id, users.firstname, users.lastname, appeals.id_performer  
+FROM appeals  
 INNER JOIN users ON appeals.user_id = users.id 
 WHERE (status='Обращение принято' OR status='В процессе') 
 ORDER BY appeals.id;
         """
     )
-    params = (status_1, status_2, str(id_performer),)
+    params = (status_1, status_2,)
     appeals = execute_get_sql_query(sql_query, params)
     if appeals:
         return appeals
