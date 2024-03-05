@@ -382,7 +382,7 @@ def insert_into_performers_right():
     cur.execute('insert into performers (category, email) '
                 'values (%s, %s)', ("Обратиться в службу комплаенс", "tlek.issakov@telecom.kz"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) '
-                'values (%s, %s, %s, %s, %s, %s, %s)', ("760906879", 'Портал "Бірлік"',
+                'values (%s, %s, %s, %s, %s, %s, %s)', ("544040063", 'Портал "Бірлік"',
                                                         "Айгуль", "Уразбаева", "87064301630", "urazbayeva.a@telecom.kz",
                                                         "@eighth_muse"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
