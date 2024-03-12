@@ -1,7 +1,7 @@
 from telebot import types
 import psycopg2
 
-TOKEN = '6145415028:AAEdgPMvSsi3FJw2ccyzWf2QiJrPa_Ycz0A'
+TOKEN = '6860898290:AAFZ5UYWLIop3NKAXFO-ZSqUdQbVNkhmsc4'
 admins_id = ['187663574', '760906879', '1066191569', '6682886650']
 
 
@@ -125,9 +125,7 @@ def delete_appeals():
 
 
 def add_column():
-    sql_query = "ALTER TABLE performers ADD COLUMN IF NOT EXISTS subcategory char(50)"
-    sql_query += "ALTER TABLE performers ADD COLUMN IF NOT EXISTS subsubcategory char(50);"
-    sql_query += "ALTER TABLE users_info ADD COLUMN IF NOT EXISTS subcategory char(50);"
+    sql_query = "ALTER TABLE users_info ADD COLUMN IF NOT EXISTS subcategory char(50);"
     sql_query += "ALTER TABLE appeals ADD COLUMN IF NOT EXISTS subsubcategory char(50);"
     execute_set_sql_query(sql_query)
 
@@ -535,7 +533,7 @@ def insert_into_performers_right():
                  "Dina Shagina/ISA/KAZAKTELEKOM/KZ", "@", "Дивизион Информационных Технологий"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
                 'subcategory) values (%s, %s, %s, %s, %s, %s, %s, %s)',
-                ("1298491861", "Вопрос к EX", "Лаззат", "Баелова", "+7(701)7368842",
+                ("6682886650", "Вопрос к EX", "Лаззат", "Баелова", "+7(701)7368842",
                  "Bayelova.L@telecom.kz", "@", "Корпоративный Университет"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
                 'subcategory) values (%s, %s, %s, %s, %s, %s, %s, %s)',
@@ -589,8 +587,14 @@ def alter_table_users():
 
 
 def get_appeals(message):
-    sql_query = ("SELECT appeals.id, appeals.category from appeals "
-                 "where user_id = %s and appeals.status <> %s order by id")
+    sql_query = ("""
+    SELECT appeals.id, appeals.category 
+    FROM appeals 
+    WHERE user_id = %s 
+        AND appeals.status <> %s 
+        AND appeals.id_performer NOT IN ('3', '4') 
+    ORDER BY appeals.id
+        """)
     params = (str(message.chat.id), "Решено",)
     return execute_get_sql_query(sql_query, params)
 
