@@ -706,6 +706,8 @@ def send_error(message):
 
 @bot.message_handler(commands=['broadcast'])
 def info_broadcast(message):
+    new_admin_ids = admin_id[:]
+    new_admin_ids.append("388952664")
     if str(message.chat.id) not in admin_id:
         return
     msg = bot.reply_to(message, 'Введите текст')
