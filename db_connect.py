@@ -49,6 +49,7 @@ def create_db():
         'category varchar(100), appeal_text varchar(1000), date varchar(30), date_status varchar(30), '
         'id_performer varchar(30), comment varchar(1000), is_appeal_anon bool, evaluation int, '
         'image_data bytea, lte_id int, subcategory varchar(50), subsubcategory varchar(50))')
+
     cur.execute(
         'CREATE TABLE IF NOT EXISTS performers('
         'id serial primary key, '
@@ -330,7 +331,10 @@ def insert_into_performers():
                 'subcategory) values (%s, %s, %s, %s, %s, %s, %s, %s)',
                 ("760906879", "Вопрос к EX", "Д", "Д", "+77001117777",
                  "mail.com", "@", "Дирекция Управления Проектами"))
-
+    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
+                'subcategory, subsubcategory) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
+                ("1066191569", "Вопрос к EX", "Д", "Д", "+77001117777",
+                 "mail.com", "@", 'Обьединение Дивизион "Сеть"', "Головной ОДС"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
                 'subcategory, subsubcategory) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
                 ("1066191569", "Вопрос к EX", "Д", "Д", "+77001117777",
@@ -548,6 +552,10 @@ def insert_into_performers_right():
                 ("1009535782", "Вопрос к EX", "Карина", "Смагулова", "+7(701)2207060",
                  "Smagulova.Kr@mail.telecom.kz", "@", "Дирекция Управления Проектами"))
     #_------------------------------
+    cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
+                'subcategory, subsubcategory) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
+                ("6605904521", "Вопрос к EX", "Асель", "Рамазанова", "+77087100804",
+                 "AsselRamazanova@domino.telecom.kz", "@", 'Обьединение Дивизион "Сеть"', "Головной ОДС"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
                 'subcategory, subsubcategory) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
                 ("1293170656", "Вопрос к EX", "Гульмира", "Сыздыкова", "+7(701)2997704",

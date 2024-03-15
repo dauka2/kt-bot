@@ -6,7 +6,6 @@ import appealsClass
 import common_file
 import db_connect
 import lteClass
-import performerClass
 import userClass
 
 from appealsClass import set_status, set_date_status, get_appeal_by_id, get_image_data, get_status, set_evaluation, \
@@ -653,19 +652,17 @@ def appeal(bot, message, message_text):
         file = requests.get(file_url)
         appeal_id = db_connect.get_last_appeal(message.chat.id)[0][0]
         appeal_ = get_appeal_by_id(appeal_id)[0]
-        performer_id = performerClass.get_performer_by_id(str(appeal_[7]))[0][1]
         set_image_data(appeal_id, file)
         image_data = get_image_data(appeal_id)
-        if performer_id is None or performer_id == '' or len(str(performer_id)) == 0:
+        if appeal_[7] is None or appeal_[7] == '' or len(str(appeal_[7])) == 0:
             end_appeal_gmail(bot, message, appeal_id, file_url)
         else:
-            bot.send_photo(performer_id, image_data)
+            bot.send_photo(appeal_[7], image_data)
             end_appeal(bot, message, appeal_id)
     elif message_text == "Өтініш жіберу":
         appeal_id = db_connect.get_last_appeal(message.chat.id)[0][0]
         appeal_ = get_appeal_by_id(appeal_id)[0]
-        performer_id = performerClass.get_performer_by_id(appeal_[7])[0][1]
-        if performer_id is None or performer_id == '' or len(str(performer_id)) == 0:
+        if appeal_[7] is None or appeal_[7] == '' or len(str(appeal_[7])) == 0:
             end_appeal_gmail(bot, message, appeal_id)
         else:
             end_appeal(bot, message, appeal_id)
@@ -679,17 +676,18 @@ def appeal(bot, message, message_text):
             if branch == 'Обьединение Дивизион "Сеть"':
                 subsubcategory = str(get_subsubcategory_users_info(message.chat.id)).strip()
                 performer_ = get_performer_by_subsubcategory(subsubcategory)
-                performer_id = performer_[0][0]
+                performer_id = performer_[0][1]
             else:
-                performer_id = get_performer_by_category_and_subcategory(category, branch)[0][0]
+                performer_id = get_performer_by_category_and_subcategory(category, branch)[0][1]
         else:
             performer_id = get_performer_id_by_category(category)
 
         if performer_id is None or performer_id == '' or len(str(performer_id)) == 0:
             add_appeal_gmail(message.chat.id, category, message.text, now_updated)
         else:
+            performer_id = get_performer_by_category(category)[1]
             add_appeal(message.chat.id, "Обращение принято", category, message.text, now_updated,
-                       now_updated, performer_id, ' ', False, None, subsubcategory)
+                       now_updated, performer_id, ' ', False)
         markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True)
         button1_ap = types.KeyboardButton("Фотосурет қосыңыз")
         button2_ap = types.KeyboardButton("Өтініш жіберу")
