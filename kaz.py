@@ -1025,7 +1025,7 @@ def instructions(bot, message):
     elif message.text == "Абоненттер үшін Wi-Fi сигналын жақсарту":
         bot.send_message(message.chat.id, "Абоненттер үшін Wi Fi сигналын жақсарту маңыздылығы мен мүмкіндіктері - "
                                           "https://youtu.be/wZ9Nn6bQZsI")
-    elif message.text == "Абоненттер үшін Wi-Fi сигналын жақсарту":
+    elif message.text == "Маршрутизатор мен Mesh жүйесін орнату":
         bot.send_message(message.chat.id, "Маршрутизатор мен Mesh жүйесінің параметрлері туралы бейне нұсқаулық - "
                                           "https://youtu.be/0ue5ODjIXXU")
 
