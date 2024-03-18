@@ -46,7 +46,8 @@ kb_field_all = ["Логотипы и Брендбук", "Личный кабин
                 "Корпоративный университет", "ADSL модем", "IDTV приставки",
                 "ONT модемы", "Router 4G and Router Ethernet", "Инструкция по установке CheckPoint",
                 "Установочный файл CheckPoint", "Портал закупок | Инструкции", 'Для инициаторов | Инструкции',
-                'Для секретарей | Инструкции']
+                'Для секретарей | Инструкции', 'Улучшение Wi-Fi сигнала для абонентов',
+                'Настройка маршрутизатора и Mesh системы']
 instr_field = ["Брендбук и логотипы", "Личный кабинет telecom.kz", "Модемы | Настройка", "Lotus & CheckPoint"]
 adapt_field = ["😊Welcome курс | Адаптация"]
 portal_bts = ["Что такое портал 'Бірлік'?", "Как войти на портал?", "Оставить обращение на портал"]
@@ -995,6 +996,12 @@ def instructions(bot, message):
         bot.send_message(message.chat.id, "Инструкции для секретарей"
                                           "\nhttps://disk.telecom.kz/index.php/s/kc8PfD44Qw6X8jM")
         bot.send_message(message.chat.id, "Пароль:\nsF21hOvUOp")
+    elif message.text == "Улучшение Wi-Fi сигнала для абонентов":
+        bot.send_message(message.chat.id, "Улучшение Wi Fi сигнала для абонентов  Важность и возможности - "
+                                          "https://youtu.be/wZ9Nn6bQZs")
+    elif message.text == "Настройка маршрутизатора и Mesh системы":
+        bot.send_message(message.chat.id, "Видеоинструкция по настройкам маршрутизатора и Mesh системы - "
+                                          "https://youtu.be/0ue5ODjIXXU")
 
 
 def kb(bot, message):
@@ -1022,7 +1029,10 @@ def kb(bot, message):
         button6_kb = types.KeyboardButton("CheckPoint VPN | Удаленная работа")
         button7_kb = types.KeyboardButton("Командировка | Порядок оформления")
         button8_kb = types.KeyboardButton("Портал закупок | Инструкции")
-        markup_instr.add(button4_kb, button6_kb, button1_kb, button7_kb, button2_kb, button3_kb, button8_kb)
+        button9_kb = types.KeyboardButton("Улучшение Wi-Fi сигнала для абонентов")
+        button10_kb = types.KeyboardButton("Настройка маршрутизатора и Mesh системы")
+        markup_instr.add(button4_kb, button6_kb, button1_kb, button7_kb, button2_kb, button3_kb, button8_kb,
+                         button9_kb, button10_kb)
         bot.send_message(message.chat.id, "Здесь Вы можете найти полезную для Bac инструкцию.",
                          reply_markup=markup_instr)
         time.sleep(0.5)
