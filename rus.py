@@ -997,10 +997,10 @@ def instructions(bot, message):
                                           "\nhttps://disk.telecom.kz/index.php/s/kc8PfD44Qw6X8jM")
         bot.send_message(message.chat.id, "Пароль:\nsF21hOvUOp")
     elif message.text == "Улучшение Wi-Fi сигнала для абонентов":
-        bot.send_message(message.chat.id, "Улучшение Wi Fi сигнала для абонентов  Важность и возможности - "
+        bot.send_message(message.chat.id, "Улучшение Wi Fi сигнала для абонентов  Важность и возможности - \n"
                                           "https://youtu.be/wZ9Nn6bQZs")
     elif message.text == "Настройка маршрутизатора и Mesh системы":
-        bot.send_message(message.chat.id, "Видеоинструкция по настройкам маршрутизатора и Mesh системы - "
+        bot.send_message(message.chat.id, "Видеоинструкция по настройкам маршрутизатора и Mesh системы - \n"
                                           "https://youtu.be/0ue5ODjIXXU")
 
 
