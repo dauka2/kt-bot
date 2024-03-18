@@ -516,7 +516,7 @@ def call_back(bot, call):
             set_status(appeal_id, "Решено")
         else:
             set_status(appeal_id, "В процессе")
-        now = datetime.now() + timedelta(hours=6)
+        now = datetime.now() + timedelta(hours=5)
         now_updated = remove_milliseconds(now)
         set_date_status(appeal_id, str(now_updated))
         bot.send_message(call.message.chat.id, "Статус изменен")
@@ -667,7 +667,7 @@ def appeal(bot, message, message_text):
         else:
             end_appeal(bot, message, appeal_id)
     elif get_appeal_field(message) and get_category_users_info(message) != ' ':
-        now = datetime.now() + timedelta(hours=6)
+        now = datetime.now() + timedelta(hours=5)
         now_updated = remove_milliseconds(now)
         category = get_category_users_info(message)
         branch = get_branch(message.chat.id)
@@ -1464,7 +1464,7 @@ def add_lte_appeal(bot, message, id_i_s):
     if redirect(bot, message, id_i_s):
         return
     lte_info = db_connect.get_sale(id_i_s)
-    now = datetime.now() + timedelta(hours=6)
+    now = datetime.now() + timedelta(hours=5)
     now_updated = remove_milliseconds(now)
     is_notified = "Да"
     if not lte_info[7]:
