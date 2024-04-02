@@ -103,6 +103,12 @@ def change(message):
     bot.send_message(message.chat.id, "Изменения сохранены")
 
 
+@bot.message_handler(commands=['change_column_ev'])
+def change(message):
+    appealsClass.set_column_evaluation_to_default_null()
+    bot.send_message(message.chat.id, "Изменения сохранены")
+
+
 @bot.message_handler(commands=['register_start'])
 def register(message, func="menu"):
     commands_historyClass.cm_sv_db(message, '/start_register')

@@ -167,3 +167,8 @@ def get_subcategory_by_appeal_id(appeal_id):
 def set_evaluation_to_null():
     sql_query = "UPDATE appeals SET evaluation = NULL WHERE evaluation = 0"
     execute_set_sql_query(sql_query)
+
+
+def set_column_evaluation_to_default_null():
+    sql_query = "ALTER TABLE appeals ALTER COLUMN evaluation SET DEFAULT NULL"
+    execute_set_sql_query(sql_query)
