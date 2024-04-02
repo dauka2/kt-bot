@@ -574,8 +574,8 @@ def insert_into_performers_right():
                  "GemisAbsatarova@mail.ru", "@", 'Обьединение Дивизион "Сеть"', "Запад"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
                 'subcategory, subsubcategory) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
-                ("1995668845", "Вопрос к EX", "Айнура", "Батебаева", "+7(771)9990095",
-                 "abatebaeva@mail.ru", "@", 'Обьединение Дивизион "Сеть"', "Восток"))
+                ("5807536943", "Вопрос к EX", "Дина", "Оразбаева", "+7(771)1333175",
+                 "orazbaeva.d@telecom.kz", "@", 'Обьединение Дивизион "Сеть"', "Восток"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
                 'subcategory, subsubcategory) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
                 ("365934808", "Вопрос к EX", "Толкын", "Сапарбаева", "+7(775)7693283",

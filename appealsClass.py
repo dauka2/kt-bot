@@ -162,3 +162,8 @@ def get_subcategory_by_appeal_id(appeal_id):
     sql_query = "SELECT subcategory from appeals where id=%s"
     params = (appeal_id,)
     return execute_get_sql_query(sql_query, params)[0][0]
+
+
+def set_evaluation_to_null():
+    sql_query = "UPDATE appeals SET evaluation = NULL WHERE evaluation = 0"
+    execute_set_sql_query(sql_query)

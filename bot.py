@@ -2,6 +2,7 @@ import openpyxl
 import psycopg2
 from telebot import *
 
+import appealsClass
 import db_connect
 import kaz
 import rus
@@ -93,6 +94,12 @@ def add_column(message):
 @bot.message_handler(commands=['change'])
 def change(message):
     db_connect.change(bot, message)
+    bot.send_message(message.chat.id, "Изменения сохранены")
+
+
+@bot.message_handler(commands=['change_ev'])
+def change(message):
+    appealsClass.set_evaluation_to_null()
     bot.send_message(message.chat.id, "Изменения сохранены")
 
 
