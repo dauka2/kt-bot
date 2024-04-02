@@ -172,3 +172,10 @@ def set_evaluation_to_null():
 def set_column_evaluation_to_default_null():
     sql_query = "ALTER TABLE appeals ALTER COLUMN evaluation SET DEFAULT NULL"
     execute_set_sql_query(sql_query)
+
+
+def get_appeals_where_evaluation_null():
+    sql_query = ("SELECT id, user_id, status, category, appeal_text, id_performer, evaluation FROM appeals "
+                 "WHERE evaluation IS NULL and status = 'Решено'")
+    return execute_get_sql_query(sql_query)
+

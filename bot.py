@@ -109,6 +109,24 @@ def change(message):
     bot.send_message(message.chat.id, "Изменения сохранены")
 
 
+@bot.message_handler(commands=['get_appeals_null_evaluation'])
+def change(message):
+    user_infoClass.set_appeal_field(message, True)
+    appeals_ = appealsClass.get_appeals_where_evaluation_null()
+    bot.send_message(message.chat.id, str(appeals_))
+    for appeal in appeals_:
+        markup_callback = types.InlineKeyboardMarkup(row_width=5)
+        appeal_info = appealsClass.get_appeal_by_id(appeal[0])[0]
+        text_ = rus.performer_text(appeal_info)
+        bot.send_message(appeal[1], text_)
+        for i in range(1, 6):
+            callback_d = f"{i}_evaluation_{appeal[0]}"  # Используйте идентификатор обращения appeal[0]
+            button_callback = types.InlineKeyboardButton(str(i), callback_data=callback_d)
+            markup_callback.add(button_callback)
+        bot.send_message(appeal[1], "Оцените решенное обращение от 1 до 5\n\nГде 1 - очень плохо, "
+                                    "5 - замечательно", reply_markup=markup_callback)
+
+
 @bot.message_handler(commands=['register_start'])
 def register(message, func="menu"):
     commands_historyClass.cm_sv_db(message, '/start_register')
@@ -854,11 +872,7 @@ def get_photo(message):
         send_error(message)
 
 
-
-
-
 try:
     bot.polling(none_stop=True)
 except (ConnectionError, TimeoutError) as ex:
     bot.send_message('760906879', str(ex.args))
-
