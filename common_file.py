@@ -67,7 +67,6 @@ def send_gmails(text, category, file_url=None):
     s.quit()
 
 
-
 def glossary(bot, message, text1, text2, button_text):
     wb = openpyxl.load_workbook('glossary.xlsx')
     excel = wb['Лист1']
@@ -82,7 +81,7 @@ def glossary(bot, message, text1, text2, button_text):
         bot.send_message(message.chat.id, text1)
     else:
         close_matches = get_close_matches(message.text.upper(), abbr, n=5, cutoff=0.6)
-        matches_markup = types.ReplyKeyboardMarkup()
+        matches_markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
         matches_markup = generate_buttons(close_matches, matches_markup)
         send_photo_(bot, message.chat.id, 'images/oops.jpg')
         markup = types.InlineKeyboardMarkup()

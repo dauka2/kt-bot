@@ -664,12 +664,11 @@ def appeal(bot, message, message_text):
                 performer_id = get_performer_by_category_and_subcategory(category, branch)[0][0]
         else:
             performer_id = get_performer_id_by_category(category)
-
         if performer_id is None or performer_id == '' or len(str(performer_id)) == 0:
             add_appeal_gmail(message.chat.id, category, message.text, now_updated)
         else:
             add_appeal(message.chat.id, "Обращение принято", category, message.text, now_updated,
-                         now_updated, performer_id, ' ', False, None, subsubcategory)
+                       now_updated, performer_id, ' ', False, None, branch, subsubcategory)
         markup_ap = types.ReplyKeyboardMarkup()
         button1_ap = types.KeyboardButton("Добавить фото")
         button2_ap = types.KeyboardButton("Отправить без фото")

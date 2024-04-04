@@ -176,6 +176,5 @@ def set_column_evaluation_to_default_null():
 
 def get_appeals_where_evaluation_null():
     sql_query = ("SELECT id, user_id, status, category, appeal_text, id_performer, evaluation FROM appeals "
-                 "WHERE evaluation IS NULL and status = 'Решено'")
+                 "WHERE evaluation IS NULL and status = 'Решено' order by user_id, id")
     return execute_get_sql_query(sql_query)
-

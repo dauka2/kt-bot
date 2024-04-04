@@ -93,8 +93,29 @@ def add_column(message):
 
 @bot.message_handler(commands=['change'])
 def change(message):
-    db_connect.change(bot, message)
+    change_(message)
     bot.send_message(message.chat.id, "Изменения сохранены")
+
+
+def change_(message):
+    sql_query = "SELECT * FROM appeals order by id"
+    appeals_ = db_connect.execute_get_sql_query(sql_query)
+    for appeal in appeals_:
+        try:
+            if appeal[3] == "Вопрос к EX":
+                branch = rus.get_branch(appeal[1])
+                if branch == 'Обьединение Дивизион "Сеть"':
+                    performer_ = rus.get_performer_by_subsubcategory(appeal[14])
+                    performer_id = performer_[0][0]
+                else:
+                    performer_id = rus.get_performer_by_category_and_subcategory(appeal[3], branch)[0][0]
+            else:
+                performer_id = rus.get_performer_by_category(appeal[3])[0]
+            sql_query = "UPDATE appeals SET id_performer = %s WHERE id = %s"
+            params = (performer_id, appeal[0])
+            db_connect.execute_set_sql_query(sql_query, params)
+        except Exception as e:
+            print(str(e.args))
 
 
 @bot.message_handler(commands=['change_ev'])
@@ -109,22 +130,34 @@ def change(message):
     bot.send_message(message.chat.id, "Изменения сохранены")
 
 
-@bot.message_handler(commands=['get_appeals_null_evaluation'])
+@bot.message_handler(commands=['set_appeal_id_performer'])
 def change(message):
+    sql_query = "UPDATE appeals SET id_performer = 32 where id = 596"
+    db_connect.execute_set_sql_query(sql_query)
+
+
+@bot.message_handler(commands=['send_evaluation'])
+def change(message):
+    user_id = "0"
     user_infoClass.set_appeal_field(message, True)
     appeals_ = appealsClass.get_appeals_where_evaluation_null()
-    bot.send_message(message.chat.id, str(appeals_))
-    for appeal in appeals_:
-        markup_callback = types.InlineKeyboardMarkup(row_width=5)
-        appeal_info = appealsClass.get_appeal_by_id(appeal[0])[0]
-        text_ = rus.performer_text(appeal_info)
-        bot.send_message(appeal[1], text_)
-        for i in range(1, 6):
-            callback_d = f"{i}_evaluation_{appeal[0]}"  # Используйте идентификатор обращения appeal[0]
-            button_callback = types.InlineKeyboardButton(str(i), callback_data=callback_d)
-            markup_callback.add(button_callback)
-        bot.send_message(appeal[1], "Оцените решенное обращение от 1 до 5\n\nГде 1 - очень плохо, "
-                                    "5 - замечательно", reply_markup=markup_callback)
+    if appeals_ is not None:
+        for appeal in appeals_:
+            if user_id != appeal[1]:
+                bot.send_message(appeal[1], "Добрый день, Уважаемый пользователть! \n\n"
+                                            "Оцените пожалуйста решенное обращение. "
+                                            "Ваше мнение для нас очень важно.")
+                user_id = appeal[1]
+            markup_callback = types.InlineKeyboardMarkup(row_width=5)
+            appeal_info = appealsClass.get_appeal_by_id(appeal[0])[0]
+            text_ = rus.performer_text(appeal_info)
+            bot.send_message(appeal[1], text_)
+            for i in range(1, 6):
+                callback_d = f"{i}evaluation{appeal[0]}"  # Используйте идентификатор обращения appeal[0]
+                button_callback = types.InlineKeyboardButton(str(i), callback_data=callback_d)
+                markup_callback.add(button_callback)
+            bot.send_message(appeal[1], "Оцените решенное обращение от 1 до 5\n\nГде 1 - очень плохо, "
+                                        "5 - замечательно", reply_markup=markup_callback)
 
 
 @bot.message_handler(commands=['register_start'])
@@ -639,7 +672,8 @@ def get_excel(message):
         performers.telegram AS "Телеграм исполнителя"
         FROM appeals 
         INNER JOIN performers ON appeals.id_performer = CAST(performers.id AS VARCHAR) 
-        INNER JOIN users ON appeals.user_id = users.id """)
+        INNER JOIN users ON appeals.user_id = users.id 
+        order by appeals.id""")
     common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
 
 
