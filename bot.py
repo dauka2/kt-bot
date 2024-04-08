@@ -114,6 +114,7 @@ def change_(message):
             sql_query = "UPDATE appeals SET id_performer = %s WHERE id = %s"
             params = (performer_id, appeal[0])
             db_connect.execute_set_sql_query(sql_query, params)
+            bot.send_message(message.chat.id, "Изменения сохранены")
         except Exception as e:
             print(str(e.args))
 
@@ -134,6 +135,7 @@ def change(message):
 def change(message):
     sql_query = "UPDATE appeals SET id_performer = 32 where id = 596"
     db_connect.execute_set_sql_query(sql_query)
+    bot.send_message(message.chat.id, "Изменения сохранены")
 
 
 @bot.message_handler(commands=['send_evaluation'])
@@ -143,21 +145,29 @@ def change(message):
     appeals_ = appealsClass.get_appeals_where_evaluation_null()
     if appeals_ is not None:
         for appeal in appeals_:
-            if user_id != appeal[1]:
-                bot.send_message(appeal[1], "Добрый день, Уважаемый пользователть! \n\n"
-                                            "Оцените пожалуйста решенное обращение. "
-                                            "Ваше мнение для нас очень важно.")
-                user_id = appeal[1]
-            markup_callback = types.InlineKeyboardMarkup(row_width=5)
-            appeal_info = appealsClass.get_appeal_by_id(appeal[0])[0]
-            text_ = rus.performer_text(appeal_info)
-            bot.send_message(appeal[1], text_)
-            for i in range(1, 6):
-                callback_d = f"{i}evaluation{appeal[0]}"  # Используйте идентификатор обращения appeal[0]
-                button_callback = types.InlineKeyboardButton(str(i), callback_data=callback_d)
-                markup_callback.add(button_callback)
-            bot.send_message(appeal[1], "Оцените решенное обращение от 1 до 5\n\nГде 1 - очень плохо, "
-                                        "5 - замечательно", reply_markup=markup_callback)
+            try:
+                if user_id != appeal[1]:
+                    bot.send_message(appeal[1], "Добрый день, Уважаемый пользователть! \n\n"
+                                                "Оцените пожалуйста решенное обращение. "
+                                                "Ваше мнение для нас очень важно.")
+                    user_id = appeal[1]
+                markup_callback = types.InlineKeyboardMarkup(row_width=5)
+                appeal_info = appealsClass.get_appeal_by_id(appeal[0])[0]
+                text_ = rus.performer_text(appeal_info)
+                bot.send_message(appeal[1], text_)
+                for i in range(1, 6):
+                    callback_d = f"{i}evaluation{appeal[0]}"
+                    button_callback = types.InlineKeyboardButton(str(i), callback_data=callback_d)
+                    markup_callback.add(button_callback)
+                bot.send_message(appeal[1], "Оцените решенное обращение от 1 до 5\n\nГде 1 - очень плохо, "
+                                            "5 - замечательно", reply_markup=markup_callback)
+                bot.send_message(message.chat.id, str(appeal[0]))
+            except Exception as e:
+                print(str(e.args))
+        bot.send_message(message.chat.id, "Отправлено")
+    else:
+        bot.send_message(message.chat.id, "appeal_none")
+
 
 
 @bot.message_handler(commands=['register_start'])
