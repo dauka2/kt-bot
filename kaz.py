@@ -49,7 +49,8 @@ kb_field_all = ["Логотиптер және Брендбук", "Жеке ка
                 "IDTV консолі", "ONT модемдері", "Router 4G and Router Ethernet", "CheckPoint Орнату нұсқаулығы",
                 "Checkpoint орнату файлы", "Сатып алу порталы | Нұсқаулар", 'Хатшылар үшін | Нұсқаулар',
                 "Бастамашылар | Нұсқаулар үшін", "Абоненттер үшін Wi-Fi сигналын жақсарту",
-                "Маршрутизатор мен Mesh жүйесін орнату"]
+                "Маршрутизатор мен Mesh жүйесін орнату", "Желі және теледидар+",
+                "Желіні орнату және TCP / IP", "ТВ + Қазақтелеком орнату"]
 instr_field = ["Брендбук және логотиптер", "Жеке кабинет telecom.kz", "Модемдер | Теңшеу", "Lotus | Нұсқаулар"]
 adapt_field = ["😊Welcome курс | Бейімделу"]
 portal_bts = ["'Бірлік' порталы дегеніміз не?", "Порталға қалай кіруге болады?", "Порталға өтініш қалдыру"]
@@ -686,9 +687,8 @@ def appeal(bot, message, message_text):
         if performer_id is None or performer_id == '' or len(str(performer_id)) == 0:
             add_appeal_gmail(message.chat.id, category, message.text, now_updated)
         else:
-            performer_id = get_performer_by_category(category)[1]
             add_appeal(message.chat.id, "Обращение принято", category, message.text, now_updated,
-                       now_updated, performer_id, ' ', False)
+                       now_updated, performer_id, ' ', False, None, branch, subsubcategory)
         markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True)
         button1_ap = types.KeyboardButton("Фотосурет қосыңыз")
         button2_ap = types.KeyboardButton("Өтініш жіберу")
@@ -1022,6 +1022,18 @@ def instructions(bot, message):
     elif message.text == "Маршрутизатор мен Mesh жүйесін орнату":
         bot.send_message(message.chat.id, "Маршрутизатор мен Mesh жүйесінің параметрлері туралы бейне нұсқаулық - \n"
                                           "https://youtu.be/0ue5ODjIXXU")
+    elif message.text == "Желі және теледидар+":
+        markup_kb = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+        button1_kb = types.KeyboardButton("Желіні орнату және TCP / IP")
+        button2_kb = types.KeyboardButton("ТВ + Қазақтелеком орнату")
+        markup_kb.add(button1_kb, button2_kb)
+        bot.send_message(message.chat.id, "Нұсқаулықты таңдаңыз", reply_markup=markup_kb)
+    elif message.text == "Желіні орнату және TCP / IP":
+        bot.send_document(message.chat.id, open("files/Инструкция по проверке состояния сетевой карты и "
+                                                "настройка свойств протокола tcpipv4.pdf", "rb"))
+    elif message.text == "ТВ + Қазақтелеком орнату":
+        bot.send_document(message.chat.id,
+                          open("files/Инструкция по установке приложения  «ТВ+ Казахтелеком ».pdf", "rb"))
 
 
 def kb(bot, message):
@@ -1051,8 +1063,9 @@ def kb(bot, message):
         button8_instr = types.KeyboardButton("Сатып алу порталы | Нұсқаулар")
         button9_instr = types.KeyboardButton("Абоненттер үшін Wi-Fi сигналын жақсарту")
         button10_instr = types.KeyboardButton("Маршрутизатор мен Mesh жүйесін орнату")
+        button11_kb = types.KeyboardButton("Желі және теледидар+")
         markup_instr.add(button4_instr, button6_instr, button1_instr, button7_instr, button2_instr, button3_instr,
-                         button8_instr, button9_instr, button10_instr)
+                         button8_instr, button9_instr, button10_instr, button11_kb)
         bot.send_message(message.chat.id, "Бұл жерде өзіңізге пайдалы нұсқаулықты таба аласыз.",
                          reply_markup=markup_instr)
         time.sleep(0.5)

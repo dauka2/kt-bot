@@ -114,7 +114,6 @@ def change_(message):
             sql_query = "UPDATE appeals SET id_performer = %s WHERE id = %s"
             params = (performer_id, appeal[0])
             db_connect.execute_set_sql_query(sql_query, params)
-            bot.send_message(message.chat.id, "Изменения сохранены")
         except Exception as e:
             print(str(e.args))
 
@@ -167,7 +166,6 @@ def change(message):
         bot.send_message(message.chat.id, "Отправлено")
     else:
         bot.send_message(message.chat.id, "appeal_none")
-
 
 
 @bot.message_handler(commands=['register_start'])

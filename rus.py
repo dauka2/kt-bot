@@ -47,7 +47,8 @@ kb_field_all = ["Логотипы и Брендбук", "Личный кабин
                 "ONT модемы", "Router 4G and Router Ethernet", "Инструкция по установке CheckPoint",
                 "Установочный файл CheckPoint", "Портал закупок | Инструкции", 'Для инициаторов | Инструкции',
                 'Для секретарей | Инструкции', 'Улучшение Wi-Fi сигнала для абонентов',
-                'Настройка маршрутизатора и Mesh системы']
+                'Настройка маршрутизатора и Mesh системы', 'Сеть и ТВ+', 'Сетевая настройка и TCP/IP',
+                'Установка ТВ+ Казахтелеком']
 instr_field = ["Брендбук и логотипы", "Личный кабинет telecom.kz", "Модемы | Настройка", "Lotus & CheckPoint"]
 adapt_field = ["😊Welcome курс | Адаптация"]
 portal_bts = ["Что такое портал 'Бірлік'?", "Как войти на портал?", "Оставить обращение на портал"]
@@ -664,6 +665,7 @@ def appeal(bot, message, message_text):
                 performer_id = get_performer_by_category_and_subcategory(category, branch)[0][0]
         else:
             performer_id = get_performer_id_by_category(category)
+
         if performer_id is None or performer_id == '' or len(str(performer_id)) == 0:
             add_appeal_gmail(message.chat.id, category, message.text, now_updated)
         else:
@@ -1001,6 +1003,18 @@ def instructions(bot, message):
     elif message.text == "Настройка маршрутизатора и Mesh системы":
         bot.send_message(message.chat.id, "Видеоинструкция по настройкам маршрутизатора и Mesh системы - \n"
                                           "https://youtu.be/0ue5ODjIXXU")
+    elif message.text == "Сеть и ТВ+":
+        markup_kb = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+        button1_kb = types.KeyboardButton("Сетевая настройка и TCP/IP")
+        button2_kb = types.KeyboardButton("Установка ТВ+ Казахтелеком")
+        markup_kb.add(button1_kb, button2_kb)
+        bot.send_message(message.chat.id, "Выберите инструкцию", reply_markup=markup_kb)
+    elif message.text == "Сетевая настройка и TCP/IP":
+        bot.send_document(message.chat.id, open("files/Инструкция по проверке состояния сетевой карты и "
+                                                "настройка свойств протокола tcpipv4.pdf", "rb"))
+    elif message.text == "Установка ТВ+ Казахтелеком":
+        bot.send_document(message.chat.id,
+                          open("files/Инструкция по установке приложения  «ТВ+ Казахтелеком ».pdf", "rb"))
 
 
 def kb(bot, message):
@@ -1030,8 +1044,9 @@ def kb(bot, message):
         button8_kb = types.KeyboardButton("Портал закупок | Инструкции")
         button9_kb = types.KeyboardButton("Улучшение Wi-Fi сигнала для абонентов")
         button10_kb = types.KeyboardButton("Настройка маршрутизатора и Mesh системы")
+        button11_kb = types.KeyboardButton("Сеть и ТВ+")
         markup_instr.add(button4_kb, button6_kb, button1_kb, button7_kb, button2_kb, button3_kb, button8_kb,
-                         button9_kb, button10_kb)
+                         button9_kb, button10_kb, button11_kb)
         bot.send_message(message.chat.id, "Здесь Вы можете найти полезную для Bac инструкцию.",
                          reply_markup=markup_instr)
         time.sleep(0.5)
