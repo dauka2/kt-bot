@@ -50,7 +50,9 @@ kb_field_all = ["Логотипы и Брендбук", "Личный кабин
                 'Настройка маршрутизатора и Mesh системы', 'Сеть и ТВ+', 'Сетевая настройка и TCP/IP',
                 'Установка ТВ+ Казахтелеком']
 instr_field = ["Брендбук и логотипы", "Личный кабинет telecom.kz", "Модемы | Настройка", "Lotus & CheckPoint"]
-adapt_field = ["😊Welcome курс | Адаптация"]
+adapt_field = ["😊Welcome курс | Адаптация", "ДТК", "Общая информация", "Орг структура", "История", "ДТК Инструкции",
+               "Заявки в ОЦО HR", "Заявки возложение обязанностей", "Заявки на отпуск", "Командировки", "Переводы",
+               "Порядок оформления командировки", "Рассторжение ТД"]
 portal_bts = ["Что такое портал 'Бірлік'?", "Как войти на портал?", "Оставить обращение на портал"]
 # "Бірлік Гид"
 portal_ = ["Мобильная версия", "ПК или ноутбук", "Как авторизоваться", "Личный профиль", "Из портала перейти в ССП",
@@ -260,16 +262,71 @@ def send_error(bot, message):
                      "Упс, что-то пошло не так...\nПoжaлyйcтa, попробуйте заново запустить бота нажав кнопку /menu")
 
 
+def start_adaption(bot, message):
+    markup_adapt = types.InlineKeyboardMarkup()
+    button_adapt = types.InlineKeyboardButton("Рассказывай!", callback_data="Рассказывай!")
+    markup_adapt.add(button_adapt)
+    bot.send_message(message.chat.id, f'Добро пожаловать в AO “Казахтелеком”🥳')
+    send_photo_(bot, message.chat.id, 'images/dear_collegue.jpeg')
+    time.sleep(0.75)
+    bot.send_message(message.chat.id, "Только для начала расскажу тебе, как мной пользоваться 🫡",
+                     reply_markup=markup_adapt)
+
+
 def adaption(bot, message):
     if message.text == "😊Welcome курс | Адаптация":
-        markup_adapt = types.InlineKeyboardMarkup()
-        button_adapt = types.InlineKeyboardButton("Рассказывай!", callback_data="Рассказывай!")
-        markup_adapt.add(button_adapt)
-        bot.send_message(message.chat.id, f'Добро пожаловать в AO “Казахтелеком”🥳')
-        send_photo_(bot, message.chat.id, 'images/dear_collegue.jpeg')
-        time.sleep(0.75)
-        bot.send_message(message.chat.id, "Только для начала расскажу тебе, как мной пользоваться 🫡",
-                         reply_markup=markup_adapt)
+        if get_branch(message.chat.id) == "Дирекция Телеком Комплект":
+            markup_dtk = types.ReplyKeyboardMarkup(row_width=1, one_time_keyboard=True)
+            button_dtk1 = types.KeyboardButton("Общая информация")
+            button_dtk2 = types.KeyboardButton("ДТК")
+            markup_dtk.add(button_dtk1, button_dtk2)
+            bot.send_message(message.chat.id, "Выберите категорию", reply_markup=markup_dtk)
+        else:
+            start_adaption(bot, message)
+    elif message.text == "ДТК":
+        markup_dtk = types.ReplyKeyboardMarkup(row_width=1)
+        button_dtk1 = types.KeyboardButton("Орг структура")
+        button_dtk2 = types.KeyboardButton("История")
+        button_dtk3 = types.KeyboardButton("ДТК Инструкции")
+        markup_dtk.add(button_dtk1, button_dtk2, button_dtk3)
+        bot.send_message(message.chat.id, "Выберите категорию", reply_markup=markup_dtk)
+    elif message.text == "Общая информация":
+        start_adaption(bot, message)
+    elif message.text == "Орг структура":
+        bot.send_document(message.chat.id, open("files/dtk/Орг.структура ДТК.pdf", 'rb'))
+    elif message.text == "История":
+        bot.send_document(message.chat.id, open("files/dtk/Орг.структура ДТК.pdf", 'rb'))
+    else:
+        instructions_dtk(bot, message)
+
+
+def instructions_dtk(bot, message):
+    message_text = message.text
+    if message_text == "ДТК Инструкции":
+        markup_dtk = types.ReplyKeyboardMarkup(row_width=1)
+        button_dtk1 = types.KeyboardButton("Заявки в ОЦО HR")
+        button_dtk2 = types.KeyboardButton("Заявки возложение обязанностей")
+        button_dtk3 = types.KeyboardButton("Заявки на отпуск")
+        button_dtk4 = types.KeyboardButton("Командировки")
+        button_dtk5 = types.KeyboardButton("Переводы")
+        button_dtk6 = types.KeyboardButton("Порядок оформления командировки")
+        button_dtk7 = types.KeyboardButton("Рассторжение ТД")
+        markup_dtk.add(button_dtk1, button_dtk2, button_dtk3, button_dtk4, button_dtk5, button_dtk6, button_dtk7)
+        bot.send_message(message.chat.id, "Выберите категорию", reply_markup=markup_dtk)
+    elif message_text == "Заявки в ОЦО HR":
+        bot.send_document(message.chat.id, open("files/dtk/Заявки в ОЦО HR.docx", 'rb'))
+    elif message_text == "Заявки возложение обязанностей":
+        bot.send_document(message.chat.id, open("files/dtk/Заявки возложение обязанностей.docx", 'rb'))
+    elif message_text == "Заявки на отпуск":
+        bot.send_document(message.chat.id, open("files/dtk/Заявки на отпуск.docx", 'rb'))
+    elif message_text == "Командировки":
+        bot.send_document(message.chat.id, open("files/dtk/Командировки.docx", 'rb'))
+    elif message_text == "Переводы":
+        bot.send_document(message.chat.id, open("files/dtk/Переводы.docx", 'rb'))
+    elif message_text == "Порядок оформления командировки":
+        bot.send_document(message.chat.id, open("files/dtk/Порядок оформления командировки.docx", 'rb'))
+    elif message_text == "Рассторжение ТД":
+        bot.send_document(message.chat.id, open("files/dtk/Рассторжение ТД.docx", 'rb'))
 
 
 def performer_text(appeal_info):
@@ -422,6 +479,14 @@ def call_back(bot, call):
         cm_sv_db(call.message, 'Welcome курс | Адаптация end')
         bot.send_message(call.message.chat.id, "Поздравляю!\nTы прошел Welcome курс.\n\nДoбpo пожаловать в компанию!.")
         time.sleep(0.75)
+        if get_branch(call.message.chat.id) == "Дирекция Телеком Комплект":
+            markup_dtk = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+            button_dtk = types.KeyboardButton("Welcome курс | Адаптация ДТК")
+            markup_dtk.add(button_dtk)
+            bot.send_message(call.message.chat.id, "Чтобы перейти в главное меню, введите или нажмите на команду /menu "
+                                                   "\n\n Или вы можете перейти в категорию "
+                                                   "'Welcome курс | Адаптация ДТК'",
+                             reply_markup=markup_dtk)
         bot.send_message(call.message.chat.id, "Чтобы перейти в главное меню, введите или нажмите на команду /menu")
     elif call.data == "checkPoint":
         markup_p = types.InlineKeyboardMarkup()
@@ -1045,13 +1110,16 @@ def kb(bot, message):
         button9_kb = types.KeyboardButton("Улучшение Wi-Fi сигнала для абонентов")
         button10_kb = types.KeyboardButton("Настройка маршрутизатора и Mesh системы")
         button11_kb = types.KeyboardButton("Сеть и ТВ+")
+        button12_kb = types.KeyboardButton("ДТК Инструкции")
         markup_instr.add(button4_kb, button6_kb, button1_kb, button7_kb, button2_kb, button3_kb, button8_kb,
-                         button9_kb, button10_kb, button11_kb)
+                         button9_kb, button10_kb, button11_kb, button12_kb)
         bot.send_message(message.chat.id, "Здесь Вы можете найти полезную для Bac инструкцию.",
                          reply_markup=markup_instr)
         time.sleep(0.5)
         bot.send_message(message.chat.id,
                          "Для выбора инструкции выберите категория, a затем саму инструкцию в меню-клавиатуре⌨️.")
+    elif message.text == "ДТК Инструкции":
+        instructions_dtk(bot, message)
     elif message.text == "Глоссарий":
         set_bool(message, False, True)
         bot.send_message(message.chat.id, "Глоссарий терминов и аббревиатур в компании AO Казахтелеком.")
