@@ -13,7 +13,7 @@ import file
 import user_infoClass
 
 bot = telebot.TeleBot(db_connect.TOKEN, parse_mode="HTML")
-admin_id = ['484489968', '760906879', '187663574', '577247261', '204504707', '531622371', '6682886650', '1066191569']
+admin_id = ['484489968', '760906879', '577247261', '204504707', '531622371', '6682886650', '1066191569']
 branches = ['Центральный Аппарат', 'Обьединение Дивизион "Сеть"', 'Дивизион по Розничному Бизнесу',
             'Дивизион по Корпоративному Бизнесу', 'Корпоративный Университет', 'Дивизион Информационных Технологий',
             'Дирекция Телеком Комплект', 'Дирекция Управления Проектами',
@@ -94,6 +94,18 @@ def add_column(message):
 @bot.message_handler(commands=['change'])
 def change(message):
     change_(message)
+    bot.send_message(message.chat.id, "Изменения сохранены")
+
+
+@bot.message_handler(commands=['change_performer_id_by_appeal_id'])
+def change_performer_id_by_appeal_id(message):
+    msg = bot.send_message(message.chat.id, "Введите appeal_id, new_performer_id'")
+    bot.register_next_step_handler(msg, change_performer_id_by_appeal_id1)
+
+
+def change_performer_id_by_appeal_id1(message):
+    appeal_id, new_performer_id = message.text.split(',')
+    rus.set_appeal_id(appeal_id, new_performer_id)
     bot.send_message(message.chat.id, "Изменения сохранены")
 
 
@@ -536,7 +548,7 @@ def get_help_message(message):
         bot.send_message(message.chat.id, "Ваше сообщение успешно сохранено")
     else:
         bot.send_message(message.chat.id, "Сіздің хабарламаңыз сәтті сақталды")
-    bot.send_message('187663574', help_message)
+    bot.send_message('6682886650', help_message)
 
 
 @bot.callback_query_handler(func=lambda call: True)

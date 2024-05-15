@@ -1,8 +1,8 @@
 from telebot import types
 import psycopg2
 
-TOKEN = '6684043919:AAFBiSeNY-sMS5mU9VEjJHAO8U5ug8NoRqo'
-admins_id = ['187663574', '760906879', '1066191569', '6682886650']
+TOKEN = '6860898290:AAFZ5UYWLIop3NKAXFO-ZSqUdQbVNkhmsc4'
+admins_id = ['760906879', '1066191569', '6682886650']
 
 
 def execute_get_sql_query(sql_query, params=None):
@@ -147,8 +147,8 @@ def insert_into_performers():
                 'values (%s, %s, %s, %s, %s, %s, %s)', ("1066191569", "Обучение | Корпоративный Университет",
                                                         "Даулет", "Марат", "+77788184151", "must.dilnaz@gmail.com",
                                                         "@mkDauka"))
-    cur.execute("insert into performers (category, email) "
-                "values  (%s, %s)", ('Служба поддержки \"Нысана\"', 'must.dilnaz@gmail.com'))
+    cur.execute("insert into performers (category, email) values  (%s, %s)",
+                ('Служба поддержки \"Нысана\"', 'must.dilnaz@gmail.com'))
     cur.execute('insert into performers (category, email) '
                 'values (%s, %s)', ("Обратиться в службу комплаенс", "must.dilnaz@gmail.com"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) '
@@ -239,17 +239,17 @@ def insert_into_performers():
     cur.execute(
         'insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) values '
         '(%s, %s, %s, %s, %s, %s, %s)',
-        ("187663574", "Мангистауская ОДТ",
+        ("6682886650", "Мангистауская ОДТ",
          "Тамирлан", "Оспанов", "87079089665", "@gmail.com", "@tamirlanospanov"))
     cur.execute(
         'insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) values '
         '(%s, %s, %s, %s, %s, %s, %s)',
-        ("187663574", "Алматинская ОДТ",
+        ("6682886650", "Алматинская ОДТ",
          "Тамирлан", "Оспанов", "87079089665", "@gmail.com", "@tamirlanospanov"))
     cur.execute(
         'insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) values '
         '(%s, %s, %s, %s, %s, %s, %s)',
-        ("187663574", "ГЦТ Алматытелеком",
+        ("6682886650", "ГЦТ Алматытелеком",
          "Тамирлан", "Оспанов", "87079089665", "@gmail.com", "@tamirlanospanov"))
     cur.execute(
         'insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) values '
@@ -259,7 +259,7 @@ def insert_into_performers():
     cur.execute(
         'insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) values '
         '(%s, %s, %s, %s, %s, %s, %s)',
-        ("187663574", "Северо-Казахстанская ОДТ",
+        ("6682886650", "Северо-Казахстанская ОДТ",
          "Тамирлан", "Оспанов", "87079089665", "@gmail.com", "@tamirlanospanov"))
 
     cur.execute(
@@ -373,8 +373,12 @@ def insert_into_performers_right():
         'parent_category varchar(50))')
 
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) '
-                'values (%s, %s, %s, %s, %s, %s, %s)', ("1483219013", "Learning.telecom.kz | Техническая поддержка",
-                                                        "Людмила", "Нам", "+77009145025", "info.ktcu@telecom.kz", "@"))
+                'values (%s, %s, %s, %s, %s, %s, %s)', ("760906879", "Learning.telecom.kz | Техническая поддержка",
+                                                        "Дильназ", "Мустафина", "+77089081808",
+                                                        "info.ktcu@telecom.kz", "@dilnaz_mustafina"))
+    # cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) '
+    #             'values (%s, %s, %s, %s, %s, %s, %s)', ("1483219013", "Learning.telecom.kz | Техническая поддержка",
+    #                                                     "Людмила", "Нам", "+77009145025", "info.ktcu@telecom.kz", "@"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) '
                 'values (%s, %s, %s, %s, %s, %s, %s)', ("6682886650", "Обучение | Корпоративный Университет",
                                                         "Тамирлан", "Оспанов", "87081930374", "info.ktcu@telecom.kz",
@@ -681,19 +685,3 @@ def get_sales_by_user_id(user_id):
                  'internal_sale.id = appeals.lte_id WHERE appeals.user_id=%s and status <> %s  order by appeals.id')
     params = (str(user_id), "Решено",)
     return execute_get_sql_query(sql_query, params)
-
-
-def change(bot, message):
-    sql_query = "SELECT * FROM appeals"
-    appeals_ = execute_get_sql_query(sql_query)
-    for appeal in appeals_:
-        sql_query = "UPDATE appeals SET id_performer = %s WHERE id = %s"
-        performer_id = get_performer_by_category(appeal[3])
-        params = (performer_id, appeal[0])
-        execute_set_sql_query(sql_query, params)
-
-
-def get_performer_by_category(category):
-    sql_query = 'SELECT * FROM performers where category = %s'
-    params = (category,)
-    return execute_get_sql_query(sql_query, params)[0]
