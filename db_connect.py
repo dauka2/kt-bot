@@ -2,7 +2,7 @@ from telebot import types
 import psycopg2
 
 TOKEN = '6860898290:AAFZ5UYWLIop3NKAXFO-ZSqUdQbVNkhmsc4'
-admins_id = ['187663574', '760906879', '1066191569', '6682886650']
+admins_id = ['760906879', '1066191569', '6682886650']
 
 
 def execute_get_sql_query(sql_query, params=None):
@@ -239,17 +239,17 @@ def insert_into_performers():
     cur.execute(
         'insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) values '
         '(%s, %s, %s, %s, %s, %s, %s)',
-        ("187663574", "Мангистауская ОДТ",
+        ("6682886650", "Мангистауская ОДТ",
          "Тамирлан", "Оспанов", "87079089665", "@gmail.com", "@tamirlanospanov"))
     cur.execute(
         'insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) values '
         '(%s, %s, %s, %s, %s, %s, %s)',
-        ("187663574", "Алматинская ОДТ",
+        ("6682886650", "Алматинская ОДТ",
          "Тамирлан", "Оспанов", "87079089665", "@gmail.com", "@tamirlanospanov"))
     cur.execute(
         'insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) values '
         '(%s, %s, %s, %s, %s, %s, %s)',
-        ("187663574", "ГЦТ Алматытелеком",
+        ("6682886650", "ГЦТ Алматытелеком",
          "Тамирлан", "Оспанов", "87079089665", "@gmail.com", "@tamirlanospanov"))
     cur.execute(
         'insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) values '
@@ -259,7 +259,7 @@ def insert_into_performers():
     cur.execute(
         'insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) values '
         '(%s, %s, %s, %s, %s, %s, %s)',
-        ("187663574", "Северо-Казахстанская ОДТ",
+        ("6682886650", "Северо-Казахстанская ОДТ",
          "Тамирлан", "Оспанов", "87079089665", "@gmail.com", "@tamirlanospanov"))
 
     cur.execute(

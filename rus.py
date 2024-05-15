@@ -10,7 +10,7 @@ import lteClass
 import performerClass
 from appealsClass import set_status, set_date_status, get_appeal_by_id, get_image_data, get_status, set_evaluation, \
     get_appeal_text_all, get_comment, set_comment, set_image_data, add_appeal_gmail, add_appeal, get_appeal_text, \
-    set_appeal_text
+    set_appeal_text, set_appeal_id
 from commands_historyClass import cm_sv_db
 from common_file import (extract_text, extract_number, remove_milliseconds,
                          extract_numbers_from_status_change_decided, generate_buttons, send_gmails, useful_links,
@@ -523,9 +523,9 @@ def call_back(bot, call):
             bot.send_photo(appeal_info[1], image_data)
         except:
             print("error")
-        text = performer_text(appeal_info)
         markup = types.InlineKeyboardMarkup()
         btn = types.InlineKeyboardButton('Написать исполнителю', callback_data=str(appeal_info[0]) + 'texting')
+        text = performer_text(appeal_info)
         if appeal_info[12] != "" and appeal_info[12] is not None and appeal_info[12] != " ":
             if db_connect.get_sale(appeal_info[12])[10] == "Самостоятельно":
                 button_ = types.InlineKeyboardButton("Добавить модем | симкарту",

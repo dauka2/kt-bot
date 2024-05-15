@@ -178,3 +178,9 @@ def get_appeals_where_evaluation_null():
     sql_query = ("SELECT id, user_id, status, category, appeal_text, id_performer, evaluation FROM appeals "
                  "WHERE evaluation IS NULL and status = 'Решено' order by user_id, id")
     return execute_get_sql_query(sql_query)
+
+
+def set_appeal_id(appeal_id, new_performer_id):
+    sql_query = "UPDATE appeals SET performer_id = %s WHERE id = %s"
+    params = (new_performer_id, appeal_id)
+    execute_set_sql_query(sql_query, params)
