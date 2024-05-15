@@ -368,7 +368,7 @@ def call_back(bot, call):
                          reply_markup=markup_callback, parse_mode="HTML")
     elif call.data == 'Об истории':
         cm_sv_db(call.message, 'Об истории')
-        send_photo_(bot, call.message.chat.id, 'images/баннер ИСТОРИЯ 0605.jpg')
+        send_photo_(bot, call.message.chat.id, 'images/баннер ИСТОРИЯ 0605 1.jpg')
         time.sleep(0.75)
         markup_callback = types.InlineKeyboardMarkup()
         button_callback = types.InlineKeyboardButton("HR вопросы", callback_data="HR вопросы")
