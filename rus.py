@@ -50,7 +50,7 @@ kb_field_all = ["Логотипы и Брендбук", "Личный кабин
                 'Настройка маршрутизатора и Mesh системы', 'Сеть и ТВ+', 'Сетевая настройка и TCP/IP',
                 'Установка ТВ+ Казахтелеком']
 instr_field = ["Брендбук и логотипы", "Личный кабинет telecom.kz", "Модемы | Настройка", "Lotus & CheckPoint"]
-adapt_field = ["😊Welcome курс | Адаптация", "ДТК", "Общая информация", "Орг структура", "История", "ДТК Инструкции",
+adapt_field = ["😊Welcome курс | Адаптация", "ДТК", "Общая информация", "Орг структура", "Приветствие", "История", "ДТК Инструкции",
                "Заявки в ОЦО HR", "Заявки возложение обязанностей", "Заявки на отпуск", "Командировки", "Переводы",
                "Порядок оформления командировки", "Рассторжение ТД"]
 portal_bts = ["Что такое портал 'Бірлік'?", "Как войти на портал?", "Оставить обращение на портал"]
@@ -288,7 +288,8 @@ def adaption(bot, message):
         button_dtk1 = types.KeyboardButton("Орг структура")
         button_dtk2 = types.KeyboardButton("История")
         button_dtk3 = types.KeyboardButton("ДТК Инструкции")
-        markup_dtk.add(button_dtk1, button_dtk2, button_dtk3)
+        button_dtk4 = types.KeyboardButton("Приветствие")
+        markup_dtk.add(button_dtk1, button_dtk2, button_dtk3, button_dtk4)
         bot.send_message(message.chat.id, "Выберите категорию", reply_markup=markup_dtk)
     elif message.text == "Общая информация":
         start_adaption(bot, message)
@@ -296,6 +297,12 @@ def adaption(bot, message):
         bot.send_document(message.chat.id, open("files/dtk/Орг.структура ДТК.pdf", 'rb'))
     elif message.text == "История":
         bot.send_document(message.chat.id, open("files/dtk/Орг.структура ДТК.pdf", 'rb'))
+    elif message.text == "Приветствие":
+        markup_adapt = types.InlineKeyboardMarkup()
+        button_adapt = types.InlineKeyboardButton("Начинай!", callback_data="Начинай!")
+        markup_adapt.add(button_adapt)
+        bot.send_message(message.chat.id, "О целях и интересах филиала",
+                         reply_markup=markup_adapt)
     else:
         instructions_dtk(bot, message)
 
@@ -347,7 +354,28 @@ def performer_text(appeal_info):
 
 
 def call_back(bot, call):
-    if call.data == 'Рассказывай!':
+    if call.data == 'Начинай!':
+        cm_sv_db(call.message, 'Начинай!')
+        time.sleep(0.75)
+        bold_text = "<b>Целью деятельности Дирекции «Телеком Комплект»</b>"
+        remaining_text = " является обеспечение АО «Казахтелеком» и его филиалов  товарами, работами и услугами с требуемыми показателями качества" \
+                         "и по оптимальной цене их приобретение, а также прием, хранение, распределение и транспортировка" \
+                         "товарно-материальных ценностей (Базы в г. Астана и Алматы)."
+        markup_callback = types.InlineKeyboardMarkup()
+        button_callback = types.InlineKeyboardButton("Об истории", callback_data="Об истории")
+        markup_callback.add(button_callback)
+        bot.send_message(call.message.chat.id, bold_text + remaining_text,
+                         reply_markup=markup_callback, parse_mode="HTML")
+    elif call.data == 'Об истории':
+        cm_sv_db(call.message, 'Об истории')
+        send_photo_(bot, call.message.chat.id, 'images/баннер ИСТОРИЯ 0605.jpg')
+        time.sleep(0.75)
+        markup_callback = types.InlineKeyboardMarkup()
+        button_callback = types.InlineKeyboardButton("HR вопросы", callback_data="HR вопросы")
+        markup_callback.add(button_callback)
+        bot.send_message(call.message.chat.id, "Идем дальше",
+                         reply_markup=markup_callback)
+    elif call.data == 'Рассказывай!':
         cm_sv_db(call.message, 'Рассказывай!')
         send_photo_(bot, call.message.chat.id, 'images/picture.jpg')
         time.sleep(0.75)
@@ -700,7 +728,7 @@ def appeal(bot, message, message_text):
         appeal_id = db_connect.get_last_appeal(message.chat.id)[0][0]
         appeal_ = get_appeal_by_id(appeal_id)[0]
         performer_id = performerClass.get_performer_by_id(str(appeal_[7]))[0][1]
-        set_image_data(appeal_id, file)
+        set_image_data(appeal_id, file) 
         image_data = get_image_data(appeal_id)
         if performer_id is None or performer_id == '' or len(str(performer_id)) == 0:
             end_appeal_gmail(bot, message, appeal_id, file_url)
@@ -725,9 +753,9 @@ def appeal(bot, message, message_text):
             if branch == 'Обьединение Дивизион "Сеть"':
                 subsubcategory = str(get_subsubcategory_users_info(message.chat.id)).strip()
                 performer_ = get_performer_by_subsubcategory(subsubcategory)
-                performer_id = performer_[0][0]
+                performer_id = performer_[0][1]
             else:
-                performer_id = get_performer_by_category_and_subcategory(category, branch)[0][0]
+                performer_id = get_performer_by_category_and_subcategory(category, branch)[0][1]
         else:
             performer_id = get_performer_id_by_category(category)
 
