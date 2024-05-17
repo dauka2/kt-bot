@@ -285,24 +285,24 @@ def adaption(bot, message):
             start_adaption(bot, message)
     elif message.text == "ДТК":
         markup_dtk = types.ReplyKeyboardMarkup(row_width=1)
-        button_dtk1 = types.KeyboardButton("Орг структура")
-        button_dtk2 = types.KeyboardButton("История")
-        button_dtk3 = types.KeyboardButton("ДТК Инструкции")
-        button_dtk4 = types.KeyboardButton("Приветствие")
-        markup_dtk.add(button_dtk1, button_dtk2, button_dtk3, button_dtk4)
+        button_dtk1 = types.KeyboardButton("ДТК Инструкции")
+        button_dtk2 = types.KeyboardButton("Приветствие")
+        markup_dtk.add(button_dtk2, button_dtk1)
         bot.send_message(message.chat.id, "Выберите категорию", reply_markup=markup_dtk)
     elif message.text == "Общая информация":
         start_adaption(bot, message)
-    elif message.text == "Орг структура":
-        bot.send_document(message.chat.id, open("files/dtk/Орг.структура ДТК.pdf", 'rb'))
-    elif message.text == "История":
-        bot.send_document(message.chat.id, open("files/dtk/Орг.структура ДТК.pdf", 'rb'))
     elif message.text == "Приветствие":
         markup_adapt = types.InlineKeyboardMarkup()
-        button_adapt = types.InlineKeyboardButton("Начинай!", callback_data="Начинай!")
+        button_adapt = types.InlineKeyboardButton("Начинаем!", callback_data="Начинаем!")
         markup_adapt.add(button_adapt)
-        bot.send_message(message.chat.id, "О целях и интересах филиала",
-                         reply_markup=markup_adapt)
+        bot.send_message(message.chat.id, '<b>Добро пожаловать на курс адаптации для филиала Дирекции '
+                                          '«Телеком Комплект»!</b>'
+                                          '\n\nМы рады приветствовать вас в нашей команде и уверены, что ваше '
+                                          'сотрудничество с нами будет результативным и плодотворным. В этом курсе вы '
+                                          'ознакомитесь с нашей историей, корпоративной культурой, рабочими процессами '
+                                          'и многим другим.')
+        bot.send_photo(message.chat.id, photo=open('images/добро пожаловать - ДТК.png', 'rb'),
+                       reply_markup=markup_adapt)
     else:
         instructions_dtk(bot, message)
 
@@ -354,27 +354,61 @@ def performer_text(appeal_info):
 
 
 def call_back(bot, call):
-    if call.data == 'Начинай!':
-        cm_sv_db(call.message, 'Начинай!')
+    if call.data == 'Начинаем!':
+        cm_sv_db(call.message, 'Начинаем!')
         time.sleep(0.75)
-        bold_text = "<b>Целью деятельности Дирекции «Телеком Комплект»</b>"
-        remaining_text = " является обеспечение АО «Казахтелеком» и его филиалов  товарами, работами и услугами с требуемыми показателями качества" \
-                         "и по оптимальной цене их приобретение, а также прием, хранение, распределение и транспортировка" \
-                         "товарно-материальных ценностей (Базы в г. Астана и Алматы)."
+        bold_text = ("В этом разделе вы ознакомитесь с организационной структурой Дирекции «Телеком Комплект», что "
+                     "поможет вам лучше понять, как функционирует наша дирекция и какие подразделения в нее входят.")
         markup_callback = types.InlineKeyboardMarkup()
-        button_callback = types.InlineKeyboardButton("Об истории", callback_data="Об истории")
+        button_callback = types.InlineKeyboardButton("Далее", callback_data="ДалееИстория")
         markup_callback.add(button_callback)
-        bot.send_message(call.message.chat.id, bold_text + remaining_text,
-                         reply_markup=markup_callback, parse_mode="HTML")
-    elif call.data == 'Об истории':
-        cm_sv_db(call.message, 'Об истории')
-        send_photo_(bot, call.message.chat.id, 'images/баннер ИСТОРИЯ 0605 1.jpg')
+        bot.send_message(call.message.chat.id, bold_text, parse_mode='HTML')
+        bot.send_photo(call.message.chat.id, photo=open('images/Орг.структура ДТК.jpg', 'rb'), reply_markup=markup_callback)
+    elif call.data == 'ДалееИстория':
+        bot.send_message(call.message.chat.id, 'Хотим познакомить вас с историей нашего становления и развития')
         time.sleep(0.75)
         markup_callback = types.InlineKeyboardMarkup()
-        button_callback = types.InlineKeyboardButton("HR вопросы", callback_data="HR вопросы")
+        button_callback = types.InlineKeyboardButton("Продолжаем", callback_data="Продолжаем")
         markup_callback.add(button_callback)
-        bot.send_message(call.message.chat.id, "Идем дальше",
+        bot.send_photo(call.message.chat.id, photo=open('images/баннер ИСТОРИЯ ДТК.png', 'rb'),
+                       reply_markup=markup_callback)
+    elif call.data == 'Продолжаем':
+        markup_callback = types.InlineKeyboardMarkup()
+        button_callback = types.InlineKeyboardButton("Далее", callback_data="ДалееПроцессы")
+        markup_callback.add(button_callback)
+        bot.send_message(call.message.chat.id, '<b>Централизованные процессы</b>\n\n'
+                                               'В нашей компании централизованы следующие процессы: канцелярия, '
+                                               'рекрутинг, кадровое делопроизводство, начисление заработной платы, '
+                                               'закупочная система.'
+                                               'В этом разделе вы можете подать заявку по кадровым вопросам:\n'
+                                               'Перевод\n'
+                                               'Отпуск\n'
+                                               'Командировка\n'
+                                               'Расторжение трудового договора\n'
+                                               'Заявка на справку с места работы', reply_markup=markup_callback)
+    elif call.data == 'ДалееПроцессы':
+        markup_callback = types.InlineKeyboardMarkup()
+        button_callback = types.InlineKeyboardButton("Далее", callback_data="ДалееДосуг")
+        markup_callback.add(button_callback)
+        bot.send_message(call.message.chat.id, '<b>Досуг</b>\n'
+                                               'В ДТК есть своя футбольная команда, неоднократный победитель турниров '
+                                               'по футболу среди команд филиалов, компаний фонда «Самрук-Казына». '
+                                               'Также наши сотрудники активно участвуют в теннисных турнирах. '
+                                               'В июне 2023 года мы провели мероприятие, посвященное 25-летию ДТК.',
                          reply_markup=markup_callback)
+    elif call.data == 'ДалееДосуг':
+        bot.send_message(call.message.chat.id, '<b>Дополнительные ресурсы</b>')
+        bot.send_message(call.message.chat.id, 'Ссылки на социальные сети:\n'
+                                               'Telegram ДТК новости: https://t.me/+4bTQUYHNwdY4NDk6\n'
+                                               'Телеграмм ДТК cұхбат: https://t.me/+cgmlfGmotxM2NzZi\n'
+                                               'Facebook: https://www.facebook.com/profile.php?'
+                                               'id=100080229919711&mibextid=LQQJ4d')
+        bot.send_message(call.message.chat.id, 'Ссылки на веб-ресурсы:\n'
+                                               'Telegram ДТК новости: https://t.me/+4bTQUYHNwdY4NDk6\n'
+                                               'Телеграмм ДТК cұхбат: https://t.me/+cgmlfGmotxM2NzZi\n'
+                                               'Facebook: https://www.facebook.com/profile.php?'
+                                               'id=100080229919711&mibextid=LQQJ4d')
+        bot.send_message(call.message.chat.id, "Чтобы перейти в главное меню, введите или нажмите на команду /menu")
     elif call.data == 'Рассказывай!':
         cm_sv_db(call.message, 'Рассказывай!')
         send_photo_(bot, call.message.chat.id, 'images/picture.jpg')
