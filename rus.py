@@ -322,18 +322,25 @@ def instructions_dtk(bot, message):
         bot.send_message(message.chat.id, "Выберите категорию", reply_markup=markup_dtk)
     elif message_text == "Заявки в ОЦО HR":
         bot.send_document(message.chat.id, open("files/dtk/Заявки в ОЦО HR.docx", 'rb'))
+        bot.send_document(message.chat.id, open("files/dtk/Заявки в ОЦО HR.pdf", 'rb'))
     elif message_text == "Заявки возложение обязанностей":
-        bot.send_document(message.chat.id, open("files/dtk/Заявки возложение обязанностей.docx", 'rb'))
+        bot.send_document(message.chat.id, open("files/dtk/заявки возложение обязанностей.docx", 'rb'))
+        bot.send_document(message.chat.id, open("files/dtk/заявки возложение обязанностей.pdf", 'rb'))
     elif message_text == "Заявки на отпуск":
-        bot.send_document(message.chat.id, open("files/dtk/Заявки на отпуск.docx", 'rb'))
+        bot.send_document(message.chat.id, open("files/dtk/заявки на отпуск.docx", 'rb'))
+        bot.send_document(message.chat.id, open("files/dtk/заявки на отпуск.pdf", 'rb'))
     elif message_text == "Командировки":
         bot.send_document(message.chat.id, open("files/dtk/Командировки.docx", 'rb'))
+        bot.send_document(message.chat.id, open("files/dtk/Командировки.pdf", 'rb'))
     elif message_text == "Переводы":
         bot.send_document(message.chat.id, open("files/dtk/Переводы.docx", 'rb'))
+        bot.send_document(message.chat.id, open("files/dtk/Переводы.pdf", 'rb'))
     elif message_text == "Порядок оформления командировки":
         bot.send_document(message.chat.id, open("files/dtk/Порядок оформления командировки.docx", 'rb'))
+        bot.send_document(message.chat.id, open("files/dtk/Порядок оформления командировки.pdf", 'rb'))
     elif message_text == "Рассторжение ТД":
         bot.send_document(message.chat.id, open("files/dtk/Рассторжение ТД.docx", 'rb'))
+        bot.send_document(message.chat.id, open("files/dtk/Рассторжение ТД.pdf", 'rb'))
 
 
 def performer_text(appeal_info):
