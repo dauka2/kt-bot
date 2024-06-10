@@ -324,8 +324,8 @@ def instructions_dtk(bot, message):
         bot.send_document(message.chat.id, open("files/dtk/заявки на отпуск.docx", 'rb'))
         bot.send_document(message.chat.id, open("files/dtk/заявки на отпуск.pdf", 'rb'))
     elif message_text == "Командировки":
-        bot.send_document(message.chat.id, open("files/dtk/Командировки.docx", 'rb'))
-        bot.send_document(message.chat.id, open("files/dtk/Командировки.pdf", 'rb'))
+        bot.send_document(message.chat.id, open("files/dtk/Авансовый отчет.pptx", 'rb'))
+        bot.send_document(message.chat.id, open("files/dtk/командировка.pptx", 'rb'))
     elif message_text == "Переводы":
         bot.send_document(message.chat.id, open("files/dtk/Переводы.docx", 'rb'))
         bot.send_document(message.chat.id, open("files/dtk/Переводы.pdf", 'rb'))
