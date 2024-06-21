@@ -2,13 +2,17 @@ from telebot import *
 
 import performerClass
 from appealsClass import get_appeal_by_id, get_image_data, get_appeal_text_all
-from common_file import send_error, get_excel, extract_number
+from common_file import send_error, get_excel, extract_number, generate_buttons
 from db_connect import get_all_appeals_by_id_performer, get_sale, get_appeals
 from performerClass import list_categories, get_all_anonymous_appeals_by_id_performer, get_performers_id, \
     get_performers, get_regions, get_categories_by_parentcategory
 from userClass import get_user
-from user_infoClass import clear_appeals
+from user_infoClass import clear_appeals, set_category
 
+branches = ['Центральный Аппарат', 'Объединение Дивизион "Сеть"', 'Дивизион по Розничному Бизнесу',
+            'Дивизион по Корпоративному Бизнесу', 'Корпоративный Университет', 'Дивизион Информационных Технологий',
+            'Дирекция Телеком Комплект', 'Дирекция Управления Проектами',
+            'Сервисная Фабрика']
 
 def admin_appeal(bot, message, message_text):
     if message_text == "Админ панель":
@@ -134,13 +138,28 @@ def admin_appeal_callback(call, bot, add_comment):
         button_a = types.InlineKeyboardButton(btn_text, callback_data=callback_d)
         callback_d = f"{appeal_id}addcomment"
         button_a1 = types.InlineKeyboardButton("Добавить комментарий", callback_data=callback_d)
-        markup_a.add(button_a, button_a1)
+        callback_d_redirect = f"{appeal_id}redirect"
+        button_a2 = types.InlineKeyboardButton("Перенаправить обращение", callback_data=callback_d_redirect)
+        markup_a.add(button_a, button_a1, button_a2)
         bot.send_message(call.message.chat.id, text, reply_markup=markup_a)
     elif extract_number(str(call.data), r'^(\d+)addcomment') is not None:
         appeal_id = extract_number(str(call.data), r'^(\d+)addcomment')
         msg = bot.send_message(call.message.chat.id, 'Введите комментарий')
         bot.register_next_step_handler(msg, add_comment, bot, appeal_id)
+    elif extract_number(str(call.data), r'^(\d+)redirect') is not None:
+        appeal_id = extract_number(str(call.data), r'^(\d+)redirect')
+        admin_redirect_appeal(bot, call.message, appeal_id)
 
+def admin_redirect_appeal(bot, message, appeal_id):
+    markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+    markup_ap = generate_buttons(list(list_categories()), markup_ap)
+    msg = bot.send_message(message.chat.id, "Выберите новую категорию для обращения", reply_markup=markup_ap)
+    bot.register_next_step_handler(msg, confirm_redirect, bot, appeal_id)
+
+def confirm_redirect(message, bot, appeal_id):
+    new_category = message.text
+    set_category(appeal_id, new_category)  # Убедитесь, что передаете id обращения и новую категорию
+    bot.send_message(message.chat.id, "Обращение было перенаправлено в новую категорию.")
 
 def check_id(input_id):
     performers = get_performers()
@@ -197,4 +216,3 @@ def cities_all():
     for region in regions:
         cities = cities[:] + get_categories_by_parentcategory(region)[:]
     return cities
-

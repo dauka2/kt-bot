@@ -32,9 +32,9 @@ def get_appeal_field(message):
     return appeal_field[0][0]
 
 
-def set_category(message, category):
-    sql_query = 'UPDATE users_info SET category = %s WHERE id=%s'
-    params = (category, str(message.chat.id),)
+def set_category(appeal_id, category):
+    sql_query = 'UPDATE appeals SET category = %s WHERE id=%s'
+    params = (category, appeal_id,)
     execute_set_sql_query(sql_query, params)
 
 
