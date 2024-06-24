@@ -1,7 +1,7 @@
 from telebot import types
 import psycopg2
 
-TOKEN = '6860898290:AAFZ5UYWLIop3NKAXFO-ZSqUdQbVNkhmsc4'
+TOKEN = '6684043919:AAFBiSeNY-sMS5mU9VEjJHAO8U5ug8NoRqo'
 admins_id = ['760906879', '1066191569', '6682886650']
 
 
@@ -375,7 +375,7 @@ def insert_into_performers_right():
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) '
                 'values (%s, %s, %s, %s, %s, %s, %s)', ("760906879", "Learning.telecom.kz | Техническая поддержка",
                                                         "Дильназ", "Мустафина", "+77089081808",
-                                                        "info.ktcu@telecom.kz", "@dilnaz_mustafina"))
+                                                          "info.ktcu@telecom.kz", "@dilnaz_mustafina"))
     # cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) '
     #             'values (%s, %s, %s, %s, %s, %s, %s)', ("1483219013", "Learning.telecom.kz | Техническая поддержка",
     #                                                     "Людмила", "Нам", "+77009145025", "info.ktcu@telecom.kz", "@"))
