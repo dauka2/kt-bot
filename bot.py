@@ -729,6 +729,38 @@ def get_excel(message):
     common_file.get_excel(bot, message, admin_id_new, 'output_file.xlsx', sql_query, params)
 
 
+@bot.message_handler(commands=['get_appeals_purchases'])
+def get_excel(message):
+    sql_query = (f"""
+            SELECT appeals.id AS "ID",
+            users.firstname AS "Имя работника",
+            users.lastname AS "Фамилия работника",
+            table_number AS "Табельный номер",
+            users.phone_number AS "Номер телефона работника",
+            users.email AS "Почта",
+            branch AS "Филиал",
+            status AS "Статус",
+            appeals.category AS "Категория",
+            appeal_text AS "Текст заявки",
+            date AS "Дата создания",
+            date_status AS "Дата последнего изменения статуса",
+            comment AS "Комментарий",
+            evaluation AS "Оценка",
+            image_data AS "Фото",
+            performers.firstname AS "Имя исполнителя",
+            performers.lastname AS "Фамилия исполнителя",
+            performers.email AS "Почта исполнителя",
+            performers.telegram AS "Телеграм исполнителя"
+            FROM appeals 
+            INNER JOIN performers ON appeals.id_performer = CAST(performers.id AS VARCHAR) 
+            INNER JOIN users ON appeals.user_id = users.id 
+            where appeals.category = %s""")
+    params = ('Портал закупок 2.0 | Техническая поддержка',)
+    admin_id_new = admin_id[:]
+    admin_id_new.append('6391020304')
+    common_file.get_excel(bot, message, admin_id_new, 'output_file.xlsx', sql_query, params)
+
+
 @bot.message_handler(commands=['get_appeals_'])
 def get_excel(message):
     sql_query = "SELECT * from appeals order by id"

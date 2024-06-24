@@ -1,5 +1,6 @@
 from telebot import *
 
+import common_file
 import performerClass
 from appealsClass import get_appeal_by_id, get_image_data, get_appeal_text_all
 from common_file import send_error, get_excel, extract_number
@@ -9,6 +10,33 @@ from performerClass import list_categories, get_all_anonymous_appeals_by_id_perf
 from userClass import get_user
 from user_infoClass import clear_appeals
 
+categories = {
+    "Learning.telecom.kz | Тех поддержка" : "760906879",
+    "Обучение | КУ": "6682886650",
+    "Портал Бірлік": "544040063",
+    "Портал закупок 2.0 | Тех поддержка": "6391020304",
+    "Открытый Тендер" : "912472406",
+    "Запрос Ценовых предложений": "6668716258",
+    "Один источник и электронный магазин": "771708608",
+    "Заключение Договоров": "1007762084",
+    "Логистика_": "6955085517",
+    "Транспортировка_": "6955085517",
+    "EX ЦА": "388952664",
+    "EX ДРБ": "1011899729",
+    'EX ДКБ': "809913678",
+    'EX ДИТ': "521786863",
+    'EX КУ': "6682886650",
+    'EX СФ': "1289357013",
+    'EX ДТК': "6481069445",
+    'EX ДУП': "1009535782",
+    'EX ОДС Головной ОДС': "6605904521",
+    'EX ОДС Центр': "1293170656",
+    'EX ОДС Север': "727014348",
+    'EX ОДС Юг': "537685658",
+    'EX ОДС Запад': "1741335968",
+    'EX ОДС Восток': "5807536943",
+    'EX ОДС Алматы': "365934808"
+}
 
 def admin_appeal(bot, message, message_text):
     if message_text == "Админ панель":
@@ -25,7 +53,6 @@ def admin_appeal(bot, message, message_text):
         for ap in appeal_info_:
             if str(ap[3]) in ids:
                 appeal_info.append(ap)
-
         markup_a = types.InlineKeyboardMarkup()
         if appeal_info is not None:
             for appeal_ in appeal_info:
@@ -134,12 +161,24 @@ def admin_appeal_callback(call, bot, add_comment):
         button_a = types.InlineKeyboardButton(btn_text, callback_data=callback_d)
         callback_d = f"{appeal_id}addcomment"
         button_a1 = types.InlineKeyboardButton("Добавить комментарий", callback_data=callback_d)
-        markup_a.add(button_a, button_a1)
+        callback_d = f"{appeal_id}changecategory"
+        button_a2 = types.InlineKeyboardButton("Отправить в другую категорию", callback_data=callback_d)
+        markup_a.add(button_a, button_a1, button_a2)
         bot.send_message(call.message.chat.id, text, reply_markup=markup_a)
     elif extract_number(str(call.data), r'^(\d+)addcomment') is not None:
         appeal_id = extract_number(str(call.data), r'^(\d+)addcomment')
         msg = bot.send_message(call.message.chat.id, 'Введите комментарий')
         bot.register_next_step_handler(msg, add_comment, bot, appeal_id)
+    elif extract_number(str(call.data), r'^(\d+)changecategory') is not None:
+        appeal_id = extract_number(str(call.data), r'^(\d+)changecategory')
+        category_markup = common_file.generate_buttons(categories.keys(),
+                                                       types.ReplyKeyboardMarkup(one_time_keyboard=True))
+        msg = bot.send_message(call.message.chat.id, 'Выберите категорию', reply_markup=category_markup)
+        bot.register_next_step_handler(msg, change_category, bot, appeal_id)
+
+
+def change_category(call, bot):
+    return 0
 
 
 def check_id(input_id):
