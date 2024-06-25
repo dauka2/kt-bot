@@ -5,10 +5,9 @@ import performerClass
 from appealsClass import get_appeal_by_id, get_image_data, get_appeal_text_all, set_category
 from common_file import send_error, get_excel, extract_number
 from db_connect import get_all_appeals_by_id_performer, get_sale, get_appeals
-from performerClass import list_categories, get_all_anonymous_appeals_by_id_performer, get_performers_id, \
-    get_performers, get_regions, get_categories_by_parentcategory
+from performerClass import list_categories, get_all_anonymous_appeals_by_id_performer, get_performers_id, get_performers, get_regions, get_categories_by_parentcategory
+from user_infoClass import clear_appeals, set_category
 from userClass import get_user, set_branch
-from user_infoClass import clear_appeals
 
 categories = {
     "Learning.telecom.kz | Тех поддержка": "1",
@@ -162,21 +161,37 @@ def admin_appeal_callback(call, bot, add_comment):
         button_a = types.InlineKeyboardButton(btn_text, callback_data=callback_d)
         callback_d = f"{appeal_id}addcomment"
         button_a1 = types.InlineKeyboardButton("Добавить комментарий", callback_data=callback_d)
-        callback_d = f"{appeal_id}changecategory"
-        button_a2 = types.InlineKeyboardButton("Отправить в другую категорию", callback_data=callback_d)
+        callback_d_redirect = f"{appeal_id}redirect"
+        button_a2 = types.InlineKeyboardButton("Перенаправить обращение", callback_data=callback_d_redirect)
         markup_a.add(button_a, button_a1, button_a2)
         bot.send_message(call.message.chat.id, text, reply_markup=markup_a)
-    elif extract_number(str(call.data), r'^(\d+)addcomment') is not None:
-        appeal_id = extract_number(str(call.data), r'^(\d+)addcomment')
+    elif extract_number(str(call.data), r'^(\d+)addcomment$') is not None:
+        appeal_id = extract_number(str(call.data), r'^(\d+)addcomment$')
         msg = bot.send_message(call.message.chat.id, 'Введите комментарий')
         bot.register_next_step_handler(msg, add_comment, bot, appeal_id)
-    elif extract_number(str(call.data), r'^(\d+)changecategory') is not None:
-        appeal_id = extract_number(str(call.data), r'^(\d+)changecategory')
-        category_markup = common_file.generate_buttons(categories.keys(),
-                                                       types.ReplyKeyboardMarkup(one_time_keyboard=True))
-        msg = bot.send_message(call.message.chat.id, 'Выберите категорию', reply_markup=category_markup)
-        bot.register_next_step_handler(msg, change_category, bot, appeal_id)
+    elif extract_number(str(call.data), r'^(\d+)redirect$') is not None:
+        appeal_id = extract_number(str(call.data), r'^(\d+)redirect$')
+        admin_redirect_appeal(bot, call.message, appeal_id)
 
+def admin_redirect_appeal(bot, message, appeal_id):
+    markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+    markup_ap = generate_buttons(categories.keys(), markup_ap)
+    msg = bot.send_message(message.chat.id, "Выберите новую категорию для обращения", reply_markup=markup_ap)
+    bot.register_next_step_handler(msg, confirm_redirect, bot, appeal_id)
+
+def confirm_redirect(message, bot, appeal_id):
+    new_category = message.text
+    if new_category in categories:
+        set_category(appeal_id, categories[new_category])  # Убедитесь, что передаете id обращения и новую категорию
+        bot.send_message(message.chat.id, "Обращение было перенаправлено в новую категорию.")
+    else:
+        bot.send_message(message.chat.id, "Некорректная категория. Попробуйте еще раз.")
+        admin_redirect_appeal(bot, message, appeal_id)
+
+def generate_buttons(button_list, markup):
+    for button in button_list:
+        markup.add(types.KeyboardButton(button))
+    return markup
 
 def change_category(message, bot, appeal_id):
     if message.text in categories.keys():
