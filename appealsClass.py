@@ -184,3 +184,9 @@ def set_appeal_id(appeal_id, new_performer_id):
     sql_query = "UPDATE appeals SET id_performer = %s WHERE id = %s"
     params = (new_performer_id, appeal_id)
     execute_set_sql_query(sql_query, params)
+
+
+def set_category(appeal_id, category):
+    sql_query = "UPDATE appeals SET category = %s WHERE id = %s"
+    params = (category, appeal_id)
+    execute_set_sql_query(sql_query, params)

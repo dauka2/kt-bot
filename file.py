@@ -2,7 +2,7 @@ from telebot import *
 
 import common_file
 import performerClass
-from appealsClass import get_appeal_by_id, get_image_data, get_appeal_text_all
+from appealsClass import get_appeal_by_id, get_image_data, get_appeal_text_all, set_category
 from common_file import send_error, get_excel, extract_number
 from db_connect import get_all_appeals_by_id_performer, get_sale, get_appeals
 from performerClass import list_categories, get_all_anonymous_appeals_by_id_performer, get_performers_id, \
@@ -180,7 +180,7 @@ def admin_appeal_callback(call, bot, add_comment):
 
 def change_category(message, bot, appeal_id):
     if message.text in categories.keys():
-        set_branch(message.chat.id, categories[message.text])
+        set_category(message.chat.id, categories[message.text])
         appeal_info = get_appeal_by_id(appeal_id)[0]
 
         text = performer_text(appeal_info)
