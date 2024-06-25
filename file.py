@@ -146,9 +146,13 @@ def admin_appeal_callback(call, bot, add_comment):
             bot.send_photo(appeal_info[7], image_data)
         except:
             print("error")
+
+        category_id = appeal_info[3]
+        category_name = [name for name, id in categories.items() if id == category_id][0]  # Получаем название категории
+
         callback_d = f"{appeal_id}statusdecided"
         btn_text = "Изменить статус на 'Решено'"
-        text = get_appeal_text_all(appeal_id)
+        text = get_appeal_text_all(appeal_id)  # Здесь не нужно заменять ID категории на её название
         if str(appeal_info[2]) == "Обращение принято":
             callback_d = f"{appeal_id}statusinprocess"
             btn_text = "Изменить статус на 'В процессе'"
@@ -173,6 +177,7 @@ def admin_appeal_callback(call, bot, add_comment):
         appeal_id = extract_number(str(call.data), r'^(\d+)redirect$')
         admin_redirect_appeal(bot, call.message, appeal_id)
 
+
 def admin_redirect_appeal(bot, message, appeal_id):
     markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True)
     markup_ap = generate_buttons(categories.keys(), markup_ap)
@@ -195,10 +200,10 @@ def generate_buttons(button_list, markup):
 
 def change_category(message, bot, appeal_id):
     if message.text in categories.keys():
-        set_category(message.chat.id, categories[message.text])
+        set_category(appeal_id, categories[message.text])  # Обновляем категорию в базе данных
         appeal_info = get_appeal_by_id(appeal_id)[0]
 
-        text = performer_text(appeal_info)
+        text = performer_text(appeal_info).replace(appeal_info[3], message.text)  # Заменяем ID категории на её название
 
         performer_id = performerClass.get_performer_id_by_id(appeal_info[7])
         user_id = appeal_info[1]
@@ -208,6 +213,26 @@ def change_category(message, bot, appeal_id):
         bot.send_message(user_id, "Вы неправильно выбрали категорию обращения, оно было отправлено в категорию " +
                          message.text)
 
+
+def get_appeal_text_all(appeal_id):
+    appeal_info = get_appeal_by_id(appeal_id)[0]
+    performer_info = performerClass.get_performer_by_id(appeal_info[7])[0]
+    category_id = appeal_info[3]
+    category_name = [name for name, id in categories.items() if id == category_id][0]  # Получаем название категории
+
+    text = f"<b>ID</b> {appeal_info[0]}\n\n" \
+           f" Статус: {str(appeal_info[2])}\n" \
+           f" Дата создания: {str(appeal_info[5])}\n" \
+           f" Категория: {category_name}\n" \
+           f" Текст: {str(appeal_info[4])}\n" \
+           f" Дата последнего изменения статуса: {str(appeal_info[6])}\n\n" \
+           f"Исполнитель\n" \
+           f" ФИО: {performer_info[4]} {performer_info[3]}\n" \
+           f" Номер телефона: {performer_info[5]}\n" \
+           f" Email: {performer_info[6]}\n" \
+           f" Telegram: {performer_info[7]}\n\n" \
+           f" Комментарий: {str(appeal_info[8])}"
+    return text
 
 
 def performer_text(appeal_info):
