@@ -7,36 +7,37 @@ from common_file import send_error, get_excel, extract_number
 from db_connect import get_all_appeals_by_id_performer, get_sale, get_appeals
 from performerClass import list_categories, get_all_anonymous_appeals_by_id_performer, get_performers_id, \
     get_performers, get_regions, get_categories_by_parentcategory
-from userClass import get_user
+from userClass import get_user, set_branch
 from user_infoClass import clear_appeals
 
 categories = {
-    "Learning.telecom.kz | Тех поддержка" : "760906879",
-    "Обучение | КУ": "6682886650",
-    "Портал Бірлік": "544040063",
-    "Портал закупок 2.0 | Тех поддержка": "6391020304",
-    "Открытый Тендер" : "912472406",
-    "Запрос Ценовых предложений": "6668716258",
-    "Один источник и электронный магазин": "771708608",
-    "Заключение Договоров": "1007762084",
-    "Логистика_": "6955085517",
-    "Транспортировка_": "6955085517",
-    "EX ЦА": "388952664",
-    "EX ДРБ": "1011899729",
-    'EX ДКБ': "809913678",
-    'EX ДИТ': "521786863",
-    'EX КУ': "6682886650",
-    'EX СФ': "1289357013",
-    'EX ДТК': "6481069445",
-    'EX ДУП': "1009535782",
-    'EX ОДС Головной ОДС': "6605904521",
-    'EX ОДС Центр': "1293170656",
-    'EX ОДС Север': "727014348",
-    'EX ОДС Юг': "537685658",
-    'EX ОДС Запад': "1741335968",
-    'EX ОДС Восток': "5807536943",
-    'EX ОДС Алматы': "365934808"
+    "Learning.telecom.kz | Тех поддержка": "1",
+    "Обучение | КУ": "2",
+    "Портал Бірлік": "5",
+    "Портал закупок 2.0 | Тех поддержка": "6",
+    "Открытый Тендер": "7",
+    "Запрос Ценовых предложений": "8",
+    "Один источник и электронный магазин": "9",
+    "Заключение Договоров": "10",
+    "Логистика_": "11",
+    "Транспортировка_": "12",
+    "EX ЦА": "30",
+    "EX ДРБ": "31",
+    'EX ДКБ': "32",
+    'EX ДИТ': "33",
+    'EX КУ': "34",
+    'EX СФ': "35",
+    'EX ДТК': "36",
+    'EX ДУП': "37",
+    'EX ОДС Головной ОДС': "38",
+    'EX ОДС Центр': "39",
+    'EX ОДС Север': "40",
+    'EX ОДС Юг': "41",
+    'EX ОДС Запад': "42",
+    'EX ОДС Восток': "43",
+    'EX ОДС Алматы': "44"
 }
+
 
 def admin_appeal(bot, message, message_text):
     if message_text == "Админ панель":
@@ -177,8 +178,38 @@ def admin_appeal_callback(call, bot, add_comment):
         bot.register_next_step_handler(msg, change_category, bot, appeal_id)
 
 
-def change_category(call, bot):
-    return 0
+def change_category(message, bot, appeal_id):
+    if message.text in categories.keys():
+        set_branch(message.chat.id, categories[message.text])
+        appeal_info = get_appeal_by_id(appeal_id)[0]
+
+        text = performer_text(appeal_info)
+
+        performer_id = performerClass.get_performer_id_by_id(appeal_info[7])
+        user_id = appeal_info[1]
+
+        bot.send_message(performer_id, "Вам отправлено новое обращение")
+        bot.send_message(performer_id, text)
+        bot.send_message(user_id, "Вы неправильно выбрали категорию обращения, оно было отправлено в категорию " +
+                         message.text)
+
+
+
+def performer_text(appeal_info):
+    performer_info = performerClass.get_performer_by_id(appeal_info[7])[0]
+    text = f"<b>ID</b> {appeal_info[0]}\n\n" \
+           f" Статус: {str(appeal_info[2])}\n" \
+           f" Дата создания: {str(appeal_info[5])}\n" \
+           f" Категория: {str(appeal_info[3])}\n" \
+           f" Текст: {str(appeal_info[4])}\n" \
+           f" Дата последнего изменения статуса: {str(appeal_info[6])}\n\n" \
+           f"Исполнитель\n" \
+           f" ФИО: {performer_info[4]} {performer_info[3]}\n" \
+           f" Номер телефона: {performer_info[5]}\n" \
+           f" Email: {performer_info[6]}\n" \
+           f" Telegram: {performer_info[7]}\n\n" \
+           f" Комментарий: {str(appeal_info[8])}"
+    return text
 
 
 def check_id(input_id):

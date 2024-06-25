@@ -746,13 +746,8 @@ def get_excel(message):
             date_status AS "Дата последнего изменения статуса",
             comment AS "Комментарий",
             evaluation AS "Оценка",
-            image_data AS "Фото",
-            performers.firstname AS "Имя исполнителя",
-            performers.lastname AS "Фамилия исполнителя",
-            performers.email AS "Почта исполнителя",
-            performers.telegram AS "Телеграм исполнителя"
+            image_data AS "Фото"
             FROM appeals 
-            INNER JOIN performers ON appeals.id_performer = CAST(performers.id AS VARCHAR) 
             INNER JOIN users ON appeals.user_id = users.id 
             where appeals.category = %s""")
     params = ('Портал закупок 2.0 | Техническая поддержка',)
