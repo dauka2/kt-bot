@@ -48,7 +48,8 @@ kb_field_all = ["Логотипы и Брендбук", "Личный кабин
                 "Установочный файл CheckPoint", "Портал закупок | Инструкции", 'Для инициаторов | Инструкции',
                 'Для секретарей | Инструкции', 'Улучшение Wi-Fi сигнала для абонентов',
                 'Настройка маршрутизатора и Mesh системы', 'Сеть и ТВ+', 'Сетевая настройка и TCP/IP',
-                'Установка ТВ+ Казахтелеком', 'Подключение телевизора в Wi-fi']
+                'Установка ТВ+ Казахтелеком', 'Подключение телевизора в Wi-fi', 'Измерительные приборы',
+                'Измерительные приборы инструкция', 'Аннотация Инструкция для работы с измерительным прибором']
 instr_field = ["Брендбук и логотипы", "Личный кабинет telecom.kz", "Модемы | Настройка", "Lotus & CheckPoint"]
 adapt_field = ["😊Welcome курс | Адаптация", "ДТК", "Общая информация", "Орг структура", "Приветствие", "История",
                "ДТК Инструкции", "Заявки в ОЦО HR", "Заявки возложение обязанностей", "Заявки на отпуск",
@@ -724,6 +725,7 @@ def add_comment(message, bot, appeal_id, isAdmin=True):
 
 def appeal(bot, message, message_text):
     set_appeal_field(message, True)
+    bot.send_message(message.chat.id, str(get_appeal_field(message)))
     if message_text == "Мои обращения":
         markup_a = appeal_inline_markup(message)
         if markup_a.keyboard:
@@ -1160,6 +1162,19 @@ def instructions(bot, message):
                           open("files/Инструкция по установке приложения  «ТВ+ Казахтелеком ».pdf", "rb"))
     elif message.text == "Подключение телевизора в Wi-fi":
         bot.send_document(message.chat.id, open("files/Подключение телевизора к Wi-fi сети 5 Ггц.pdf", "rb"))
+    elif message.text == "Регламентирующие документы":
+        bot.send_document(message.chat.id, open("files/Регламент взаимодействия.doc", 'rb'))
+        bot.send_document(message.chat.id, open("files/Порядок осуществления закупок.docx", "rb"))
+    elif message.text == 'Измерительные приборы':
+        markup_kb = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+        button1_kb = types.KeyboardButton("Измерительные приборы инструкция")
+        button2_kb = types.KeyboardButton("Аннотация Инструкция для работы с измерительным прибором")
+        markup_kb.add(button1_kb, button2_kb)
+        bot.send_message(message.chat.id, "Выберите категорию", reply_markup=markup_kb)
+    elif message.text == "Измерительные приборы инструкция":
+        bot.send_document(message.chat.id, open("files/Измерительные приборы инструкция.pdf", "rb"))
+    elif message.text == "Аннотация Инструкция для работы с измерительным прибором":
+        bot.send_document(message.chat.id, open("files/Аннотация Инструкция для работы с измерительным прибором.pdf", "rb"))
 
 
 def kb(bot, message):
@@ -1192,8 +1207,9 @@ def kb(bot, message):
         button11_kb = types.KeyboardButton("Сеть и ТВ+")
         button12_kb = types.KeyboardButton("ДТК Инструкции")
         button13_kb = types.KeyboardButton("Подключение телевизора в Wi-fi")
+        button14_kb = types.KeyboardButton("Измерительные приборы")
         markup_instr.add(button4_kb, button6_kb, button1_kb, button7_kb, button2_kb, button3_kb, button8_kb,
-                         button9_kb, button10_kb, button11_kb, button12_kb, button13_kb)
+                         button9_kb, button10_kb, button11_kb, button14_kb, button12_kb, button13_kb)
         bot.send_message(message.chat.id, "Здесь Вы можете найти полезную для Bac инструкцию.",
                          reply_markup=markup_instr)
         time.sleep(0.5)
@@ -1225,11 +1241,6 @@ def kb(bot, message):
         time.sleep(0.5)
         markup = useful_links()
         bot.send_message(message.chat.id, "Полезные ссылки", reply_markup=markup)
-    elif message.text == "Регламентирующие документы":
-        bot.send_document(message.chat.id, open("files/Регламент взаимодействия.doc", 'rb'))
-        bot.send_document(message.chat.id, open("files/Порядок осуществления закупок.docx", "rb"))
-
-
 # def kb_service(bot, message):
 #     if message.text == "Личный кабинет telecom.kz":
 #         markup_instr = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)

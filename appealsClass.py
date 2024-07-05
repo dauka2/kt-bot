@@ -59,8 +59,6 @@ def add_appeal(user_id, status, category, appeal_text, date, date_status, id_per
                lte_id=None, subcategory=None, subsubcategory=None):
     conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
     cur = conn.cursor()
-
-    # Проверьте, существует ли уже обращение с такой же категорией
     cur.execute("SELECT id FROM appeals WHERE category = %s and subsubcategory = %s and appeal_text = %s and "
                 "user_id = %s and status = %s and date = %s",
                 (category, subsubcategory, appeal_text, str(user_id), status, str(date)))
@@ -68,19 +66,15 @@ def add_appeal(user_id, status, category, appeal_text, date, date_status, id_per
     existing_appeal = cur.fetchone()
 
     if existing_appeal:
-        # Если обращение с такой же категорией уже существует, верните его id, а не вставляйте новое.
         appeal = existing_appeal[0]
     else:
-        # Вставляем новое обращение, если не найдено ни одного существующего обращения с той же категорией
         cur.execute(
             "INSERT INTO appeals(user_id, status, category, appeal_text, date, date_status, id_performer, comment, "
             "is_appeal_anon, lte_id, subcategory, subsubcategory) "
             "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
             (str(user_id), str(status), str(category), str(appeal_text), str(date), str(date_status), str(id_performer),
              str(comment), is_appeal_anon, lte_id, str(subcategory), str(subsubcategory)))
-
         appeal = cur.fetchone()[0]
-
     conn.commit()
     cur.close()
     conn.close()
