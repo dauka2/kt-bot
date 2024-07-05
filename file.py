@@ -5,21 +5,22 @@ import performerClass
 from appealsClass import get_appeal_by_id, get_image_data, get_appeal_text_all, set_category
 from common_file import send_error, get_excel, extract_number
 from db_connect import get_all_appeals_by_id_performer, get_sale, get_appeals
-from performerClass import list_categories, get_all_anonymous_appeals_by_id_performer, get_performers_id, get_performers, get_regions, get_categories_by_parentcategory
-from user_infoClass import clear_appeals, set_category
-from userClass import get_user, set_branch
+from performerClass import list_categories, get_all_anonymous_appeals_by_id_performer, get_performers_id, \
+    get_performers, get_regions, get_categories_by_parentcategory
+from userClass import get_user
+from user_infoClass import clear_appeals
 
 categories = {
-    "Learning.telecom.kz | Тех поддержка": "1",
-    "Обучение | КУ": "2",
-    "Портал Бірлік": "5",
-    "Портал закупок 2.0 | Тех поддержка": "6",
-    "Открытый Тендер": "7",
-    "Запрос Ценовых предложений": "8",
-    "Один источник и электронный магазин": "9",
-    "Заключение Договоров": "10",
-    "Логистика_": "11",
-    "Транспортировка_": "12",
+    "Learning.telecom.kz | Техническая поддержка": "1",
+    "Обучение | Корпоративный Университет": "2",
+    'Портал "Бірлік"': "5",
+    "Портал закупок 2.0 | Техническая поддержка": "6",
+    "Открытый тендер": "7",
+    "Запрос ценовых предложений": "8",
+    "Один источник и Электронный магазин": "9",
+    "Заключение договоров": "10",
+    "Логистика": "11",
+    "Транспортировка": "12",
     "EX ЦА": "30",
     "EX ДРБ": "31",
     'EX ДКБ': "32",
@@ -80,35 +81,6 @@ def admin_appeal(bot, message, message_text):
 
 
 def get_excel_admin1(bot, message, status="Решено"):
-    # sql_query = """
-    # SELECT DISTINCT
-    # appeals.id AS "ID",
-    # users.firstname AS "Имя работника",
-    # users.lastname AS "Фамилия работника",
-    # table_number AS "Табельный номер",
-    # users.phone_number AS "Номер телефона работника",
-    # users.email AS "Почта",
-    # branch AS "Филиал",
-    # status AS "Статус",
-    # appeals.category AS "Категория",
-    # appeal_text AS "Текст заявки",
-    # date AS "Дата создания",
-    # date_status AS "Дата последнего изменения статуса",
-    # comment AS "Комментарий",
-    # evaluation AS "Оценка",
-    # image_data AS "Фото",
-    # performers.firstname AS "Имя исполнителя",
-    # performers.lastname AS "Фамилия исполнителя",
-    # performers.email AS "Почта исполнителя",
-    # performers.telegram AS "Телеграм исполнителя"
-    # FROM appeals
-    # LEFT OUTER JOIN users ON appeals.user_id = users.id
-    # LEFT OUTER JOIN performers ON performers.performer_id = appeals.id_performer
-    # WHERE
-    #     appeals.id_performer = %s AND status = %s
-    # ORDER BY
-    #     appeals.id;
-    #     """
     sql_query = (f"""
     SELECT appeals.id AS "ID",
     users.firstname AS "Имя работника",
@@ -146,13 +118,9 @@ def admin_appeal_callback(call, bot, add_comment):
             bot.send_photo(appeal_info[7], image_data)
         except:
             print("error")
-
-        category_id = appeal_info[3]
-        category_name = [name for name, id in categories.items() if id == category_id][0]  # Получаем название категории
-
         callback_d = f"{appeal_id}statusdecided"
         btn_text = "Изменить статус на 'Решено'"
-        text = get_appeal_text_all(appeal_id)  # Здесь не нужно заменять ID категории на её название
+        text = get_appeal_text_all(appeal_id)
         if str(appeal_info[2]) == "Обращение принято":
             callback_d = f"{appeal_id}statusinprocess"
             btn_text = "Изменить статус на 'В процессе'"
@@ -165,74 +133,33 @@ def admin_appeal_callback(call, bot, add_comment):
         button_a = types.InlineKeyboardButton(btn_text, callback_data=callback_d)
         callback_d = f"{appeal_id}addcomment"
         button_a1 = types.InlineKeyboardButton("Добавить комментарий", callback_data=callback_d)
-        callback_d_redirect = f"{appeal_id}redirect"
-        button_a2 = types.InlineKeyboardButton("Перенаправить обращение", callback_data=callback_d_redirect)
+        callback_d = f"{appeal_id}changecategory"
+        button_a2 = types.InlineKeyboardButton("Перенаправить в другую категорию", callback_data=callback_d)
         markup_a.add(button_a, button_a1, button_a2)
         bot.send_message(call.message.chat.id, text, reply_markup=markup_a)
-    elif extract_number(str(call.data), r'^(\d+)addcomment$') is not None:
-        appeal_id = extract_number(str(call.data), r'^(\d+)addcomment$')
+    elif extract_number(str(call.data), r'^(\d+)addcomment') is not None:
+        appeal_id = extract_number(str(call.data), r'^(\d+)addcomment')
         msg = bot.send_message(call.message.chat.id, 'Введите комментарий')
         bot.register_next_step_handler(msg, add_comment, bot, appeal_id)
-    elif extract_number(str(call.data), r'^(\d+)redirect$') is not None:
-        appeal_id = extract_number(str(call.data), r'^(\d+)redirect$')
-        admin_redirect_appeal(bot, call.message, appeal_id)
+    elif extract_number(str(call.data), r'^(\d+)changecategory') is not None:
+        appeal_id = extract_number(str(call.data), r'^(\d+)changecategory')
+        category_markup = common_file.generate_buttons(categories.keys(),
+                                                       types.ReplyKeyboardMarkup(one_time_keyboard=True))
+        msg = bot.send_message(call.message.chat.id, 'Выберите категорию', reply_markup=category_markup)
+        bot.register_next_step_handler(msg, change_category, bot, appeal_id)
 
-
-def admin_redirect_appeal(bot, message, appeal_id):
-    markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True)
-    markup_ap = generate_buttons(categories.keys(), markup_ap)
-    msg = bot.send_message(message.chat.id, "Выберите новую категорию для обращения", reply_markup=markup_ap)
-    bot.register_next_step_handler(msg, confirm_redirect, bot, appeal_id)
-
-def confirm_redirect(message, bot, appeal_id):
-    new_category = message.text
-    if new_category in categories:
-        set_category(appeal_id, categories[new_category])  # Убедитесь, что передаете id обращения и новую категорию
-        bot.send_message(message.chat.id, "Обращение было перенаправлено в новую категорию.")
-    else:
-        bot.send_message(message.chat.id, "Некорректная категория. Попробуйте еще раз.")
-        admin_redirect_appeal(bot, message, appeal_id)
-
-def generate_buttons(button_list, markup):
-    for button in button_list:
-        markup.add(types.KeyboardButton(button))
-    return markup
 
 def change_category(message, bot, appeal_id):
     if message.text in categories.keys():
-        set_category(appeal_id, categories[message.text])  # Обновляем категорию в базе данных
+        set_category(appeal_id, message.text)
         appeal_info = get_appeal_by_id(appeal_id)[0]
-
-        text = performer_text(appeal_info).replace(appeal_info[3], message.text)  # Заменяем ID категории на её название
-
+        text = performer_text(appeal_info)
         performer_id = performerClass.get_performer_id_by_id(appeal_info[7])
         user_id = appeal_info[1]
-
         bot.send_message(performer_id, "Вам отправлено новое обращение")
         bot.send_message(performer_id, text)
-        bot.send_message(user_id, "Вы неправильно выбрали категорию обращения, оно было отправлено в категорию " +
+        bot.send_message(user_id, "Ваше обращение было переотправлено в категорию:\n" +
                          message.text)
-
-
-def get_appeal_text_all(appeal_id):
-    appeal_info = get_appeal_by_id(appeal_id)[0]
-    performer_info = performerClass.get_performer_by_id(appeal_info[7])[0]
-    category_id = appeal_info[3]
-    category_name = [name for name, id in categories.items() if id == category_id][0]  # Получаем название категории
-
-    text = f"<b>ID</b> {appeal_info[0]}\n\n" \
-           f" Статус: {str(appeal_info[2])}\n" \
-           f" Дата создания: {str(appeal_info[5])}\n" \
-           f" Категория: {category_name}\n" \
-           f" Текст: {str(appeal_info[4])}\n" \
-           f" Дата последнего изменения статуса: {str(appeal_info[6])}\n\n" \
-           f"Исполнитель\n" \
-           f" ФИО: {performer_info[4]} {performer_info[3]}\n" \
-           f" Номер телефона: {performer_info[5]}\n" \
-           f" Email: {performer_info[6]}\n" \
-           f" Telegram: {performer_info[7]}\n\n" \
-           f" Комментарий: {str(appeal_info[8])}"
-    return text
 
 
 def performer_text(appeal_info):
