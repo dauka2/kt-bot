@@ -1,3 +1,4 @@
+import types
 from datetime import timedelta
 import requests
 from telebot import *
@@ -7,14 +8,15 @@ import common_file
 import db_connect
 import lteClass
 import performerClass
+import maraphonersClass
 import userClass
-
 from appealsClass import set_status, set_date_status, get_appeal_by_id, get_image_data, get_status, set_evaluation, \
     get_appeal_text_all, get_comment, set_comment, set_image_data, add_appeal_gmail, add_appeal, get_appeal_text, \
     set_appeal_text
 from commands_historyClass import cm_sv_db
 from common_file import (extract_text, extract_number, remove_milliseconds,
-                         extract_numbers_from_status_change_decided, generate_buttons, send_gmails, useful_links, check_portal_guide,
+                         extract_numbers_from_status_change_decided, generate_buttons, send_gmails, useful_links,
+                         check_portal_guide,
                          send_photo_)
 from file import check_id, admin_appeal_callback, appeal_inline_markup, admin_appeal, get_user_info, \
     rename_category_to_kaz, rename_category_to_rus
@@ -22,11 +24,11 @@ from lteClass import add_internal_sale, set_subscriber_type, set_category_i_s, s
     set_full_name, set_iin, set_phone_num_subscriber, set_subscriber_address, set_product_name, set_action, \
     set_delivery, set_simcard, set_modem, delete_internal_sale
 from performerClass import get_performer_by_category, get_regions, list_categories, get_categories_by_parentcategory, \
-    get_performer_id_by_category, get_subsubcategories_by_subcategory, get_performer_by_subsubcategory, \
-    get_performer_by_category_and_subcategory, get_performers_
+    get_performer_id_by_category, get_subsubcategories_by_subcategory, \
+    get_performer_by_category_and_subcategory, get_performer_by_subsubcategory, get_performers_
 from userClass import get_branch, get_firstname, get_user, get_lastname, get_phone_number, get_email, get_table_number
 from user_infoClass import set_appeal_field, get_category_users_info, set_category, get_appeal_field, clear_appeals, \
-    set_bool, get_subsubcategory_users_info, set_subsubcategory_users_info
+    set_bool, set_subsubcategory_users_info, get_subsubcategory_users_info
 
 categories_ = ['Learning.telecom.kz | Техникалық қолдау', 'Оқыту | Корпоративтік Университет',
                '"Нысана" қолдау қызметі', 'Комплаенс қызметіне хабарласыңыз',
@@ -221,6 +223,7 @@ def get_markup(message):
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
     if check_id(str(message.chat.id)):
         markup.add(types.KeyboardButton("Админ панель"))
+    button2 = types.KeyboardButton("🚀Сандық марафон | тіркеу")
     button = types.KeyboardButton("😊Welcome курс | Бейімделу")
     button3 = types.KeyboardButton("🗃️Білім базасы")
     button4 = types.KeyboardButton("👷ҚТ ж ЕҚ кәртішкесін толтыру")
@@ -228,7 +231,7 @@ def get_markup(message):
     button6 = types.KeyboardButton("🧐Менің профилім")
     button7 = types.KeyboardButton('🖥Портал "Бірлік"')
     button8 = types.KeyboardButton(lte_[0])
-    markup.add(button)
+    markup.add(button2, button)
     if get_branch(message.chat.id) == branches[2]:
         markup.add(button8)
     markup.add(button3, button7, button5, button4, button6)
@@ -257,6 +260,44 @@ def send_error(bot, message):
     bot.send_message(message.chat.id,
                      "Ой, бірдеңе дұрыс болмады... /menu түймесін басу арқылы ботты қайта іске қосып көріңіз")
 
+def check_is_command(text_):
+    if text_ == "/menu" or text_ == "/start" or text_ == "/help" or text_ == "/language":
+        return False
+    return True
+
+
+def marathon(bot, message):
+    bot.send_message(message.chat.id, "Цифрлық марафонға қатысу үшін қосымша ақпарат беру қажет")
+    msg = bot.send_message(message.chat.id, "Лауазымыңызды жазыңыз")
+    bot.register_next_step_handler(msg, change_age, change_position())
+
+
+def change_position(message_, bot, func):
+    if not check_is_command(message_.text):
+        msg = bot.send_message(message_.chat.id, "Командаларды пайдалану үшін сіздің позицияңызды енгізу қажет")
+        bot.register_next_step_handler(msg, change_position, func)
+        return
+    maraphonersClass.set_position(message_, message_.text)
+    msg = bot.send_message(message_.chat.id, "Жасыңызды енгізіңіз")
+    bot.register_next_step_handler(msg, change_age, func)
+
+
+def change_age(message_, bot, func):
+    if not check_is_command(message_.text):
+        msg = bot.send_message(message_.chat.id, "Командаларды пайдалану үшін жасыңызды енгізу керек")
+        bot.register_next_step_handler(msg, change_age, func)
+        return
+    maraphonersClass.set_age(message_, message_.text)
+    msg = bot.send_message(message_.chat.id, "Тұрғылықты жеріңізді таңдаңыз")
+    bot.register_next_step_handler(msg, change_region, func)
+
+
+def change_region(message_, bot, func):
+    if not check_is_command(message_.text):
+        msg = bot.send_message(message_.chat.id, "Командаларды пайдалану үшін сіз өзіңіздің аймағыңызды енгізуіңіз керек")
+        bot.register_next_step_handler(msg, change_region, func)
+        return
+    maraphonersClass.set_region(message_, message_.text)
 
 def start_adaption(bot, message):
     markup_adapt = types.InlineKeyboardMarkup()
