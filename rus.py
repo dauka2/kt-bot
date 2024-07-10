@@ -1162,9 +1162,6 @@ def instructions(bot, message):
                           open("files/Инструкция по установке приложения  «ТВ+ Казахтелеком ».pdf", "rb"))
     elif message.text == "Подключение телевизора в Wi-fi":
         bot.send_document(message.chat.id, open("files/Подключение телевизора к Wi-fi сети 5 Ггц.pdf", "rb"))
-    elif message.text == "Регламентирующие документы":
-        bot.send_document(message.chat.id, open("files/Регламент взаимодействия.doc", 'rb'))
-        bot.send_document(message.chat.id, open("files/Порядок осуществления закупок.docx", "rb"))
     elif message.text == 'Измерительные приборы':
         markup_kb = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         button1_kb = types.KeyboardButton("Измерительные приборы инструкция")
@@ -1241,6 +1238,9 @@ def kb(bot, message):
         time.sleep(0.5)
         markup = useful_links()
         bot.send_message(message.chat.id, "Полезные ссылки", reply_markup=markup)
+    elif message.text == "Регламентирующие документы":
+        bot.send_document(message.chat.id, open("files/Регламент взаимодействия.doc", 'rb'))
+        bot.send_document(message.chat.id, open("files/Порядок осуществления закупок.docx", "rb"))
 # def kb_service(bot, message):
 #     if message.text == "Личный кабинет telecom.kz":
 #         markup_instr = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)

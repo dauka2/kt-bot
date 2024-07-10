@@ -1,7 +1,7 @@
 from telebot import types
 import psycopg2
 
-TOKEN = '6053200189:AAHVGsQDJOnyvW0o4xwCZJ_X_zBdn7kRKNA'
+TOKEN = '6860898290:AAFZ5UYWLIop3NKAXFO-ZSqUdQbVNkhmsc4'
 admins_id = ['760906879', '1066191569', '6682886650']
 
 
@@ -87,6 +87,7 @@ def create_db():
     );
     """
     )
+
     conn.commit()
     cur.close()
     conn.close()
