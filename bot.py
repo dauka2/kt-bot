@@ -633,6 +633,12 @@ def get_excel(message):
     common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
 
 
+@bot.message_handler(commands=['get_marathoners'])
+def get_excel(message):
+    sql_query = "SELECT * from maraphoners"
+    common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
+
+
 @bot.message_handler(commands=['functionn'])
 def get_excel(message):
     sql_query = "select * from performers where category = %s and subcategory = %s"

@@ -299,6 +299,7 @@ def change_region(message_, bot, func):
         return
     maraphonersClass.set_region(message_, message_.text)
 
+
 def start_adaption(bot, message):
     markup_adapt = types.InlineKeyboardMarkup()
     button_adapt = types.InlineKeyboardButton('Айтыңызшы!', callback_data='Айтыңызшы!')

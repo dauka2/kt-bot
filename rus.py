@@ -284,8 +284,9 @@ def check_is_command(bot, message, text_):
 def marathon(bot, message):
     bot.send_message(message.chat.id, "Для участия в цифровом марафоне, необходимо предоставить дополнительную "
                                       "информацию")
+    maraphonersClass.insert_into_maraphoners(message)
     msg = bot.send_message(message.chat.id, "Напишите вашу должность")
-    bot.register_next_step_handler(msg, change_age, change_position())
+    bot.register_next_step_handler(msg, change_position, bot)
 
 
 def change_position(message_, bot):
@@ -293,7 +294,7 @@ def change_position(message_, bot):
         return
     maraphonersClass.set_position(message_, message_.text)
     msg = bot.send_message(message_.chat.id, "Введите ваш возраст")
-    bot.register_next_step_handler(msg, change_age)
+    bot.register_next_step_handler(msg, change_age, bot)
 
 
 def change_age(message_, bot):
@@ -303,24 +304,30 @@ def change_age(message_, bot):
         int(message_.text)
     except:
         msg = bot.send_message(message_.chat.id, "Введите ваш возраст")
-        bot.register_next_step_handler(msg, change_age)
+        bot.register_next_step_handler(msg, change_age, bot)
+        return
     maraphonersClass.set_age(message_, message_.text)
     markup_ = types.ReplyKeyboardMarkup()
     markup_ = generate_buttons(regions_, markup_)
     msg = bot.send_message(message_.chat.id, "Выберите ваш регион", reply_markup=markup_)
-    bot.register_next_step_handler(msg, change_region)
+    bot.register_next_step_handler(msg, change_region, bot)
 
 
-def change_region(message_, bot, func):
+def change_region(message_, bot):
     if check_is_command(bot, message_, message_.text):
         return
     if message_.text not in regions_:
         markup_ = types.ReplyKeyboardMarkup()
         markup_ = generate_buttons(regions_, markup_)
         msg = bot.send_message(message_.chat.id, "Необходимо выбрать ваш регион из списка", reply_markup=markup_)
-        bot.register_next_step_handler(msg, change_region)
+        bot.register_next_step_handler(msg, change_region, bot)
         return
     maraphonersClass.set_region(message_, message_.text)
+    formatted_number = str(maraphonersClass.get_id(message_)).zfill(4)
+    bot.send_message(message_.chat.id, "Регистрация закончена!\nВаш регистрационный номер\n<b>"+formatted_number+"</b>")
+    bot.send_message(message_.chat.id, "Пройдите по ссылке, чтобы попасть на официальный "
+                                       "телеграм-канал марафона (вся информация будет высылаться туда). "
+                                       "ССЫЛКА: https://t.me/+edydGmWNMh43Zjcy")
 
 
 def start_adaption(bot, message):
