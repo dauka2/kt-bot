@@ -256,6 +256,13 @@ def send_welcome_message(bot, message):
     \n\nKoмaнды ты можешь найти во вкладке «Меню» в строке сообщений (слева внизу) или просто пришли название команды, "
                                       "только значок «/» не забывай!")
 
+regions_ = ["город Астана", "город Алматы", "город Шымкент", "город Актобе", "Карагандинская область",
+               "Абайская область", "Акмолинская область", "Актюбинская область", "город Караганда",
+               "Алматинская область", "Атырауская область", "Западно-Казахстанская область", "Жамбылская область",
+               "Жетысуская область", "Костанайская область", "Кызылординская область", "Мангистауская область",
+               "Павлодарская область", "Северо-Казахстанская область", "Северо-Казахстанская область",
+               "Улытауская область", "Восточно-Казахстанская область"]
+
 
 def send_error(bot, message):
     common_file.send_photo_(bot, message.chat.id, 'images/oops_error.jpg')
@@ -264,10 +271,14 @@ def send_error(bot, message):
                      "Упс, что-то пошло не так...\nПoжaлyйcтa, попробуйте заново запустить бота нажав кнопку /menu")
 
 
-def check_is_command(text_):
-    if text_ == "/menu" or text_ == "/start" or text_ == "/help" or text_ == "/language":
-        return False
-    return True
+def check_is_command(bot, message, text_):
+    if text_ == "/start":
+        send_welcome_message(bot, message)
+        return True
+    elif text_ == "/menu" or text_ == "/help" or text_ == "/language":
+        menu(bot, message)
+        return True
+    return False
 
 
 def marathon(bot, message):
@@ -277,30 +288,37 @@ def marathon(bot, message):
     bot.register_next_step_handler(msg, change_age, change_position())
 
 
-def change_position(message_, bot, func):
-    if not check_is_command(message_.text):
-        msg = bot.send_message(message_.chat.id, "Для использования команд необходимо ввести вашу должность")
-        bot.register_next_step_handler(msg, change_position, func)
+def change_position(message_, bot):
+    if check_is_command(bot, message_, message_.text):
         return
     maraphonersClass.set_position(message_, message_.text)
     msg = bot.send_message(message_.chat.id, "Введите ваш возраст")
-    bot.register_next_step_handler(msg, change_age, func)
+    bot.register_next_step_handler(msg, change_age)
 
 
-def change_age(message_, bot, func):
-    if not check_is_command(message_.text):
-        msg = bot.send_message(message_.chat.id, "Для использования команд необходимо ввести ваш возраст")
-        bot.register_next_step_handler(msg, change_age, func)
+def change_age(message_, bot):
+    if check_is_command(bot, message_, message_.text):
         return
+    try:
+        int(message_.text)
+    except:
+        msg = bot.send_message(message_.chat.id, "Введите ваш возраст")
+        bot.register_next_step_handler(msg, change_age)
     maraphonersClass.set_age(message_, message_.text)
-    msg = bot.send_message(message_.chat.id, "Выберите ваш регион проживания")
-    bot.register_next_step_handler(msg, change_region, func)
+    markup_ = types.ReplyKeyboardMarkup()
+    markup_ = generate_buttons(regions_, markup_)
+    msg = bot.send_message(message_.chat.id, "Выберите ваш регион", reply_markup=markup_)
+    bot.register_next_step_handler(msg, change_region)
 
 
 def change_region(message_, bot, func):
-    if not check_is_command(message_.text):
-        msg = bot.send_message(message_.chat.id, "Для использования команд необходимо ввести ваш регион")
-        bot.register_next_step_handler(msg, change_region, func)
+    if check_is_command(bot, message_, message_.text):
+        return
+    if message_.text not in regions_:
+        markup_ = types.ReplyKeyboardMarkup()
+        markup_ = generate_buttons(regions_, markup_)
+        msg = bot.send_message(message_.chat.id, "Необходимо выбрать ваш регион из списка", reply_markup=markup_)
+        bot.register_next_step_handler(msg, change_region)
         return
     maraphonersClass.set_region(message_, message_.text)
 
