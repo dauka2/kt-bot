@@ -8,12 +8,10 @@ import common_file
 import db_connect
 import lteClass
 import performerClass
-import userClass
 import maraphonersClass
 from appealsClass import set_status, set_date_status, get_appeal_by_id, get_image_data, get_status, set_evaluation, \
     get_appeal_text_all, get_comment, set_comment, set_image_data, add_appeal_gmail, add_appeal, get_appeal_text, \
-    set_appeal_text, set_appeal_id
-from bot import check_is_command, check_register
+    set_appeal_text
 from commands_historyClass import cm_sv_db
 from common_file import (extract_text, extract_number, remove_milliseconds,
                          extract_numbers_from_status_change_decided, generate_buttons, send_gmails, useful_links,
@@ -57,6 +55,7 @@ instr_field = ["Брендбук и логотипы", "Личный кабин�
 adapt_field = ["😊Welcome курс | Адаптация", "ДТК", "Общая информация", "Орг структура", "Приветствие", "История",
                "ДТК Инструкции", "Заявки в ОЦО HR", "Заявки возложение обязанностей", "Заявки на отпуск",
                "Командировки", "Переводы", "Порядок оформления командировки", "Рассторжение ТД"]
+maraphon_field = ["🚀Цифровой марафон | Регистрация"]
 portal_bts = ["Что такое портал 'Бірлік'?", "Как войти на портал?", "Оставить обращение на портал"]
 # "Бірлік Гид"
 portal_ = ["Мобильная версия", "ПК или ноутбук", "Как авторизоваться", "Личный профиль", "Из портала перейти в ССП",
@@ -258,47 +257,54 @@ def send_welcome_message(bot, message):
     \n\nKoмaнды ты можешь найти во вкладке «Меню» в строке сообщений (слева внизу) или просто пришли название команды, "
                                       "только значок «/» не забывай!")
 
+
 def send_error(bot, message):
     common_file.send_photo_(bot, message.chat.id, 'images/oops_error.jpg')
     time.sleep(0.5)
     bot.send_message(message.chat.id,
                      "Упс, что-то пошло не так...\nПoжaлyйcтa, попробуйте заново запустить бота нажав кнопку /menu")
 
+
+def check_is_command(text_):
+    if text_ == "/menu" or text_ == "/start" or text_ == "/help" or text_ == "/language":
+        return False
+    return True
+
+
 def marathon(bot, message):
-    bot.send_message(message.chat.id, "Для участия в цифровом марафоне, необходимо предоставить дополнительную информацию")
+    bot.send_message(message.chat.id, "Для участия в цифровом марафоне, необходимо предоставить дополнительную "
+                                      "информацию")
+    msg = bot.send_message(message.chat.id, "Напишите вашу должность")
+    bot.register_next_step_handler(msg, change_age, change_position())
 
-    def change_position(message, func):
-        if not check_is_command(message.text):
-            msg = bot.send_message(message.chat.id, "Для использования команд необходимо ввести вашу должность")
-            bot.register_next_step_handler(msg, change_position, func)
-            return
-        maraphonersClass.set_position(message, message.text)
-        if check_register(message, func) != 0:
-            return
-        msg = bot.send_message(message.chat.id, "Введите ваш возраст")
+
+def change_position(message_, bot, func):
+    if not check_is_command(message_.text):
+        msg = bot.send_message(message_.chat.id, "Для использования команд необходимо ввести вашу должность")
+        bot.register_next_step_handler(msg, change_position, func)
+        return
+    maraphonersClass.set_position(message_, message_.text)
+    msg = bot.send_message(message_.chat.id, "Введите ваш возраст")
+    bot.register_next_step_handler(msg, change_age, func)
+
+
+def change_age(message_, bot, func):
+    if not check_is_command(message_.text):
+        msg = bot.send_message(message_.chat.id, "Для использования команд необходимо ввести ваш возраст")
         bot.register_next_step_handler(msg, change_age, func)
+        return
+    maraphonersClass.set_age(message_, message_.text)
+    msg = bot.send_message(message_.chat.id, "Выберите ваш регион проживания")
+    bot.register_next_step_handler(msg, change_region, func)
 
-    def change_age(message, func):
-        if not check_is_command(message.text):
-            msg = bot.send_message(message.chat.id, "Для использования команд необходимо ввести ваш возраст")
-            bot.register_next_step_handler(msg, change_age, func)
-            return
-        maraphonersClass.set_age(message, message.text)
-        if check_register(message, func) != 0:
-            return
-        msg = bot.send_message(message.chat.id, "Выберите ваш регион проживания")
+
+def change_region(message_, bot, func):
+    if not check_is_command(message_.text):
+        msg = bot.send_message(message_.chat.id, "Для использования команд необходимо ввести ваш регион")
         bot.register_next_step_handler(msg, change_region, func)
+        return
+    maraphonersClass.set_region(message_, message_.text)
 
-    def change_region(message, func):
-        if not check_is_command(message.text):
-            msg = bot.send_message(message.chat.id, "Для использования команд необходимо ввести ваш регион")
-            bot.register_next_step_handler(msg, change_region, func)
-            return
-        maraphonersClass.set_region(message, message.text)
-        if check_register(message, func) != 0:
-            return
-
-    bot.send_message(message.chat.id, "Регистрация пройдена! Пройдите по ссылке, чтобы попасть на официальный телеграм-канал марафона (вся информация будет высылаться туда). \nСІЛТЕМЕ/ССЫЛКА: https://t.me/+edydGmWNMh43Zjcy")
 
 def start_adaption(bot, message):
     markup_adapt = types.InlineKeyboardMarkup()

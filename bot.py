@@ -911,6 +911,8 @@ def text(message, get_message, lang_py):
     elif get_message in lang_py.adapt_field:
         user_infoClass.clear_appeals(message)
         lang_py.adaption(bot, message)
+    elif get_message in lang_py.maraphon_field:
+        lang_py.marathon(bot, message)
     elif get_message == "📄У меня есть вопрос" or get_message == "📄Менің сұрағым бар":
         lang_py.questions(bot, message)
     elif get_message == "Мои обращения" or get_message == "Менің өтініштерім" \
