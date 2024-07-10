@@ -8,9 +8,12 @@ import common_file
 import db_connect
 import lteClass
 import performerClass
+import userClass
+import maraphonersClass
 from appealsClass import set_status, set_date_status, get_appeal_by_id, get_image_data, get_status, set_evaluation, \
     get_appeal_text_all, get_comment, set_comment, set_image_data, add_appeal_gmail, add_appeal, get_appeal_text, \
     set_appeal_text, set_appeal_id
+from bot import check_is_command, check_register
 from commands_historyClass import cm_sv_db
 from common_file import (extract_text, extract_number, remove_milliseconds,
                          extract_numbers_from_status_change_decided, generate_buttons, send_gmails, useful_links,
@@ -226,6 +229,7 @@ def get_markup(message):
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
     if check_id(str(message.chat.id)):
         markup.add(types.KeyboardButton("Админ панель"))
+    button2 = types.KeyboardButton("🚀Цифровой марафон | Регистрация")
     button = types.KeyboardButton("😊Welcome курс | Адаптация")
     button3 = types.KeyboardButton("🗃️База знаний")
     button4 = types.KeyboardButton("👷Заполнить карточку БиОТ")
@@ -233,12 +237,11 @@ def get_markup(message):
     button6 = types.KeyboardButton("🧐Мой профиль")
     button7 = types.KeyboardButton('🖥Портал "Бірлік"')
     button8 = types.KeyboardButton(lte_[0])
-    markup.add(button)
+    markup.add(button2, button)
     if get_branch(message.chat.id) == branches[2]:
         markup.add(button8)
     markup.add(button3, button7, button5, button4, button6)
     return markup
-
 
 def send_welcome_message(bot, message):
     welcome_message = f'Привет, {get_firstname(message)} 👋'
@@ -255,13 +258,47 @@ def send_welcome_message(bot, message):
     \n\nKoмaнды ты можешь найти во вкладке «Меню» в строке сообщений (слева внизу) или просто пришли название команды, "
                                       "только значок «/» не забывай!")
 
-
 def send_error(bot, message):
     common_file.send_photo_(bot, message.chat.id, 'images/oops_error.jpg')
     time.sleep(0.5)
     bot.send_message(message.chat.id,
                      "Упс, что-то пошло не так...\nПoжaлyйcтa, попробуйте заново запустить бота нажав кнопку /menu")
 
+def marathon(bot, message):
+    bot.send_message(message.chat.id, "Для участия в цифровом марафоне, необходимо предоставить дополнительную информацию")
+
+    def change_position(message, func):
+        if not check_is_command(message.text):
+            msg = bot.send_message(message.chat.id, "Для использования команд необходимо ввести вашу должность")
+            bot.register_next_step_handler(msg, change_position, func)
+            return
+        maraphonersClass.set_position(message, message.text)
+        if check_register(message, func) != 0:
+            return
+        msg = bot.send_message(message.chat.id, "Введите ваш возраст")
+        bot.register_next_step_handler(msg, change_age, func)
+
+    def change_age(message, func):
+        if not check_is_command(message.text):
+            msg = bot.send_message(message.chat.id, "Для использования команд необходимо ввести ваш возраст")
+            bot.register_next_step_handler(msg, change_age, func)
+            return
+        maraphonersClass.set_age(message, message.text)
+        if check_register(message, func) != 0:
+            return
+        msg = bot.send_message(message.chat.id, "Выберите ваш регион проживания")
+        bot.register_next_step_handler(msg, change_region, func)
+
+    def change_region(message, func):
+        if not check_is_command(message.text):
+            msg = bot.send_message(message.chat.id, "Для использования команд необходимо ввести ваш регион")
+            bot.register_next_step_handler(msg, change_region, func)
+            return
+        maraphonersClass.set_region(message, message.text)
+        if check_register(message, func) != 0:
+            return
+
+    bot.send_message(message.chat.id, "Регистрация пройдена! Пройдите по ссылке, чтобы попасть на официальный телеграм-канал марафона (вся информация будет высылаться туда). \nСІЛТЕМЕ/ССЫЛКА: https://t.me/+edydGmWNMh43Zjcy")
 
 def start_adaption(bot, message):
     markup_adapt = types.InlineKeyboardMarkup()

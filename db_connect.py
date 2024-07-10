@@ -4,7 +4,6 @@ import psycopg2
 TOKEN = '6053200189:AAHVGsQDJOnyvW0o4xwCZJ_X_zBdn7kRKNA'
 admins_id = ['760906879', '1066191569', '6682886650']
 
-
 def execute_get_sql_query(sql_query, params=None):
     try:
         conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
@@ -49,6 +48,9 @@ def create_db():
         'category varchar(100), appeal_text varchar(1000), date varchar(30), date_status varchar(30), '
         'id_performer varchar(30), comment varchar(1000), is_appeal_anon bool, evaluation int, '
         'image_data bytea, lte_id int, subcategory varchar(50), subsubcategory varchar(50))')
+
+    cur.execute(
+        'CREATE TABLE IF NOT EXISTS maraphoners(id serial primary key, user_id varchar(50), age int, region varchar(50), position varchar(100))')
 
     cur.execute(
         'CREATE TABLE IF NOT EXISTS performers('
