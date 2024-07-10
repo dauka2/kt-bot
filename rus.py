@@ -1155,8 +1155,8 @@ def instructions(bot, message):
         markup_kb.add(button1_kb, button2_kb)
         bot.send_message(message.chat.id, "Выберите инструкцию", reply_markup=markup_kb)
     elif message.text == "Сетевая настройка и TCP/IP":
-        bot.send_document(message.chat.id, open("files/Инструкция по проверке состояния сетевой карты и "
-                                                "настройка свойств протокола tcpipv4.pdf", "rb"))
+        bot.send_document(message.chat.id, open("files/Инструкция по проверке состояния сетевой карты и настройка "
+                                                "свойств протокола tcpipv4.pdf", "rb"))
     elif message.text == "Установка ТВ+ Казахтелеком":
         bot.send_document(message.chat.id,
                           open("files/Инструкция по установке приложения  «ТВ+ Казахтелеком ».pdf", "rb"))

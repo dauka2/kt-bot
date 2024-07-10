@@ -1,9 +1,8 @@
 from telebot import *
 
-import common_file
 import performerClass
 from appealsClass import get_appeal_by_id, get_image_data, get_appeal_text_all, set_category
-from common_file import send_error, get_excel, extract_number
+from common_file import send_error, get_excel, extract_number, generate_buttons
 from db_connect import get_all_appeals_by_id_performer, get_sale, get_appeals
 from performerClass import list_categories, get_all_anonymous_appeals_by_id_performer, get_performers_id, \
     get_performers, get_regions, get_categories_by_parentcategory
@@ -54,6 +53,7 @@ def admin_appeal(bot, message, message_text):
         for ap in appeal_info_:
             if str(ap[3]) in ids:
                 appeal_info.append(ap)
+
         markup_a = types.InlineKeyboardMarkup()
         if appeal_info is not None:
             for appeal_ in appeal_info:
@@ -143,8 +143,7 @@ def admin_appeal_callback(call, bot, add_comment):
         bot.register_next_step_handler(msg, add_comment, bot, appeal_id)
     elif extract_number(str(call.data), r'^(\d+)changecategory') is not None:
         appeal_id = extract_number(str(call.data), r'^(\d+)changecategory')
-        category_markup = common_file.generate_buttons(categories.keys(),
-                                                       types.ReplyKeyboardMarkup(one_time_keyboard=True))
+        category_markup = generate_buttons(categories.keys(), types.ReplyKeyboardMarkup(one_time_keyboard=True))
         msg = bot.send_message(call.message.chat.id, 'Выберите категорию', reply_markup=category_markup)
         bot.register_next_step_handler(msg, change_category, bot, appeal_id)
 
