@@ -641,7 +641,8 @@ def get_excel(message):
 
 @bot.message_handler(commands=['get_marathoners'])
 def get_excel(message):
-    sql_query = "SELECT * from maraphoners inner join users on maraphoners.user_id = users.id"
+    sql_query = ('SELECT maraphoners.id, maraphoners.user_id, users.firstname, users.lastname, phone_number, branch, '
+                 'age, position, region from maraphoners inner join users on maraphoners.user_id = users.id')
     common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
 
 
