@@ -325,11 +325,21 @@ def change_region_kaz(message_, bot):
     maraphonersClass.set_region(message_, message_.text)
     formatted_number = str(maraphonersClass.get_id(message_)).zfill(4)
     bot.send_message(message_.chat.id, "Тіркеу заңды!\nВаш тіркеу нөмірі\n<b>"+formatted_number+" </b>")
+    bot.send_message(message_.chat.id, str(marathoner_text_kaz(message_.chat.id)))
     bot.send_message(message_.chat.id, "Ресми сайтқа өту үшін сілтемеге өтіңіз"
                                        "жеделхат-марафон арнасы (барлық ақпарат сол жерге жіберіледі). "
                                        "\nСілтеме: https://t.me/+edydGmWNMh43Zjcy"
                                        "Егер сіз өз деректеріңізді дұрыс көрсетпегендей сезінсеңіз, онда сіз негізгі мәзірге өтіп, сандық марафонға қайта тіркеле аласыз")
 
+def marathoner_text_kaz(user_id):
+    marathoner_info = maraphonersClass.get_by_user_id(user_id)[0]
+    text = f"ФИО: {marathoner_info[2]} {marathoner_info[3]}\n" \
+           f"Телефон нөмірі: {marathoner_info[4]}\n" \
+           f"Филиалы: {marathoner_info[5]}\n" \
+           f"Лауазымы: {marathoner_info[7]}\n" \
+           f"Аймақ: {str(marathoner_info[8])}\n" \
+           f"Жасы: {str(marathoner_info[6])}\n"
+    return text
 
 def start_adaption(bot, message):
     markup_adapt = types.InlineKeyboardMarkup()
