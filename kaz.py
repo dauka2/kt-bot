@@ -302,7 +302,7 @@ def change_age_kaz(message_, bot):
         age = int(message_.text)
         if age < 5 or age > 100:
             raise ValueError("Возраст вне допустимого диапазона")
-    except:
+    except ValueError:
         msg = bot.send_message(message_.chat.id, "Жасыңызды енгізіңіз")
         bot.register_next_step_handler(msg, change_age_kaz, bot)
         return
@@ -324,6 +324,7 @@ def change_region_kaz(message_, bot):
         return
     maraphonersClass.set_region(message_, message_.text)
     formatted_number = str(maraphonersClass.get_id(message_)).zfill(4)
+
     bot.send_message(message_.chat.id, "Тіркеу заңды!\nВаш тіркеу нөмірі\n<b>"+formatted_number+" </b>")
     bot.send_message(message_.chat.id, "Ресми сайтқа өту үшін сілтемеге өтіңіз"
                                        "жеделхат-марафон арнасы (барлық ақпарат сол жерге жіберіледі). "

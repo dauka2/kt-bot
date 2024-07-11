@@ -332,12 +332,12 @@ def change_region(message_, bot):
     formatted_number = str(maraphonersClass.get_id(message_)).zfill(4)
 
     bot.send_message(message_.chat.id, "Регистрация закончена!\nВаш регистрационный номер\n<b>"+formatted_number+"</b>")
-    bot.send_message(message_.chat.id, str(marathoner_text(message_.chat.id)))
+    bot.send_message(message_.chat.id, str(marathoner_text(message_.chat.id)) +
+                     "\nЕсли вам кажется что вы указали свои данные неверно, то можете пройти в "
+                     "главное меню и пройти регистрацию на цифровой марафон снова")
     bot.send_message(message_.chat.id, "Пройдите по ссылке, чтобы попасть на официальный "
                                        "телеграм-канал марафона (вся информация будет высылаться туда). "
-                                       "\nССЫЛКА: https://t.me/+edydGmWNMh43Zjcy"
-                                       "Если вам кажется что вы указали свои данные неверно, то можете пройти в "
-                                       "главное меню и пройти регистрацию на цифровой марафон снова")
+                                       "\nССЫЛКА: https://t.me/+edydGmWNMh43Zjcy")
 
 
 # SELECT maraphoners.id, maraphoners.user_id, users.firstname, users.lastname, phone_number, branch, '
