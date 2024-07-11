@@ -327,7 +327,8 @@ def change_region_kaz(message_, bot):
     bot.send_message(message_.chat.id, "Тіркеу заңды!\nВаш тіркеу нөмірі\n<b>"+formatted_number+" </b>")
     bot.send_message(message_.chat.id, "Ресми сайтқа өту үшін сілтемеге өтіңіз"
                                        "жеделхат-марафон арнасы (барлық ақпарат сол жерге жіберіледі). "
-                                       "\nСілтеме: https://t.me/+edydGmWNMh43Zjcy")
+                                       "\nСілтеме: https://t.me/+edydGmWNMh43Zjcy"
+                                       "Егер сіз өз деректеріңізді дұрыс көрсетпегендей сезінсеңіз, онда сіз негізгі мәзірге өтіп, сандық марафонға қайта тіркеле аласыз")
 
 
 def start_adaption(bot, message):

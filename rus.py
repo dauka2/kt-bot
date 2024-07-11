@@ -333,7 +333,8 @@ def change_region(message_, bot):
     bot.send_message(message_.chat.id, "Регистрация закончена!\nВаш регистрационный номер\n<b>"+formatted_number+"</b>")
     bot.send_message(message_.chat.id, "Пройдите по ссылке, чтобы попасть на официальный "
                                        "телеграм-канал марафона (вся информация будет высылаться туда). "
-                                       "\nССЫЛКА: https://t.me/+edydGmWNMh43Zjcy")
+                                       "\nССЫЛКА: https://t.me/+edydGmWNMh43Zjcy"
+                                       "Если вам кажется что вы указали свои данные неверно, то можете пройти в главное меню и пройти регистрацию на цифровой марафон снова")
 
 
 def start_adaption(bot, message):

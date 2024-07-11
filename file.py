@@ -177,7 +177,6 @@ def performer_text(appeal_info):
            f" Комментарий: {str(appeal_info[8])}"
     return text
 
-
 def check_id(input_id):
     performers = get_performers()
     for performer in performers:
