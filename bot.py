@@ -5,6 +5,7 @@ from telebot import *
 import appealsClass
 import db_connect
 import kaz
+import maraphonersClass
 import rus
 import userClass
 import commands_historyClass
@@ -147,6 +148,11 @@ def change(message):
     sql_query = "UPDATE appeals SET id_performer = 32 where id = 596"
     db_connect.execute_set_sql_query(sql_query)
     bot.send_message(message.chat.id, "Изменения сохранены")
+
+
+@bot.message_handler(commands=['drop_table_marathoners'])
+def change(message):
+    maraphonersClass.delete_all()
 
 
 @bot.message_handler(commands=['send_evaluation'])

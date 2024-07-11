@@ -50,17 +50,20 @@ def get_region(message):
 def get_id(message):
     sql_query = 'SELECT id FROM maraphoners WHERE user_id=%s'
     params = (str(message.chat.id),)
-    region = execute_get_sql_query(sql_query, params)[0][0]
-    return region
+    id = execute_get_sql_query(sql_query, params)[0][0]
+    return id
 
 
 def ifExistsUser(user_id):
-    sql_query = 'SELECT EXISTS(SELECT 1 FROM users WHERE id = %s);'
+    sql_query = 'SELECT EXISTS(SELECT 1 FROM maraphoners WHERE user_id = %s);'
     params = (str(user_id),)
-    region = execute_get_sql_query(sql_query, params)[0][0]
-    return region
+    try:
+        isExists = execute_get_sql_query(sql_query, params)[0][0]
+    except:
+        return False
+    return isExists
 
 
 def delete_all():
-    sql_query = 'DROP DATABASE IF EXISTS maraphoners'
+    sql_query = 'DROP TABLE maraphoners'
     execute_set_sql_query(sql_query)

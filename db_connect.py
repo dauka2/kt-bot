@@ -51,7 +51,8 @@ def create_db():
         'image_data bytea, lte_id int, subcategory varchar(50), subsubcategory varchar(50))')
 
     cur.execute(
-        'CREATE TABLE IF NOT EXISTS maraphoners(id serial primary key, user_id varchar(50), age int, region varchar(50), position varchar(100))')
+        'CREATE TABLE IF NOT EXISTS maraphoners(id serial primary key, user_id varchar(50), age int, '
+        'region varchar(50), position varchar(100))')
 
     cur.execute(
         'CREATE TABLE IF NOT EXISTS performers('

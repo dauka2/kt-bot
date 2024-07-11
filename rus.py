@@ -285,10 +285,9 @@ def check_is_command(bot, message, text_):
 
 
 def marathon(bot, message):
-
     bot.send_message(message.chat.id, "Для участия в цифровом марафоне, необходимо предоставить дополнительную "
                                       "информацию")
-    if maraphonersClass.ifExistsUser(message.chat.id):
+    if not maraphonersClass.ifExistsUser(message.chat.id):
         maraphonersClass.insert_into_maraphoners(message)
     msg = bot.send_message(message.chat.id, "Напишите вашу должность")
     bot.register_next_step_handler(msg, change_position, bot)
@@ -305,12 +304,16 @@ def change_position(message_, bot):
 def change_age(message_, bot):
     if check_is_command(bot, message_, message_.text):
         return
+
     try:
-        int(message_.text)
-    except:
+        age = int(message_.text)
+        if age < 5 or age > 100:
+            raise ValueError("Возраст вне допустимого диапазона")
+    except ValueError:
         msg = bot.send_message(message_.chat.id, "Введите ваш возраст")
         bot.register_next_step_handler(msg, change_age, bot)
         return
+
     maraphonersClass.set_age(message_, message_.text)
     markup_ = types.ReplyKeyboardMarkup(one_time_keyboard=True)
     markup_ = generate_buttons(regions_, markup_)
