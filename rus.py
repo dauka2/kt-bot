@@ -304,7 +304,6 @@ def change_position(message_, bot):
 def change_age(message_, bot):
     if check_is_command(bot, message_, message_.text):
         return
-
     try:
         age = int(message_.text)
         if age < 5 or age > 100:
@@ -313,7 +312,6 @@ def change_age(message_, bot):
         msg = bot.send_message(message_.chat.id, "Введите ваш возраст")
         bot.register_next_step_handler(msg, change_age, bot)
         return
-
     maraphonersClass.set_age(message_, message_.text)
     markup_ = types.ReplyKeyboardMarkup(one_time_keyboard=True)
     markup_ = generate_buttons(regions_, markup_)

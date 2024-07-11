@@ -281,43 +281,46 @@ def check_is_command(bot, message, text_):
 
 def marathon(bot, message):
     bot.send_message(message.chat.id, "Цифрлық марафонға қатысу үшін қосымша ақпарат")
-    maraphonersClass.insert_into_maraphoners(message)
+    if not maraphonersClass.ifExistsUser(message.chat.id):
+        maraphonersClass.insert_into_maraphoners(message)
     msg = bot.send_message(message.chat.id, "Лауазымыңызды жазыңыз")
-    bot.register_next_step_handler(msg, change_position, bot)
+    bot.register_next_step_handler(msg, change_position_kaz, bot)
 
 
-def change_position(message_, bot):
+def change_position_kaz(message_, bot):
     if check_is_command(bot, message_, message_.text):
         return
     maraphonersClass.set_position(message_, message_.text)
     msg = bot.send_message(message_.chat.id, "Жасыңызды енгізіңіз")
-    bot.register_next_step_handler(msg, change_age, bot)
+    bot.register_next_step_handler(msg, change_age_kaz, bot)
 
 
-def change_age(message_, bot):
+def change_age_kaz(message_, bot):
     if check_is_command(bot, message_, message_.text):
         return
     try:
-        int(message_.text)
+        age = int(message_.text)
+        if age < 5 or age > 100:
+            raise ValueError("Возраст вне допустимого диапазона")
     except:
         msg = bot.send_message(message_.chat.id, "Жасыңызды енгізіңіз")
-        bot.register_next_step_handler(msg, change_age, bot)
+        bot.register_next_step_handler(msg, change_age_kaz, bot)
         return
     maraphonersClass.set_age(message_, message_.text)
     markup_ = types.ReplyKeyboardMarkup()
     markup_ = generate_buttons(regions_, markup_)
     msg = bot.send_message(message_.chat.id, "Аймағыңызды таңдаңыз", reply_markup=markup_)
-    bot.register_next_step_handler(msg, change_region, bot)
+    bot.register_next_step_handler(msg, change_region_kaz, bot)
 
 
-def change_region(message_, bot):
+def change_region_kaz(message_, bot):
     if check_is_command(bot, message_, message_.text):
         return
     if message_.text not in regions_:
-        markup_ = types.ReplyKeyboardMarkup()
+        markup_ = types.ReplyKeyboardMarkup(one_time_keyboard=True)
         markup_ = generate_buttons(regions_, markup_)
         msg = bot.send_message(message_.chat.id, "Тізімнен аймағыңызды таңдау керек", reply_markup=markup_)
-        bot.register_next_step_handler(msg, change_region, bot)
+        bot.register_next_step_handler(msg, change_region_kaz, bot)
         return
     maraphonersClass.set_region(message_, message_.text)
     formatted_number = str(maraphonersClass.get_id(message_)).zfill(4)
