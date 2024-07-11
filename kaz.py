@@ -60,6 +60,7 @@ instr_field = ["Брендбук және логотиптер", "Жеке ка�
 adapt_field = ["😊Welcome курс | Бейімделу", "ДТК", "Общая информация", "Орг структура", "Приветствие", "История",
                "ДТК Инструкции", "Заявки в ОЦО HR", "Заявки возложение обязанностей", "Заявки на отпуск",
                "Командировки", "Переводы", "Порядок оформления командировки", "Рассторжение ТД"]
+maraphon_field = ["🚀Сандық марафон / тіркеу"]
 portal_bts = ["'Бірлік' порталы дегеніміз не?", "Порталға қалай кіруге болады?", "Порталға өтініш қалдыру"]
 # "Бірлік Гид"
 portal_ = ["Мобильді нұсқа", "ДК немесе ноутбук", "Қалай кіруге болады", "Жеке профиль", "Порталдан ССП өту",
@@ -253,6 +254,12 @@ def send_welcome_message(bot, message):
         \n\n Пәрмендерді /menu бөлігіндегі хабарламалар жолағынан таба аласыз (төменгі сол жақта) "
                                       "немесе жай ғана пәрменнің атауына, '/' ұмытпаңыз! белгісіне келіңіз.")
 
+regions_ = ["город Астана", "город Алматы", "город Шымкент", "город Актобе", "Карагандинская область",
+               "Абайская область", "Акмолинская область", "Актюбинская область", "город Караганда",
+               "Алматинская область", "Атырауская область", "Западно-Казахстанская область", "Жамбылская область",
+               "Жетысуская область", "Костанайская область", "Кызылординская область", "Мангистауская область",
+               "Павлодарская область", "Северо-Казахстанская область", "Северо-Казахстанская область",
+               "Улытауская область", "Восточно-Казахстанская область"]
 
 def send_error(bot, message):
     common_file.send_photo_(bot, message.chat.id, 'images/oops_error kaz.jpg')
@@ -260,44 +267,62 @@ def send_error(bot, message):
     bot.send_message(message.chat.id,
                      "Ой, бірдеңе дұрыс болмады... /menu түймесін басу арқылы ботты қайта іске қосып көріңіз")
 
-def check_is_command(text_):
-    if text_ == "/menu" or text_ == "/start" or text_ == "/help" or text_ == "/language":
-        return False
-    return True
+def check_is_command(bot, message, text_):
+    if text_ == "/start":
+        send_welcome_message(bot, message)
+        return True
+    elif text_ == "/menu" or text_ == "/help" or text_ == "/language":
+        menu(bot, message)
+        return True
+    return False
 
 
 def marathon(bot, message):
-    bot.send_message(message.chat.id, "Цифрлық марафонға қатысу үшін қосымша ақпарат беру қажет")
+    bot.send_message(message.chat.id, "Цифрлық марафонға қатысу үшін қосымша ақпарат")
+    maraphonersClass.insert_into_maraphoners(message)
     msg = bot.send_message(message.chat.id, "Лауазымыңызды жазыңыз")
-    bot.register_next_step_handler(msg, change_age, change_position())
+    bot.register_next_step_handler(msg, change_position, bot)
 
 
-def change_position(message_, bot, func):
-    if not check_is_command(message_.text):
-        msg = bot.send_message(message_.chat.id, "Командаларды пайдалану үшін сіздің позицияңызды енгізу қажет")
-        bot.register_next_step_handler(msg, change_position, func)
+def change_position(message_, bot):
+    if check_is_command(bot, message_, message_.text):
         return
     maraphonersClass.set_position(message_, message_.text)
     msg = bot.send_message(message_.chat.id, "Жасыңызды енгізіңіз")
-    bot.register_next_step_handler(msg, change_age, func)
+    bot.register_next_step_handler(msg, change_age, bot)
 
 
-def change_age(message_, bot, func):
-    if not check_is_command(message_.text):
-        msg = bot.send_message(message_.chat.id, "Командаларды пайдалану үшін жасыңызды енгізу керек")
-        bot.register_next_step_handler(msg, change_age, func)
+def change_age(message_, bot):
+    if check_is_command(bot, message_, message_.text):
+        return
+    try:
+        int(message_.text)
+    except:
+        msg = bot.send_message(message_.chat.id, "Жасыңызды енгізіңіз")
+        bot.register_next_step_handler(msg, change_age, bot)
         return
     maraphonersClass.set_age(message_, message_.text)
-    msg = bot.send_message(message_.chat.id, "Тұрғылықты жеріңізді таңдаңыз")
-    bot.register_next_step_handler(msg, change_region, func)
+    markup_ = types.ReplyKeyboardMarkup()
+    markup_ = generate_buttons(regions_, markup_)
+    msg = bot.send_message(message_.chat.id, "Аймағыңызды таңдаңыз", reply_markup=markup_)
+    bot.register_next_step_handler(msg, change_region, bot)
 
 
-def change_region(message_, bot, func):
-    if not check_is_command(message_.text):
-        msg = bot.send_message(message_.chat.id, "Командаларды пайдалану үшін сіз өзіңіздің аймағыңызды енгізуіңіз керек")
-        bot.register_next_step_handler(msg, change_region, func)
+def change_region(message_, bot):
+    if check_is_command(bot, message_, message_.text):
+        return
+    if message_.text not in regions_:
+        markup_ = types.ReplyKeyboardMarkup()
+        markup_ = generate_buttons(regions_, markup_)
+        msg = bot.send_message(message_.chat.id, "Тізімнен аймағыңызды таңдау керек", reply_markup=markup_)
+        bot.register_next_step_handler(msg, change_region, bot)
         return
     maraphonersClass.set_region(message_, message_.text)
+    formatted_number = str(maraphonersClass.get_id(message_)).zfill(4)
+    bot.send_message(message_.chat.id, "Тіркеу заңды!\ пВаш тіркеу нөмірі\n<b> "+formatted_number+" < / b>")
+    bot.send_message(message_.chat.id, "ресми сайтқа өту үшін сілтемеге өтіңіз"
+                                       "жеделхат-марафон арнасы (барлық ақпарат сол жерге жіберіледі). "
+                                       "Сілтеме: https://t.me/+edydGmWNMh43Zjcy")
 
 
 def start_adaption(bot, message):
