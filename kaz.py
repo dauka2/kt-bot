@@ -326,11 +326,12 @@ def change_region_kaz(message_, bot):
     formatted_number = str(maraphonersClass.get_id(message_)).zfill(4)
 
     bot.send_message(message_.chat.id, "Тіркеу заңды!\nВаш тіркеу нөмірі\n<b>"+formatted_number+" </b>")
-    bot.send_message(message_.chat.id, str(marathoner_text_kaz(message_.chat.id)))
+    bot.send_message(message_.chat.id, str(marathoner_text_kaz(message_.chat.id)) +
+                     "\nЕгер сіз өз деректеріңізді дұрыс көрсетпегендей сезінсеңіз, "
+                     "онда сіз негізгі мәзірге өтіп, сандық марафонға қайта тіркеле аласыз")
     bot.send_message(message_.chat.id, "Ресми сайтқа өту үшін сілтемеге өтіңіз"
                                        "жеделхат-марафон арнасы (барлық ақпарат сол жерге жіберіледі). "
-                                       "\nСілтеме: https://t.me/+edydGmWNMh43Zjcy"
-                                       "Егер сіз өз деректеріңізді дұрыс көрсетпегендей сезінсеңіз, онда сіз негізгі мәзірге өтіп, сандық марафонға қайта тіркеле аласыз")
+                                       "\nСілтеме: https://t.me/+edydGmWNMh43Zjcy")
 
 def marathoner_text_kaz(user_id):
     marathoner_info = maraphonersClass.get_by_user_id(user_id)[0]
