@@ -333,6 +333,7 @@ def change_region_kaz(message_, bot):
                                        "жеделхат-марафон арнасы (барлық ақпарат сол жерге жіберіледі). "
                                        "\nСілтеме: https://t.me/+edydGmWNMh43Zjcy")
 
+
 def marathoner_text_kaz(user_id):
     marathoner_info = maraphonersClass.get_by_user_id(user_id)[0]
     text = f"ФИО: {marathoner_info[2]} {marathoner_info[3]}\n" \
