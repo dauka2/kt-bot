@@ -67,3 +67,13 @@ def ifExistsUser(user_id):
 def delete_all():
     sql_query = 'DROP TABLE maraphoners'
     execute_set_sql_query(sql_query)
+
+
+def get_by_user_id(user_id):
+    sql_query = ('SELECT maraphoners.id, maraphoners.user_id, users.firstname, users.lastname, phone_number, branch, '
+                 'age, position, region FROM maraphoners inner join users '
+                 'on maraphoners.user_id = users.id where maraphoners.user_id = %s')
+    params = (str(user_id),)
+    marathoners = execute_get_sql_query(sql_query, params)
+    return marathoners
+

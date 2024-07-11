@@ -330,11 +330,27 @@ def change_region(message_, bot):
         return
     maraphonersClass.set_region(message_, message_.text)
     formatted_number = str(maraphonersClass.get_id(message_)).zfill(4)
+
     bot.send_message(message_.chat.id, "Регистрация закончена!\nВаш регистрационный номер\n<b>"+formatted_number+"</b>")
+    bot.send_message(message_.chat.id, str(marathoner_text(message_.chat.id)))
     bot.send_message(message_.chat.id, "Пройдите по ссылке, чтобы попасть на официальный "
                                        "телеграм-канал марафона (вся информация будет высылаться туда). "
                                        "\nССЫЛКА: https://t.me/+edydGmWNMh43Zjcy"
-                                       "Если вам кажется что вы указали свои данные неверно, то можете пройти в главное меню и пройти регистрацию на цифровой марафон снова")
+                                       "Если вам кажется что вы указали свои данные неверно, то можете пройти в "
+                                       "главное меню и пройти регистрацию на цифровой марафон снова")
+
+
+# SELECT maraphoners.id, maraphoners.user_id, users.firstname, users.lastname, phone_number, branch, '
+# age, position, region
+def marathoner_text(user_id):
+    marathoner_info = maraphonersClass.get_by_user_id(user_id)[0]
+    text = f"ФИО: {marathoner_info[2]} {marathoner_info[3]}\n" \
+           f"Номер телефона: {marathoner_info[4]}\n" \
+           f"Филиал: {marathoner_info[5]}\n" \
+           f"Должность: {marathoner_info[7]}\n" \
+           f"Регион: {str(marathoner_info[8])}\n" \
+           f"Возраст: {str(marathoner_info[6])}\n"
+    return text
 
 
 def start_adaption(bot, message):
