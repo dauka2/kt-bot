@@ -815,7 +815,6 @@ def add_comment(message, bot, appeal_id, isAdmin=True):
 
 def appeal(bot, message, message_text):
     set_appeal_field(message, True)
-    bot.send_message(message.chat.id, str(get_appeal_field(message)))
     if message_text == "Мои обращения":
         markup_a = appeal_inline_markup(message)
         if markup_a.keyboard:
