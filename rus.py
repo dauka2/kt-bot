@@ -223,6 +223,7 @@ branches = ['Центральный Аппарат', 'Объединение Д�
             'Дирекция Телеком Комплект', 'Дирекция Управления Проектами',
             'Сервисная Фабрика']
 
+
 def get_markup(message):
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
     if check_id(str(message.chat.id)):
@@ -241,6 +242,7 @@ def get_markup(message):
     markup.add(button3, button7, button5, button4, button6)
     return markup
 
+
 def send_welcome_message(bot, message):
     welcome_message = f'Привет, {get_firstname(message)} 👋'
     markup = get_markup(message)
@@ -256,12 +258,13 @@ def send_welcome_message(bot, message):
     \n\nKoмaнды ты можешь найти во вкладке «Меню» в строке сообщений (слева внизу) или просто пришли название команды, "
                                       "только значок «/» не забывай!")
 
+
 regions_ = ["город Астана", "город Алматы", "город Шымкент", "город Актобе", "Карагандинская область",
-               "Абайская область", "Акмолинская область", "Актюбинская область", "город Караганда",
-               "Алматинская область", "Атырауская область", "Западно-Казахстанская область", "Жамбылская область",
-               "Жетысуская область", "Костанайская область", "Кызылординская область", "Мангистауская область",
-               "Павлодарская область", "Северо-Казахстанская область", "Северо-Казахстанская область",
-               "Улытауская область", "Восточно-Казахстанская область"]
+            "Абайская область", "Акмолинская область", "Актюбинская область", "город Караганда",
+            "Алматинская область", "Атырауская область", "Западно-Казахстанская область", "Жамбылская область",
+            "Жетысуская область", "Костанайская область", "Кызылординская область", "Мангистауская область",
+            "Павлодарская область", "Северо-Казахстанская область", "Туркестанская область", "Улытауская область",
+            "Восточно-Казахстанская область"]
 
 
 def send_error(bot, message):
@@ -282,9 +285,11 @@ def check_is_command(bot, message, text_):
 
 
 def marathon(bot, message):
+
     bot.send_message(message.chat.id, "Для участия в цифровом марафоне, необходимо предоставить дополнительную "
                                       "информацию")
-    maraphonersClass.insert_into_maraphoners(message)
+    if maraphonersClass.ifExistsUser(message.chat.id):
+        maraphonersClass.insert_into_maraphoners(message)
     msg = bot.send_message(message.chat.id, "Напишите вашу должность")
     bot.register_next_step_handler(msg, change_position, bot)
 
@@ -307,7 +312,7 @@ def change_age(message_, bot):
         bot.register_next_step_handler(msg, change_age, bot)
         return
     maraphonersClass.set_age(message_, message_.text)
-    markup_ = types.ReplyKeyboardMarkup()
+    markup_ = types.ReplyKeyboardMarkup(one_time_keyboard=True)
     markup_ = generate_buttons(regions_, markup_)
     msg = bot.send_message(message_.chat.id, "Выберите ваш регион", reply_markup=markup_)
     bot.register_next_step_handler(msg, change_region, bot)
@@ -317,7 +322,7 @@ def change_region(message_, bot):
     if check_is_command(bot, message_, message_.text):
         return
     if message_.text not in regions_:
-        markup_ = types.ReplyKeyboardMarkup()
+        markup_ = types.ReplyKeyboardMarkup(one_time_keyboard=True)
         markup_ = generate_buttons(regions_, markup_)
         msg = bot.send_message(message_.chat.id, "Необходимо выбрать ваш регион из списка", reply_markup=markup_)
         bot.register_next_step_handler(msg, change_region, bot)
@@ -327,7 +332,7 @@ def change_region(message_, bot):
     bot.send_message(message_.chat.id, "Регистрация закончена!\nВаш регистрационный номер\n<b>"+formatted_number+"</b>")
     bot.send_message(message_.chat.id, "Пройдите по ссылке, чтобы попасть на официальный "
                                        "телеграм-канал марафона (вся информация будет высылаться туда). "
-                                       "ССЫЛКА: https://t.me/+edydGmWNMh43Zjcy")
+                                       "\nССЫЛКА: https://t.me/+edydGmWNMh43Zjcy")
 
 
 def start_adaption(bot, message):
