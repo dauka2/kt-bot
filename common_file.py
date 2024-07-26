@@ -105,11 +105,9 @@ def useful_links():
     button2 = types.InlineKeyboardButton(text='KTCU Фотобанк', url='https://t.me/kazakhtelecomKTCU')
     button3 = types.InlineKeyboardButton(text='KTCU Инстаграм',
                                          url='https://www.instagram.com/kazakhtelecom_university/')
-    button4 = types.InlineKeyboardButton(text='EX | Вопросы и обращения', url='https://t.me/contactingKT')
     button5 = types.InlineKeyboardButton(text='СФ чат', url='https://t.me/sf_kazakhtelecom')
     button6 = types.InlineKeyboardButton(text='Промышленный чат-бот', url='https://t.me/Lira_SF_bot')
-    button7 = types.InlineKeyboardButton(text='Забота о сотрудниках', url='https://t.me/+I8Okb3LFgKExYWZi')
-    markup.add(button1, button2, button3, button4, button5, button6, button7)
+    markup.add(button1, button2, button3, button5, button6)
     return markup
 
 

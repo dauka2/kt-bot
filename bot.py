@@ -41,7 +41,12 @@ def check_is_command(text_):
 def check_register(message, func):
     markup = rus.get_markup(message)
     arr = [markup, rus, "Изменения сохранены", "Оставить обращение"]
-    language = userClass.get_language(message)
+    try:
+        language = userClass.get_language(message)
+    except IndexError:
+        start(message)
+        return
+
     if language == "kaz":
         markup = kaz.get_markup(message)
         arr = [markup, kaz, "Өзгерістер сақталды", "Өтінішті қалдыру"]
@@ -189,7 +194,11 @@ def change(message):
 @bot.message_handler(commands=['register_start'])
 def register(message, func="menu"):
     commands_historyClass.cm_sv_db(message, '/start_register')
-    language = userClass.get_language(message)
+    try:
+        language = userClass.get_language(message)
+    except IndexError:
+        start(message)
+        return
     arr = ["Приветствую, друг!🫡 \nМеня зовут ktbot, \nТвой личный помощник в компании АО'Казахтелеком'.",
            "Перед началом пользования,\nДавай пройдем регистрацию и познакомимся😊",
            "Выберите филиал из списка"]
@@ -328,7 +337,11 @@ def is_it_you(message, func):
 
 
 def yes_no(message, func):
-    language = userClass.get_language(message)
+    try:
+        language = userClass.get_language(message)
+    except IndexError:
+        start(message)
+        return
     arr = ["Регистрация", "Войти по табельному номеру"]
     if language == "kaz":
         arr = ["Тіркеу", "Табель нөмірі бойынша кіру"]
@@ -341,7 +354,11 @@ def yes_no(message, func):
 def change_phone_num(message, func):
     phone_num = message.text
     pattern = r'^(\+?7|8)(\d{10})$'
-    language = userClass.get_language(message)
+    try:
+        language = userClass.get_language(message)
+    except IndexError:
+        start(message)
+        return
     arr = ["Вы ввели некорректные данные, введите в таком шаблоне +77001112233",
            "Введите Ваш корпоративный E-mail\n\n(временно можете указать и Ваш личный)"]
     if language == "kaz":
@@ -364,7 +381,11 @@ def change_phone_num(message, func):
 def change_email(message, func):
     email = message.text
     regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
-    language = userClass.get_language(message)
+    try:
+        language = userClass.get_language(message)
+    except IndexError:
+        start(message)
+        return
     arr = ["Регистрация пройдена!\n\nПриятно познакомиться!😇",
            "Вы ввели некорректные данные, введите в таком шаблоне dilnaz@telecom.kz",
            "Для использования команд необходимо ввести email",
@@ -396,7 +417,11 @@ def change_email(message, func):
 
 def change_branch(message, func):
     branch = message.text
-    language = userClass.get_language(message)
+    try:
+        language = userClass.get_language(message)
+    except IndexError:
+        start(message)
+        return
     arr = ["Введите табельный номер", "Вы ввели некорректные данные, выберите филиал из списка", "Введите имя",
            "Выберите способ входа", "Регистрация", "Войти по табельному номеру"]
     if language == "kaz":
@@ -426,7 +451,11 @@ def change_branch(message, func):
 def in_table(message, func, message_text=None):
     if message_text is None:
         message_text = message.text
-    language = userClass.get_language(message)
+    try:
+        language = userClass.get_language(message)
+    except IndexError:
+        start(message)
+        return
     arr = ["Введите табельный номер", "Введите имя", "Регистрация", "Войти по табельному номеру",
            "Выберите способ входа"]
     if language == "kaz":
@@ -527,7 +556,11 @@ def menu(message):
 @bot.message_handler(commands=["help"])
 def help_command(message):
     commands_historyClass.cm_sv_db(message, '/help')
-    language = userClass.get_language(message)
+    try:
+        language = userClass.get_language(message)
+    except IndexError:
+        start(message)
+        return
     if str(message.chat.id)[0] == '-':
         return
     markup = types.InlineKeyboardMarkup(row_width=1)
@@ -548,7 +581,11 @@ def help_command(message):
 
 
 def get_help_message(message):
-    language = userClass.get_language(message)
+    try:
+        language = userClass.get_language(message)
+    except IndexError:
+        start(message)
+        return
     help_message = message.text + "\n\n" + file.get_user_info(message.chat.id)
     if language == 'rus':
         bot.send_message(message.chat.id, "Ваше сообщение успешно сохранено")
@@ -560,7 +597,11 @@ def get_help_message(message):
 @bot.callback_query_handler(func=lambda call: True)
 def callback_handler(call):
     commands_historyClass.cm_sv_db(call.message, str(call.data))
-    language = userClass.get_language(call.message)
+    try:
+        language = userClass.get_language(call.message)
+    except IndexError:
+        start(call.message)
+        return
     arr = ["Введите имя", "Введите Фамилию", "Введите номер телефона",
            "Введите Ваш корпоративный E-mail\n\n(временно можете указать и Ваш личный)", "Введите табельный номер",
            "Выберите Ваш филиал из списка"]
@@ -823,7 +864,11 @@ def get_excel(message):
 
 
 def send_error(message):
-    language = userClass.get_language(message)
+    try:
+        language = userClass.get_language(message)
+    except IndexError:
+        start(message)
+        return
     if language == 'rus':
         rus.send_error(bot, message)
     elif language == 'kaz':
@@ -891,7 +936,11 @@ def mess(message):
     commands_historyClass.cm_sv_db(message, get_message)
     if str(message.chat.id)[0] == '-':
         return
-    language = userClass.get_language(message)
+    try:
+        language = userClass.get_language(message)
+    except IndexError:
+        start(message)
+        return
     if language == 'rus':
         text(message, get_message, rus)
     elif language == 'kaz':
