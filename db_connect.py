@@ -1,7 +1,7 @@
 from telebot import types
 import psycopg2
 
-TOKEN = '6684043919:AAFq7pz10dG01UR8MkeIHY4JphE1pjmnzxQ'
+TOKEN = '6860898290:AAFZ5UYWLIop3NKAXFO-ZSqUdQbVNkhmsc4'
 admins_id = ['760906879', '1066191569', '6682886650']
 
 
@@ -38,12 +38,12 @@ def create_db():
     cur.execute(
         'CREATE TABLE IF NOT EXISTS users (id varchar(50) primary key, username varchar(50), lastname varchar(50), '
         'firstname varchar(50), table_number varchar(11), phone_number varchar(13), '
-        'email varchar(50), is_verified bool DEFAULT false, branch varchar(50), language varchar(10))')
+        'email varchar(50), branch varchar(50), language varchar(10))')
     cur.execute(
         'CREATE TABLE IF NOT EXISTS commands_history (id varchar(50), commands_name varchar(50), date timestamp)')
     cur.execute(
         'CREATE TABLE IF NOT EXISTS users_info(id varchar(50), instr bool, glossar bool, appeal_field bool, '
-        'category varchar(50), appeal_id int, is_appeal_anon bool, subcategory varchar(50), verif_code varchar(50))')
+        'category varchar(50), appeal_id int, is_appeal_anon bool, subcategory varchar(50))')
     cur.execute(
         'CREATE TABLE IF NOT EXISTS appeals(id serial primary key, user_id varchar(50), status varchar(30), '
         'category varchar(100), appeal_text varchar(1000), date varchar(30), date_status varchar(30), '
@@ -53,6 +53,10 @@ def create_db():
     cur.execute(
         'CREATE TABLE IF NOT EXISTS maraphoners(id serial primary key, user_id varchar(50), age int, '
         'region varchar(50), position varchar(100))')
+
+    cur.execute(
+        'CREATE TABLE IF NOT EXISTS hse_competitions(id serial primary key, user_id varchar(50), '
+        'competition_name varchar(200), position varchar(100), city varchar(50))')
 
     cur.execute(
         'CREATE TABLE IF NOT EXISTS performers('
@@ -394,11 +398,11 @@ def insert_into_performers_right():
                 'values (%s, %s)', ("Обратиться в службу комплаенс", "tlek.issakov@telecom.kz"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) '
                 'values (%s, %s, %s, %s, %s, %s, %s)', ("544040063", 'Портал "Бірлік"',
-                                                        "Айгуль", "Уразбаева", "87064301630", "urazbayeva.a@telecom.kz",
+                                                         "Айгуль", "Уразбаева", "87064301630", "urazbayeva.a@telecom.kz",
                                                         "@eighth_muse"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
                 'parent_category) '
-                'values (%s, %s, %s, %s, %s, %s, %s, %s)', ("6391020304", "Портал закупок 2.0 | Техническая поддержка",
+                'values (%s, %s, %s, %s, %s, %s, %s, %s)', ("яяя", "Портал закупок 2.0 | Техническая поддержка",
                                                             "Тотиева", "Жансая", "87001183042", "@gmail.com",
                                                             "@", "Закупочная деятельность"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
@@ -690,4 +694,3 @@ def get_sales_by_user_id(user_id):
                  'internal_sale.id = appeals.lte_id WHERE appeals.user_id=%s and status <> %s  order by appeals.id')
     params = (str(user_id), "Решено",)
     return execute_get_sql_query(sql_query, params)
-

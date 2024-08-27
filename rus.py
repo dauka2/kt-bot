@@ -12,7 +12,7 @@ import performerClass
 import maraphonersClass
 from appealsClass import set_status, set_date_status, get_appeal_by_id, get_image_data, get_status, set_evaluation, \
     get_appeal_text_all, get_comment, set_comment, set_image_data, add_appeal_gmail, add_appeal, get_appeal_text, \
-    set_appeal_text
+    set_appeal_text, set_appeal_id
 from commands_historyClass import cm_sv_db
 from common_file import (extract_text, extract_number, remove_milliseconds,
                          extract_numbers_from_status_change_decided, generate_buttons, send_gmails, useful_links,
@@ -26,9 +26,10 @@ from performerClass import get_performer_by_category, get_regions, list_categori
     get_performer_id_by_category, get_subsubcategories_by_subcategory, \
     get_performer_by_category_and_subcategory, get_performer_by_subsubcategory, get_performers_
 from userClass import get_branch, get_firstname, get_user, generate_and_save_code, get_email, \
-    set_email, verification_timers, get_saved_verification_code
+    set_email, verification_timers, get_saved_verification_code, get_lastname, get_phone_number
 from user_infoClass import set_appeal_field, get_category_users_info, set_category, get_appeal_field, clear_appeals, \
     set_bool, set_subsubcategory_users_info, get_subsubcategory_users_info
+import hse_competition
 
 faq_field = ["Часто задаваемые вопросы", "Демеу", "Вопросы к HR", "Вопросы по займам",
              "Вопросы по закупочной деятельности", "Вопросы по порталу закупок"]
@@ -58,6 +59,8 @@ adapt_field = ["😊Welcome курс | Адаптация", "ДТК", "Обща�
                "ДТК Инструкции", "Заявки в ОЦО HR", "Заявки возложение обязанностей", "Заявки на отпуск",
                "Командировки", "Переводы", "Порядок оформления командировки", "Рассторжение ТД"]
 maraphon_field = ["🚀Цифровой марафон | Регистрация"]
+hse_competition_field = ["Конкурсы по охране труда"]
+hse_com_field = ["Мой безопасный рабочий день", "Лучший совет по безопасности"]
 verification_field = ["📄Подтверждение сдачи декларации"]
 portal_bts = ["Что такое портал 'Бірлік'?", "Как войти на портал?", "Оставить обращение на портал"]
 # "Бірлік Гид"
@@ -231,6 +234,7 @@ def get_markup(message):
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
     if check_id(str(message.chat.id)):
         markup.add(types.KeyboardButton("Админ панель"))
+    button1 = types.KeyboardButton(hse_competition_field[0])
     button2 = types.KeyboardButton("🚀Цифровой марафон | Регистрация")
     button9 = types.KeyboardButton("📄Подтверждение сдачи декларации")
     button = types.KeyboardButton("😊Welcome курс | Адаптация")
@@ -240,11 +244,12 @@ def get_markup(message):
     button6 = types.KeyboardButton("🧐Мой профиль")
     button7 = types.KeyboardButton('🖥Портал "Бірлік"')
     button8 = types.KeyboardButton(lte_[0])
-    markup.add(button9, button2, button)
+    markup.add(button1, button9, button2, button)
     if get_branch(message.chat.id) == branches[2]:
         markup.add(button8)
     markup.add(button3, button7, button5, button4, button6)
     return markup
+
 
 def send_welcome_message(bot, message):
     welcome_message = f'Привет, {get_firstname(message)} 👋'
@@ -285,6 +290,7 @@ def check_is_command(bot, message, text_):
         menu(bot, message)
         return True
     return False
+
 
 def verification(bot, message, message_text):
     if message_text == "📄Подтверждение сдачи декларации":
@@ -331,6 +337,47 @@ def start_verification_timer(user_id, bot, message):
     # Создаем и запускаем поток для таймера
     verification_timers[user_id] = threading.Thread(target=timer)
     verification_timers[user_id].start()
+
+
+def hse_competition_(bot, message):
+    text = "Сохраненная информация\n\n"
+    full_name = "ФИО: " + str(get_lastname(message)) + " " + get_firstname(message) + "\n"
+    branch = "Дивизион: " + str(get_branch(message.chat.id)) + "\n"
+    phone_num = "Номер телефона: " + str(get_phone_number(message)) + "\n"
+    text = text + full_name + branch + phone_num + ("\n\nЕсли информация сохранена неправильно, "
+                                                    "вы можете ее изменить нажав на /menu и перейти в Мой профиль")
+    bot.send_message(message.chat.id, text)
+
+    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+    markup = generate_buttons(hse_com_field, markup)
+    msg = bot.send_message(message.chat.id, "В каком конкурсе вы хотите принять участие?", reply_markup=markup)
+    bot.register_next_step_handler(msg, hse_get_competition_name, bot)
+
+
+def hse_get_competition_name(message, bot):
+    if redirect(bot, message):
+        return
+    hse_competition.insert_into_hse_competition(message.chat.id)
+    hse_competition.set_competition(message.chat.id, message.text)
+    msg = bot.send_message(message.chat.id, "Укажите свою должность")
+    bot.register_next_step_handler(msg, hse_get_position, bot)
+
+
+def hse_get_position(message, bot):
+    if redirect(bot, message):
+        return
+    hse_competition.set_position(message.chat.id, message.text)
+    msg = bot.send_message(message.chat.id, "С какого вы города?")
+    bot.register_next_step_handler(msg, hse_get_city, bot)
+
+
+def hse_get_city(message, bot):
+    if redirect(bot, message):
+        return
+    hse_competition.set_city(message.chat.id, message.text)
+    bot.send_message(message.chat.id, "Вы закончили регистрацию")
+    menu(bot, message)
+
 
 def marathon(bot, message):
     bot.send_message(message.chat.id, "Для участия в цифровом марафоне, необходимо предоставить дополнительную "
@@ -379,7 +426,8 @@ def change_region(message_, bot):
     maraphonersClass.set_region(message_, message_.text)
     formatted_number = str(maraphonersClass.get_id(message_)).zfill(4)
 
-    bot.send_message(message_.chat.id, "Регистрация закончена!\nВаш регистрационный номер\n<b>"+formatted_number+"</b>")
+    bot.send_message(message_.chat.id,
+                     "Регистрация закончена!\nВаш регистрационный номер\n<b>" + formatted_number + "</b>")
     bot.send_message(message_.chat.id, str(marathoner_text(message_.chat.id)) +
                      "\nЕсли данные указаны неверно, вернитесь в Главное меню /menu."
                      "\nДля исправления информации о должности, возрасте или регионе проживания пройдите регистрацию "
@@ -511,7 +559,8 @@ def call_back(bot, call):
         button_callback = types.InlineKeyboardButton("Далее", callback_data="ДалееИстория")
         markup_callback.add(button_callback)
         bot.send_message(call.message.chat.id, bold_text, parse_mode='HTML')
-        bot.send_photo(call.message.chat.id, photo=open('images/Орг.структура ДТК.jpg', 'rb'), reply_markup=markup_callback)
+        bot.send_photo(call.message.chat.id, photo=open('images/Орг.структура ДТК.jpg', 'rb'),
+                       reply_markup=markup_callback)
     elif call.data == 'ДалееИстория':
         bot.send_message(call.message.chat.id, 'Здесь вы сможете ознакомиться с увлекательной историей филиала ДТК. '
                                                'Также узнайте больше о становлении, развитии и '
@@ -536,7 +585,8 @@ def call_back(bot, call):
                                                'Командировка\n'
                                                'Расторжение трудового договора\n'
                                                'Заявка на справку с места работы\n\n'
-                                               'Все документы вы можете найти в разделе "ДТК Инструкции"', reply_markup=markup_callback)
+                                               'Все документы вы можете найти в разделе "ДТК Инструкции"',
+                         reply_markup=markup_callback)
     elif call.data == 'ДалееПроцессы':
         markup_callback = types.InlineKeyboardMarkup()
         button_callback = types.InlineKeyboardButton("Далее", callback_data="ДалееДосуг")
@@ -919,7 +969,7 @@ def appeal(bot, message, message_text):
         appeal_id = db_connect.get_last_appeal(message.chat.id)[0][0]
         appeal_ = get_appeal_by_id(appeal_id)[0]
         performer_id = performerClass.get_performer_by_id(str(appeal_[7]))[0][1]
-        set_image_data(appeal_id, file) 
+        set_image_data(appeal_id, file)
         image_data = get_image_data(appeal_id)
         if performer_id is None or performer_id == '' or len(str(performer_id)) == 0:
             end_appeal_gmail(bot, message, appeal_id, file_url)
@@ -1310,7 +1360,8 @@ def instructions(bot, message):
     elif message.text == "Измерительные приборы инструкция":
         bot.send_document(message.chat.id, open("files/Измерительные приборы инструкция.pdf", "rb"))
     elif message.text == "Аннотация Инструкция для работы с измерительным прибором":
-        bot.send_document(message.chat.id, open("files/Аннотация Инструкция для работы с измерительным прибором.pdf", "rb"))
+        bot.send_document(message.chat.id,
+                          open("files/Аннотация Инструкция для работы с измерительным прибором.pdf", "rb"))
 
 
 def kb(bot, message):
@@ -1380,6 +1431,8 @@ def kb(bot, message):
     elif message.text == "Регламентирующие документы":
         bot.send_document(message.chat.id, open("files/Регламент взаимодействия.doc", 'rb'))
         bot.send_document(message.chat.id, open("files/Порядок осуществления закупок.docx", "rb"))
+
+
 # def kb_service(bot, message):
 #     if message.text == "Личный кабинет telecom.kz":
 #         markup_instr = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
@@ -1505,7 +1558,6 @@ def kb(bot, message):
 #         bot.send_document(message.chat.id, document=open("files/Как посмотреть мои подключенные услуги.pdf", 'rb'))
 #     elif message.text == "Раздел 'Мои Услуги'":
 #         bot.send_document(message.chat.id, document=open("files/РАЗДЕЛ «МОИ УСЛУГИ» (1).pdf", 'rb'))
-
 
 
 def glossary(bot, message):
@@ -1891,10 +1943,12 @@ def get_modem(message, bot, id_i_s):
     bot.send_message(performer_id, "Информация по серийному номеру сим карты и модема добавлена")
     bot.send_message(performer_id, text)
 
+
 def menu(bot, message):
     set_bool(message, False, False)
     markup = get_markup(message)
     bot.send_message(message.chat.id, "Вы в главном меню", reply_markup=markup)
+
 
 def add_lte_appeal(bot, message, id_i_s):
     if redirect(bot, message, id_i_s):
@@ -1974,14 +2028,16 @@ def is_none(line):
     return line
 
 
-def redirect(bot, message, id_i_s):
+def redirect(bot, message, id_i_s=None):
     text = message.text
     if text == "/menu":
-        delete_internal_sale(id_i_s)
+        if id_i_s is not None:
+            delete_internal_sale(id_i_s)
         menu(bot, message)
         return True
     elif text == "/start":
-        delete_internal_sale(id_i_s)
+        if id_i_s is not None:
+            delete_internal_sale(id_i_s)
         send_welcome_message(bot, message)
         return True
     return False

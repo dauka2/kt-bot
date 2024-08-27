@@ -58,15 +58,18 @@ def check_register(message, func):
         return 1
     return 0
 
+
 @bot.message_handler(commands=['delete_users_info'])
 def delete_users_info(message):
     userClass.delete_users_info()
     bot.send_message(message.chat.id, "Изменения сохранены")
 
+
 @bot.message_handler(commands=['alter_users'])
 def alter_user(message):
     userClass.alter_users()
     bot.send_message(message.chat.id, "Изменения сохранены")
+
 
 @bot.message_handler(commands=['delete_me'])
 def delete_me(message):
@@ -121,6 +124,18 @@ def change_performer_id_by_appeal_id(message):
 def change_performer_id_by_appeal_id1(message):
     appeal_id, new_performer_id = message.text.split(',')
     rus.set_appeal_id(appeal_id, new_performer_id)
+    bot.send_message(message.chat.id, "Изменения сохранены")
+
+
+@bot.message_handler(commands=['change_performer_status_by_appeal_id'])
+def change_performer_status_by_appeal_id(message):
+    msg = bot.send_message(message.chat.id, "Введите appeal_id, status'")
+    bot.register_next_step_handler(msg, change_performer_status_by_appeal_id1)
+
+
+def change_performer_status_by_appeal_id1(message):
+    appeal_id, status = message.text.split(',')
+    rus.set_status(appeal_id, status)
     bot.send_message(message.chat.id, "Изменения сохранены")
 
 
@@ -683,6 +698,13 @@ def get_excel(message):
     common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
 
 
+@bot.message_handler(commands=['get_hse_competitions'])
+def get_excel(message):
+    sql_query = ("SELECT * from hse_competitions "
+                 "inner join users on users.id = hse_competitions.user_id")
+    common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
+
+
 @bot.message_handler(commands=['get_users_info'])
 def get_excel(message):
     sql_query = "SELECT * from users_info"
@@ -993,6 +1015,8 @@ def text(message, get_message, lang_py):
         lang_py.adaption(bot, message)
     elif get_message in lang_py.maraphon_field:
         lang_py.marathon(bot, message)
+    elif get_message in lang_py.hse_competition_field:
+        lang_py.hse_competition_(bot, message)
     elif get_message == "📄У меня есть вопрос" or get_message == "📄Менің сұрағым бар":
         lang_py.questions(bot, message)
     elif get_message == "Мои обращения" or get_message == "Менің өтініштерім" \
