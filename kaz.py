@@ -26,7 +26,8 @@ from lteClass import add_internal_sale, set_subscriber_type, set_category_i_s, s
 from performerClass import get_performer_by_category, get_regions, list_categories, get_categories_by_parentcategory, \
     get_performer_id_by_category, get_subsubcategories_by_subcategory, \
     get_performer_by_category_and_subcategory, get_performer_by_subsubcategory, get_performers_
-from userClass import get_branch, get_firstname, get_user, get_lastname, get_phone_number, get_email, get_table_number
+from userClass import get_branch, get_firstname, get_user, generate_and_save_code, get_lastname, get_phone_number, get_email, get_table_number, \
+set_email, verification_timers, get_saved_verification_code
 from user_infoClass import set_appeal_field, get_category_users_info, set_category, get_appeal_field, clear_appeals, \
     set_bool, set_subsubcategory_users_info, get_subsubcategory_users_info
 
@@ -61,6 +62,7 @@ adapt_field = ["😊Welcome курс | Бейімделу", "ДТК", "Обща�
                "ДТК Инструкции", "Заявки в ОЦО HR", "Заявки возложение обязанностей", "Заявки на отпуск",
                "Командировки", "Переводы", "Порядок оформления командировки", "Рассторжение ТД"]
 maraphon_field = ["🚀Цифрлық марафон | Тіркеу"]
+verification_field = ["📄Декларацияны тапсыруды растау"]
 portal_bts = ["'Бірлік' порталы дегеніміз не?", "Порталға қалай кіруге болады?", "Порталға өтініш қалдыру"]
 # "Бірлік Гид"
 portal_ = ["Мобильді нұсқа", "ДК немесе ноутбук", "Қалай кіруге болады", "Жеке профиль", "Порталдан ССП өту",
@@ -225,6 +227,7 @@ def get_markup(message):
     if check_id(str(message.chat.id)):
         markup.add(types.KeyboardButton("Админ панель"))
     button2 = types.KeyboardButton("🚀Цифрлық марафон | Тіркеу")
+    button9 = types.KeyboardButton("📄Декларацияны тапсыруды растау")
     button = types.KeyboardButton("😊Welcome курс | Бейімделу")
     button3 = types.KeyboardButton("🗃️Білім базасы")
     button4 = types.KeyboardButton("👷ҚТ ж ЕҚ кәртішкесін толтыру")
@@ -232,7 +235,7 @@ def get_markup(message):
     button6 = types.KeyboardButton("🧐Менің профилім")
     button7 = types.KeyboardButton('🖥Портал "Бірлік"')
     button8 = types.KeyboardButton(lte_[0])
-    markup.add(button2, button)
+    markup.add(button9, button2, button)
     if get_branch(message.chat.id) == branches[2]:
         markup.add(button8)
     markup.add(button3, button7, button5, button4, button6)
@@ -278,6 +281,51 @@ def check_is_command(bot, message, text_):
         return True
     return False
 
+def verification(bot, message, message_text):
+    if message_text == "📄Декларацияны тапсыруды растау":
+        msg = bot.send_message(message.chat.id, "Корпоративтік поштаңызды енгізіңіз:")
+        bot.register_next_step_handler(msg, process_email, bot)
+
+
+def process_email(message, bot):
+    user_id = str(message.chat.id)
+    regex = r'\b[A-Za-z0-9._%+-]+@telecom.kz\b'
+    # Получаем email пользователя из сообщения
+    email = message.text
+    set_email(message, email)
+
+    if email:
+        bot.send_message(message.chat.id, f"Сіз осы email енгіздіңіз: {email}")
+        # Проверка на корпоративный email
+        if re.fullmatch(regex, email):
+            # Отправляем код подтверждения на email пользователя, передаем bot и chat_id
+            send_verification_code(user_id, bot, message)
+            msg = bot.send_message(message.chat.id,
+                                   f"Растау коды сіздің поштаңызға жіберіледі: {email}. Оны 5 минут ішінде енгізіңіз. \n\n егер сізге оралу қажет болса, /menu пәрменін енгізіңіз")
+            bot.register_next_step_handler(msg, verify_code, bot)
+        else:
+            # Если email не корпоративный, уведомляем пользователя и повторно запрашиваем email
+            msg = bot.send_message(message.chat.id,
+                                   "Сіздің email корпоративті емес. Оны қайтадан енгізіңіз.")
+            bot.register_next_step_handler(msg, process_email, bot)
+    else:
+        bot.send_message(message.chat.id,
+                         "Сіздің поштаңызды табу мүмкін болмады. Дұрыс электрондық поштаны енгізгеніңізге көз жеткізіңіз.")
+
+
+def start_verification_timer(user_id, bot, message):
+    # Таймер на 5 минут (300 секунд)
+    def timer():
+        time.sleep(40)  # Ожидание 5 минут
+        if user_id in verification_timers:
+            del verification_timers[user_id]  # Удаляем таймер по истечению времени
+            bot.send_message(message.chat.id, "Күту уақыты аяқталды. Процесті қайтадан бастаңыз.")
+            menu(bot, message)  # Вызываем меню автоматически
+            return
+
+    # Создаем и запускаем поток для таймера
+    verification_timers[user_id] = threading.Thread(target=timer)
+    verification_timers[user_id].start()
 
 def marathon(bot, message):
     bot.send_message(message.chat.id, "Цифрлық марафонға қатысу үшін қосымша ақпарат")
@@ -1764,6 +1812,45 @@ def add_lte_appeal(bot, message, id_i_s):
     bot.send_message(lte_info[2], text)
     bot.send_message(message.chat.id, "Ваша информация сохранена")
 
+def send_verification_code(user_id, bot, message):
+    # Генерируем и сохраняем код подтверждения
+    verification_code = generate_and_save_code(user_id)
+    # Текст сообщения
+    text = f"Сіздің растау кодыңыз: {verification_code}"
+    # Отправляем письмо через уже существующую функцию send_gmails
+    common_file.send_gmails_for_verif(text, user_id, None)
+
+    # Запускаем таймер на 5 минут
+    start_verification_timer(user_id, bot, message)
+
+
+def verify_code(message, bot):
+    user_id = str(message.chat.id)
+
+    if user_id not in verification_timers:
+        return
+
+    entered_code = message.text
+    saved_code = get_saved_verification_code(user_id)
+
+    if entered_code.startswith('/'):
+        if user_id in verification_timers:
+            del verification_timers[user_id]  # Останавливаем таймер
+        if message.text == '/menu':
+            menu(bot, message)
+            return True
+    elif entered_code == saved_code:
+        if user_id in verification_timers:
+            del verification_timers[user_id]
+
+        sql_query = "UPDATE users SET is_verified = TRUE WHERE id = %s"
+        params = (user_id,)
+        db_connect.execute_set_sql_query(sql_query, params)
+        bot.send_message(message.chat.id, "Растау сәтті аяқталды!")
+        menu(bot, message)
+    else:
+        msg = bot.send_message(message.chat.id, "Қате код. Қайталап көріңіз.")
+        bot.register_next_step_handler(msg, verify_code, bot)
 
 def is_none(line):
     if line is None:

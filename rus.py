@@ -306,7 +306,7 @@ def process_email(message, bot):
     set_email(message, email)
 
     if email:
-        bot.send_message(message.chat.id, f"Ваш email: {email}")
+        bot.send_message(message.chat.id, f"Вы ввели email: {email}")
         # Проверка на корпоративный email
         if re.fullmatch(regex, email):
             # Отправляем код подтверждения на email пользователя, передаем bot и chat_id
