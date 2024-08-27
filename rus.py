@@ -306,12 +306,12 @@ def process_email(message, bot):
             # Отправляем код подтверждения на email пользователя, передаем bot и chat_id
             send_verification_code(user_id, bot, message)
             msg = bot.send_message(message.chat.id,
-                                   f"Код подтверждения отправлен на вашу почту: {email}. Пожалуйста, введите его в течении 5 минут.")
+                                   f"Код подтверждения отправлен на вашу почту: {email}. Пожалуйста, введите его в течении 5 минут. \n\nЕсли вам нужно вернуться, введите команду /menu")
             bot.register_next_step_handler(msg, verify_code, bot)
         else:
             # Если email не корпоративный, уведомляем пользователя и повторно запрашиваем email
             msg = bot.send_message(message.chat.id,
-                                   "Ваш email не является корпоративным. Пожалуйста, введите его еще раз:")
+                                   "Ваш email не является корпоративным. Пожалуйста, введите его еще раз.")
             bot.register_next_step_handler(msg, process_email, bot)
     else:
         bot.send_message(message.chat.id,
@@ -325,7 +325,6 @@ def start_verification_timer(user_id, bot, message):
         if user_id in verification_timers:
             del verification_timers[user_id]  # Удаляем таймер по истечению времени
             bot.send_message(message.chat.id, "Время ожидания истекло. Пожалуйста, начните процесс заново.")
-            bot.send_message(message.chat.id, "Вы в главном меню")
             menu(bot, message)  # Вызываем меню автоматически
             return
 
@@ -1950,6 +1949,8 @@ def verify_code(message, bot):
     saved_code = get_saved_verification_code(user_id)
 
     if entered_code.startswith('/'):
+        if user_id in verification_timers:
+            del verification_timers[user_id]  # Останавливаем таймер
         if message.text == '/menu':
             menu(bot, message)
             return True
