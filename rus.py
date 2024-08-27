@@ -246,11 +246,6 @@ def get_markup(message):
     markup.add(button3, button7, button5, button4, button6)
     return markup
 
-def menu(bot, message):
-    set_bool(message, False, False)
-    markup = get_markup(message)
-    bot.send_message(message.chat.id, "Вы в главном меню", reply_markup=markup)
-
 def send_welcome_message(bot, message):
     welcome_message = f'Привет, {get_firstname(message)} 👋'
     markup = get_markup(message)
@@ -1897,6 +1892,10 @@ def get_modem(message, bot, id_i_s):
     bot.send_message(performer_id, "Информация по серийному номеру сим карты и модема добавлена")
     bot.send_message(performer_id, text)
 
+def menu(bot, message):
+    set_bool(message, False, False)
+    markup = get_markup(message)
+    bot.send_message(message.chat.id, "Вы в главном меню", reply_markup=markup)
 
 def add_lte_appeal(bot, message, id_i_s):
     if redirect(bot, message, id_i_s):
@@ -1944,34 +1943,25 @@ def send_verification_code(user_id, bot, message):
 def verify_code(message, bot):
     user_id = str(message.chat.id)
 
-    # Проверяем, если таймер не активен (значит время истекло)
     if user_id not in verification_timers:
-        return  # Не отправляем повторное сообщение, просто выходим из функции
+        return
 
     entered_code = message.text
     saved_code = get_saved_verification_code(user_id)
 
     if entered_code.startswith('/'):
-            # Если это команда, перенаправляем на соответствующий хендлер
-            if message.text == '/menu':
-                menu(bot, message)
-                return
-            elif message.text == '/start':
-                start(bot, message)
-                return
+        if message.text == '/menu':
+            menu(bot, message)
+            return True
     elif entered_code == saved_code:
-        # Останавливаем таймер, удаляя его из словаря (без join)
         if user_id in verification_timers:
             del verification_timers[user_id]
 
-        # Подтверждаем аккаунт
         sql_query = "UPDATE users SET is_verified = TRUE WHERE id = %s"
         params = (user_id,)
         db_connect.execute_set_sql_query(sql_query, params)
         bot.send_message(message.chat.id, "Подтверждение успешно завершено!")
-        bot.send_message(message.chat.id, "Вы в главном меню")
-        from bot import menu
-        menu(bot, message)  # Вызываем меню автоматически
+        menu(bot, message)
     else:
         msg = bot.send_message(message.chat.id, "Неверный код. Попробуйте снова.")
         bot.register_next_step_handler(msg, verify_code, bot)
