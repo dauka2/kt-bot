@@ -17,6 +17,7 @@ from difflib import get_close_matches
 
 
 from performerClass import get_email_by_category
+from userClass import get_email_for_verif
 
 
 def remove_milliseconds(dt):
@@ -63,6 +64,25 @@ def send_gmails(text, category, file_url=None):
             photo = MIMEImage(photo_data, name='photo.jpg')
             msg.attach(photo)
     email = get_email_by_category(category)
+    s.sendmail("sending1001@gmail.com", email, msg.as_string())
+    s.quit()
+
+
+def send_gmails_for_verif(text, user_id, file_url=None):
+    s = smtplib.SMTP('smtp.gmail.com', 587)
+    s.starttls()
+    s.login("sending1001@gmail.com", "njdhfqafaajixebg")
+    msg = MIMEMultipart()
+    msg['From'] = "sending1001@gmail.com"
+    msg['Subject'] = Header("Верификация аккаунта", 'utf-8')
+    msg.attach(MIMEText(text, 'plain', 'utf-8'))
+    if file_url is not None:
+        response = requests.get(file_url)
+        if response.status_code == 200:
+            photo_data = response.content
+            photo = MIMEImage(photo_data, name='photo.jpg')
+            msg.attach(photo)
+    email = get_email_for_verif(str(user_id))
     s.sendmail("sending1001@gmail.com", email, msg.as_string())
     s.quit()
 

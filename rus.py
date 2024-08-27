@@ -1,6 +1,7 @@
 import types
 from datetime import timedelta
 import requests
+import re  # Для работы с регулярными выражениями
 from telebot import *
 
 import appealsClass
@@ -24,7 +25,8 @@ from lteClass import add_internal_sale, set_subscriber_type, set_category_i_s, s
 from performerClass import get_performer_by_category, get_regions, list_categories, get_categories_by_parentcategory, \
     get_performer_id_by_category, get_subsubcategories_by_subcategory, \
     get_performer_by_category_and_subcategory, get_performer_by_subsubcategory, get_performers_
-from userClass import get_branch, get_firstname, get_user
+from userClass import get_branch, get_firstname, get_user, generate_and_save_code, get_email, \
+    set_email, verification_timers, get_saved_verification_code
 from user_infoClass import set_appeal_field, get_category_users_info, set_category, get_appeal_field, clear_appeals, \
     set_bool, set_subsubcategory_users_info, get_subsubcategory_users_info
 
@@ -56,6 +58,7 @@ adapt_field = ["😊Welcome курс | Адаптация", "ДТК", "Обща�
                "ДТК Инструкции", "Заявки в ОЦО HR", "Заявки возложение обязанностей", "Заявки на отпуск",
                "Командировки", "Переводы", "Порядок оформления командировки", "Рассторжение ТД"]
 maraphon_field = ["🚀Цифровой марафон | Регистрация"]
+verification_field = ["📄Подтверждение сдачи декларации"]
 portal_bts = ["Что такое портал 'Бірлік'?", "Как войти на портал?", "Оставить обращение на портал"]
 # "Бірлік Гид"
 portal_ = ["Мобильная версия", "ПК или ноутбук", "Как авторизоваться", "Личный профиль", "Из портала перейти в ССП",
@@ -229,6 +232,7 @@ def get_markup(message):
     if check_id(str(message.chat.id)):
         markup.add(types.KeyboardButton("Админ панель"))
     button2 = types.KeyboardButton("🚀Цифровой марафон | Регистрация")
+    button9 = types.KeyboardButton("📄Подтверждение сдачи декларации")
     button = types.KeyboardButton("😊Welcome курс | Адаптация")
     button3 = types.KeyboardButton("🗃️База знаний")
     button4 = types.KeyboardButton("👷Заполнить карточку БиОТ")
@@ -236,12 +240,16 @@ def get_markup(message):
     button6 = types.KeyboardButton("🧐Мой профиль")
     button7 = types.KeyboardButton('🖥Портал "Бірлік"')
     button8 = types.KeyboardButton(lte_[0])
-    markup.add(button2, button)
+    markup.add(button9, button2, button)
     if get_branch(message.chat.id) == branches[2]:
         markup.add(button8)
     markup.add(button3, button7, button5, button4, button6)
     return markup
 
+def menu(bot, message):
+    set_bool(message, False, False)
+    markup = get_markup(message)
+    bot.send_message(message.chat.id, "Вы в главном меню", reply_markup=markup)
 
 def send_welcome_message(bot, message):
     welcome_message = f'Привет, {get_firstname(message)} 👋'
@@ -283,6 +291,52 @@ def check_is_command(bot, message, text_):
         return True
     return False
 
+def verification(bot, message, message_text):
+    if message_text == "📄Подтверждение сдачи декларации":
+        msg = bot.send_message(message.chat.id, "Введите вашу корпоративную почту:")
+        bot.register_next_step_handler(msg, process_email, bot)
+
+
+def process_email(message, bot):
+    user_id = str(message.chat.id)
+    regex = r'\b[A-Za-z0-9._%+-]+@telecom.kz\b'
+    # Получаем email пользователя из сообщения
+    email = message.text
+    set_email(message, email)
+
+    if email:
+        bot.send_message(message.chat.id, f"Ваш email: {email}")
+        # Проверка на корпоративный email
+        if re.fullmatch(regex, email):
+            # Отправляем код подтверждения на email пользователя, передаем bot и chat_id
+            send_verification_code(user_id, bot, message)
+            msg = bot.send_message(message.chat.id,
+                                   f"Код подтверждения отправлен на вашу почту: {email}. Пожалуйста, введите его в течении 5 минут.")
+            bot.register_next_step_handler(msg, verify_code, bot)
+        else:
+            # Если email не корпоративный, уведомляем пользователя и повторно запрашиваем email
+            msg = bot.send_message(message.chat.id,
+                                   "Ваш email не является корпоративным. Пожалуйста, введите его еще раз:")
+            bot.register_next_step_handler(msg, process_email, bot)
+    else:
+        bot.send_message(message.chat.id,
+                         "Не удалось найти вашу почту. Пожалуйста, убедитесь, что вы ввели правильный email.")
+
+
+def start_verification_timer(user_id, bot, message):
+    # Таймер на 5 минут (300 секунд)
+    def timer():
+        time.sleep(40)  # Ожидание 5 минут
+        if user_id in verification_timers:
+            del verification_timers[user_id]  # Удаляем таймер по истечению времени
+            bot.send_message(message.chat.id, "Время ожидания истекло. Пожалуйста, начните процесс заново.")
+            bot.send_message(message.chat.id, "Вы в главном меню")
+            menu(bot, message)  # Вызываем меню автоматически
+            return
+
+    # Создаем и запускаем поток для таймера
+    verification_timers[user_id] = threading.Thread(target=timer)
+    verification_timers[user_id].start()
 
 def marathon(bot, message):
     bot.send_message(message.chat.id, "Для участия в цифровом марафоне, необходимо предоставить дополнительную "
@@ -1459,11 +1513,6 @@ def kb(bot, message):
 #         bot.send_document(message.chat.id, document=open("files/РАЗДЕЛ «МОИ УСЛУГИ» (1).pdf", 'rb'))
 
 
-def menu(bot, message):
-    set_bool(message, False, False)
-    markup = get_markup(message)
-    bot.send_message(message.chat.id, "Вы в главном меню", reply_markup=markup)
-
 
 def glossary(bot, message):
     text1 = f"По Вашему запросу нaйдeнo следующие значение:"
@@ -1878,6 +1927,54 @@ def add_lte_appeal(bot, message, id_i_s):
     performer_id = performerClass.get_performer_by_id(lte_info[2])[0][1]
     bot.send_message(performer_id, text)
     bot.send_message(message.chat.id, "Ваша информация сохранена")
+
+
+def send_verification_code(user_id, bot, message):
+    # Генерируем и сохраняем код подтверждения
+    verification_code = generate_and_save_code(user_id)
+    # Текст сообщения
+    text = f"Ваш код подтверждения: {verification_code}"
+    # Отправляем письмо через уже существующую функцию send_gmails
+    common_file.send_gmails_for_verif(text, user_id, None)
+
+    # Запускаем таймер на 5 минут
+    start_verification_timer(user_id, bot, message)
+
+
+def verify_code(message, bot):
+    user_id = str(message.chat.id)
+
+    # Проверяем, если таймер не активен (значит время истекло)
+    if user_id not in verification_timers:
+        return  # Не отправляем повторное сообщение, просто выходим из функции
+
+    entered_code = message.text
+    saved_code = get_saved_verification_code(user_id)
+
+    if entered_code.startswith('/'):
+            # Если это команда, перенаправляем на соответствующий хендлер
+            if message.text == '/menu':
+                menu(bot, message)
+                return
+            elif message.text == '/start':
+                start(bot, message)
+                return
+    elif entered_code == saved_code:
+        # Останавливаем таймер, удаляя его из словаря (без join)
+        if user_id in verification_timers:
+            del verification_timers[user_id]
+
+        # Подтверждаем аккаунт
+        sql_query = "UPDATE users SET is_verified = TRUE WHERE id = %s"
+        params = (user_id,)
+        db_connect.execute_set_sql_query(sql_query, params)
+        bot.send_message(message.chat.id, "Подтверждение успешно завершено!")
+        bot.send_message(message.chat.id, "Вы в главном меню")
+        from bot import menu
+        menu(bot, message)  # Вызываем меню автоматически
+    else:
+        msg = bot.send_message(message.chat.id, "Неверный код. Попробуйте снова.")
+        bot.register_next_step_handler(msg, verify_code, bot)
 
 
 def is_none(line):

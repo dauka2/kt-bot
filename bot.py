@@ -58,6 +58,15 @@ def check_register(message, func):
         return 1
     return 0
 
+@bot.message_handler(commands=['delete_users_info'])
+def delete_users_info(message):
+    userClass.delete_users_info()
+    bot.send_message(message.chat.id, "Изменения сохранены")
+
+@bot.message_handler(commands=['alter_users'])
+def alter_user(message):
+    userClass.alter_users()
+    bot.send_message(message.chat.id, "Изменения сохранены")
 
 @bot.message_handler(commands=['delete_me'])
 def delete_me(message):
@@ -959,6 +968,8 @@ def text(message, get_message, lang_py):
     elif get_message in drb_regions or get_message in ods_regions:
         user_infoClass.clear_appeals(message)
         lang_py.func_region(bot, message)
+    elif get_message in lang_py.verification_field:
+        lang_py.verification(bot, message, message.text)
     elif get_message in lang_py.faq_1.keys():
         user_infoClass.clear_appeals(message)
         bot.send_message(message.chat.id, lang_py.faq_1[message.text])
