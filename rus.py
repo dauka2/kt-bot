@@ -335,7 +335,7 @@ def process_email(message, bot):
 def start_verification_timer(user_id, bot, message):
     # Таймер на 5 минут (300 секунд)
     def timer():
-        time.sleep(40)  # Ожидание 5 минут
+        time.sleep(300)  # Ожидание 5 минут
         if user_id in verification_timers:
             del verification_timers[user_id]  # Удаляем таймер по истечению времени
             bot.send_message(message.chat.id, "Время ожидания истекло. Пожалуйста, начните процесс заново.")
@@ -1593,7 +1593,7 @@ def profile(bot, message):
                                       f"Номер телефона: {user_info[5]}\n"
                                       f"Email: {user_info[6]}\n"
                                       f"Табельный номер: {user_info[4]}\n"
-                                      f"Филиал: {user_info[7]}",
+                                      f"Филиал: {user_info[8]}",
                      reply_markup=markup_ap)
 
 

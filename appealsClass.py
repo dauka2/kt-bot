@@ -141,7 +141,7 @@ def get_appeal_text_all(appeal_id):
            f" Номер телефона: {str(user_info[5])}\n" \
            f" Email: {str(user_info[6])}\n" \
            f" Telegram: {str(user_info[1])}\n" \
-           f" Филиал: {str(user_info[7])}\n\n" \
+           f" Филиал: {str(user_info[8])}\n\n" \
            f" Комментарий: {str(appeal_info[8])}"
     return text
 
