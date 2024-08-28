@@ -38,12 +38,12 @@ def create_db():
     cur.execute(
         'CREATE TABLE IF NOT EXISTS users (id varchar(50) primary key, username varchar(50), lastname varchar(50), '
         'firstname varchar(50), table_number varchar(11), phone_number varchar(13), '
-        'email varchar(50), branch varchar(50), language varchar(10))')
+        'email varchar(50), is_verified bool DEFAULT false, branch varchar(50), language varchar(10))')
     cur.execute(
         'CREATE TABLE IF NOT EXISTS commands_history (id varchar(50), commands_name varchar(50), date timestamp)')
     cur.execute(
         'CREATE TABLE IF NOT EXISTS users_info(id varchar(50), instr bool, glossar bool, appeal_field bool, '
-        'category varchar(50), appeal_id int, is_appeal_anon bool, subcategory varchar(50))')
+        'category varchar(50), appeal_id int, is_appeal_anon bool, subcategory varchar(50), verif_code varchar(50))')
     cur.execute(
         'CREATE TABLE IF NOT EXISTS appeals(id serial primary key, user_id varchar(50), status varchar(30), '
         'category varchar(100), appeal_text varchar(1000), date varchar(30), date_status varchar(30), '

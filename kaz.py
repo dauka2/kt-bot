@@ -6,6 +6,7 @@ from telebot import *
 import appealsClass
 import common_file
 import db_connect
+import hse_competition
 import lteClass
 import performerClass
 import maraphonersClass
@@ -62,6 +63,8 @@ adapt_field = ["😊Welcome курс | Бейімделу", "ДТК", "Обща�
                "ДТК Инструкции", "Заявки в ОЦО HR", "Заявки возложение обязанностей", "Заявки на отпуск",
                "Командировки", "Переводы", "Порядок оформления командировки", "Рассторжение ТД"]
 maraphon_field = ["🚀Цифрлық марафон | Тіркеу"]
+hse_competition_field = ["Еңбекті қорғау бойынша конкурстар"]
+hse_com_field = ["Менің қауіпсіз жұмыс күнім", "Ең жақсы қауіпсіздік кеңесі"]
 verification_field = ["📄Декларацияны тапсыруды растау"]
 portal_bts = ["'Бірлік' порталы дегеніміз не?", "Порталға қалай кіруге болады?", "Порталға өтініш қалдыру"]
 # "Бірлік Гид"
@@ -226,6 +229,7 @@ def get_markup(message):
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
     if check_id(str(message.chat.id)):
         markup.add(types.KeyboardButton("Админ панель"))
+    # button1 = types.KeyboardButton(hse_competition_field[0])
     button2 = types.KeyboardButton("🚀Цифрлық марафон | Тіркеу")
     button9 = types.KeyboardButton("📄Декларацияны тапсыруды растау")
     button = types.KeyboardButton("😊Welcome курс | Бейімделу")
@@ -235,6 +239,7 @@ def get_markup(message):
     button6 = types.KeyboardButton("🧐Менің профилім")
     button7 = types.KeyboardButton('🖥Портал "Бірлік"')
     button8 = types.KeyboardButton(lte_[0])
+    # markup.add(button9, button1, button2, button)
     markup.add(button9, button2, button)
     if get_branch(message.chat.id) == branches[2]:
         markup.add(button8)
@@ -326,6 +331,45 @@ def start_verification_timer(user_id, bot, message):
     # Создаем и запускаем поток для таймера
     verification_timers[user_id] = threading.Thread(target=timer)
     verification_timers[user_id].start()
+
+def hse_competition_(bot, message):
+    text = "Сақталған ақпарат\n\n"
+    full_name = "Аты-жөні: " + str(get_lastname(message)) + " " + get_firstname(message) + "\n"
+    branch = "Дивизион: " + str(get_branch(message.chat.id)) + "\n"
+    phone_num = "Телефон нөмірі: " + str(get_phone_number(message)) + "\n"
+    text = text + full_name + branch + phone_num + ("\n\nЕгер ақпарат дұрыс сақталмаса, "
+                                                    "сіз /menu түймесін басып, 'менің профиль' өту арқылы өзгерте аласыз")
+    bot.send_message(message.chat.id, text)
+
+    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+    markup = generate_buttons(hse_com_field, markup)
+    msg = bot.send_message(message.chat.id, "Сіз қандай байқауға қатысқыңыз келеді?", reply_markup=markup)
+    bot.register_next_step_handler(msg, hse_get_competition_name, bot)
+
+
+def hse_get_competition_name(message, bot):
+    if redirect(bot, message):
+        return
+    hse_competition.insert_into_hse_competition(message.chat.id)
+    hse_competition.set_competition(message.chat.id, message.text)
+    msg = bot.send_message(message.chat.id, "Лауазымынызды көрсетіңіз")
+    bot.register_next_step_handler(msg, hse_get_position, bot)
+
+
+def hse_get_position(message, bot):
+    if redirect(bot, message):
+        return
+    hse_competition.set_position(message.chat.id, message.text)
+    msg = bot.send_message(message.chat.id, "Сіз қай қаладансыз?")
+    bot.register_next_step_handler(msg, hse_get_city, bot)
+
+
+def hse_get_city(message, bot):
+    if redirect(bot, message):
+        return
+    hse_competition.set_city(message.chat.id, message.text)
+    bot.send_message(message.chat.id, "Сіз тіркеуді аяқтадыңыз ")
+    menu(bot, message)
 
 def marathon(bot, message):
     bot.send_message(message.chat.id, "Цифрлық марафонға қатысу үшін қосымша ақпарат")

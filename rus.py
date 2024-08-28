@@ -234,7 +234,7 @@ def get_markup(message):
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
     if check_id(str(message.chat.id)):
         markup.add(types.KeyboardButton("Админ панель"))
-    button1 = types.KeyboardButton(hse_competition_field[0])
+    # button1 = types.KeyboardButton(hse_competition_field[0])
     button2 = types.KeyboardButton("🚀Цифровой марафон | Регистрация")
     button9 = types.KeyboardButton("📄Подтверждение сдачи декларации")
     button = types.KeyboardButton("😊Welcome курс | Адаптация")
@@ -244,7 +244,8 @@ def get_markup(message):
     button6 = types.KeyboardButton("🧐Мой профиль")
     button7 = types.KeyboardButton('🖥Портал "Бірлік"')
     button8 = types.KeyboardButton(lte_[0])
-    markup.add(button1, button9, button2, button)
+    markup.add(button9, button2, button)
+    # markup.add(button1, button9, button2, button)
     if get_branch(message.chat.id) == branches[2]:
         markup.add(button8)
     markup.add(button3, button7, button5, button4, button6)
@@ -294,6 +295,7 @@ def check_is_command(bot, message, text_):
 
 def verification(bot, message, message_text):
     if message_text == "📄Подтверждение сдачи декларации":
+        bot.send_message(message.chat.id, "Нажимая на эту кнопку, подтверждаете, что вами декларация по форме налоговой отчетности 270.00 была сдана")
         msg = bot.send_message(message.chat.id, "Введите вашу корпоративную почту:")
         bot.register_next_step_handler(msg, process_email, bot)
 
@@ -305,6 +307,12 @@ def process_email(message, bot):
     email = message.text
     set_email(message, email)
 
+    if email.startswith('/'):
+        if user_id in verification_timers:
+            del verification_timers[user_id]  # Останавливаем таймер
+        if message.text == '/menu':
+            menu(bot, message)
+            return
     if email:
         bot.send_message(message.chat.id, f"Вы ввели email: {email}")
         # Проверка на корпоративный email
@@ -312,7 +320,7 @@ def process_email(message, bot):
             # Отправляем код подтверждения на email пользователя, передаем bot и chat_id
             send_verification_code(user_id, bot, message)
             msg = bot.send_message(message.chat.id,
-                                   f"Код подтверждения отправлен на вашу почту: {email}. Пожалуйста, введите его в течении 5 минут. \n\nЕсли вам нужно вернуться, введите команду /menu")
+                                   f"Для подтверждения, пожалуйста, введите код, отправленный на вашу рабочую почту, в течении пяти минут. \n\nЕсли вам нужно вернуться, введите команду /menu")
             bot.register_next_step_handler(msg, verify_code, bot)
         else:
             # Если email не корпоративный, уведомляем пользователя и повторно запрашиваем email
