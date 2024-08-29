@@ -60,7 +60,7 @@ adapt_field = ["😊Welcome курс | Адаптация", "ДТК", "Обща�
                "Командировки", "Переводы", "Порядок оформления командировки", "Рассторжение ТД"]
 maraphon_field = ["🚀Цифровой марафон | Регистрация"]
 hse_competition_field = ["Конкурсы по охране труда"]
-hse_com_field = ["Мой безопасный рабочий день", "Лучший совет по безопасности"]
+hse_com_field = ["Мой безопасный рабочий день/Менің қауіпсіз жұмыс күнім", "Лучший совет по безопасности/Ең жақсы қауіпсіздік кеңесі", "Принять участие в обоих конкурсах/Екі байқауға қатысу"]
 verification_field = ["📄Подтверждение сдачи декларации"]
 portal_bts = ["Что такое портал 'Бірлік'?", "Как войти на портал?", "Оставить обращение на портал"]
 # "Бірлік Гид"
@@ -234,7 +234,7 @@ def get_markup(message):
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
     if check_id(str(message.chat.id)):
         markup.add(types.KeyboardButton("Админ панель"))
-    # button1 = types.KeyboardButton(hse_competition_field[0])
+    button1 = types.KeyboardButton(hse_competition_field[0])
     button2 = types.KeyboardButton("🚀Цифровой марафон | Регистрация")
     button9 = types.KeyboardButton("📄Подтверждение сдачи декларации")
     button = types.KeyboardButton("😊Welcome курс | Адаптация")
@@ -244,8 +244,7 @@ def get_markup(message):
     button6 = types.KeyboardButton("🧐Мой профиль")
     button7 = types.KeyboardButton('🖥Портал "Бірлік"')
     button8 = types.KeyboardButton(lte_[0])
-    markup.add(button9, button2, button)
-    # markup.add(button1, button9, button2, button)
+    markup.add(button1, button9, button2, button)
     if get_branch(message.chat.id) == branches[2]:
         markup.add(button8)
     markup.add(button3, button7, button5, button4, button6)
@@ -363,8 +362,6 @@ def hse_competition_(bot, message):
 
 
 def hse_get_competition_name(message, bot):
-    if redirect(bot, message):
-        return
     hse_competition.insert_into_hse_competition(message.chat.id)
     hse_competition.set_competition(message.chat.id, message.text)
     msg = bot.send_message(message.chat.id, "Укажите свою должность")
@@ -1872,7 +1869,7 @@ def get_pp(message, bot, id_i_s):
         markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         markup_l = generate_buttons(pp, markup_l)
         msg = bot.send_message(message.chat.id, "Выберите ПП из списка", reply_markup=markup_l)
-        bot.register_next_step_handler(msg, get_pp, bot, id_i_s)
+        bot.register_next_step_handler(msg,  get_pp, bot, id_i_s)
         return
     set_product_name(id_i_s, message.text)
     markup_l = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)

@@ -64,7 +64,7 @@ adapt_field = ["😊Welcome курс | Бейімделу", "ДТК", "Обща�
                "Командировки", "Переводы", "Порядок оформления командировки", "Рассторжение ТД"]
 maraphon_field = ["🚀Цифрлық марафон | Тіркеу"]
 hse_competition_field = ["Еңбекті қорғау бойынша конкурстар"]
-hse_com_field = ["Менің қауіпсіз жұмыс күнім", "Ең жақсы қауіпсіздік кеңесі"]
+hse_com_field = ["Мой безопасный рабочий день/Менің қауіпсіз жұмыс күнім", "Лучший совет по безопасности/Ең жақсы қауіпсіздік кеңесі", "Принять участие в обоих конкурсах/Екі байқауға қатысу"]
 verification_field = ["📄Декларацияны тапсыруды растау"]
 portal_bts = ["'Бірлік' порталы дегеніміз не?", "Порталға қалай кіруге болады?", "Порталға өтініш қалдыру"]
 # "Бірлік Гид"
@@ -229,7 +229,7 @@ def get_markup(message):
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
     if check_id(str(message.chat.id)):
         markup.add(types.KeyboardButton("Админ панель"))
-    # button1 = types.KeyboardButton(hse_competition_field[0])
+    button1 = types.KeyboardButton(hse_competition_field[0])
     button2 = types.KeyboardButton("🚀Цифрлық марафон | Тіркеу")
     button9 = types.KeyboardButton("📄Декларацияны тапсыруды растау")
     button = types.KeyboardButton("😊Welcome курс | Бейімделу")
@@ -239,8 +239,7 @@ def get_markup(message):
     button6 = types.KeyboardButton("🧐Менің профилім")
     button7 = types.KeyboardButton('🖥Портал "Бірлік"')
     button8 = types.KeyboardButton(lte_[0])
-    # markup.add(button9, button1, button2, button)
-    markup.add(button9, button2, button)
+    markup.add(button9, button1, button2, button)
     if get_branch(message.chat.id) == branches[2]:
         markup.add(button8)
     markup.add(button3, button7, button5, button4, button6)
@@ -299,6 +298,12 @@ def process_email(message, bot):
     email = message.text
     set_email(message, email)
 
+    if email.startswith('/'):
+        if user_id in verification_timers:
+            del verification_timers[user_id]  # Останавливаем таймер
+        if message.text == '/menu':
+            menu(bot, message)
+            return
     if email:
         bot.send_message(message.chat.id, f"Сіз осы email енгіздіңіз: {email}")
         # Проверка на корпоративный email
@@ -344,29 +349,23 @@ def hse_competition_(bot, message):
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
     markup = generate_buttons(hse_com_field, markup)
     msg = bot.send_message(message.chat.id, "Сіз қандай байқауға қатысқыңыз келеді?", reply_markup=markup)
-    bot.register_next_step_handler(msg, hse_get_competition_name, bot)
+    bot.register_next_step_handler(msg, hse_get_competition_name_kaz, bot)
 
 
-def hse_get_competition_name(message, bot):
-    if redirect(bot, message):
-        return
+def hse_get_competition_name_kaz(message, bot):
     hse_competition.insert_into_hse_competition(message.chat.id)
     hse_competition.set_competition(message.chat.id, message.text)
     msg = bot.send_message(message.chat.id, "Лауазымынызды көрсетіңіз")
-    bot.register_next_step_handler(msg, hse_get_position, bot)
+    bot.register_next_step_handler(msg, hse_get_position_kaz, bot)
 
 
-def hse_get_position(message, bot):
-    if redirect(bot, message):
-        return
+def hse_get_position_kaz(message, bot):
     hse_competition.set_position(message.chat.id, message.text)
     msg = bot.send_message(message.chat.id, "Сіз қай қаладансыз?")
-    bot.register_next_step_handler(msg, hse_get_city, bot)
+    bot.register_next_step_handler(msg, hse_get_city_kaz, bot)
 
 
-def hse_get_city(message, bot):
-    if redirect(bot, message):
-        return
+def hse_get_city_kaz(message, bot):
     hse_competition.set_city(message.chat.id, message.text)
     bot.send_message(message.chat.id, "Сіз тіркеуді аяқтадыңыз ")
     menu(bot, message)
