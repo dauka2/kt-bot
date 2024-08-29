@@ -402,7 +402,7 @@ def insert_into_performers_right():
                                                         "@eighth_muse"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
                 'parent_category) '
-                'values (%s, %s, %s, %s, %s, %s, %s, %s)', ("яяя", "Портал закупок 2.0 | Техническая поддержка",
+                'values (%s, %s, %s, %s, %s, %s, %s, %s)', ("6391020304", "Портал закупок 2.0 | Техническая поддержка",
                                                             "Тотиева", "Жансая", "87001183042", "@gmail.com",
                                                             "@", "Закупочная деятельность"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
