@@ -38,7 +38,7 @@ def create_db():
     cur.execute(
         'CREATE TABLE IF NOT EXISTS users (id varchar(50) primary key, username varchar(50), lastname varchar(50), '
         'firstname varchar(50), table_number varchar(11), phone_number varchar(13), '
-        'email varchar(50), is_verified bool DEFAULT false, branch varchar(50), language varchar(10))')
+        'email varchar(50), branch varchar(50), language varchar(10), is_verified bool DEFAULT false)')
     cur.execute(
         'CREATE TABLE IF NOT EXISTS commands_history (id varchar(50), commands_name varchar(50), date timestamp)')
     cur.execute(
@@ -137,6 +137,12 @@ def delete_appeals():
 def add_column():
     sql_query = "ALTER TABLE users_info ADD COLUMN IF NOT EXISTS subcategory char(50);"
     sql_query += "ALTER TABLE appeals ADD COLUMN IF NOT EXISTS subsubcategory char(50);"
+    execute_set_sql_query(sql_query)
+
+
+def add_column2():
+    sql_query = "ALTER TABLE users_info ADD COLUMN IF NOT EXISTS verif_code char(50);"
+    sql_query += "ALTER TABLE users ADD COLUMN IF NOT EXISTS is_verified char(50);"
     execute_set_sql_query(sql_query)
 
 
