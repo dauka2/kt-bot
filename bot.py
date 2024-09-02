@@ -109,6 +109,12 @@ def add_column(message):
     bot.send_message(message.chat.id, "Изменения сохранены")
 
 
+@bot.message_handler(commands=['add_column_dec'])
+def add_column(message):
+    db_connect.add_column()
+    bot.send_message(message.chat.id, "Изменения сохранены")
+
+
 @bot.message_handler(commands=['change'])
 def change(message):
     change_(message)
