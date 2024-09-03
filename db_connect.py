@@ -108,17 +108,17 @@ def addIfNotExistUser(message):
     users_id = cur.fetchall()
     if not any(id[0] == str(message.chat.id) for id in users_id):
         cur.execute(
-            "INSERT INTO users (id, username, lastname, firstname,table_number, phone_number, email,branch, language) "
-            "VALUES ('%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (
+            "INSERT INTO users (id, username, lastname, firstname,table_number, phone_number, email, branch, language, is_verified) "
+            "VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (
                 str(message.chat.id), str(message.from_user.username),
                 str(message.from_user.first_name),
-                str(message.from_user.last_name), ' ', ' ', ' ', ' ', 'n'))
+                str(message.from_user.last_name), ' ', ' ', ' ', ' ', 'n', ' '))
     cur.execute('SELECT id FROM users_info')
     users_info_id = cur.fetchall()
     if not any(id[0] == str(message.chat.id) for id in users_info_id):
-        cur.execute("INSERT INTO users_info(id , instr , glossar, appeal_field, appeal_id, category, is_appeal_anon ) "
-                    "VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (
-                        str(message.chat.id), False, False, False, 0, ' ', False))
+        cur.execute("INSERT INTO users_info(id , instr , glossar, appeal_field, appeal_id, category, is_appeal_anon, verif_code ) "
+                    "VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (
+                        str(message.chat.id), False, False, False, 0, ' ', False, ' '))
     conn.commit()
     cur.close()
     conn.close()
