@@ -140,7 +140,7 @@ def add_column():
     execute_set_sql_query(sql_query)
 
 
-def add_column2():
+def add_column_dec():
     sql_query = "ALTER TABLE users_info ADD COLUMN IF NOT EXISTS verif_code char(50);"
     sql_query += "ALTER TABLE users ADD COLUMN IF NOT EXISTS is_verified char(50);"
     execute_set_sql_query(sql_query)
