@@ -305,7 +305,6 @@ def process_email(message, bot):
             menu(bot, message)
             return
     if email:
-        bot.send_message(message.chat.id, f"Сіз осы email енгіздіңіз: {email}")
         # Проверка на корпоративный email
         if re.fullmatch(regex, email):
             # Отправляем код подтверждения на email пользователя, передаем bot и chat_id
@@ -326,7 +325,7 @@ def process_email(message, bot):
 def start_verification_timer(user_id, bot, message):
     # Таймер на 5 минут (300 секунд)
     def timer():
-        time.sleep(40)  # Ожидание 5 минут
+        time.sleep(300)  # Ожидание 5 минут
         if user_id in verification_timers:
             del verification_timers[user_id]  # Удаляем таймер по истечению времени
             bot.send_message(message.chat.id, "Күту уақыты аяқталды. Процесті қайтадан бастаңыз.")
