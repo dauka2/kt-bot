@@ -14,12 +14,14 @@ def change_language(message, language):
     cur.close()
     conn.close()
 
+
 def generate_and_save_code(user_id):
     verification_code = random.randint(1000, 9999)
     sql_query = "UPDATE users_info SET verif_code = %s WHERE id = %s"
     params = (str(verification_code), user_id)
     execute_set_sql_query(sql_query, params)
     return verification_code
+
 
 # Функция для получения сохраненного кода из БД
 def get_saved_verification_code(user_id):

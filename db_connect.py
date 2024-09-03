@@ -146,6 +146,11 @@ def add_column_dec():
     execute_set_sql_query(sql_query)
 
 
+def add_column_default():
+    sql_query = "ALTER TABLE users ALTER COLUMN is_verified SET DEFAULT FALSE; "
+    execute_set_sql_query(sql_query)
+
+
 def insert_into_performers():
     conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
     cur = conn.cursor()

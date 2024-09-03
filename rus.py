@@ -294,7 +294,8 @@ def check_is_command(bot, message, text_):
 
 def verification(bot, message, message_text):
     if message_text == "📄Подтверждение сдачи декларации":
-        bot.send_message(message.chat.id, "Нажимая на эту кнопку, подтверждаете, что вами, декларация по форме налоговой отчетности 270.00, была сдана")
+        bot.send_message(message.chat.id, "Нажимая на эту кнопку, подтверждаете, что вами, декларация по форме "
+                                          "налоговой отчетности 270.00, была сдана")
         msg = bot.send_message(message.chat.id, "Введите вашу корпоративную почту:")
         bot.register_next_step_handler(msg, process_email, bot)
 
@@ -2000,29 +2001,48 @@ def send_verification_code(user_id, bot, message):
 def verify_code(message, bot):
     user_id = str(message.chat.id)
 
+    # Проверка на наличие таймера в словаре
     if user_id not in verification_timers:
         return
 
-    entered_code = message.text
-    saved_code = get_saved_verification_code(user_id)
+    # Получаем введенный код и очищаем его от пробелов
+    entered_code = message.text.strip()
 
+    # Действия, если введена команда, начинающаяся с "/"
     if entered_code.startswith('/'):
-        if user_id in verification_timers:
-            del verification_timers[user_id]  # Останавливаем таймер
-        if message.text == '/menu':
+        # Удаляем таймер, если он есть
+        verification_timers.pop(user_id, None)
+        # Переход в меню, если команда "/menu"
+        if entered_code == '/menu':
             menu(bot, message)
             return True
-    elif entered_code == saved_code:
-        if user_id in verification_timers:
-            del verification_timers[user_id]
 
-        sql_query = "UPDATE users SET is_verified = TRUE WHERE id = %s"
-        params = (user_id,)
-        db_connect.execute_set_sql_query(sql_query, params)
-        bot.send_message(message.chat.id, "Подтверждение успешно завершено!")
-        menu(bot, message)
-    else:
-        msg = bot.send_message(message.chat.id, "Неверный код. Попробуйте снова.")
+    # Получение сохраненного кода
+    saved_code = str(get_saved_verification_code(user_id)).strip()
+
+    # Попытка преобразовать коды в числа и сравнить их
+    try:
+        entered_code = int(entered_code)
+        saved_code = int(saved_code)
+
+        # Проверка соответствия введенного и сохраненного кода
+        if entered_code == saved_code:
+            verification_timers.pop(user_id, None)  # Удаляем таймер
+
+            # Обновляем статус пользователя в базе данных
+            sql_query = "UPDATE users SET is_verified = TRUE WHERE id = %s"
+            params = (user_id,)
+            db_connect.execute_set_sql_query(sql_query, params)
+
+            bot.send_message(message.chat.id, "Подтверждение успешно завершено!")
+            menu(bot, message)
+        else:
+            raise ValueError("Код не совпадает")  # Исключение, если код не совпадает
+
+    except ValueError as e:
+        # Обработка ошибок при конвертации и несоответствии кода
+        bot.send_message(message.chat.id, "Неверный код. Попробуйте снова.")
+        msg = bot.send_message(message.chat.id, "Введите код еще раз:")
         bot.register_next_step_handler(msg, verify_code, bot)
 
 
