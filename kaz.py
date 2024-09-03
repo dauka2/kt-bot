@@ -310,7 +310,7 @@ def process_email(message, bot):
             # Отправляем код подтверждения на email пользователя, передаем bot и chat_id
             send_verification_code(user_id, bot, message)
             msg = bot.send_message(message.chat.id,
-                                   f"Растау коды сіздің поштаңызға жіберіледі: {email}. Оны 5 минут ішінде енгізіңіз. \n\n егер сізге оралу қажет болса, /menu пәрменін енгізіңіз")
+                                   f"Растау коды сіздің поштаңызға жіберіледі: {email}. Оны 5 минут ішінде енгізіңіз. \n\nЕгер сізге оралу қажет болса, /menu пәрменін енгізіңіз")
             bot.register_next_step_handler(msg, verify_code, bot)
         else:
             # Если email не корпоративный, уведомляем пользователя и повторно запрашиваем email
