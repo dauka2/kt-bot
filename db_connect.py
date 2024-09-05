@@ -112,7 +112,7 @@ def addIfNotExistUser(message):
             "VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (
                 str(message.chat.id), str(message.from_user.username),
                 str(message.from_user.first_name),
-                str(message.from_user.last_name), ' ', ' ', ' ', ' ', 'n', ' '))
+                str(message.from_user.last_name), ' ', ' ', ' ', ' ', 'n', False))
     cur.execute('SELECT id FROM users_info')
     users_info_id = cur.fetchall()
     if not any(id[0] == str(message.chat.id) for id in users_info_id):

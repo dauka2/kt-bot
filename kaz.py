@@ -304,6 +304,7 @@ def process_email(message, bot):
         if message.text == '/menu':
             menu(bot, message)
             return
+
     if email:
         # Проверка на корпоративный email
         if re.fullmatch(regex, email):
@@ -348,7 +349,17 @@ def hse_competition_(bot, message):
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
     markup = generate_buttons(hse_com_field, markup)
     msg = bot.send_message(message.chat.id, "Сіз қандай байқауға қатысқыңыз келеді?", reply_markup=markup)
-    bot.register_next_step_handler(msg, hse_get_competition_name_kaz, bot)
+    entered_comp = message.text
+    if entered_comp.startswith('/'):
+        # Переход в меню, если команда "/menu"
+        if entered_comp == '/menu':
+            menu(bot, message)
+            return True
+        elif  entered_comp == "/start":
+            send_welcome_message(bot, message)
+            return True
+    else:
+        bot.register_next_step_handler(msg, hse_get_competition_name_kaz, bot)
 
 
 def hse_get_competition_name_kaz(message, bot):

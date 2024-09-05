@@ -1,7 +1,6 @@
 import types
 from datetime import timedelta
 import requests
-import re  # Для работы с регулярными выражениями
 from telebot import *
 
 import appealsClass
@@ -358,7 +357,19 @@ def hse_competition_(bot, message):
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
     markup = generate_buttons(hse_com_field, markup)
     msg = bot.send_message(message.chat.id, "В каком конкурсе вы хотите принять участие?", reply_markup=markup)
-    bot.register_next_step_handler(msg, hse_get_competition_name, bot)
+    entered_comp = message.text
+
+    # Действия, если введена команда, начинающаяся с "/"
+    if entered_comp.startswith('/'):
+        # Переход в меню, если команда "/menu"
+        if entered_comp == '/menu':
+            menu(bot, message)
+            return True
+        elif  entered_comp == "/start":
+            send_welcome_message(bot, message)
+            return True
+    else:
+        bot.register_next_step_handler(msg, hse_get_competition_name, bot)
 
 
 def hse_get_competition_name(message, bot):
