@@ -1,3 +1,5 @@
+#Poka ne nuzhen, pust budet v kommentah, esli nado budet, uberem
+
 import psycopg2
 from db_connect import execute_get_sql_query, execute_set_sql_query
 

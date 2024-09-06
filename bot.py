@@ -58,6 +58,9 @@ def check_register(message, func):
         return 1
     return 0
 
+@bot.message_handler(func=lambda message: True)
+def handle_all_messages(message):
+    rus.handle_user_message(message, bot)
 
 @bot.message_handler(commands=['delete_users_info'])
 def delete_users_info(message):
@@ -725,11 +728,21 @@ def get_excel(message):
 
 @bot.message_handler(commands=['get_hse_competitions'])
 def get_excel(message):
-    sql_query = ("SELECT users.firstname, users.lastname, users.phone_number, users.branch, "
-                 "hse_competitions.competition_name, hse_competitions.position, hse_competitions.city "
-                 "FROM hse_competitions "
-                 "INNER JOIN users ON users.id = hse_competitions.user_id "
-                 "ORDER BY users.id ASC")
+    # SQL-запрос для получения последней записи каждого пользователя
+    sql_query = """
+        SELECT u.firstname, u.lastname, u. table_number, u.phone_number, u.branch,
+               hc.competition_name, hc.position, hc.city
+        FROM hse_competitions hc
+        INNER JOIN users u ON u.id = hc.user_id
+        WHERE hc.id IN (
+            SELECT MAX(id)
+            FROM hse_competitions
+            GROUP BY user_id
+        )
+        ORDER BY u.id ASC
+    """
+
+    # Выполнение запроса и сохранение в Excel-файл
     common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
 
 

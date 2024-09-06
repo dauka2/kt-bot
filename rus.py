@@ -234,7 +234,7 @@ def get_markup(message):
     if check_id(str(message.chat.id)):
         markup.add(types.KeyboardButton("Админ панель"))
     button1 = types.KeyboardButton(hse_competition_field[0])
-    button2 = types.KeyboardButton("🚀Цифровой марафон | Регистрация")
+    #button2 = types.KeyboardButton("🚀Цифровой марафон | Регистрация")
     button9 = types.KeyboardButton("📄Подтверждение сдачи декларации")
     button = types.KeyboardButton("😊Welcome курс | Адаптация")
     button3 = types.KeyboardButton("🗃️База знаний")
@@ -243,12 +243,38 @@ def get_markup(message):
     button6 = types.KeyboardButton("🧐Мой профиль")
     button7 = types.KeyboardButton('🖥Портал "Бірлік"')
     button8 = types.KeyboardButton(lte_[0])
-    markup.add(button1, button9, button2, button)
+    # markup.add(button1, button9, button2, button)
+    markup.add(button1, button9, button)
     if get_branch(message.chat.id) == branches[2]:
         markup.add(button8)
     markup.add(button3, button7, button5, button4, button6)
     return markup
 
+def handle_user_message(message, bot):
+    # Получаем текст от пользователя
+    user_text = message.text
+
+    # Все доступные команды (кнопки)
+    available_options = [
+        "Админ панель",
+        hse_competition_field[0],
+        "📄Подтверждение сдачи декларации",
+        "😊Welcome курс | Адаптация",
+        "🗃️База знаний",
+        "👷Заполнить карточку БиОТ",
+        "📄У меня есть вопрос",
+        "🧐Мой профиль",
+        '🖥Портал "Бірлік"',
+        lte_[0]
+    ]
+
+    # Проверяем, ввел ли пользователь корректный текст
+    if user_text not in available_options:
+        bot.send_message(message.chat.id, "Пожалуйста, выберите один из предложенных вариантов в кнопке справа, в поле ввода сообщения")
+        # Отправляем меню пользователю
+        markup = get_markup(message)
+        bot.send_message(message.chat.id, "Выберите категорию из меню:", reply_markup=markup)
+        return
 
 def send_welcome_message(bot, message):
     welcome_message = f'Привет, {get_firstname(message)} 👋'
@@ -299,19 +325,15 @@ def verification(bot, message, message_text):
         bot.register_next_step_handler(msg, process_email, bot)
 
 
-def process_email(message, bot):
+def process_email(message, bot, id_i_s = None):
     user_id = str(message.chat.id)
     regex = r'\b[A-Za-z0-9._%+-]+@telecom.kz\b'
     # Получаем email пользователя из сообщения
     email = message.text
     set_email(message, email)
 
-    if email.startswith('/'):
-        if user_id in verification_timers:
-            del verification_timers[user_id]  # Останавливаем таймер
-        if message.text == '/menu':
-            menu(bot, message)
-            return
+    if redirect(bot, message, id_i_s):
+        return
     if email:
         # Проверка на корпоративный email
         if re.fullmatch(regex, email):
@@ -345,7 +367,7 @@ def start_verification_timer(user_id, bot, message):
     verification_timers[user_id].start()
 
 
-def hse_competition_(bot, message):
+def hse_competition_(bot, message, id_i_s = None):
     text = "Сохраненная информация\n\n"
     full_name = "ФИО: " + str(get_lastname(message)) + " " + get_firstname(message) + "\n"
     branch = "Дивизион: " + str(get_branch(message.chat.id)) + "\n"
@@ -357,70 +379,42 @@ def hse_competition_(bot, message):
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
     markup = generate_buttons(hse_com_field, markup)
     msg = bot.send_message(message.chat.id, "В каком конкурсе вы хотите принять участие?", reply_markup=markup)
-    entered_comp = message.text
 
-    if entered_comp.startswith('/'):
-        if entered_comp == '/menu':
-            # Завершение текущей регистрации и переход в меню
-            menu(bot, message)
-            return
-        elif entered_comp == "/start":
-            send_welcome_message(bot, message)
-            return
+    if redirect(bot, message, id_i_s):
+        return
     else:
         bot.register_next_step_handler(msg, hse_get_competition_name, bot)
 
 
-def hse_get_competition_name(message, bot):
-    if message.text.startswith('/'):
-        if message.text == '/menu':
-            menu(bot, message)
-            return
-        elif message.text == "/start":
-            send_welcome_message(bot, message)
-            return
-
-    user_id = message.chat.id
-    if not hse_competition.check_user_exists(user_id):
-        hse_competition.insert_into_hse_competition(user_id)
-    hse_competition.set_competition(user_id, message.text)
-    msg = bot.send_message(user_id, "Укажите свою должность")
-    bot.register_next_step_handler(msg, hse_get_position, bot)
-
-
-def hse_get_position(message, bot):
-    if message.text.startswith('/'):
-        if message.text == '/menu':
-            menu(bot, message)
-            return
-        elif message.text == "/start":
-            send_welcome_message(bot, message)
-            return
-
-    if redirect(bot, message):
+def hse_get_competition_name(message, bot, id_i_s=None):
+    if redirect(bot, message, id_i_s):
         return
-    user_id = message.chat.id
-    hse_competition.set_position(user_id, message.text)
-    msg = bot.send_message(user_id, "С какого вы города?")
-    bot.register_next_step_handler(msg, hse_get_city, bot)
+    else:
+        hse_competition.insert_into_hse_competition(message.chat.id)
+        hse_competition.set_competition(message.chat.id, message.text)
+        msg = bot.send_message(message.chat.id, "Укажите свою должность")
+        bot.register_next_step_handler(msg, hse_get_position, bot)
 
 
-def hse_get_city(message, bot):
-    if message.text.startswith('/'):
-        if message.text == '/menu':
-            menu(bot, message)
-            return
-        elif message.text == "/start":
-            send_welcome_message(bot, message)
-            return
-
-    if redirect(bot, message):
+def hse_get_position(message, bot, id_i_s=None):
+    if redirect(bot, message, id_i_s):
         return
-    user_id = message.chat.id
-    hse_competition.set_city(user_id, message.text)
-    bot.send_message(user_id,
-                     "Поздравляю! Вы завершили регистрацию! \nВ ближайшее время с вами свяжутся наши организаторы")
-    menu(bot, message)
+    else:
+        hse_competition.set_position(message.chat.id, message.text)
+        msg = bot.send_message(message.chat.id, "С какого вы города?")
+        bot.register_next_step_handler(msg, hse_get_city, bot)
+
+
+def hse_get_city(message, bot, id_i_s=None):
+    if redirect(bot, message, id_i_s):
+        return
+    else:
+        user_id = message.chat.id
+        # Обновляем город пользователя
+        hse_competition.set_city(user_id, message.text)
+        bot.send_message(user_id,
+                         "Поздравляю! Вы завершили регистрацию! \nВ ближайшее время с вами свяжутся наши организаторы")
+        menu(bot, message)
 
 
 def marathon(bot, message):
