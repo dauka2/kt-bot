@@ -359,39 +359,67 @@ def hse_competition_(bot, message):
     msg = bot.send_message(message.chat.id, "В каком конкурсе вы хотите принять участие?", reply_markup=markup)
     entered_comp = message.text
 
-    # Действия, если введена команда, начинающаяся с "/"
     if entered_comp.startswith('/'):
-        # Переход в меню, если команда "/menu"
         if entered_comp == '/menu':
+            # Завершение текущей регистрации и переход в меню
             menu(bot, message)
-            return True
-        elif  entered_comp == "/start":
+            return
+        elif entered_comp == "/start":
             send_welcome_message(bot, message)
-            return True
+            return
     else:
         bot.register_next_step_handler(msg, hse_get_competition_name, bot)
 
 
 def hse_get_competition_name(message, bot):
-    hse_competition.insert_into_hse_competition(message.chat.id)
-    hse_competition.set_competition(message.chat.id, message.text)
-    msg = bot.send_message(message.chat.id, "Укажите свою должность")
+    if message.text.startswith('/'):
+        if message.text == '/menu':
+            menu(bot, message)
+            return
+        elif message.text == "/start":
+            send_welcome_message(bot, message)
+            return
+
+    user_id = message.chat.id
+    if not hse_competition.check_user_exists(user_id):
+        hse_competition.insert_into_hse_competition(user_id)
+    hse_competition.set_competition(user_id, message.text)
+    msg = bot.send_message(user_id, "Укажите свою должность")
     bot.register_next_step_handler(msg, hse_get_position, bot)
 
 
 def hse_get_position(message, bot):
+    if message.text.startswith('/'):
+        if message.text == '/menu':
+            menu(bot, message)
+            return
+        elif message.text == "/start":
+            send_welcome_message(bot, message)
+            return
+
     if redirect(bot, message):
         return
-    hse_competition.set_position(message.chat.id, message.text)
-    msg = bot.send_message(message.chat.id, "С какого вы города?")
+    user_id = message.chat.id
+    hse_competition.set_position(user_id, message.text)
+    msg = bot.send_message(user_id, "С какого вы города?")
     bot.register_next_step_handler(msg, hse_get_city, bot)
 
 
 def hse_get_city(message, bot):
+    if message.text.startswith('/'):
+        if message.text == '/menu':
+            menu(bot, message)
+            return
+        elif message.text == "/start":
+            send_welcome_message(bot, message)
+            return
+
     if redirect(bot, message):
         return
-    hse_competition.set_city(message.chat.id, message.text)
-    bot.send_message(message.chat.id, "Поздравляю! Вы завершили регистрацию! \n В ближайшее время с вами свяжутся наши организаторы")
+    user_id = message.chat.id
+    hse_competition.set_city(user_id, message.text)
+    bot.send_message(user_id,
+                     "Поздравляю! Вы завершили регистрацию! \nВ ближайшее время с вами свяжутся наши организаторы")
     menu(bot, message)
 
 

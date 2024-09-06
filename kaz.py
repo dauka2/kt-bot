@@ -350,6 +350,7 @@ def hse_competition_(bot, message):
     markup = generate_buttons(hse_com_field, markup)
     msg = bot.send_message(message.chat.id, "Сіз қандай байқауға қатысқыңыз келеді?", reply_markup=markup)
     entered_comp = message.text
+
     if entered_comp.startswith('/'):
         # Переход в меню, если команда "/menu"
         if entered_comp == '/menu':
@@ -363,22 +364,50 @@ def hse_competition_(bot, message):
 
 
 def hse_get_competition_name_kaz(message, bot):
-    hse_competition.insert_into_hse_competition(message.chat.id)
-    hse_competition.set_competition(message.chat.id, message.text)
-    msg = bot.send_message(message.chat.id, "Лауазымынызды көрсетіңіз")
-    bot.register_next_step_handler(msg, hse_get_position_kaz, bot)
+    if message.text.startswith('/'):
+        if message.text == '/menu':
+            menu(bot, message)
+            return
+        elif message.text == "/start":
+            send_welcome_message(bot, message)
+            return
+    else:
+        user_id = message.chat.id
+        if not hse_competition.check_user_exists(user_id):
+            hse_competition.insert_into_hse_competition(user_id)
+        hse_competition.set_competition(user_id, message.text)
+        msg = bot.send_message(message.chat.id, "Лауазымынызды көрсетіңіз")
+        bot.register_next_step_handler(msg, hse_get_position_kaz, bot)
 
 
 def hse_get_position_kaz(message, bot):
-    hse_competition.set_position(message.chat.id, message.text)
-    msg = bot.send_message(message.chat.id, "Сіз қай қаладансыз?")
-    bot.register_next_step_handler(msg, hse_get_city_kaz, bot)
+    if message.text.startswith('/'):
+        if message.text == '/menu':
+            menu(bot, message)
+            return
+        elif message.text == "/start":
+            send_welcome_message(bot, message)
+            return
+    else:
+        user_id = message.chat.id
+        hse_competition.set_position(user_id, message.text)
+        msg = bot.send_message(message.chat.id, "Сіз қай қаладансыз?")
+        bot.register_next_step_handler(msg, hse_get_city_kaz, bot)
 
 
 def hse_get_city_kaz(message, bot):
-    hse_competition.set_city(message.chat.id, message.text)
-    bot.send_message(message.chat.id, "Сіз тіркеуді аяқтадыңыз ")
-    menu(bot, message)
+    if message.text.startswith('/'):
+        if message.text == '/menu':
+            menu(bot, message)
+            return
+        elif message.text == "/start":
+            send_welcome_message(bot, message)
+            return
+    else:
+        user_id = message.chat.id
+        hse_competition.set_city(user_id, message.text)
+        bot.send_message(message.chat.id, "Сіз тіркеуді аяқтадыңыз! \nЖақын арада сіздермен біздің ұйымдастырушылар байланысады")
+        menu(bot, message)
 
 def marathon(bot, message):
     bot.send_message(message.chat.id, "Цифрлық марафонға қатысу үшін қосымша ақпарат")
