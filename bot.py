@@ -703,6 +703,19 @@ def get_excel(message):
                 "full outer join users on commands_history.id = users.id"
     common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
 
+@bot.message_handler(commands=['get_unique_users'])
+def get_excel(message):
+    sql_query = """
+        SELECT users.id, 
+               MIN(firstname) AS firstname, 
+               MIN(lastname) AS lastname, 
+               MIN(commands_history.date) AS date
+        FROM commands_history
+        FULL OUTER JOIN users ON commands_history.id = users.id
+        GROUP BY users.id
+    """
+    common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
+
 
 @bot.message_handler(commands=['get_users'])
 def get_excel(message):
