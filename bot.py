@@ -58,10 +58,6 @@ def check_register(message, func):
         return 1
     return 0
 
-@bot.message_handler(func=lambda message: True)
-def handle_all_messages(message):
-    rus.handle_user_message(message, bot)
-
 @bot.message_handler(commands=['delete_users_info'])
 def delete_users_info(message):
     userClass.delete_users_info()
