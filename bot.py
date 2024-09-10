@@ -149,7 +149,6 @@ def change_performer_status_by_appeal_id1(message):
     rus.set_status(appeal_id, status)
     bot.send_message(message.chat.id, "Изменения сохранены")
 
-
 def change_(message):
     sql_query = "SELECT * FROM appeals order by id"
     appeals_ = db_connect.execute_get_sql_query(sql_query)
@@ -1054,6 +1053,8 @@ def text(message, get_message, lang_py):
         lang_py.marathon(bot, message)
     elif get_message in lang_py.hse_competition_field:
         lang_py.hse_competition_(bot, message)
+    elif get_message in lang_py.fin_gram_field:
+        lang_py.fin_gram(bot, message)
     elif get_message == "📄У меня есть вопрос" or get_message == "📄Менің сұрағым бар":
         lang_py.questions(bot, message)
     elif get_message == "Мои обращения" or get_message == "Менің өтініштерім" \

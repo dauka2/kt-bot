@@ -33,6 +33,17 @@ def get_saved_verification_code(user_id):
 
 verification_timers = {}
 
+def get_user_verification_status(user_id):
+    """
+    Проверяет статус пользователя 'is_verified' в базе данных.
+
+    :param user_id: ID пользователя.
+    :return: True, если пользователь верифицирован, иначе False.
+    """
+    sql_query = 'SELECT is_verified FROM users WHERE id = %s'
+    params = (str(user_id),)
+    result = execute_get_sql_query(sql_query, params)
+    return result[0] if result else False  # Если пользователя нет в базе, вернуть False
 
 def get_users_id():
     sql_query = 'SELECT id FROM users'

@@ -25,7 +25,8 @@ from performerClass import get_performer_by_category, get_regions, list_categori
     get_performer_id_by_category, get_subsubcategories_by_subcategory, \
     get_performer_by_category_and_subcategory, get_performer_by_subsubcategory, get_performers_
 from userClass import get_branch, get_firstname, get_user, generate_and_save_code, get_email, \
-    set_email, verification_timers, get_saved_verification_code, get_lastname, get_phone_number
+    set_email, verification_timers, get_saved_verification_code, get_lastname, get_phone_number, \
+    get_user_verification_status
 from user_infoClass import set_appeal_field, get_category_users_info, set_category, get_appeal_field, clear_appeals, \
     set_bool, set_subsubcategory_users_info, get_subsubcategory_users_info
 import hse_competition
@@ -58,6 +59,7 @@ adapt_field = ["😊Welcome курс | Адаптация", "ДТК", "Обща�
                "ДТК Инструкции", "Заявки в ОЦО HR", "Заявки возложение обязанностей", "Заявки на отпуск",
                "Командировки", "Переводы", "Порядок оформления командировки", "Рассторжение ТД"]
 maraphon_field = ["🚀Цифровой марафон | Регистрация"]
+fin_gram_field = ["💸Регистрация на вебинар по фин.грамотности"]
 hse_competition_field = ["👷🏻‍♂️Конкурсы по охране труда"]
 hse_com_field = ["Мой безопасный рабочий день/Менің қауіпсіз жұмыс күнім", "Лучший совет по безопасности/Ең жақсы қауіпсіздік кеңесі", "Принять участие в обоих конкурсах/Екі байқауға қатысу"]
 verification_field = ["📄Подтверждение сдачи декларации"]
@@ -235,6 +237,7 @@ def get_markup(message):
         markup.add(types.KeyboardButton("Админ панель"))
     button1 = types.KeyboardButton(hse_competition_field[0])
     #button2 = types.KeyboardButton("🚀Цифровой марафон | Регистрация")
+    button2 = types.KeyboardButton("💸Регистрация на вебинар по фин.грамотности")
     button9 = types.KeyboardButton("📄Подтверждение сдачи декларации")
     button = types.KeyboardButton("😊Welcome курс | Адаптация")
     button3 = types.KeyboardButton("🗃️База знаний")
@@ -243,8 +246,7 @@ def get_markup(message):
     button6 = types.KeyboardButton("🧐Мой профиль")
     button7 = types.KeyboardButton('🖥Портал "Бірлік"')
     button8 = types.KeyboardButton(lte_[0])
-    # markup.add(button1, button9, button2, button)
-    markup.add(button1, button9, button)
+    markup.add(button1, button9, button2, button)
     if get_branch(message.chat.id) == branches[2]:
         markup.add(button8)
     markup.add(button3, button7, button5, button4, button6)
@@ -290,6 +292,18 @@ def check_is_command(bot, message, text_):
         return True
     return False
 
+def fin_gram(bot, message, message_text):
+    if message_text == '💸Регистрация на обучение "Финансовая грамотность"':
+        user_id = message.chat.id
+
+        # Проверяем статус пользователя
+        is_verified = get_user_verification_status(user_id)
+        if is_verified:
+            msg = bot.send_message(user_id,
+                                   "Подтверждаете ли вы что хотите учавствовать в этом обучении?")
+        else:
+            msg = bot.send_message(message.chat.id, "Для регистрации на этот курс, введите вашу корпоративную почту:")
+            bot.register_next_step_handler(msg, process_email, bot)
 
 def verification(bot, message, message_text):
     if message_text == "📄Подтверждение сдачи декларации":
