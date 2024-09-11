@@ -701,6 +701,22 @@ def get_excel(message):
                 "full outer join users on commands_history.id = users.id"
     common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
 
+@bot.message_handler(commands=['get_participants'])
+def get_excel(message):
+    sql_query = """
+                SELECT u.firstname, u.lastname, u. table_number, u.phone_number, u.branch, \
+                fl.webinar_name \
+                FROM financial_literacy fl \
+                INNER JOIN users u ON u.id = fl.user_id
+                WHERE fl.id IN (
+            SELECT MAX(id)
+            FROM financial_literacy
+            GROUP BY user_id
+        )
+                ORDER BY u.id ASC
+                """
+    common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
+
 @bot.message_handler(commands=['get_unique_users'])
 def get_excel(message):
     sql_query = """
@@ -1054,7 +1070,7 @@ def text(message, get_message, lang_py):
     elif get_message in lang_py.hse_competition_field:
         lang_py.hse_competition_(bot, message)
     elif get_message in lang_py.fin_gram_field:
-        lang_py.fin_gram(bot, message)
+        lang_py.fin_gram(bot, message, message.text)
     elif get_message == "📄У меня есть вопрос" or get_message == "📄Менің сұрағым бар":
         lang_py.questions(bot, message)
     elif get_message == "Мои обращения" or get_message == "Менің өтініштерім" \

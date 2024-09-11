@@ -59,7 +59,7 @@ adapt_field = ["😊Welcome курс | Адаптация", "ДТК", "Обща�
                "ДТК Инструкции", "Заявки в ОЦО HR", "Заявки возложение обязанностей", "Заявки на отпуск",
                "Командировки", "Переводы", "Порядок оформления командировки", "Рассторжение ТД"]
 maraphon_field = ["🚀Цифровой марафон | Регистрация"]
-fin_gram_field = ["💸Регистрация на вебинар по фин.грамотности"]
+fin_gram_field = ['💸Регистрация на обучение "Финансовая грамотность"']
 hse_competition_field = ["👷🏻‍♂️Конкурсы по охране труда"]
 hse_com_field = ["Мой безопасный рабочий день/Менің қауіпсіз жұмыс күнім", "Лучший совет по безопасности/Ең жақсы қауіпсіздік кеңесі", "Принять участие в обоих конкурсах/Екі байқауға қатысу"]
 verification_field = ["📄Подтверждение сдачи декларации"]
@@ -237,7 +237,7 @@ def get_markup(message):
         markup.add(types.KeyboardButton("Админ панель"))
     button1 = types.KeyboardButton(hse_competition_field[0])
     #button2 = types.KeyboardButton("🚀Цифровой марафон | Регистрация")
-    button2 = types.KeyboardButton("💸Регистрация на вебинар по фин.грамотности")
+    button2 = types.KeyboardButton('💸Регистрация на обучение "Финансовая грамотность"')
     button9 = types.KeyboardButton("📄Подтверждение сдачи декларации")
     button = types.KeyboardButton("😊Welcome курс | Адаптация")
     button3 = types.KeyboardButton("🗃️База знаний")
@@ -298,12 +298,46 @@ def fin_gram(bot, message, message_text):
 
         # Проверяем статус пользователя
         is_verified = get_user_verification_status(user_id)
-        if is_verified:
-            msg = bot.send_message(user_id,
-                                   "Подтверждаете ли вы что хотите учавствовать в этом обучении?")
-        else:
-            msg = bot.send_message(message.chat.id, "Для регистрации на этот курс, введите вашу корпоративную почту:")
+
+        if not is_verified:
+            # Если пользователь не верифицирован, просим ввести корпоративную почту
+            msg = bot.send_message(user_id, "Необходимо подтвердить вашу корпоративную электронную почту, на которую будет отправлен 6-значный код для верификации. \nВведите вашу электронную почту. \nПример: User.U@telecom.kz" )
             bot.register_next_step_handler(msg, process_email, bot)
+        else:
+            # Создаем клавиатуру с кнопками "Да" и "Нет"
+            markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+            yes_button = types.KeyboardButton('Да')
+            no_button = types.KeyboardButton('Нет')
+            markup.add(yes_button, no_button)
+
+            # Запрашиваем подтверждение участия в обучении
+            msg = bot.send_message(user_id, "Подтверждаете ли вы, что хотите участвовать в этом обучении?",
+                                   reply_markup=markup)
+            bot.register_next_step_handler(msg, confirm_fin_gram, bot)
+
+def confirm_fin_gram(message, bot):
+    user_id = message.chat.id
+    response = message.text.strip().lower()
+
+    if response == 'да':
+        # Добавляем запись в таблицу financial_literacy
+        webinar_name = "Финансовая грамотность"
+        sql_query = "INSERT INTO financial_literacy (user_id, webinar_name) VALUES (%s, %s)"
+        params = (user_id, webinar_name)
+        db_connect.execute_set_sql_query(sql_query, params)
+
+        # Отправляем сообщение о успешной регистрации
+        bot.send_message(user_id, "Вы успешно зарегистрировались на обучение по финансовой грамотности!")
+        menu(bot, message)
+
+    elif response == 'нет':
+        # Отправляем сообщение об отмене регистрации и возвращаем в главное меню
+        bot.send_message(user_id, "Регистрация отменена.")
+        menu(bot, message)
+    else:
+        # Обработка неверного ввода, если вдруг пришел текст не "Да" и не "Нет"
+        msg = bot.send_message(user_id, "Пожалуйста, выберите 'Да' или 'Нет'.")
+        bot.register_next_step_handler(msg, confirm_fin_gram, bot)
 
 def verification(bot, message, message_text):
     if message_text == "📄Подтверждение сдачи декларации":
@@ -2019,8 +2053,32 @@ def send_verification_code(user_id, bot, message):
     start_verification_timer(user_id, bot, message)
 
 
+# Словарь для хранения последних сообщений пользователей
+user_message_history = {}
+
+# Функция для добавления сообщения в историю пользователя
+def add_message_to_history(user_id, message_text):
+    if user_id not in user_message_history:
+        user_message_history[user_id] = []
+    # Ограничиваем количество сохраненных сообщений до 4
+    if len(user_message_history[user_id]) >= 4:
+        user_message_history[user_id].pop(0)  # Удаляем самое старое сообщение
+    user_message_history[user_id].append(message_text)
+
+# Функция для проверки наличия сообщения "Регистрация на обучение" в истории пользователя
+def check_registration_message_in_history(user_id):
+    if user_id in user_message_history:
+        for msg in user_message_history[user_id]:
+            if '💸Регистрация на обучение "Финансовая грамотность"' in msg:
+                return True
+    return False
+
+# Модифицированная функция для обработки верификации
 def verify_code(message, bot):
     user_id = str(message.chat.id)
+
+    # Добавляем сообщение в историю
+    add_message_to_history(user_id, message.text)
 
     # Проверка на наличие таймера в словаре
     if user_id not in verification_timers:
@@ -2049,23 +2107,29 @@ def verify_code(message, bot):
         # Проверка соответствия введенного и сохраненного кода
         if entered_code == saved_code:
             verification_timers.pop(user_id, None)  # Удаляем таймер
-
             # Обновляем статус пользователя в базе данных
             sql_query = "UPDATE users SET is_verified = TRUE WHERE id = %s"
             params = (user_id,)
             db_connect.execute_set_sql_query(sql_query, params)
 
-            bot.send_message(message.chat.id, "Подтверждение успешно завершено!")
+            # Проверяем, есть ли в последних сообщениях "Регистрация на обучение"
+            if check_registration_message_in_history(user_id):
+                # Добавляем запись в таблицу financial_literacy
+                webinar_name = "Финансовая грамотность"
+                sql_query = "INSERT INTO financial_literacy (user_id, webinar_name) VALUES (%s, %s)"
+                params = (user_id, webinar_name)
+                db_connect.execute_set_sql_query(sql_query, params)
+                bot.send_message(message.chat.id, "Вы успешно зарегистрировались на обучение по финансовой грамотности!")
+            else:
+                bot.send_message(message.chat.id, "Подтверждение успешно завершено!")
             menu(bot, message)
         else:
             raise ValueError("Код не совпадает")  # Исключение, если код не совпадает
-
     except ValueError as e:
         # Обработка ошибок при конвертации и несоответствии кода
         bot.send_message(message.chat.id, "Неверный код. Попробуйте снова.")
         msg = bot.send_message(message.chat.id, "Введите код еще раз:")
         bot.register_next_step_handler(msg, verify_code, bot)
-
 
 def is_none(line):
     if line is None:

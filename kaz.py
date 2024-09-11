@@ -63,6 +63,7 @@ adapt_field = ["😊Welcome курс | Бейімделу", "ДТК", "Обща�
                "ДТК Инструкции", "Заявки в ОЦО HR", "Заявки возложение обязанностей", "Заявки на отпуск",
                "Командировки", "Переводы", "Порядок оформления командировки", "Рассторжение ТД"]
 maraphon_field = ["🚀Цифрлық марафон | Тіркеу"]
+fin_gram_field = ['💸"Қаржылық сауаттылық" оқуға тіркелу']
 hse_competition_field = ["👷🏻‍♂️Еңбекті қорғау бойынша конкурстар"]
 hse_com_field = ["Мой безопасный рабочий день/Менің қауіпсіз жұмыс күнім", "Лучший совет по безопасности/Ең жақсы қауіпсіздік кеңесі", "Принять участие в обоих конкурсах/Екі байқауға қатысу"]
 verification_field = ["📄Декларацияны тапсыруды растау"]
@@ -231,6 +232,7 @@ def get_markup(message):
         markup.add(types.KeyboardButton("Админ панель"))
     button1 = types.KeyboardButton(hse_competition_field[0])
     # button2 = types.KeyboardButton("🚀Цифрлық марафон | Тіркеу")
+    button2 = types.KeyboardButton('💸"Қаржылық сауаттылық" оқуға тіркелу')
     button9 = types.KeyboardButton("📄Декларацияны тапсыруды растау")
     button = types.KeyboardButton("😊Welcome курс | Бейімделу")
     button3 = types.KeyboardButton("🗃️Білім базасы")
@@ -239,8 +241,7 @@ def get_markup(message):
     button6 = types.KeyboardButton("🧐Менің профилім")
     button7 = types.KeyboardButton('🖥Портал "Бірлік"')
     button8 = types.KeyboardButton(lte_[0])
-    #markup.add(button1, button9, button2, button)
-    markup.add(button1, button9, button)
+    markup.add(button1, button9, button2, button)
     if get_branch(message.chat.id) == branches[2]:
         markup.add(button8)
     markup.add(button3, button7, button5, button4, button6)
@@ -286,23 +287,74 @@ def check_is_command(bot, message, text_):
         return True
     return False
 
+def fin_gram(bot, message, message_text):
+    if message_text == '💸"Қаржылық сауаттылық" оқуға тіркелу':
+        user_id = message.chat.id
+
+        # Проверяем статус пользователя
+        is_verified = userClass.get_user_verification_status(user_id)
+
+        if not is_verified:
+            # Если пользователь не верифицирован, просим ввести корпоративную почту
+            msg = bot.send_message(user_id, "Тексеру үшін 6 таңбалы код жіберілетін корпоративтік электрондық поштаңызды растау қажет. \nЭлектрондық поштаңызды енгізіңіз. \nMысалы :User.U@telecom.kz")
+            bot.register_next_step_handler(msg, process_email, bot)
+        else:
+            # Создаем клавиатуру с кнопками "Да" и "Нет"
+            markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+            yes_button = types.KeyboardButton('Иә')
+            no_button = types.KeyboardButton('Жоқ')
+            markup.add(yes_button, no_button)
+
+            # Запрашиваем подтверждение участия в обучении
+            msg = bot.send_message(user_id, "Сіз бұл тренингке қатысқыңыз келетінін растайсыз ба?",
+                                   reply_markup=markup)
+            bot.register_next_step_handler(msg, confirm_fin_gram, bot)
+
+def confirm_fin_gram(message, bot):
+    user_id = message.chat.id
+    response = message.text
+
+    if response == 'Иә':
+        # Добавляем запись в таблицу financial_literacy
+        webinar_name = "Финансовая грамотность"
+        sql_query = "INSERT INTO financial_literacy (user_id, webinar_name) VALUES (%s, %s)"
+        params = (user_id, webinar_name)
+        db_connect.execute_set_sql_query(sql_query, params)
+
+        # Отправляем сообщение о успешной регистрации
+        bot.send_message(user_id, "Сіз қаржылық сауаттылық бойынша оқуға сәтті тіркелдіңіз!")
+        menu(bot, message)
+
+    elif response == 'Жоқ':
+        # Отправляем сообщение об отмене регистрации и возвращаем в главное меню
+        bot.send_message(user_id, "Тіркеу тоқтатылды.")
+        menu(bot, message)
+    else:
+        # Обработка неверного ввода, если вдруг пришел текст не "Да" и не "Нет"
+        msg = bot.send_message(user_id, '"Иә" немесе " Жоқ " таңдаңыз.')
+        bot.register_next_step_handler(msg, confirm_fin_gram, bot)
+
 def verification(bot, message, message_text):
     if message_text == "📄Декларацияны тапсыруды растау":
         msg = bot.send_message(message.chat.id, "Корпоративтік поштаңызды енгізіңіз:")
         bot.register_next_step_handler(msg, process_email, bot)
 
-
-def process_email(message, bot, id_i_s):
+def process_email(message, bot):
     user_id = str(message.chat.id)
     regex = r'\b[A-Za-z0-9._%+-]+@telecom.kz\b'
     # Получаем email пользователя из сообщения
     email = message.text
     set_email(message, email)
 
-    if redirect(bot, message, id_i_s):
-        return
+    if email.startswith('/'):
+        # Удаляем таймер, если он есть
+        verification_timers.pop(user_id, None)
+        # Переход в меню, если команда "/menu"
+        if email == '/menu':
+            menu(bot, message)
+            return True
 
-    if email:
+    elif email:
         # Проверка на корпоративный email
         if re.fullmatch(regex, email):
             # Отправляем код подтверждения на email пользователя, передаем bot и chat_id
@@ -1876,8 +1928,32 @@ def send_verification_code(user_id, bot, message):
     start_verification_timer(user_id, bot, message)
 
 
+# Словарь для хранения последних сообщений пользователей
+user_message_history = {}
+
+# Функция для добавления сообщения в историю пользователя
+def add_message_to_history(user_id, message_text):
+    if user_id not in user_message_history:
+        user_message_history[user_id] = []
+    # Ограничиваем количество сохраненных сообщений до 4
+    if len(user_message_history[user_id]) >= 4:
+        user_message_history[user_id].pop(0)  # Удаляем самое старое сообщение
+    user_message_history[user_id].append(message_text)
+
+# Функция для проверки наличия сообщения "Регистрация на обучение" в истории пользователя
+def check_registration_message_in_history(user_id):
+    if user_id in user_message_history:
+        for msg in user_message_history[user_id]:
+            if '💸"Қаржылық сауаттылық" оқуға тіркелу' in msg:
+                return True
+    return False
+
+# Модифицированная функция для обработки верификации
 def verify_code(message, bot):
     user_id = str(message.chat.id)
+
+    # Добавляем сообщение в историю
+    add_message_to_history(user_id, message.text)
 
     # Проверка на наличие таймера в словаре
     if user_id not in verification_timers:
@@ -1906,19 +1982,27 @@ def verify_code(message, bot):
         # Проверка соответствия введенного и сохраненного кода
         if entered_code == saved_code:
             verification_timers.pop(user_id, None)  # Удаляем таймер
-
             # Обновляем статус пользователя в базе данных
             sql_query = "UPDATE users SET is_verified = TRUE WHERE id = %s"
             params = (user_id,)
             db_connect.execute_set_sql_query(sql_query, params)
-            bot.send_message(message.chat.id, "Растау сәтті аяқталды!")
+
+            # Проверяем, есть ли в последних сообщениях "Регистрация на обучение"
+            if check_registration_message_in_history(user_id):
+                # Добавляем запись в таблицу financial_literacy
+                webinar_name = "Финансовая грамотность"
+                sql_query = "INSERT INTO financial_literacy (user_id, webinar_name) VALUES (%s, %s)"
+                params = (user_id, webinar_name)
+                db_connect.execute_set_sql_query(sql_query, params)
+                bot.send_message(message.chat.id, "Сіз қаржылық сауаттылық бойынша оқуға сәтті тіркелдіңіз!")
+            else:
+                bot.send_message(message.chat.id, "Растау сәтті аяқталды!")
             menu(bot, message)
         else:
-            raise ValueError("Код сәйкес келмейді")
-
+            raise ValueError("Код сәйкес келмейді")  # Исключение, если код не совпадает
     except ValueError as e:
         # Обработка ошибок при конвертации и несоответствии кода
-        bot.send_message(message.chat.id, "Қате код. Қайтадан енгізіп көріңіз.")
+        bot.send_message(message.chat.id, "Қате код. Қайталап көріңіз.")
         msg = bot.send_message(message.chat.id, "Кодты қайтадан енгізіңіз:")
         bot.register_next_step_handler(msg, verify_code, bot)
 
