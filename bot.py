@@ -63,12 +63,10 @@ def delete_users_info(message):
     userClass.delete_users_info()
     bot.send_message(message.chat.id, "Изменения сохранены")
 
-
 @bot.message_handler(commands=['alter_users'])
 def alter_user(message):
     userClass.alter_users()
     bot.send_message(message.chat.id, "Изменения сохранены")
-
 
 @bot.message_handler(commands=['delete_me'])
 def delete_me(message):
@@ -148,6 +146,18 @@ def change_performer_status_by_appeal_id1(message):
     appeal_id, status = message.text.split(',')
     rus.set_status(appeal_id, status)
     bot.send_message(message.chat.id, "Изменения сохранены")
+
+# Команда для показа истории сообщений
+@bot.message_handler(commands=['show_history'])
+def show_history(message):
+    user_id = message.chat.id
+    # Проверяем, есть ли история сообщений для пользователя
+    if user_id in rus.user_message_history and rus.user_message_history[user_id]:
+        history = "\n".join(rus.user_message_history[user_id])  # Соединяем сообщения через перенос строки
+        bot.send_message(user_id, f"История ваших сообщений:\n{history}")
+    else:
+        bot.send_message(user_id, "История сообщений пуста.")
+
 
 def change_(message):
     sql_query = "SELECT * FROM appeals order by id"
@@ -627,7 +637,6 @@ def get_help_message(message):
         bot.send_message(message.chat.id, "Сіздің хабарламаңыз сәтті сақталды")
     bot.send_message('6682886650', help_message)
 
-
 @bot.callback_query_handler(func=lambda call: True)
 def callback_handler(call):
     commands_historyClass.cm_sv_db(call.message, str(call.data))
@@ -704,7 +713,7 @@ def get_excel(message):
 @bot.message_handler(commands=['get_participants'])
 def get_excel(message):
     sql_query = """
-                SELECT u.firstname, u.lastname, u. table_number, u.phone_number, u.branch, \
+                SELECT fl.user_id, u.firstname, u.lastname, u. table_number, u.phone_number, u.branch, \
                 fl.webinar_name \
                 FROM financial_literacy fl \
                 INNER JOIN users u ON u.id = fl.user_id

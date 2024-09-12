@@ -52,6 +52,30 @@ def get_user_verification_status(user_id):
     else:
         return False
 
+def check_if_registered(user_id):
+   # SQL-запрос для проверки наличия записи в таблице financial_literacy по user_id
+   sql_query = "SELECT EXISTS(SELECT 1 FROM financial_literacy WHERE user_id = %s)"
+   params = (str(user_id),)
+
+   # Выполнение запроса
+   result = execute_get_sql_query(sql_query, params)
+
+   # Возвращаем True, если пользователь зарегистрирован, иначе False
+   if result and result[0][0]:
+       return True
+   return False
+
+# def check_if_registered(user_id):
+#     sql_query = "SELECT COUNT(*) FROM financial_literacy WHERE user_id = %s"
+#     params = (user_id,)
+#     result = execute_get_sql_query(sql_query, params)
+#
+#     # Проверяем, что результат не пустой и содержит данные
+#     if result and result[0][0] > 0:
+#         return True
+#     else:
+#         return False
+
 def get_users_id():
     sql_query = 'SELECT id FROM users'
     users = execute_get_sql_query(sql_query)
@@ -127,7 +151,6 @@ def set_phone_number(message, phone_number):
     params = (phone_number, str(message.chat.id),)
     execute_set_sql_query(sql_query, params)
 
-
 def set_email(message, email):
     sql_query = 'UPDATE users SET email=%s WHERE id=%s'
     params = (email, str(message.chat.id),)
@@ -155,7 +178,6 @@ def delete_user(message):
     cur.close()
     conn.close()
 
-
 def delete_users_info():
     conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
     cur = conn.cursor()
@@ -172,9 +194,7 @@ def alter_users():
     cur.close()
     conn.close()
 
-
 def get_user(user_id):
     sql_query = "SELECT * FROM users where id = %s"
     params = (str(user_id),)
     return execute_get_sql_query(sql_query, params)[0]
-
