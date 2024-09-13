@@ -30,6 +30,28 @@ def get_saved_verification_code(user_id):
     code = execute_get_sql_query(sql_query, params)[0][0]
     return code
 
+def check_registration_message_in_history(user_id):
+    """
+    Проверяет, вводил ли пользователь когда-либо текст '💸Регистрация на обучение "Финансовая грамотность"'
+    в таблице commands_history.
+
+    :param user_id: ID пользователя.
+    :return: True, если текст найден в любом из сообщений пользователя, иначе False.
+    """
+    sql_query = """
+    SELECT EXISTS(
+    SELECT 1 
+    FROM commands_history 
+    WHERE user_id = %s 
+    AND message_text LIKE '💸Регистрация на обучение "Финансовая грамотность"');
+    """
+    params = (str(user_id),)
+    result = execute_get_sql_query(sql_query, params)
+
+    # Проверяем, найден ли хотя бы один результат
+    if result is not None and result[0][0]:
+        return True
+    return True
 
 verification_timers = {}
 
@@ -53,17 +75,17 @@ def get_user_verification_status(user_id):
         return False
 
 def check_if_registered(user_id):
-   # SQL-запрос для проверки наличия записи в таблице financial_literacy по user_id
-   sql_query = "SELECT EXISTS(SELECT 1 FROM financial_literacy WHERE user_id = %s)"
-   params = (str(user_id),)
+    # SQL-запрос для проверки наличия записи в таблице financial_literacy по user_id
+    sql_query = "SELECT EXISTS(SELECT 1 FROM financial_literacy WHERE user_id = %s)"
+    params = (str(user_id),)
 
-   # Выполнение запроса
-   result = execute_get_sql_query(sql_query, params)
+    # Выполнение запроса
+    result = execute_get_sql_query(sql_query, params)
 
-   # Возвращаем True, если пользователь зарегистрирован, иначе False
-   if result and result[0][0]:
-       return True
-   return False
+    # Возвращаем True, если пользователь зарегистрирован, иначе False
+    if result is not None and result[0][0]:
+        return True
+    return False
 
 # def check_if_registered(user_id):
 #     sql_query = "SELECT COUNT(*) FROM financial_literacy WHERE user_id = %s"
@@ -171,12 +193,52 @@ def set_branch(user_id, branch):
 
 
 def delete_user(message):
+    user_id = str(message.chat.id)
+
+    # Подключение к базе данных
     conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
     cur = conn.cursor()
-    cur.execute("DELETE FROM users WHERE id='%s'" % (str(message.chat.id)))
-    conn.commit()
-    cur.close()
-    conn.close()
+
+    try:
+        # Удаление пользователя из таблицы users
+        cur.execute("DELETE FROM users WHERE id = %s", (user_id,))
+
+        # Подтверждение транзакции
+        conn.commit()
+
+    except Exception as e:
+        # Откат транзакции в случае ошибки
+        conn.rollback()
+        print(f"Ошибка при удалении пользователя: {e}")
+
+    finally:
+        # Закрытие курсора и соединения
+        cur.close()
+        conn.close()
+
+def delete_participation(message):
+    user_id = str(message.chat.id)
+
+    # Подключение к базе данных
+    conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
+    cur = conn.cursor()
+
+    try:
+        # Удаление пользователя из таблицы financial_literacy
+        cur.execute("DELETE FROM financial_literacy WHERE user_id = %s", (user_id,))
+
+        # Подтверждение транзакции
+        conn.commit()
+
+    except Exception as e:
+        # Откат транзакции в случае ошибки
+        conn.rollback()
+        print(f"Ошибка при удалении пользователя: {e}")
+
+    finally:
+        # Закрытие курсора и соединения
+        cur.close()
+        conn.close()
 
 def delete_users_info():
     conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")

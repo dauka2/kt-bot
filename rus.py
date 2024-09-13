@@ -26,7 +26,7 @@ from performerClass import get_performer_by_category, get_regions, list_categori
     get_performer_by_category_and_subcategory, get_performer_by_subsubcategory, get_performers_
 from userClass import get_branch, get_firstname, get_user, generate_and_save_code, get_email, \
     set_email, verification_timers, get_saved_verification_code, get_lastname, get_phone_number, \
-    get_user_verification_status, check_if_registered
+    get_user_verification_status, check_if_registered, delete_participation, check_registration_message_in_history
 from user_infoClass import set_appeal_field, get_category_users_info, set_category, get_appeal_field, clear_appeals, \
     set_bool, set_subsubcategory_users_info, get_subsubcategory_users_info
 import hse_competition
@@ -294,11 +294,11 @@ def check_is_command(bot, message, text_):
 
 def fin_gram(bot, message, message_text):
     user_id = message.chat.id
-    add_message_to_history(user_id, message_text)
     if message_text == '💸Регистрация на обучение "Финансовая грамотность"':
         # Проверяем статус пользователя
         is_verified = get_user_verification_status(user_id)
         # bot.send_message(user_id, str(check_if_registered(user_id)))
+        add_message_to_history(user_id, message_text)
 
         if not is_verified:
             # Если пользователь не верифицирован, просим ввести корпоративную почту
@@ -331,10 +331,7 @@ def delete_fin_gram(message, bot):
     response = message.text.strip().lower()
 
     if response == 'да':
-        # Удаляем запись
-        sql_query = "DELETE FROM financial_literacy WHERE id = %s"
-        params = (user_id,)
-        db_connect.execute_set_sql_query(sql_query, params)
+        delete_participation(message)
         clear_message_history(user_id)
 
         # Отправляем сообщение о успешном удалении
@@ -2091,29 +2088,23 @@ def send_verification_code(user_id, bot, message):
 # Словарь для хранения последних сообщений пользователей
 user_message_history = {}
 
+
 # Функция для добавления сообщения в историю пользователя
 def add_message_to_history(user_id, message_text):
-    if user_id not in user_message_history:
-        user_message_history[user_id] = []
+    # Получаем историю пользователя или создаем новую, если ее нет
+    user_message_history[user_id] = user_message_history.get(user_id, [])
+
     # Ограничиваем количество сохраненных сообщений до 4
     if len(user_message_history[user_id]) >= 4:
         user_message_history[user_id].pop(0)  # Удаляем самое старое сообщение
+
+    # Добавляем новое сообщение
     user_message_history[user_id].append(message_text)
+
 
 def clear_message_history(user_id):
     if user_id in user_message_history:
         del user_message_history[user_id]
-
-# Функция для проверки наличия сообщения "Регистрация на обучение" в истории пользователя
-def check_registration_message_in_history(user_id):
-    if user_id in user_message_history:
-        for msg in user_message_history[user_id]:
-            if '💸Регистрация на обучение "Финансовая грамотность"' in msg:
-                return True
-            else:
-                return True
-    else:
-        return False
 
 # Модифицированная функция для обработки верификации
 def verify_code(message, bot):
@@ -2150,7 +2141,7 @@ def verify_code(message, bot):
             sql_query = "UPDATE users SET is_verified = TRUE WHERE id = %s"
             params = (user_id,)
             db_connect.execute_set_sql_query(sql_query, params)
-
+            #bot.send_message(user_id, str(check_registration_message_in_history(user_id)))
             # Проверяем, есть ли в последних сообщениях "Регистрация на обучение"
             if check_registration_message_in_history(user_id):
                 # Добавляем запись в таблицу financial_literacy

@@ -232,7 +232,7 @@ def get_markup(message):
         markup.add(types.KeyboardButton("Админ панель"))
     button1 = types.KeyboardButton(hse_competition_field[0])
     # button2 = types.KeyboardButton("🚀Цифрлық марафон | Тіркеу")
-    button2 = types.KeyboardButton('💸"Қаржылық сауаттылық" оқуға тіркелу')
+    # button2 = types.KeyboardButton('💸"Қаржылық сауаттылық" оқуға тіркелу')
     button9 = types.KeyboardButton("📄Декларацияны тапсыруды растау")
     button = types.KeyboardButton("😊Welcome курс | Бейімделу")
     button3 = types.KeyboardButton("🗃️Білім базасы")
@@ -241,7 +241,8 @@ def get_markup(message):
     button6 = types.KeyboardButton("🧐Менің профилім")
     button7 = types.KeyboardButton('🖥Портал "Бірлік"')
     button8 = types.KeyboardButton(lte_[0])
-    markup.add(button1, button9, button2, button)
+    markup.add(button1, button9, button)
+    #markup.add(button1, button9, button2, button)
     if get_branch(message.chat.id) == branches[2]:
         markup.add(button8)
     markup.add(button3, button7, button5, button4, button6)
