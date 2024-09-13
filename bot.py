@@ -978,6 +978,22 @@ def info_broadcast(message):
     msg = bot.reply_to(message, 'Введите текст')
     bot.register_next_step_handler(msg, text_check)
 
+@bot.message_handler(commands=['broadcast_fin_gram'])
+def info_broadcast(message):
+    new_admin_ids = admin_id[:]
+    new_admin_ids.append("388952664")
+    if str(message.chat.id) not in admin_id:
+        return
+    msg = bot.reply_to(message, 'Введите текст')
+    bot.register_next_step_handler(msg, text_check_fin_gram)
+
+def text_check_fin_gram(message):
+    markup_text_check = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+    button_yes = types.KeyboardButton("Да")
+    button_no = types.KeyboardButton("Нет")
+    markup_text_check.add(button_yes, button_no)
+    msg = bot.reply_to(message, "Вы уверены что хотите отправить это сообщение?", reply_markup=markup_text_check)
+    bot.register_next_step_handler(msg, message_sender_fin_gram, message)
 
 def text_check(message):
     markup_text_check = types.ReplyKeyboardMarkup(one_time_keyboard=True)
@@ -987,6 +1003,38 @@ def text_check(message):
     msg = bot.reply_to(message, "Вы уверены что хотите отправить это сообщение?", reply_markup=markup_text_check)
     bot.register_next_step_handler(msg, message_sender, message)
 
+def message_sender_fin_gram(message, broadcast_message):
+    global broadcast_count
+    if message.text.upper() == "ДА":
+        conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
+        cur = conn.cursor()
+        cur.execute('SELECT user_id FROM financial_literacy')
+        users_id = cur.fetchall()
+        cur.close()
+        conn.close()
+        for user_id in users_id:
+            try:
+                if broadcast_message.photo:
+                    photo_id = broadcast_message.photo[-1].file_id
+                    bot.send_photo(user_id[0], photo_id, broadcast_message.caption)
+                if broadcast_message.audio:
+                    audio_id = broadcast_message.audio.file_id
+                    bot.send_video(user_id[0], audio_id, broadcast_message.caption)
+                if broadcast_message.video:
+                    video_id = broadcast_message.video.file_id
+                    bot.send_video(user_id[0], video_id, broadcast_message.caption)
+                if broadcast_message.voice:
+                    voice_id = broadcast_message.voice.file_id
+                    bot.send_voice(user_id[0], voice_id, broadcast_message.caption)
+                if broadcast_message.text:
+                    bot.send_message(user_id[0], broadcast_message.text)
+            except:
+                continue
+        bot.send_message(message.chat.id, "Рассылка отправлена")
+    elif message.text.upper() == "НЕТ":
+        bot.send_message(message.chat.id, "Вызовите функцию /broadcast чтобы вызвать комманду рассылки еще раз")
+    else:
+        rus.send_error(bot, message)
 
 def message_sender(message, broadcast_message):
     global broadcast_count
