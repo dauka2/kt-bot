@@ -362,7 +362,7 @@ def confirm_fin_gram(message, bot):
         bot.send_message(user_id, "Вы успешно зарегистрировались на обучение по финансовой грамотности!")
         bot.send_message(user_id, "Тема: Финансовая Грамотность для КазахТелеком\nВремя: 11 сент. 2024 10:00  Алматы \nВойти "
                                   "Zoom Конференция \nhttps://us02web.zoom.us/j/86135903733?pwd=sfojQ6brAP9cb0U6NIOpK2YKW6DNne.1 \n\nИдентификатор конференции: "
-                                  "861 3590 3733 \nКод доступа: 7")
+                                  "861 3590 3733 \nКод доступа: 7", protect_content=True)
         menu(bot, message)
 
     elif response == 'нет':

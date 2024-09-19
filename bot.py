@@ -713,18 +713,26 @@ def get_excel(message):
 @bot.message_handler(commands=['get_participants'])
 def get_excel(message):
     sql_query = """
-                SELECT fl.user_id, u.firstname, u.lastname, u. table_number, u.phone_number, u.branch, \
-                fl.webinar_name \
-                FROM financial_literacy fl \
+                SELECT fl.user_id, u.firstname, u.lastname, u.table_number, u.phone_number, u.branch, u.is_verified, 
+                fl.webinar_name, ch.date  -- добавляем колонку с датой/временем из таблицы commands_history
+                FROM financial_literacy fl
                 INNER JOIN users u ON u.id = fl.user_id
-                WHERE fl.id IN (
-            SELECT MAX(id)
-            FROM financial_literacy
-            GROUP BY user_id
-        )
+                LEFT JOIN commands_history ch ON ch.id = fl.user_id
+                WHERE ch.date = (
+                    SELECT MAX(ch2.date) 
+                    FROM commands_history ch2
+                    WHERE ch2.id = fl.user_id
+                )
+                AND fl.id IN (
+                    SELECT MAX(id)
+                    FROM financial_literacy
+                    GROUP BY user_id
+                )
                 ORDER BY u.id ASC
                 """
     common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
+
+
 
 @bot.message_handler(commands=['get_unique_users'])
 def get_excel(message):
@@ -1027,7 +1035,7 @@ def message_sender_fin_gram(message, broadcast_message):
                     voice_id = broadcast_message.voice.file_id
                     bot.send_voice(user_id[0], voice_id, broadcast_message.caption)
                 if broadcast_message.text:
-                    bot.send_message(user_id[0], broadcast_message.text)
+                    bot.send_message(user_id[0], broadcast_message.text, protect_content=True)
             except:
                 continue
         bot.send_message(message.chat.id, "Рассылка отправлена")
