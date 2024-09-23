@@ -43,7 +43,30 @@ def check_registration_message_in_history(user_id):
     SELECT 1 
     FROM commands_history 
     WHERE user_id = %s 
-    AND message_text LIKE '💸Регистрация на обучение "Финансовая грамотность"');
+    AND message_text LIKE '💸Регистрация на обучение "Финансовая грамотность"')
+    """
+    params = (str(user_id),)
+    result = execute_get_sql_query(sql_query, params)
+
+    # Проверяем, найден ли хотя бы один результат
+    if result is not None and result[0][0]:
+        return True
+    return True
+
+def check_registration_message_in_history_decl(user_id):
+    """
+    Проверяет, вводил ли пользователь когда-либо текст '💸Регистрация на обучение "Финансовая грамотность"'
+    в таблице commands_history.
+
+    :param user_id: ID пользователя.
+    :return: True, если текст найден в любом из сообщений пользователя, иначе False.
+    """
+    sql_query = """
+    SELECT EXISTS(
+    SELECT 1 
+    FROM commands_history 
+    WHERE user_id = %s 
+    AND message_text LIKE '📄Подтверждение сдачи декларации');
     """
     params = (str(user_id),)
     result = execute_get_sql_query(sql_query, params)

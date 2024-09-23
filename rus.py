@@ -26,7 +26,7 @@ from performerClass import get_performer_by_category, get_regions, list_categori
     get_performer_by_category_and_subcategory, get_performer_by_subsubcategory, get_performers_
 from userClass import get_branch, get_firstname, get_user, generate_and_save_code, get_email, \
     set_email, verification_timers, get_saved_verification_code, get_lastname, get_phone_number, \
-    get_user_verification_status, check_if_registered, delete_participation, check_registration_message_in_history
+    get_user_verification_status, check_if_registered, delete_participation, check_registration_message_in_history #check_registration_message_in_history_decl
 from user_infoClass import set_appeal_field, get_category_users_info, set_category, get_appeal_field, clear_appeals, \
     set_bool, set_subsubcategory_users_info, get_subsubcategory_users_info
 import hse_competition
@@ -375,12 +375,19 @@ def confirm_fin_gram(message, bot):
         bot.register_next_step_handler(msg, confirm_fin_gram, bot)
 
 def verification(bot, message, message_text):
+    user_id = message.chat.id
     if message_text == "📄Подтверждение сдачи декларации":
+        add_message_to_history(user_id, message_text)
         bot.send_message(message.chat.id, "Нажимая на эту кнопку, подтверждаете, что вами, декларация по форме "
                                           "налоговой отчетности 270.00, была сдана")
-        msg = bot.send_message(message.chat.id, "Введите вашу корпоративную почту:")
-        bot.register_next_step_handler(msg, process_email, bot)
-
+        is_verified = get_user_verification_status(user_id)
+        if not is_verified:
+            # Если пользователь не верифицирован, просим ввести корпоративную почту
+            msg = bot.send_message(user_id, "Необходимо подтвердить вашу корпоративную электронную почту, на которую будет отправлен 4-значный код для верификации. \nВведите вашу электронную почту. \nПример: User.U@telecom.kz" )
+            bot.register_next_step_handler(msg, process_email, bot)
+        else:
+            bot.send_message(user_id, "Вы уже верифицировали свою почту")
+            menu(bot, message)
 
 def process_email(message, bot, id_i_s = None):
     user_id = str(message.chat.id)
@@ -2165,6 +2172,12 @@ def verify_code(message, bot):
             params = (user_id,)
             db_connect.execute_set_sql_query(sql_query, params)
             #bot.send_message(user_id, str(check_registration_message_in_history(user_id)))
+            # if check_registration_message_in_history_decl(user_id):
+            #     sql_query = "UPDATE users SET verif_decl = TRUE WHERE id = %s"
+            #     params = (user_id,)
+            #     db_connect.execute_set_sql_query(sql_query, params)
+            #     bot.send_message(message.chat.id, "Подтверждение успешно завершено!")
+            #     menu(bot, message)
             # Проверяем, есть ли в последних сообщениях "Регистрация на обучение"
             if check_registration_message_in_history(user_id):
                 # Добавляем запись в таблицу financial_literacy
