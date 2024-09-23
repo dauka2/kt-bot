@@ -469,6 +469,11 @@ def hse_get_city(message, bot, id_i_s=None):
         user_id = message.chat.id
         # Обновляем город пользователя
         hse_competition.set_city(user_id, message.text)
+
+        # Сохраняем текущее время
+        current_time = datetime.now()  # Получаем текущее время
+        hse_competition.set_time(user_id, current_time)  # Записываем время в базу
+
         bot.send_message(user_id,
                          "Поздравляю! Вы завершили регистрацию! \nВ ближайшее время с вами свяжутся наши организаторы")
         menu(bot, message)

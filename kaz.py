@@ -428,7 +428,13 @@ def hse_get_city_kaz(message, bot, id_i_s = None):
     if redirect(bot, message, id_i_s):
         return
     else:
-        hse_competition.set_city(message.chat.id, message.text)
+        user_id = message.chat.id
+        # Обновляем город пользователя
+        hse_competition.set_city(user_id, message.text)
+
+        # Сохраняем текущее время
+        current_time = datetime.now()  # Получаем текущее время
+        hse_competition.set_time(user_id, current_time)  # Записываем время в базу
         bot.send_message(message.chat.id, "Сіз тіркеуді аяқтадыңыз ")
         menu(bot, message)
 

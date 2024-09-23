@@ -56,7 +56,7 @@ def create_db():
 
     cur.execute(
         'CREATE TABLE IF NOT EXISTS hse_competitions(id serial primary key, user_id varchar(50), '
-        'competition_name varchar(200), position varchar(100), city varchar(50))')
+        'competition_name varchar(200), position varchar(100), city varchar(50), reg_time timestamp)')
     cur.execute(
         'CREATE TABLE IF NOT EXISTS financial_literacy(id serial primary key, user_id varchar(50), webinar_name varchar(200))')
     cur.execute(

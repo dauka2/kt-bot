@@ -756,13 +756,19 @@ def get_excel(message):
 
 @bot.message_handler(commands=['get_hse_competitions'])
 def get_excel(message):
-    # SQL-запрос для получения последней записи каждого пользователя
+    # SQL-запрос для получения последней записи каждого пользователя с датой
     sql_query = """
-        SELECT u.firstname, u.lastname, u. table_number, u.phone_number, u.branch,
-               hc.competition_name, hc.position, hc.city
+        SELECT u.firstname, u.lastname, u.table_number, u.phone_number, u.branch,
+               hc.competition_name, hc.position, hc.city, ch.date  -- добавляем колонку с датой/временем
         FROM hse_competitions hc
         INNER JOIN users u ON u.id = hc.user_id
-        WHERE hc.id IN (
+        LEFT JOIN commands_history ch ON ch.id = hc.user_id
+        WHERE ch.date = (
+            SELECT MAX(ch2.date)
+            FROM commands_history ch2
+            WHERE ch2.id = hc.user_id
+        )
+        AND hc.id IN (
             SELECT MAX(id)
             FROM hse_competitions
             GROUP BY user_id
@@ -772,6 +778,7 @@ def get_excel(message):
 
     # Выполнение запроса и сохранение в Excel-файл
     common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
+
 
 
 @bot.message_handler(commands=['get_users_info'])
