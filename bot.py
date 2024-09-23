@@ -637,6 +637,20 @@ def get_help_message(message):
         bot.send_message(message.chat.id, "Сіздің хабарламаңыз сәтті сақталды")
     bot.send_message('6682886650', help_message)
 
+@bot.callback_query_handler(func=lambda call: call.data.startswith('doc'))
+def callback_documents(call):
+    if call.data == "doc1":
+        bot.send_document(call.message.chat.id, open("files/Регламент взаимодействия.doc", 'rb'))
+    elif call.data == "doc2":
+        bot.send_document(call.message.chat.id, open("files/Порядок осуществления закупок.docx", "rb"))
+    elif call.data == "doc3":
+        bot.send_document(call.message.chat.id, open("files/Политика УР от 21.04.2023.docx", 'rb'))
+    elif call.data == "doc4":
+        bot.send_document(call.message.chat.id, open("files/Политика АО Казахтелеком в области энергоменеджмента.doc", 'rb'))
+    elif call.data == "doc5":
+        bot.send_document(call.message.chat.id, open("files/Политика в области обеспечения БиОТ.pdf", 'rb'))
+
+
 @bot.callback_query_handler(func=lambda call: True)
 def callback_handler(call):
     commands_historyClass.cm_sv_db(call.message, str(call.data))

@@ -1529,11 +1529,24 @@ def kb(bot, message):
         markup = useful_links()
         bot.send_message(message.chat.id, "Полезные ссылки", reply_markup=markup)
     elif message.text == "Регламентирующие документы":
-        bot.send_document(message.chat.id, open("files/Регламент взаимодействия.doc", 'rb'))
-        bot.send_document(message.chat.id, open("files/Порядок осуществления закупок.docx", "rb"))
-        bot.send_document(message.chat.id, open("files/Политика УР от 21.04.2023.docx", 'rb'))
-        bot.send_document(message.chat.id, open("files/Политика АО Казахтелеком в области энергоменеджмента.doc", "rb"))
-        bot.send_document(message.chat.id, open("files/Политика в области обеспечения БиОТ.pdf", "rb"))
+        markup = types.InlineKeyboardMarkup()
+
+        # Добавляем кнопки для документов, каждая на отдельной строке
+        button1 = types.InlineKeyboardButton("Регламент взаимодействия", callback_data="doc1")
+        button2 = types.InlineKeyboardButton("Порядок осуществления закупок", callback_data="doc2")
+        button3 = types.InlineKeyboardButton("Политика УР от 21.04.2023", callback_data="doc3")
+        button4 = types.InlineKeyboardButton("Политика в области энергоменеджмента", callback_data="doc4")
+        button5 = types.InlineKeyboardButton("Политика в области обеспечения БиОТ", callback_data="doc5")
+
+        # Размещаем каждую кнопку в отдельную строку
+        markup.row(button1)
+        markup.row(button2)
+        markup.row(button3)
+        markup.row(button4)
+        markup.row(button5)
+
+        # Отправляем сообщение с инлайн-кнопками
+        bot.send_message(message.chat.id, "Выберите регламентирующий документ:", reply_markup=markup)
 
 
 # def kb_service(bot, message):
@@ -1661,7 +1674,6 @@ def kb(bot, message):
 #         bot.send_document(message.chat.id, document=open("files/Как посмотреть мои подключенные услуги.pdf", 'rb'))
 #     elif message.text == "Раздел 'Мои Услуги'":
 #         bot.send_document(message.chat.id, document=open("files/РАЗДЕЛ «МОИ УСЛУГИ» (1).pdf", 'rb'))
-
 
 def glossary(bot, message):
     text1 = f"По Вашему запросу нaйдeнo следующие значение:"
