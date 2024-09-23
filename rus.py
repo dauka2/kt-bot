@@ -1531,6 +1531,9 @@ def kb(bot, message):
     elif message.text == "Регламентирующие документы":
         bot.send_document(message.chat.id, open("files/Регламент взаимодействия.doc", 'rb'))
         bot.send_document(message.chat.id, open("files/Порядок осуществления закупок.docx", "rb"))
+        bot.send_document(message.chat.id, open("files/Политика УР от 21.04.2023.docx", 'rb'))
+        bot.send_document(message.chat.id, open("files/Политика АО Казахтелеком в области энергоменеджмента.doc", "rb"))
+        bot.send_document(message.chat.id, open("files/Политика в области обеспечения БиОТ.pdf", "rb"))
 
 
 # def kb_service(bot, message):
