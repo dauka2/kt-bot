@@ -28,7 +28,8 @@ from userClass import get_branch, get_firstname, get_user, generate_and_save_cod
     set_email, verification_timers, get_saved_verification_code, get_lastname, get_phone_number, \
     get_user_verification_status, check_if_registered, delete_participation, check_registration_message_in_history, \
     check_registration_message_in_history_decl, \
-    get_user_verification_status_reg  # check_registration_message_in_history_decl
+    get_user_verification_status_reg, \
+    delete_registration_message_in_history  # check_registration_message_in_history_decl
 from user_infoClass import set_appeal_field, get_category_users_info, set_category, get_appeal_field, clear_appeals, \
     set_bool, set_subsubcategory_users_info, get_subsubcategory_users_info
 import hse_competition
@@ -299,8 +300,8 @@ def fin_gram(bot, message, message_text):
     if message_text == '💸Регистрация на обучение "Финансовая грамотность"':
         # Проверяем статус пользователя
         is_verified = get_user_verification_status_reg(user_id)
-        bot.send_message(user_id, str(check_if_registered(user_id)))
-        bot.send_message(user_id, str(check_registration_message_in_history(user_id)))
+        #bot.send_message(user_id, str(check_if_registered(user_id)))
+        #bot.send_message(user_id, str(check_registration_message_in_history(user_id)))
         add_message_to_history(user_id, message_text)
 
         if not is_verified:
@@ -335,6 +336,7 @@ def delete_fin_gram(message, bot):
 
     if response == 'да':
         delete_participation(message)
+        delete_registration_message_in_history(user_id)
         clear_message_history(user_id)
 
         # Отправляем сообщение о успешном удалении
@@ -393,8 +395,8 @@ def verification(bot, message, message_text):
         # Проверяем статус верификации
         is_verified = get_user_verification_status_reg(user_id)
         is_verified_decl = get_user_verification_status(user_id)
-        bot.send_message(message.chat.id, str(is_verified))
-        bot.send_message(message.chat.id, str(is_verified_decl))
+        # bot.send_message(message.chat.id, str(is_verified))
+        # bot.send_message(message.chat.id, str(is_verified_decl))
 
         # В зависимости от статуса отправляем подтверждение или запрос на почту
         if not is_verified:
@@ -2248,7 +2250,6 @@ def verify_code(message, bot):
                 db_connect.execute_set_sql_query(sql_query, params)
                 bot.send_message(message.chat.id, "Подтверждение успешно завершено!")
                 menu(bot, message)
-
             else:
                 bot.send_message(message.chat.id, "Регистрация успешно завершена!")
                 bot.send_message(message.chat.id, "Если вы хотите изменить информацию то перейдите во вкладку Мой профиль")

@@ -59,7 +59,7 @@ def delete_registration_message_in_history(user_id):
     AND commands_name LIKE '💸Регистрация на обучение "Финансовая грамотность"'
     """
     params = (str(user_id),)
-    result = execute_get_sql_query(sql_query, params)
+    result = execute_set_sql_query(sql_query, params)
 
     # Проверяем, найден ли хотя бы один результат
     return result is not None and result[0][0]

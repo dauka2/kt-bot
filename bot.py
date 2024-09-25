@@ -92,10 +92,24 @@ def insert_into_performers(message):
     db_connect.insert_into_performers_right()
     bot.send_message(message.chat.id, "Изменения сохранены")
 
-
 @bot.message_handler(commands=['delete_performers'])
 def delete_performers(message):
     db_connect.delete_performers()
+    bot.send_message(message.chat.id, "Изменения сохранены")
+
+@bot.message_handler(commands=['delete_commands_history_user'])
+def delete_commands_history_user(message):
+    db_connect.delete_commands_history_user()
+    bot.send_message(message.chat.id, "Изменения сохранены")
+
+@bot.message_handler(commands=['delete_commands_history'])
+def delete_commands_history(message):
+    db_connect.delete_commands_history()
+    bot.send_message(message.chat.id, "Изменения сохранены")
+
+@bot.message_handler(commands=['delete_users'])
+def delete_performers(message):
+    db_connect.delete_users()
     bot.send_message(message.chat.id, "Изменения сохранены")
 
 
@@ -424,8 +438,9 @@ def change_phone_num(message, func):
         if check_register(message, func) != 0:
             return
         msg = bot.send_message(message.chat.id, arr[1])
-        if language == kaz:
-            bot.register_next_step_handler(msg, kaz.process_email, bot)
+        # bot.send_message(message.chat.id, str(language))
+        if language == "kaz":
+            bot.register_next_step_handler(msg, kaz.process_email_kaz, bot)
         else:
             bot.register_next_step_handler(msg, rus.process_email, bot)
 
