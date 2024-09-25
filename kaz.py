@@ -293,7 +293,7 @@ def fin_gram(bot, message, message_text):
     add_message_to_history(user_id, message_text)
     if message_text == '💸"Қаржылық сауаттылық" оқуға тіркелу':
         # Проверяем статус пользователя
-        is_verified = userClass.get_user_verification_status(user_id)
+        is_verified = userClass.get_user_verification_status_reg(user_id)
 
         if not is_verified:
             # Если пользователь не верифицирован, просим ввести корпоративную почту
@@ -336,9 +336,52 @@ def confirm_fin_gram(message, bot):
         bot.register_next_step_handler(msg, confirm_fin_gram, bot)
 
 def verification(bot, message, message_text):
+    user_id = message.chat.id
     if message_text == "📄Декларацияны тапсыруды растау":
-        msg = bot.send_message(message.chat.id, "Корпоративтік поштаңызды енгізіңіз:")
-        bot.register_next_step_handler(msg, process_email, bot)
+        add_message_to_history(user_id, message_text)
+        bot.send_message(message.chat.id, "Осы батырманы басу арқылы сіз декларацияны форма бойынша растайсыз - "
+                                          "салық есептілігі 270.00, тапсырылды")
+        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+        yes_button = types.KeyboardButton('Иә')
+        no_button = types.KeyboardButton('Жоқ')
+        markup.add(yes_button, no_button)
+        is_verified_decl = userClass.get_user_verification_status(user_id)
+        is_verified = userClass.get_user_verification_status_reg(user_id)
+        if not is_verified:
+            # Если пользователь не верифицирован, запрашиваем почту
+            msg = bot.send_message(user_id, "Тексеру үшін 4 таңбалы код жіберілетін корпоративтік электрондық поштаңызды растау қажет. \nэлектрондық поштаңызды енгізіңіз. \n мысалы :User.U@telecom.kz")
+            bot.register_next_step_handler(msg, process_email, bot)
+        if not is_verified_decl:
+            # Если пользователь не верифицирован, просим ввести корпоративную почту
+            msg = bot.send_message(user_id, "Сіз декларацияны тапсырғаныңызды растайсыз ба?")
+            bot.register_next_step_handler(msg, process_declaration_confirmation, bot)
+        else:
+            bot.send_message(user_id, "Сіз өзіңіздің поштаңызды тексеріп, декларацияға қол қойғаныңызды растадыңыз")
+            menu(bot, message)
+
+def process_declaration_confirmation(message, bot):
+    user_id = message.chat.id
+    response = message.text.strip().lower()  # Приводим ответ к нижнему регистру для проверки
+
+    if response == 'иә':
+        # Если ответ "Да", обновляем статус в базе данных
+        sql_query = "UPDATE users SET is_verified_decl = TRUE WHERE id = %s"
+        params = (user_id,)
+        db_connect.execute_set_sql_query(sql_query, params)
+
+        # Отправляем подтверждение и вызываем меню
+        bot.send_message(user_id, "Декларацияның тапсырылғанын растау сәтті аяқталды!")
+        menu(bot, message)
+
+    elif response == 'жоқ':
+        # Если ответ "Нет", возвращаем пользователя в главное меню
+        bot.send_message(user_id, "Сіз декларацияны растаудан бас тарттыңыз.")
+        menu(bot, message)
+
+    else:
+        # Если введен некорректный ответ, просим повторить
+        msg =bot.send_message(user_id, "Опциялардың бірін таңдаңыз: 'Иә' немесе 'Жоқ'.")
+        bot.register_next_step_handler(msg, process_declaration_confirmation, bot)
 
 def process_email(message, bot):
     user_id = str(message.chat.id)
@@ -1962,9 +2005,6 @@ def check_registration_message_in_history(user_id):
 def verify_code(message, bot):
     user_id = str(message.chat.id)
 
-    # Добавляем сообщение в историю
-    add_message_to_history(user_id, message.text)
-
     # Проверка на наличие таймера в словаре
     if user_id not in verification_timers:
         return
@@ -1998,7 +2038,7 @@ def verify_code(message, bot):
             db_connect.execute_set_sql_query(sql_query, params)
 
             # Проверяем результат работы функции
-            bot.send_message(user_id, str(check_registration_message_in_history(user_id)))
+            #bot.send_message(user_id, str(check_registration_message_in_history(user_id)))
 
             # Проверяем, есть ли в последних сообщениях "Регистрация на обучение"
             if check_registration_message_in_history(user_id):
@@ -2012,8 +2052,16 @@ def verify_code(message, bot):
                 msg = bot.send_message(user_id, "Сіз оқуға қатысуды растайсыз ба?",
                                        reply_markup=markup)
                 bot.register_next_step_handler(msg, confirm_fin_gram, bot)
+            elif userClass.check_registration_message_in_history_decl(user_id):
+                sql_query = "UPDATE users SET is_verified_decl = TRUE WHERE id = %s"
+                params = (user_id,)
+                db_connect.execute_set_sql_query(sql_query, params)
+                bot.send_message(message.chat.id, "Растау сәтті аяқталды!")
+                menu(bot, message)
             else:
                 bot.send_message(message.chat.id, "Растау сәтті аяқталды!")
+                bot.send_message(message.chat.id, "Сіз ақпаратты өзгерткіңіз келсе, онда Менің профилім қосымшасына өтіңіз")
+                cm_sv_db(message, '/end_register')
                 # Вызов меню перемещен сюда, так как подтверждение завершено
                 menu(bot, message)
         else:

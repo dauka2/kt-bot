@@ -38,7 +38,7 @@ def create_db():
     cur.execute(
         'CREATE TABLE IF NOT EXISTS users (id varchar(50) primary key, username varchar(50), lastname varchar(50), '
         'firstname varchar(50), table_number varchar(11), phone_number varchar(13), '
-        'email varchar(50), branch varchar(50), language varchar(10), is_verified bool DEFAULT false)')
+        'email varchar(50), branch varchar(50), language varchar(10), is_verified bool DEFAULT FALSE, is_verified_decl bool DEFAULT FALSE)')
     cur.execute(
         'CREATE TABLE IF NOT EXISTS commands_history (id varchar(50), commands_name varchar(50), date timestamp)')
     cur.execute(
@@ -56,7 +56,7 @@ def create_db():
 
     cur.execute(
         'CREATE TABLE IF NOT EXISTS hse_competitions(id serial primary key, user_id varchar(50), '
-        'competition_name varchar(200), position varchar(100), city varchar(50), reg_time timestamp)')
+        'competition_name varchar(200), position varchar(100), city varchar(50))')
     cur.execute(
         'CREATE TABLE IF NOT EXISTS financial_literacy(id serial primary key, user_id varchar(50), webinar_name varchar(200))')
     cur.execute(
@@ -109,11 +109,11 @@ def addIfNotExistUser(message):
     users_id = cur.fetchall()
     if not any(id[0] == str(message.chat.id) for id in users_id):
         cur.execute(
-            "INSERT INTO users (id, username, lastname, firstname,table_number, phone_number, email, branch, language, is_verified) "
-            "VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (
+            "INSERT INTO users (id, username, lastname, firstname,table_number, phone_number, email, branch, language, is_verified, is_verified_decl) "
+            "VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (
                 str(message.chat.id), str(message.from_user.username),
                 str(message.from_user.first_name),
-                str(message.from_user.last_name), ' ', ' ', ' ', ' ', 'n', False))
+                str(message.from_user.last_name), ' ', ' ', ' ', ' ', 'n', False, False))
     cur.execute('SELECT id FROM users_info')
     users_info_id = cur.fetchall()
     if not any(id[0] == str(message.chat.id) for id in users_info_id):
@@ -143,12 +143,14 @@ def add_column():
 
 def add_column_dec():
     sql_query = "ALTER TABLE users_info ADD COLUMN IF NOT EXISTS verif_code char(50);"
-    sql_query += "ALTER TABLE users ADD COLUMN IF NOT EXISTS is_verified char(50);"
+    sql_query += "ALTER TABLE users ADD COLUMN IF NOT EXISTS is_verified bool DEFAULT FALSE;"
+    sql_query += "ALTER TABLE users ADD COLUMN IF NOT EXISTS is_verified_decl bool DEFAULT FALSE;"
     execute_set_sql_query(sql_query)
 
 
 def add_column_default():
     sql_query = "ALTER TABLE users ALTER COLUMN is_verified SET DEFAULT FALSE; "
+    sql_query += "ALTER TABLE users ALTER COLUMN is_verified_decl SET DEFAULT FALSE; "
     execute_set_sql_query(sql_query)
 
 

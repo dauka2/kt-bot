@@ -68,6 +68,11 @@ def alter_user(message):
     userClass.alter_users()
     bot.send_message(message.chat.id, "Изменения сохранены")
 
+@bot.message_handler(commands=['alter_users_reg'])
+def alter_user_reg(message):
+    userClass.alter_users_reg()
+    bot.send_message(message.chat.id, "Изменения сохранены")
+
 @bot.message_handler(commands=['delete_me'])
 def delete_me(message):
     userClass.delete_user(message)
@@ -404,10 +409,10 @@ def change_phone_num(message, func):
         start(message)
         return
     arr = ["Вы ввели некорректные данные, введите в таком шаблоне +77001112233",
-           "Введите Ваш корпоративный E-mail\n\n(временно можете указать и Ваш личный)"]
+           "Необходимо подтвердить вашу корпоративную почту, для этого введите Ваш корпоративный E-mail"]
     if language == "kaz":
         arr = ["Сіз деректерді қате енгіздіңіз, осы үлгіде +77001112233 енгізіңіз",
-               "Корпоративтік e-mail енгізіңіз\n\n(уақытша өзіңіздің жеке поштаңызды көрсете аласыз)"]
+               "Сіздің корпоративтік поштаңызды растау қажет, ол үшін корпоративтік e-mail енгізіңіз"]
     if not re.match(pattern, phone_num):
         msg = bot.send_message(message.chat.id, arr[0])
         bot.register_next_step_handler(msg, change_phone_num, func)
@@ -419,12 +424,15 @@ def change_phone_num(message, func):
         if check_register(message, func) != 0:
             return
         msg = bot.send_message(message.chat.id, arr[1])
-        bot.register_next_step_handler(msg, change_email, func)
+        if language == kaz:
+            bot.register_next_step_handler(msg, kaz.process_email, bot)
+        else:
+            bot.register_next_step_handler(msg, rus.process_email, bot)
 
 
 def change_email(message, func):
     email = message.text
-    regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
+    regex = r'\b[A-Za-z0-9._%+-]+@telecom.kz'
     try:
         language = userClass.get_language(message)
     except IndexError:
@@ -660,11 +668,11 @@ def callback_handler(call):
         start(call.message)
         return
     arr = ["Введите имя", "Введите Фамилию", "Введите номер телефона",
-           "Введите Ваш корпоративный E-mail\n\n(временно можете указать и Ваш личный)", "Введите табельный номер",
+           "Введите Ваш корпоративный E-mail", "Введите табельный номер",
            "Выберите Ваш филиал из списка"]
     if language == "kaz":
         arr = ["Атыңызды енгізіңіз", "Тегіңізді енгізіңіз", "Телефон нөміріңізді енгізіңіз",
-               "Корпоративтік e-mail енгізіңіз\n\n(сіз өзіңіздің жеке басыңызды уақытша көрсете аласыз)",
+               "Корпоративтік e-mail енгізіңіз",
                "Табель нөмірін енгізіңіз", "Тізімнен филиалды таңдаңыз"]
     if call.data == "Изменить Имя":
         msg = bot.send_message(call.message.chat.id, arr[0])

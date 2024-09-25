@@ -32,30 +32,41 @@ def get_saved_verification_code(user_id):
 
 def check_registration_message_in_history(user_id):
     """
-    Проверяет, вводил ли пользователь когда-либо текст '💸Регистрация на обучение "Финансовая грамотность"'
-    в таблице commands_history.
+    Проверяет, вводил ли пользователь команду '💸Регистрация на обучение "Финансовая грамотность"'
+    в столбце commands_name таблицы commands_history.
 
     :param user_id: ID пользователя.
-    :return: True, если текст найден в любом из сообщений пользователя, иначе False.
+    :return: True, если команда найдена, иначе False.
     """
     sql_query = """
     SELECT EXISTS(
     SELECT 1 
     FROM commands_history 
-    WHERE user_id = %s 
-    AND message_text LIKE '💸Регистрация на обучение "Финансовая грамотность"')
+    WHERE id = %s 
+    AND commands_name LIKE '💸Регистрация на обучение "Финансовая грамотность"')
     """
     params = (str(user_id),)
     result = execute_get_sql_query(sql_query, params)
 
     # Проверяем, найден ли хотя бы один результат
-    if result is not None and result[0][0]:
-        return True
-    return True
+    return result is not None and result[0][0]
+
+def delete_registration_message_in_history(user_id):
+    sql_query = """
+    DELETE * 
+    FROM commands_history 
+    WHERE id = %s 
+    AND commands_name LIKE '💸Регистрация на обучение "Финансовая грамотность"'
+    """
+    params = (str(user_id),)
+    result = execute_get_sql_query(sql_query, params)
+
+    # Проверяем, найден ли хотя бы один результат
+    return result is not None and result[0][0]
 
 def check_registration_message_in_history_decl(user_id):
     """
-    Проверяет, вводил ли пользователь когда-либо текст '💸Регистрация на обучение "Финансовая грамотность"'
+    Проверяет, вводил ли пользователь когда-либо текст '📄Подтверждение сдачи декларации'
     в таблице commands_history.
 
     :param user_id: ID пользователя.
@@ -65,28 +76,42 @@ def check_registration_message_in_history_decl(user_id):
     SELECT EXISTS(
     SELECT 1 
     FROM commands_history 
-    WHERE user_id = %s 
-    AND message_text LIKE '📄Подтверждение сдачи декларации');
+    WHERE id = %s 
+    AND commands_name LIKE '📄Подтверждение сдачи декларации')
     """
     params = (str(user_id),)
     result = execute_get_sql_query(sql_query, params)
 
     # Проверяем, найден ли хотя бы один результат
-    if result is not None and result[0][0]:
-        return True
-    return True
+    return result is not None and result[0][0]
 
 verification_timers = {}
 
 def get_user_verification_status(user_id):
+    """
+    Проверяет статус пользователя 'is_verified_decl' в базе данных.
+
+    :param user_id: ID пользователя.
+    :return: True, если пользователь верифицирован (is_verified_decl = True), иначе False.
+    """
+    params = (str(user_id),)
+    sql_query = 'SELECT is_verified_decl FROM users WHERE id = %s'
+    result = execute_get_sql_query(sql_query, params)
+
+    # Возвращаем статус верификации, если пользователь найден, иначе False
+    if result and isinstance(result[0][0], bool):
+        return result[0][0]
+    return False
+
+def get_user_verification_status_reg(user_id):
     """
     Проверяет статус пользователя 'is_verified' в базе данных.
 
     :param user_id: ID пользователя.
     :return: True, если пользователь верифицирован (is_verified = True), иначе False.
     """
-    sql_query = 'SELECT is_verified FROM users WHERE id = %s'
     params = (str(user_id),)
+    sql_query = 'SELECT is_verified FROM users WHERE id = %s'
     result = execute_get_sql_query(sql_query, params)
 
     # Возвращаем статус верификации, если пользователь найден, иначе False
@@ -98,9 +123,9 @@ def get_user_verification_status(user_id):
         return False
 
 def check_if_registered(user_id):
+    params = (str(user_id),)
     # SQL-запрос для проверки наличия записи в таблице financial_literacy по user_id
     sql_query = "SELECT EXISTS(SELECT 1 FROM financial_literacy WHERE user_id = %s)"
-    params = (str(user_id),)
 
     # Выполнение запроса
     result = execute_get_sql_query(sql_query, params)
@@ -272,6 +297,14 @@ def delete_users_info():
     conn.close()
 
 def alter_users():
+    conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
+    cur = conn.cursor()
+    cur.execute("ALTER TABLE users ADD COLUMN is_verified_decl BOOLEAN DEFAULT FALSE")
+    conn.commit()
+    cur.close()
+    conn.close()
+
+def alter_users_reg():
     conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
     cur = conn.cursor()
     cur.execute("ALTER TABLE users ADD COLUMN is_verified BOOLEAN DEFAULT FALSE")
