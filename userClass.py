@@ -119,7 +119,7 @@ def check_registration_message_in_history_decl_kaz(user_id):
                 ORDER BY date DESC  -- Сортировка по дате
                 LIMIT 2
             ) AS recent_commands
-            WHERE recent_commands.commands_name LIKE '📄Подтверждение сдачи декларации'
+            WHERE recent_commands.commands_name LIKE '📄Декларацияны тапсыруды растау'
         )
         """
     params = (str(user_id),)

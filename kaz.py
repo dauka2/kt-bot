@@ -378,6 +378,7 @@ def verification(bot, message, message_text):
         markup.add(yes_button, no_button)
         is_verified_decl = userClass.get_user_verification_status(user_id)
         is_verified = userClass.get_user_verification_status_reg(user_id)
+        # bot.send_message(message.chat.id, str(is_verified_decl))
         if not is_verified:
             # Если пользователь не верифицирован, запрашиваем почту
             msg = bot.send_message(user_id, "Тексеру үшін 4 таңбалы код жіберілетін корпоративтік электрондық поштаңызды растау қажет. \nэлектрондық поштаңызды енгізіңіз. \n мысалы :User.U@telecom.kz")
