@@ -101,6 +101,35 @@ def check_registration_message_in_history_decl(user_id):
         return True
     return False
 
+def check_registration_message_in_history_decl_kaz(user_id):
+    """
+    Проверяет, вводил ли пользователь когда-либо текст '📄Подтверждение сдачи декларации'
+    в таблице commands_history.
+
+    :param user_id: ID пользователя.
+    :return: True, если текст найден в любом из сообщений пользователя, иначе False.
+    """
+    sql_query = """
+        SELECT EXISTS(
+            SELECT 1 
+            FROM (
+                SELECT commands_name 
+                FROM commands_history 
+                WHERE id = %s
+                ORDER BY date DESC  -- Сортировка по дате
+                LIMIT 2
+            ) AS recent_commands
+            WHERE recent_commands.commands_name LIKE '📄Подтверждение сдачи декларации'
+        )
+        """
+    params = (str(user_id),)
+    result = execute_get_sql_query(sql_query, params)
+
+    # Проверяем, найден ли хотя бы один результат
+    if result is not None and result[0][0]:
+        return True
+    return False
+
 verification_timers = {}
 
 def get_user_verification_status(user_id):

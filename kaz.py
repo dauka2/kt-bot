@@ -382,7 +382,7 @@ def verification(bot, message, message_text):
             # Если пользователь не верифицирован, запрашиваем почту
             msg = bot.send_message(user_id, "Тексеру үшін 4 таңбалы код жіберілетін корпоративтік электрондық поштаңызды растау қажет. \nэлектрондық поштаңызды енгізіңіз. \n мысалы :User.U@telecom.kz")
             bot.register_next_step_handler(msg, process_email_kaz, bot)
-        elif not is_verified_decl and userClass.check_registration_message_in_history_decl(user_id):
+        elif not is_verified_decl and userClass.check_registration_message_in_history_decl_kaz(user_id):
             # Если пользователь не верифицирован, просим ввести корпоративную почту
             msg = bot.send_message(user_id, "Сіз декларацияны тапсырғаныңызды растайсыз ба?", reply_markup=markup)
             bot.register_next_step_handler(msg, process_declaration_confirmation, bot)
@@ -2067,7 +2067,7 @@ def verify_code_kaz(message, bot):
             #bot.send_message(user_id, str(check_registration_message_in_history(user_id)))
 
             # Проверяем, есть ли в последних сообщениях "Регистрация на обучение"
-            if userClass.check_registration_message_in_history_decl(user_id) and not userClass.get_verif_decl_status(user_id):
+            if userClass.check_registration_message_in_history_decl_kaz(user_id) and not userClass.get_verif_decl_status(user_id):
                 sql_query = "UPDATE users SET is_verified_decl = TRUE WHERE id = %s"
                 params = (user_id,)
                 db_connect.execute_set_sql_query(sql_query, params)
