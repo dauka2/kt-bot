@@ -102,15 +102,15 @@ def delete_commands_history_user(message):
     db_connect.delete_commands_history_user()
     bot.send_message(message.chat.id, "Изменения сохранены")
 
-@bot.message_handler(commands=['delete_commands_history'])
-def delete_commands_history(message):
-    db_connect.delete_commands_history()
-    bot.send_message(message.chat.id, "Изменения сохранены")
+# @bot.message_handler(commands=['delete_commands_history'])
+# def delete_commands_history(message):
+    # db_connect.delete_commands_history()
+    # bot.send_message(message.chat.id, "Изменения сохранены")
 
-@bot.message_handler(commands=['delete_users'])
-def delete_performers(message):
-    db_connect.delete_users()
-    bot.send_message(message.chat.id, "Изменения сохранены")
+# @bot.message_handler(commands=['delete_users'])
+# def delete_users(message):
+#     db_connect.delete_users()
+#     bot.send_message(message.chat.id, "Изменения сохранены")
 
 
 @bot.message_handler(commands=['delete_appeals'])
@@ -311,9 +311,9 @@ def change_lastname(message, func):
     if check_register(message, func) != 0:
         return
     if language == 'kaz':
-        msg = bot.send_message(message.chat.id, "Телефон нөміріңізді енгізіңіз\n\nМысалы: +77001112233")
+        msg = bot.send_message(message.chat.id, "Телефон нөміріңізді енгізіңіз\n\nМысалы: +77001112233 немесе 87001112233")
     else:
-        msg = bot.send_message(message.chat.id, "Введите Ваш номер телефона\n\nНапример: +77001112233")
+        msg = bot.send_message(message.chat.id, "Введите Ваш номер телефона\n\nНапример: +77001112233 или 87001112233")
     bot.register_next_step_handler(msg, change_phone_num, func)
 
 
@@ -389,9 +389,9 @@ def func_1(message, func):
 
 def is_it_you(message, func):
     language = userClass.get_language(message)
-    arr = ["Введите Ваш номер телефона\n\nНапример: +77001112233", "Войти по табельному номеру", "Это я"]
+    arr = ["Введите Ваш номер телефона\n\nНапример: +77001112233 или 87001112233", "Войти по табельному номеру", "Это я"]
     if language == "kaz":
-        arr = ["Телефон нөміріңізді енгізіңіз\n\nМысалы: +77001112233", "Табель нөмірі бойынша кіру", "Бұл мен"]
+        arr = ["Телефон нөміріңізді енгізіңіз\n\nМысалы: +77001112233 немесе 87001112233", "Табель нөмірі бойынша кіру", "Бұл мен"]
     if message.text == arr[2]:
         msg = bot.send_message(message.chat.id, arr[0])
         bot.register_next_step_handler(msg, change_phone_num, func)
@@ -422,11 +422,11 @@ def change_phone_num(message, func):
     except IndexError:
         start(message)
         return
-    arr = ["Вы ввели некорректные данные, введите в таком шаблоне +77001112233",
-           "Необходимо подтвердить вашу корпоративную почту, для этого введите Ваш корпоративный E-mail"]
+    arr = ["Вы ввели некорректные данные, введите в таком шаблоне: +77001112233 или 87001112233",
+           "Для подтверждения почты, пожалуйста, введите Ваш корпоративный E-mail"]
     if language == "kaz":
-        arr = ["Сіз деректерді қате енгіздіңіз, осы үлгіде +77001112233 енгізіңіз",
-               "Сіздің корпоративтік поштаңызды растау қажет, ол үшін корпоративтік e-mail енгізіңіз"]
+        arr = ["Сіз деректерді қате енгіздіңіз, осы үлгіде +77001112233 немесе 87001112233 енгізіңіз",
+               "Поштаны растау үшін корпоративтік e-mail енгізіңіз"]
     if not re.match(pattern, phone_num):
         msg = bot.send_message(message.chat.id, arr[0])
         bot.register_next_step_handler(msg, change_phone_num, func)
@@ -438,12 +438,14 @@ def change_phone_num(message, func):
         if check_register(message, func) != 0:
             return
         msg = bot.send_message(message.chat.id, arr[1])
+        # user_id = str(message.chat.id)
         # bot.send_message(message.chat.id, str(language))
+        # if user_id not in userClass.verification_timers:
+        #     return
         if language == "kaz":
             bot.register_next_step_handler(msg, kaz.process_email_kaz, bot)
         else:
             bot.register_next_step_handler(msg, rus.process_email, bot)
-
 
 def change_email(message, func):
     email = message.text
@@ -481,6 +483,18 @@ def change_email(message, func):
         msg = bot.send_message(message.chat.id, arr[1])
         bot.register_next_step_handler(msg, change_email, func)
 
+def start_verification_timer_bot(user_id, bot, message):
+    # Таймер на 5 минут (300 секунд)
+    def timer():
+        time.sleep(300)  # Ожидание 5 минут
+        if user_id in userClass.verification_timers:
+            del userClass.verification_timers[user_id]  # Удаляем таймер по истечению времени
+            bot.send_message(message.chat.id, "Время ожидания истекло. Пожалуйста, начните процесс заново, нажав /start.")
+            return
+
+    # Создаем и запускаем поток для таймера
+    userClass.verification_timers[user_id] = threading.Thread(target=timer)
+    userClass.verification_timers[user_id].start()
 
 def change_branch(message, func):
     branch = message.text
@@ -1142,6 +1156,23 @@ def mess(message):
 
 
 def text(message, get_message, lang_py):
+    user_id = message.chat.id
+    try:
+        language = userClass.get_language(message)
+    except IndexError:
+        start(message)
+        return
+    # Проверка, зарегистрирован ли пользователь
+    if not userClass.check_if_registered_reg(user_id):
+        # Если пользователь не зарегистрирован, отправляем его на подтверждение почты
+        msg = bot.send_message(user_id, "Пожалуйста, подтвердите свою почту для продолжения.")
+        if language == "kaz":
+            bot.register_next_step_handler(msg, kaz.process_email_kaz, bot)
+        else:
+            bot.register_next_step_handler(msg, rus.process_email, bot)
+        return  # Прерываем выполнение функции, чтобы другие действия не выполнялись
+
+    # Если пользователь зарегистрирован, выполняем обычную логику
     if get_message == "🧐Мой профиль" or get_message == "🧐Менің профилім":
         user_infoClass.clear_appeals(message)
         lang_py.profile(bot, message)

@@ -399,7 +399,7 @@ def verification(bot, message, message_text):
         # bot.send_message(message.chat.id, str(is_verified_decl))
 
         # В зависимости от статуса отправляем подтверждение или запрос на почту
-        if not is_verified:
+        if not is_verified and not is_verified_decl:
             # Если пользователь не верифицирован, запрашиваем почту
             msg = bot.send_message(user_id,
                                    "Необходимо подтвердить вашу корпоративную электронную почту, на которую будет отправлен 4-значный код для верификации. \nВведите вашу электронную почту. \nПример: User.U@telecom.kz")
@@ -449,27 +449,32 @@ def process_declaration_confirmation(message, bot):
         bot.register_next_step_handler(msg, process_declaration_confirmation, bot)
 
 
-def process_email(message, bot, id_i_s = None):
+def process_email(message, bot):
     user_id = str(message.chat.id)
     regex = r'\b[A-Za-z0-9._%+-]+@telecom.kz\b'
     # Получаем email пользователя из сообщения
     email = message.text
     set_email(message, email)
 
-    if redirect(bot, message, id_i_s):
-        return
+    if email.startswith('/'):
+        # Удаляем таймер, если он есть
+        verification_timers.pop(user_id, None)
+        # Переход в меню, если команда "/menu"
+        if email == '/menu':
+            menu(bot, message)
+            return True
     if email:
         # Проверка на корпоративный email
         if re.fullmatch(regex, email):
             # Отправляем код подтверждения на email пользователя, передаем bot и chat_id
             send_verification_code(user_id, bot, message)
             msg = bot.send_message(message.chat.id,
-                                   f"Для подтверждения, пожалуйста, введите код, отправленный на вашу рабочую почту в течении 5 минут. \n\n Вводя отправленный вам код, вы даете согласие на сбор и обработку персональных данных\n\nЕсли вам нужно вернуться, введите команду /menu")
+                                   f"Для подтверждения, пожалуйста, введите код, отправленный на вашу рабочую почту в течении 5 минут. \n\nВводя отправленный вам код, вы даете согласие на сбор и обработку персональных данных")
             bot.register_next_step_handler(msg, verify_code, bot)
         else:
             # Если email не корпоративный, уведомляем пользователя и повторно запрашиваем email
             msg = bot.send_message(message.chat.id,
-                                   "Ваш email не является корпоративным. Пожалуйста, введите его еще раз.")
+                                   "Введённый адрес электронной почты не является корпоративным. Просим Вас ввести корректный корпоративный E-mail еще раз.")
             bot.register_next_step_handler(msg, process_email, bot)
     else:
         bot.send_message(message.chat.id,
@@ -482,8 +487,12 @@ def start_verification_timer(user_id, bot, message):
         time.sleep(300)  # Ожидание 5 минут
         if user_id in verification_timers:
             del verification_timers[user_id]  # Удаляем таймер по истечению времени
-            bot.send_message(message.chat.id, "Время ожидания истекло. Пожалуйста, начните процесс заново.")
-            menu(bot, message)  # Вызываем меню автоматически
+            sql_query = "UPDATE users SET email = NULL WHERE id = %s"
+            params = (user_id,)
+            db_connect.execute_set_sql_query(sql_query, params)
+            bot.send_message(message.chat.id, "Время ожидания истекло.")
+            msg = bot.send_message(message.chat.id, "Введите ваш корпоративный E-mail:")
+            bot.register_next_step_handler(msg, process_email, bot)
             return
 
     # Создаем и запускаем поток для таймера
@@ -2234,7 +2243,6 @@ def verify_code(message, bot):
 
             # Проверяем, есть ли в последних сообщениях "Регистрация на обучение"
             if check_registration_message_in_history(user_id):
-                # Добавляем запись в таблицу financial_literacy
                 markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
                 yes_button = types.KeyboardButton('Да')
                 no_button = types.KeyboardButton('Нет')

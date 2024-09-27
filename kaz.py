@@ -378,11 +378,11 @@ def verification(bot, message, message_text):
         markup.add(yes_button, no_button)
         is_verified_decl = userClass.get_user_verification_status(user_id)
         is_verified = userClass.get_user_verification_status_reg(user_id)
-        if not is_verified:
+        if not is_verified and not is_verified_decl:
             # Если пользователь не верифицирован, запрашиваем почту
             msg = bot.send_message(user_id, "Тексеру үшін 4 таңбалы код жіберілетін корпоративтік электрондық поштаңызды растау қажет. \nэлектрондық поштаңызды енгізіңіз. \n мысалы :User.U@telecom.kz")
             bot.register_next_step_handler(msg, process_email_kaz, bot)
-        if not is_verified_decl:
+        elif not is_verified_decl:
             # Если пользователь не верифицирован, просим ввести корпоративную почту
             msg = bot.send_message(user_id, "Сіз декларацияны тапсырғаныңызды растайсыз ба?", reply_markup=markup)
             bot.register_next_step_handler(msg, process_declaration_confirmation, bot)
@@ -433,12 +433,12 @@ def process_email_kaz(message, bot):
             # Отправляем код подтверждения на email пользователя, передаем bot и chat_id
             send_verification_code(user_id, bot, message)
             msg = bot.send_message(message.chat.id,
-                                   f"Растау үшін 5 минут ішінде жұмыс поштаңызға жіберілген кодты енгізіңіз.\n\nСізге жіберілген кодты енгізу арқылы сіз жеке деректерді жинауға және өңдеуге келісім бересіз \n\nегер сізге оралу керек болса, /menu пәрменін енгізіңіз")
+                                   f"Растау үшін 5 минут ішінде жұмыс поштаңызға жіберілген кодты енгізіңіз.\n\nСізге жіберілген кодты енгізу арқылы сіз жеке деректерді жинауға және өңдеуге келісім бересіз")
             bot.register_next_step_handler(msg, verify_code_kaz, bot)
         else:
             # Если email не корпоративный, уведомляем пользователя и повторно запрашиваем email
             msg = bot.send_message(message.chat.id,
-                                   "Сіздің email корпоративті емес. Оны қайтадан енгізіңіз.")
+                                   "Енгізілген электрондық пошта мекенжайы корпоративтік емес. Сізден дұрыс корпоративтік e-mail-ді тағы бір рет енгізуіңізді сұраймыз.")
             bot.register_next_step_handler(msg, process_email_kaz, bot)
     else:
         bot.send_message(message.chat.id,
@@ -451,8 +451,12 @@ def start_verification_timer(user_id, bot, message):
         time.sleep(300)  # Ожидание 5 минут
         if user_id in verification_timers:
             del verification_timers[user_id]  # Удаляем таймер по истечению времени
-            bot.send_message(message.chat.id, "Күту уақыты аяқталды. Процесті қайтадан бастаңыз.")
-            menu(bot, message)  # Вызываем меню автоматически
+            sql_query = "UPDATE users SET email = NULL WHERE id = %s"
+            params = (user_id,)
+            db_connect.execute_set_sql_query(sql_query, params)
+            bot.send_message(message.chat.id, "Күту уақыты аяқталды.")
+            msg = bot.send_message(message.chat.id, "Корпоративтік e-mail енгізіңіз:")
+            bot.register_next_step_handler(msg, process_email_kaz, bot)
             return
 
     # Создаем и запускаем поток для таймера
@@ -1629,7 +1633,7 @@ def portal(bot, message):
     if message_text == '🖥Портал "Бірлік"':
         markup_p = types.ReplyKeyboardMarkup(row_width=1)
         markup_p = generate_buttons(portal_bts, markup_p)
-        bot.send_message(str(message.chat.id), "Выберите категорию", reply_markup=markup_p)
+        bot.send_message(str(message.chat.id), "Санатты таңдаңыз", reply_markup=markup_p)
     elif message_text == portal_bts[0]:
         with open("images/Birlik_BG.jpg", 'rb') as photo_file:
             bot.send_photo(message.chat.id, photo_file)
@@ -2063,18 +2067,7 @@ def verify_code_kaz(message, bot):
             #bot.send_message(user_id, str(check_registration_message_in_history(user_id)))
 
             # Проверяем, есть ли в последних сообщениях "Регистрация на обучение"
-            if userClass.check_registration_message_in_history(user_id):
-                # Добавляем запись в таблицу financial_literacy
-                markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-                yes_button = types.KeyboardButton('Иә')
-                no_button = types.KeyboardButton('Жоқ')
-                markup.add(yes_button, no_button)
-
-                # Запрашиваем подтверждение участия в обучении
-                msg = bot.send_message(user_id, "Сіз оқуға қатысуды растайсыз ба?", reply_markup=markup)
-                bot.register_next_step_handler(msg, confirm_fin_gram_kaz, bot)
-
-            elif userClass.check_registration_message_in_history_decl(user_id):
+            if userClass.check_registration_message_in_history_decl(user_id):
                 sql_query = "UPDATE users SET is_verified_decl = TRUE WHERE id = %s"
                 params = (user_id,)
                 db_connect.execute_set_sql_query(sql_query, params)

@@ -33,23 +33,31 @@ def get_saved_verification_code(user_id):
 def check_registration_message_in_history(user_id):
     """
     Проверяет, вводил ли пользователь команду '💸Регистрация на обучение "Финансовая грамотность"'
-    в столбце commands_name таблицы commands_history.
+    среди последних четырех записей в столбце commands_name таблицы commands_history.
 
     :param user_id: ID пользователя.
-    :return: True, если команда найдена, иначе False.
+    :return: True, если команда найдена среди последних четырех сообщений, иначе False.
     """
     sql_query = """
     SELECT EXISTS(
-    SELECT 1 
-    FROM commands_history 
-    WHERE id = %s 
-    AND commands_name LIKE '💸Регистрация на обучение "Финансовая грамотность"')
+        SELECT 1 
+        FROM (
+            SELECT commands_name 
+            FROM commands_history 
+            WHERE id = %s
+            ORDER BY date DESC  -- Сортировка по дате
+            LIMIT 4
+        ) AS recent_commands
+        WHERE recent_commands.commands_name LIKE '💸Регистрация на обучение "Финансовая грамотность"'
+    )
     """
     params = (str(user_id),)
     result = execute_get_sql_query(sql_query, params)
 
     # Проверяем, найден ли хотя бы один результат
     return result is not None and result[0][0]
+
+
 
 def delete_registration_message_in_history(user_id):
     sql_query = """
@@ -73,18 +81,25 @@ def check_registration_message_in_history_decl(user_id):
     :return: True, если текст найден в любом из сообщений пользователя, иначе False.
     """
     sql_query = """
-    SELECT EXISTS(
-    SELECT 1 
-    FROM commands_history 
-    WHERE id = %s 
-    AND commands_name LIKE '📄Подтверждение сдачи декларации')
-    """
+        SELECT EXISTS(
+            SELECT 1 
+            FROM (
+                SELECT commands_name 
+                FROM commands_history 
+                WHERE id = %s
+                ORDER BY date DESC  -- Сортировка по дате
+                LIMIT 4
+            ) AS recent_commands
+            WHERE recent_commands.commands_name LIKE '📄Подтверждение сдачи декларации'
+        )
+        """
     params = (str(user_id),)
     result = execute_get_sql_query(sql_query, params)
 
     # Проверяем, найден ли хотя бы один результат
-    return result is not None and result[0][0]
-
+    if result is not None and result[0][0]:
+        return True
+    return False
 verification_timers = {}
 
 def get_user_verification_status(user_id):
@@ -126,6 +141,19 @@ def check_if_registered(user_id):
     params = (str(user_id),)
     # SQL-запрос для проверки наличия записи в таблице financial_literacy по user_id
     sql_query = "SELECT EXISTS(SELECT 1 FROM financial_literacy WHERE user_id = %s)"
+
+    # Выполнение запроса
+    result = execute_get_sql_query(sql_query, params)
+
+    # Возвращаем True, если пользователь зарегистрирован, иначе False
+    if result is not None and result[0][0]:
+        return True
+    return False
+
+def check_if_registered_reg(user_id):
+    params = (str(user_id),)
+    # SQL-запрос для проверки наличия записи в таблице financial_literacy по user_id
+    sql_query = "SELECT is_verified FROM users WHERE id = %s"
 
     # Выполнение запроса
     result = execute_get_sql_query(sql_query, params)

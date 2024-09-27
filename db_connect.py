@@ -124,6 +124,17 @@ def addIfNotExistUser(message):
     cur.close()
     conn.close()
 
+def delete_users():
+    sql_query = "DROP TABLE IF EXISTS users"
+    execute_set_sql_query(sql_query)
+
+def delete_commands_history_user():
+    sql_query = "DELETE * FROM commands_history WHERE user_id = %s"
+    execute_set_sql_query(sql_query)
+
+def delete_commands_history():
+    sql_query = "DROP TABLE IF EXISTS commands_history"
+    execute_set_sql_query(sql_query)
 
 def delete_performers():
     sql_query = "DROP TABLE IF EXISTS performers"
