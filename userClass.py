@@ -46,7 +46,7 @@ def check_registration_message_in_history(user_id):
             FROM commands_history 
             WHERE id = %s
             ORDER BY date DESC  -- Сортировка по дате
-            LIMIT 4
+            LIMIT 2
         ) AS recent_commands
         WHERE recent_commands.commands_name LIKE '💸Регистрация на обучение "Финансовая грамотность"'
     )
@@ -88,7 +88,7 @@ def check_registration_message_in_history_decl(user_id):
                 FROM commands_history 
                 WHERE id = %s
                 ORDER BY date DESC  -- Сортировка по дате
-                LIMIT 4
+                LIMIT 2
             ) AS recent_commands
             WHERE recent_commands.commands_name LIKE '📄Подтверждение сдачи декларации'
         )
@@ -100,6 +100,7 @@ def check_registration_message_in_history_decl(user_id):
     if result is not None and result[0][0]:
         return True
     return False
+
 verification_timers = {}
 
 def get_user_verification_status(user_id):
@@ -241,6 +242,11 @@ def get_email(message):
 
 def get_email_for_verif(user_id):
     sql_query = 'SELECT email FROM users WHERE id=%s'
+    params = (str(user_id),)
+    return execute_get_sql_query(sql_query, params)[0][0]
+
+def get_verif_decl_status(user_id):
+    sql_query = 'SELECT verif_decl FROM users WHERE id=%s'
     params = (str(user_id),)
     return execute_get_sql_query(sql_query, params)[0][0]
 

@@ -378,11 +378,11 @@ def verification(bot, message, message_text):
         markup.add(yes_button, no_button)
         is_verified_decl = userClass.get_user_verification_status(user_id)
         is_verified = userClass.get_user_verification_status_reg(user_id)
-        if not is_verified and not is_verified_decl:
+        if not is_verified:
             # Если пользователь не верифицирован, запрашиваем почту
             msg = bot.send_message(user_id, "Тексеру үшін 4 таңбалы код жіберілетін корпоративтік электрондық поштаңызды растау қажет. \nэлектрондық поштаңызды енгізіңіз. \n мысалы :User.U@telecom.kz")
             bot.register_next_step_handler(msg, process_email_kaz, bot)
-        elif not is_verified_decl:
+        elif not is_verified_decl and userClass.check_registration_message_in_history_decl(user_id):
             # Если пользователь не верифицирован, просим ввести корпоративную почту
             msg = bot.send_message(user_id, "Сіз декларацияны тапсырғаныңызды растайсыз ба?", reply_markup=markup)
             bot.register_next_step_handler(msg, process_declaration_confirmation, bot)
@@ -2067,7 +2067,7 @@ def verify_code_kaz(message, bot):
             #bot.send_message(user_id, str(check_registration_message_in_history(user_id)))
 
             # Проверяем, есть ли в последних сообщениях "Регистрация на обучение"
-            if userClass.check_registration_message_in_history_decl(user_id):
+            if userClass.check_registration_message_in_history_decl(user_id) and not userClass.get_verif_decl_status(user_id):
                 sql_query = "UPDATE users SET is_verified_decl = TRUE WHERE id = %s"
                 params = (user_id,)
                 db_connect.execute_set_sql_query(sql_query, params)
@@ -2079,6 +2079,7 @@ def verify_code_kaz(message, bot):
                 cm_sv_db(message, '/end_register')
                 # Вызов меню перемещен сюда, так как подтверждение завершено
                 menu(bot, message)
+
         else:
             raise ValueError("Код сәйкес келмейді")  # Исключение, если код не совпадает
     except ValueError as e:

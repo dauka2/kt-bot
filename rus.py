@@ -29,7 +29,7 @@ from userClass import get_branch, get_firstname, get_user, generate_and_save_cod
     get_user_verification_status, check_if_registered, delete_participation, check_registration_message_in_history, \
     check_registration_message_in_history_decl, \
     get_user_verification_status_reg, \
-    delete_registration_message_in_history  # check_registration_message_in_history_decl
+    delete_registration_message_in_history, get_verif_decl_status
 from user_infoClass import set_appeal_field, get_category_users_info, set_category, get_appeal_field, clear_appeals, \
     set_bool, set_subsubcategory_users_info, get_subsubcategory_users_info
 import hse_competition
@@ -397,15 +397,14 @@ def verification(bot, message, message_text):
         is_verified_decl = get_user_verification_status(user_id)
         # bot.send_message(message.chat.id, str(is_verified))
         # bot.send_message(message.chat.id, str(is_verified_decl))
-
+        # bot.send_message(message.chat.id, str(check_registration_message_in_history_decl))
         # В зависимости от статуса отправляем подтверждение или запрос на почту
-        if not is_verified and not is_verified_decl:
+        if not is_verified:
             # Если пользователь не верифицирован, запрашиваем почту
             msg = bot.send_message(user_id,
                                    "Необходимо подтвердить вашу корпоративную электронную почту, на которую будет отправлен 4-значный код для верификации. \nВведите вашу электронную почту. \nПример: User.U@telecom.kz")
             bot.register_next_step_handler(msg, process_email, bot)
-
-        elif not is_verified_decl:
+        elif not is_verified_decl and check_registration_message_in_history_decl(user_id):
             # Запрашиваем подтверждение декларации (Да/Нет)
             msg = bot.send_message(user_id, "Подтверждаете ли вы сдачу декларации?", reply_markup=markup)
             bot.register_next_step_handler(msg, process_declaration_confirmation, bot)
@@ -2252,7 +2251,7 @@ def verify_code(message, bot):
                 msg = bot.send_message(user_id, "Вы подтверждаете участие в обучении?", reply_markup=markup)
                 bot.register_next_step_handler(msg, confirm_fin_gram, bot)
 
-            elif check_registration_message_in_history_decl(user_id):
+            elif check_registration_message_in_history_decl(user_id) and not get_verif_decl_status(user_id):
                 sql_query = "UPDATE users SET is_verified_decl = TRUE WHERE id = %s"
                 params = (user_id,)
                 db_connect.execute_set_sql_query(sql_query, params)
