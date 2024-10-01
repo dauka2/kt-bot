@@ -3,6 +3,7 @@ import psycopg2
 
 TOKEN = '6145415028:AAEdgPMvSsi3FJw2ccyzWf2QiJrPa_Ycz0A'
 admins_id = ['760906879', '1066191569', '6682886650']
+
 admins_id = ['760906879', '1066191569', '6682886650', '353845928']
 
 
