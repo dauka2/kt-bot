@@ -1151,7 +1151,7 @@ def appeal(bot, message, message_text):
                 performer_ = get_performer_by_subsubcategory(subsubcategory)
                 performer_id = performer_[0][0]
             else:
-                performer_id = get_performer_by_category_and_subcategory(category, branch)[0][1]
+                performer_id = get_performer_by_category_and_subcategory(category, branch)[0][0]
         else:
             performer_id = get_performer_id_by_category(category)
 

@@ -365,7 +365,7 @@ def confirm_fin_gram(message, bot):
 
         # Отправляем сообщение о успешной регистрации
         bot.send_message(user_id, "Вы успешно зарегистрировались на обучение по финансовой грамотности!")
-        bot.send_message(user_id, "Ссылка на вебинар 24.09.2024 в 10:00 по аст.времени \nТема: Финансовая Грамотность для КазахТелеком\nВремя: 11 сент. 2024 10:00  Алматы \nВойти "
+        bot.send_message(user_id, "Ссылка на вебинар 08.09.2024 в 10:00 по аст.времени \nТема: Финансовая Грамотность для КазахТелеком\nВремя: 11 сент. 2024 10:00  Алматы \nВойти "
                                   "Zoom Конференция: \nhttps://us02web.zoom.us/j/86082733518?pwd=XZmACbDsdC6PtqopaseSM5hhFhZCp5.1 \n\nИдентификатор конференции: "
                                   "860 8273 3518 \nКод доступа: 11", protect_content=True)
         menu(bot, message)
@@ -1169,9 +1169,9 @@ def appeal(bot, message, message_text):
             if branch == 'Обьединение Дивизион "Сеть"':
                 subsubcategory = str(get_subsubcategory_users_info(message.chat.id)).strip()
                 performer_ = get_performer_by_subsubcategory(subsubcategory)
-                performer_id = performer_[0][1]
+                performer_id = performer_[0][0]
             else:
-                performer_id = get_performer_by_category_and_subcategory(category, branch)[0][1]
+                performer_id = get_performer_by_category_and_subcategory(category, branch)[0][0]
         else:
             performer_id = get_performer_id_by_category(category)
 

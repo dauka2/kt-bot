@@ -4,8 +4,6 @@ import psycopg2
 TOKEN = '6145415028:AAEdgPMvSsi3FJw2ccyzWf2QiJrPa_Ycz0A'
 admins_id = ['760906879', '1066191569', '6682886650']
 
-admins_id = ['760906879', '1066191569', '6682886650', '353845928']
-
 
 def execute_get_sql_query(sql_query, params=None):
     try:
@@ -188,9 +186,9 @@ def insert_into_performers():
     cur.execute('insert into performers (category, email) '
                 'values (%s, %s)', ("Обратиться в службу комплаенс", "must.dilnaz@gmail.com"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) '
-                'values (%s, %s, %s, %s, %s, %s, %s)', ("353845928", 'Портал "Бірлік"',
-                                                        "Серикханов", "Диас", "+77052280934", "smkndnn@gmail.com",
-                                                        "@srkhnvd"))
+                'values (%s, %s, %s, %s, %s, %s, %s)', ("760906879", 'Портал "Бірлік"',
+                                                        "Мустафина", "Дильназ", "+77009145025", "must.dilnaz@gmail.com",
+                                                        "@"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
                 'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("760906879",
                                                                              "Портал закупок 2.0 | "

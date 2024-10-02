@@ -12,9 +12,9 @@ def get_performer_by_category(category):
     return execute_get_sql_query(sql_query, params)[0]
 
 
-def get_performer_by_id(id):
+def get_performer_by_id(id_):
     sql_query = 'SELECT * FROM performers where id = %s'
-    params = (id,)
+    params = (id_,)
     return execute_get_sql_query(sql_query, params)
 
 

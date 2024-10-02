@@ -1165,7 +1165,7 @@ def text(message, get_message, lang_py):
     # Проверка, зарегистрирован ли пользователь
     if not userClass.check_if_registered_reg(user_id) or userClass.get_phone_number is None:
         # Если пользователь не зарегистрирован, отправляем его на подтверждение почты
-        msg = bot.send_message(user_id, "Пожалуйста, подтвердите свою почту для продолжения.")
+        msg = bot.send_message(user_id, "Пожалуйста, подтвердите свою почту для продолжения.\nВведите вашу корпоративную почту:")
         if language == "kaz":
             bot.register_next_step_handler(msg, kaz.process_email_kaz, bot)
         else:
