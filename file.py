@@ -3,7 +3,7 @@ from telebot import *
 import performerClass
 from appealsClass import get_appeal_by_id, get_image_data, get_appeal_text_all, set_category
 from common_file import send_error, get_excel, extract_number, generate_buttons
-from db_connect import get_all_appeals_by_id_performer, get_sale, get_appeals
+from db_connect import get_all_appeals_by_id_performer, get_sale, get_appeals, set_change_appeals_id
 from performerClass import list_categories, get_all_anonymous_appeals_by_id_performer, get_performers_id, \
     get_performers, get_regions, get_categories_by_parentcategory
 from userClass import get_user
@@ -152,13 +152,50 @@ def change_category(message, bot, appeal_id):
     if message.text in categories.keys():
         set_category(appeal_id, message.text)
         appeal_info = get_appeal_by_id(appeal_id)[0]
+        bot.send_message(message.chat.id, f"Appeal info (id_performer): {appeal_info[7]}")
+
+        # Get the current performer ID from the appeal
+        current_performer_id = appeal_info[7]
+
+        # Get the new performer ID based on the category change
+        new_performer_id = performerClass.get_performer_id_by_id(current_performer_id)
+
+        # Update the appeal with the new performer ID
+        set_change_appeals_id(appeal_id, new_performer_id)
+
+        bot.send_message(message.chat.id, f"Updated Performer ID: {new_performer_id}")
+
+        # Prepare text for the performer
         text = performer_text(appeal_info)
-        performer_id = performerClass.get_performer_id_by_id(appeal_info[7])
+
+        # Send the appeal to the new performer
+        bot.send_message(new_performer_id, "Вам отправлено новое обращение")
+        bot.send_message(new_performer_id, text)
+
+        # Notify the user about the category change and their appeal
         user_id = appeal_info[1]
-        bot.send_message(performer_id, "Вам отправлено новое обращение")
-        bot.send_message(performer_id, text)
-        bot.send_message(user_id, "Ваше обращение было переотправлено в категорию:\n" +
-                         message.text)
+        text2 = get_appeal_text_all(appeal_id)
+        bot.send_message(user_id, "Ваше обращение было переотправлено в категорию:\n" + message.text)
+        bot.send_message(user_id, "Ваше обращение:\n" + text2)
+
+# def change_category(message, bot, appeal_id):
+    # if message.text in categories.keys():
+        # set_category(appeal_id, message.text)
+        # appeal_info = get_appeal_by_id(appeal_id)[0]
+        # performer_id = performerClass.get_performer_id_by_id(appeal_info[7])
+        # # Отправка сообщения в чат
+        # # Обновление исполнителя
+        # set_appeal_id(appeal_id, performer_id)
+
+        # # text = performer_text(appeal_info)
+        # user_id = appeal_info[1]
+        # text2 = get_appeal_text_all(appeal_id)
+
+        # # Отправка сообщений исполнителю и пользователю
+        # bot.send_message(performer_id, "Обращение было перенаправлено")
+        # # bot.send_message(performer_id, text)
+        # bot.send_message(user_id, "Ваше обращение было переотправлено в категорию:\n" + message.text)
+        # bot.send_message(user_id, "Ваше обращение:\n" + text2)
 
 
 def performer_text(appeal_info):

@@ -3,6 +3,7 @@ import psycopg2
 
 TOKEN = '6145415028:AAEdgPMvSsi3FJw2ccyzWf2QiJrPa_Ycz0A'
 admins_id = ['760906879', '1066191569', '6682886650']
+admins_id = ['760906879', '1066191569', '6682886650', '353845928']
 
 
 def execute_get_sql_query(sql_query, params=None):
@@ -686,6 +687,10 @@ def get_appeal_by_id_inner_join_users(id):
     appeals = execute_get_sql_query(sql_query, params)
     return appeals
 
+def set_change_appeals_id(appeal_id, performer_id):
+    sql_query = "UPDATE appeals SET id_performer = %s WHERE id_performer = (SELECT performer_id FROM performers WHERE id = %s)"
+    params = (performer_id, appeal_id)
+    execute_set_sql_query(sql_query, params)
 
 def my_lte(user_id):
     markup_a = types.InlineKeyboardMarkup()

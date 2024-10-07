@@ -11,6 +11,10 @@ def get_performer_by_category(category):
     params = (category,)
     return execute_get_sql_query(sql_query, params)[0]
 
+def get_performer_info_by_id(performer_id):
+    sql_query = "SELECT * FROM performers WHERE performer_id = %s"
+    params = (performer_id,)
+    return execute_get_sql_query(sql_query, params)
 
 def get_performer_by_id(id_):
     sql_query = 'SELECT * FROM performers where id = %s'
@@ -59,6 +63,15 @@ def get_performer_id_by_category(performer_id):
     performer_id = execute_get_sql_query(sql_query, params)
     if performer_id:
         return performer_id[0][0]
+    else:
+        return None
+
+def get_performer_id_by_category2(category):
+    sql_query = "SELECT id FROM performers WHERE category = %s"
+    params = (category,)
+    performer_id = execute_get_sql_query(sql_query, params)
+    if performer_id:
+        return performer_id[0][0]  # Возвращаем первого исполнителя
     else:
         return None
 

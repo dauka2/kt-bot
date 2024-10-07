@@ -723,7 +723,6 @@ def performer_text(appeal_info):
            f" Комментарий: {str(appeal_info[8])}"
     return text
 
-
 def call_back(bot, call):
     if call.data == 'Начинаем!':
         cm_sv_db(call.message, 'Начинаем!')

@@ -1578,8 +1578,24 @@ def kb(bot, message):
         markup = useful_links()
         bot.send_message(message.chat.id, "Пайдалы сілтемелер", reply_markup=markup)
     elif message.text == "Реттеуші құжаттар":
-        bot.send_document(message.chat.id, open("files/Регламент взаимодействия.doc", 'rb'))
-        bot.send_document(message.chat.id, open("files/Порядок осуществления закупок.docx", "rb"))
+        markup = types.InlineKeyboardMarkup()
+
+        # Добавляем кнопки для документов, каждая на отдельной строке
+        button1 = types.InlineKeyboardButton("Регламент взаимодействия", callback_data="doc1")
+        button2 = types.InlineKeyboardButton("Порядок осуществления закупок", callback_data="doc2")
+        button3 = types.InlineKeyboardButton("Политика УР от 21.04.2023", callback_data="doc3")
+        button4 = types.InlineKeyboardButton("Политика в области энергоменеджмента", callback_data="doc4")
+        button5 = types.InlineKeyboardButton("Политика в области обеспечения БиОТ", callback_data="doc5")
+
+        # Размещаем каждую кнопку в отдельную строку
+        markup.row(button1)
+        markup.row(button2)
+        markup.row(button3)
+        markup.row(button4)
+        markup.row(button5)
+
+        # Отправляем сообщение с инлайн-кнопками
+        bot.send_message(message.chat.id, "Реттеуші құжатты таңдаңыз:", reply_markup=markup)
 
 
 def menu(bot, message):
