@@ -133,7 +133,7 @@ def add_column(message):
 
 @bot.message_handler(commands=['add_column_default'])
 def add_column(message):
-    db_connect.add_column_dec()
+    db_connect.add_column_default()
     bot.send_message(message.chat.id, "Изменения сохранены")
 
 
