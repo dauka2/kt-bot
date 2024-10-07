@@ -761,6 +761,7 @@ def get_excel(message):
                 "full outer join users on commands_history.id = users.id"
     common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
 
+
 @bot.message_handler(commands=['get_participants'])
 def get_excel(message):
     sql_query = """
@@ -782,7 +783,6 @@ def get_excel(message):
                 ORDER BY u.id ASC
                 """
     common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
-
 
 
 @bot.message_handler(commands=['get_unique_users'])

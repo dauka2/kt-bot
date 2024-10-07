@@ -306,7 +306,9 @@ def fin_gram(bot, message, message_text):
 
         if not is_verified:
             # Если пользователь не верифицирован, просим ввести корпоративную почту
-            msg = bot.send_message(user_id, "Необходимо подтвердить вашу корпоративную электронную почту, на которую будет отправлен 4-значный код для верификации. \nВведите вашу электронную почту. \nПример: User.U@telecom.kz" )
+            msg = bot.send_message(user_id, "Необходимо подтвердить вашу корпоративную электронную почту, "
+                                            "на которую будет отправлен 4-значный код для верификации. "
+                                            "\nВведите вашу электронную почту. \nПример: User.U@telecom.kz" )
             bot.register_next_step_handler(msg, process_email, bot)
         elif check_registration_message_in_history(user_id) and check_if_registered(user_id):
             # Создаем клавиатуру с кнопками "Да" и "Нет"
@@ -330,6 +332,7 @@ def fin_gram(bot, message, message_text):
                                    reply_markup=markup)
             bot.register_next_step_handler(msg, confirm_fin_gram, bot)
 
+
 def delete_fin_gram(message, bot):
     user_id = message.chat.id
     response = message.text.strip().lower()
@@ -352,10 +355,10 @@ def delete_fin_gram(message, bot):
         msg = bot.send_message(user_id, "Пожалуйста, выберите 'Да' или 'Нет'.")
         bot.register_next_step_handler(msg, confirm_fin_gram, bot)
 
+
 def confirm_fin_gram(message, bot):
     user_id = message.chat.id
     response = message.text.strip().lower()
-
     if response == 'да':
         # Добавляем запись в таблицу financial_literacy
         webinar_name = "Финансовая грамотность"
@@ -369,7 +372,6 @@ def confirm_fin_gram(message, bot):
                                   "Zoom Конференция: \nhttps://us02web.zoom.us/j/86082733518?pwd=XZmACbDsdC6PtqopaseSM5hhFhZCp5.1 \n\nИдентификатор конференции: "
                                   "860 8273 3518 \nКод доступа: 11", protect_content=True)
         menu(bot, message)
-
     elif response == 'нет':
         # Отправляем сообщение об отмене регистрации и возвращаем в главное меню
         bot.send_message(user_id, "Регистрация отменена.")
