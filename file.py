@@ -152,8 +152,6 @@ def change_category(message, bot, appeal_id):
     if message.text in categories.keys():
         set_category(appeal_id, message.text)
         appeal_info = get_appeal_by_id(appeal_id)[0]
-        bot.send_message(message.chat.id, f"Appeal info (id_performer): {appeal_info[7]}")
-
         new_performer = performerClass.get_performer_by_category(message.text)
 
 
@@ -162,9 +160,6 @@ def change_category(message, bot, appeal_id):
         # new_performer_id = performerClass.get_performer_id_by_id(current_performer_id)
         #
         set_appeal_id(appeal_id, new_performer[0])
-
-        bot.send_message(message.chat.id, f"Updated Performer ID: {new_performer[0]}")
-
         text = performer_text(appeal_info)
 
         bot.send_message(new_performer[1], "Вам отправлено новое обращение")
