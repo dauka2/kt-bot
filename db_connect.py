@@ -174,12 +174,12 @@ def update_verification_columns():
     sql_query = """
     UPDATE users
     SET is_verified = CASE
-        WHEN is_verified IS NULL OR is_verified = FALSE OR is_verified = 'ЛОЖЬ' THEN FALSE
-        WHEN is_verified = TRUE OR is_verified = 'ИСТИНА' THEN TRUE
+        WHEN is_verified IS NULL OR is_verified = FALSE OR is_verified = 'ЛОЖЬ' OR is_verified = 'False' THEN FALSE
+        WHEN is_verified = TRUE OR is_verified = 'ИСТИНА' OR is_verified = 'true ' THEN TRUE
     END,
     is_verified_decl = CASE
-        WHEN is_verified_decl IS NULL OR is_verified_decl = FALSE OR is_verified_decl = 'ЛОЖЬ' THEN FALSE
-        WHEN is_verified_decl = TRUE OR is_verified_decl = 'ИСТИНА' THEN TRUE
+        WHEN is_verified_decl IS NULL OR is_verified_decl = FALSE OR is_verified_decl = 'ЛОЖЬ' OR is_verified_decl = 'False' THEN FALSE
+        WHEN is_verified_decl = TRUE OR is_verified_decl = 'ИСТИНА' OR is_verified_decl = 'true' THEN TRUE
     END;
     """
     execute_set_sql_query(sql_query)
