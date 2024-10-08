@@ -173,13 +173,13 @@ def delete_verif_columns():
 def update_verification_columns():
     sql_query = """
     UPDATE users
-    SET is_verified = CASE
-        WHEN is_verified IS NULL OR is_verified = FALSE OR is_verified = 'ЛОЖЬ' OR is_verified = 'False' THEN FALSE
-        WHEN is_verified = TRUE OR is_verified = 'ИСТИНА' OR is_verified = 'true ' THEN TRUE
+    SET is_verif = CASE 
+        WHEN is_verif = TRUE OR is_verif = 'ИСТИНА' THEN TRUE
+        ELSE FALSE
     END,
-    is_verified_decl = CASE
-        WHEN is_verified_decl IS NULL OR is_verified_decl = FALSE OR is_verified_decl = 'ЛОЖЬ' OR is_verified_decl = 'False' THEN FALSE
-        WHEN is_verified_decl = TRUE OR is_verified_decl = 'ИСТИНА' OR is_verified_decl = 'true' THEN TRUE
+    is_verif_decl = CASE 
+        WHEN is_verif_decl = TRUE OR is_verif_decl = 'ИСТИНА' THEN TRUE
+        ELSE FALSE
     END;
     """
     execute_set_sql_query(sql_query)
