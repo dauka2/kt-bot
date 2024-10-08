@@ -126,16 +126,20 @@ def add_column(message):
 
 
 @bot.message_handler(commands=['add_column_dec'])
-def add_column(message):
+def add_column_dec(message):
     db_connect.add_column_dec()
     bot.send_message(message.chat.id, "Изменения сохранены")
 
 
 @bot.message_handler(commands=['add_column_default'])
-def add_column(message):
+def add_column_default(message):
     db_connect.add_column_default()
     bot.send_message(message.chat.id, "Изменения сохранены")
 
+@bot.message_handler(commands=['delete_verif_columns'])
+def delete_verif_columns(message):
+    db_connect.delete_verif_columns()
+    bot.send_message(message.chat.id, "Изменения сохранены")
 
 @bot.message_handler(commands=['change'])
 def change(message):

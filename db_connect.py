@@ -165,6 +165,10 @@ def add_column_default():
     sql_query += "ALTER TABLE users ALTER COLUMN is_verified_decl SET DEFAULT FALSE; "
     execute_set_sql_query(sql_query)
 
+def delete_verif_columns():
+    sql_query = "ALTER TABLE users DROP COLUMN IF EXISTS is_verified; "
+    sql_query += "ALTER TABLE users DROP COLUMN IF EXISTS is_verified_decl; "
+    execute_set_sql_query(sql_query)
 
 def insert_into_performers():
     conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
