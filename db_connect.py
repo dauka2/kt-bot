@@ -170,6 +170,20 @@ def delete_verif_columns():
     sql_query += "ALTER TABLE users DROP COLUMN IF EXISTS is_verified_decl; "
     execute_set_sql_query(sql_query)
 
+def update_verification_columns():
+    sql_query = """
+    UPDATE users
+    SET is_verified = CASE
+        WHEN is_verified IS NULL OR is_verified = FALSE OR is_verified = 'ЛОЖЬ' THEN FALSE
+        WHEN is_verified = TRUE OR is_verified = 'ИСТИНА' THEN TRUE
+    END,
+    is_verified_decl = CASE
+        WHEN is_verified_decl IS NULL OR is_verified_decl = FALSE OR is_verified_decl = 'ЛОЖЬ' THEN FALSE
+        WHEN is_verified_decl = TRUE OR is_verified_decl = 'ИСТИНА' THEN TRUE
+    END;
+    """
+    execute_set_sql_query(sql_query)
+
 def insert_into_performers():
     conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
     cur = conn.cursor()

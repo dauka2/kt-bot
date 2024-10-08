@@ -141,11 +141,15 @@ def delete_verif_columns(message):
     db_connect.delete_verif_columns()
     bot.send_message(message.chat.id, "Изменения сохранены")
 
+@bot.message_handler(commands=['update_verification_columns'])
+def update_verification_columns(message):
+    db_connect.update_verification_columns()
+    bot.send_message(message.chat.id, "Изменения сохранены")
+
 @bot.message_handler(commands=['change'])
 def change(message):
     change_(message)
     bot.send_message(message.chat.id, "Изменения сохранены")
-
 
 @bot.message_handler(commands=['change_performer_id_by_appeal_id'])
 def change_performer_id_by_appeal_id(message):
