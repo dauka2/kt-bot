@@ -1102,7 +1102,7 @@ def message_sender_fin_gram(message, broadcast_message):
                     bot.send_voice(user_id[0], voice_id, broadcast_message.caption)
                 if broadcast_message.text:
                     bot.send_message(user_id[0], broadcast_message.text, protect_content=True)
-                    time.sleep(0.3)  # Задержка между отправками сообщений
+                time.sleep(0.3)  # Задержка между отправками сообщений
             except:
                 continue
         bot.send_message(message.chat.id, "Рассылка отправлена")
@@ -1136,7 +1136,7 @@ def message_sender(message, broadcast_message):
                     bot.send_voice(user_id[0], voice_id, broadcast_message.caption)
                 if broadcast_message.text:
                     bot.send_message(user_id[0], broadcast_message.text)
-                    time.sleep(0.3)  # Задержка между отправками сообщений
+                time.sleep(0.3)  # Задержка между отправками сообщений
             except:
                 continue
         bot.send_message(message.chat.id, "Рассылка отправлена")
