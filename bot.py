@@ -1,17 +1,16 @@
 import openpyxl
 import psycopg2
-import time
 from telebot import *
 
 import appealsClass
+import commands_historyClass
+import common_file
 import db_connect
+import file
 import kaz
 import maraphonersClass
 import rus
 import userClass
-import commands_historyClass
-import common_file
-import file
 import user_infoClass
 
 bot = telebot.TeleBot(db_connect.TOKEN, parse_mode="HTML")
@@ -1103,6 +1102,7 @@ def message_sender_fin_gram(message, broadcast_message):
                     bot.send_voice(user_id[0], voice_id, broadcast_message.caption)
                 if broadcast_message.text:
                     bot.send_message(user_id[0], broadcast_message.text, protect_content=True)
+                    time.sleep(0.3)  # Задержка между отправками сообщений
             except:
                 continue
         bot.send_message(message.chat.id, "Рассылка отправлена")
