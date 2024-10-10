@@ -170,6 +170,7 @@ def change_category(message, bot, appeal_id):
         text2 = get_appeal_text_all(appeal_id)
         bot.send_message(user_id, "Ваше обращение было переотправлено в категорию:\n" + message.text)
         bot.send_message(user_id, "Ваше обращение:\n" + text2)
+        bot.send_message(message.chat.id, "Обращение было успешно перенаправлено!")
 
 # def change_category(message, bot, appeal_id):
     # if message.text in categories.keys():
