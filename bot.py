@@ -1,5 +1,6 @@
 import openpyxl
 import psycopg2
+import time
 from telebot import *
 
 import appealsClass
@@ -1093,7 +1094,7 @@ def message_sender_fin_gram(message, broadcast_message):
                     bot.send_photo(user_id[0], photo_id, broadcast_message.caption)
                 if broadcast_message.audio:
                     audio_id = broadcast_message.audio.file_id
-                    bot.send_video(user_id[0], audio_id, broadcast_message.caption)
+                    bot.send_audio(user_id[0], audio_id, broadcast_message.caption)
                 if broadcast_message.video:
                     video_id = broadcast_message.video.file_id
                     bot.send_video(user_id[0], video_id, broadcast_message.caption)
@@ -1126,7 +1127,7 @@ def message_sender(message, broadcast_message):
                     bot.send_photo(user_id[0], photo_id, broadcast_message.caption)
                 if broadcast_message.audio:
                     audio_id = broadcast_message.audio.file_id
-                    bot.send_video(user_id[0], audio_id, broadcast_message.caption)
+                    bot.send_audio(user_id[0], audio_id, broadcast_message.caption)
                 if broadcast_message.video:
                     video_id = broadcast_message.video.file_id
                     bot.send_video(user_id[0], video_id, broadcast_message.caption)
@@ -1135,6 +1136,7 @@ def message_sender(message, broadcast_message):
                     bot.send_voice(user_id[0], voice_id, broadcast_message.caption)
                 if broadcast_message.text:
                     bot.send_message(user_id[0], broadcast_message.text)
+                    time.sleep(0.3)  # Задержка между отправками сообщений
             except:
                 continue
         bot.send_message(message.chat.id, "Рассылка отправлена")

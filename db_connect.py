@@ -50,11 +50,9 @@ def create_db():
         'category varchar(100), appeal_text varchar(1000), date varchar(30), date_status varchar(30), '
         'id_performer varchar(30), comment varchar(1000), is_appeal_anon bool, evaluation int, '
         'image_data bytea, lte_id int, subcategory varchar(50), subsubcategory varchar(50))')
-
     cur.execute(
         'CREATE TABLE IF NOT EXISTS maraphoners(id serial primary key, user_id varchar(50), age int, '
         'region varchar(50), position varchar(100))')
-
     cur.execute(
         'CREATE TABLE IF NOT EXISTS hse_competitions(id serial primary key, user_id varchar(50), '
         'competition_name varchar(200), position varchar(100), city varchar(50))')
@@ -75,7 +73,6 @@ def create_db():
         'subsubcategory varchar(50) '
         ');'
     )
-
     cur.execute(
         """
     CREATE TABLE IF NOT EXISTS internal_sale (
@@ -97,7 +94,6 @@ def create_db():
     );
     """
     )
-
     conn.commit()
     cur.close()
     conn.close()
