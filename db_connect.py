@@ -137,6 +137,10 @@ def delete_performers():
     sql_query = "DROP TABLE IF EXISTS performers"
     execute_set_sql_query(sql_query)
 
+# def delete_nenuzhnoe_v_usersinfo():
+#     sql_query = "ALTER TABLE users_info DROP COLUMN IF EXISTS appeal_id;"
+#     sql_query += "ALTER TABLE users_info DROP COLUMN IF EXISTS is_appeal_anon;"
+#     execute_set_sql_query(sql_query)
 
 def delete_appeals():
     sql_query = "DROP TABLE IF EXISTS appeals"

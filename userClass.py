@@ -212,7 +212,6 @@ def get_users_id():
         users_array.append(str(user[0]))
     return users_array
 
-
 def set_firstname(message, firstname):
     sql_query = 'UPDATE users SET firstname = %s WHERE id=%s'
     params = (firstname, str(message.chat.id),)

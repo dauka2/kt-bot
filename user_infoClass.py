@@ -57,7 +57,6 @@ def set_appeal_id(message, id):
     params = (id, str(message.chat.id),)
     execute_set_sql_query(sql_query, params)
 
-
 def get_is_appeal_anon_users_info(user_id):
     sql_query = 'SELECT is_appeal_anon from users_info WHERE id=%s'
     params = (str(user_id),)

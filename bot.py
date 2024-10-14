@@ -118,6 +118,10 @@ def delete_appeals(message):
     db_connect.delete_appeals()
     bot.send_message(message.chat.id, "Изменения сохранены")
 
+# @bot.message_handler(commands=['delete_nenuzhnoe_usersinfo'])
+# def delete_nenuzhnoe_v_usersinfo(message):
+#     db_connect.delete_nenuzhnoe_v_usersinfo()
+#     bot.send_message(message.chat.id, "Изменения сохранены")
 
 @bot.message_handler(commands=['add_column'])
 def add_column(message):
@@ -812,6 +816,10 @@ def get_excel(message):
     sql_query = "SELECT * from users"
     common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
 
+@bot.message_handler(commands=['get_verified_users'])
+def get_excel(message):
+    sql_query = 'SELECT * FROM users WHERE is_verified = True'
+    common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
 
 @bot.message_handler(commands=['get_hse_competitions'])
 def get_excel(message):
@@ -1221,6 +1229,8 @@ def text(message, get_message, lang_py):
         lang_py.hse_competition_(bot, message)
     elif get_message in lang_py.fin_gram_field:
         lang_py.fin_gram(bot, message, message.text)
+    elif get_message in lang_py.modems_field:
+        lang_py.modems(bot, message, message.text)
     elif get_message == "📄У меня есть вопрос" or get_message == "📄Менің сұрағым бар":
         lang_py.questions(bot, message)
     elif get_message == "Мои обращения" or get_message == "Менің өтініштерім" \
