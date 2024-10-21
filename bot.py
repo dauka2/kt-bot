@@ -61,7 +61,7 @@ def check_register(message, func):
 @bot.message_handler(commands=['delete_users_info'])
 def delete_users_info(message):
     userClass.delete_users_info()
-    bot.send_message(message.chat.id, "Изменения сохранены")
+    bot.send_message(message.chat.id,  "Изменения сохранены")
 
 @bot.message_handler(commands=['alter_users'])
 def alter_user(message):
@@ -118,6 +118,16 @@ def delete_appeals(message):
     db_connect.delete_appeals()
     bot.send_message(message.chat.id, "Изменения сохранены")
 
+@bot.message_handler(commands=['update_sapa'])
+def delete_appeals(message):
+    db_connect.update_sapa()
+    bot.send_message(message.chat.id, "Изменения сохранены")
+
+@bot.message_handler(commands=['delete_sapa_bonus'])
+def delete_appeals(message):
+    db_connect.delete_sapa_bonus()
+    bot.send_message(message.chat.id, "Изменения сохранены")
+
 # @bot.message_handler(commands=['delete_nenuzhnoe_usersinfo'])
 # def delete_nenuzhnoe_v_usersinfo(message):
 #     db_connect.delete_nenuzhnoe_v_usersinfo()
@@ -128,12 +138,10 @@ def add_column(message):
     db_connect.add_column()
     bot.send_message(message.chat.id, "Изменения сохранены")
 
-
 @bot.message_handler(commands=['add_column_dec'])
 def add_column_dec(message):
     db_connect.add_column_dec()
     bot.send_message(message.chat.id, "Изменения сохранены")
-
 
 @bot.message_handler(commands=['add_column_default'])
 def add_column_default(message):
@@ -698,6 +706,13 @@ def callback_documents(call):
         bot.send_document(call.message.chat.id, open("files/Политика АО Казахтелеком в области энергоменеджмента.doc", 'rb'))
     elif call.data == "doc5":
         bot.send_document(call.message.chat.id, open("files/Политика в области обеспечения БиОТ.pdf", 'rb'))
+    elif call.data == "doc6":
+        bot.send_document(call.message.chat.id, open("files/Политика АО Казахтелеком в области качества.doc", 'rb'))
+    elif call.data == "doc7":
+        bot.send_document(call.message.chat.id,
+                          open("files/Экологическая политика от 21.04.2023.docx", 'rb'))
+    elif call.data == "doc8":
+        bot.send_document(call.message.chat.id, open("files/2ДП Планирование в области качества, ООС, БТиОЗ, СЭнМ.doc", 'rb'))
 
 
 @bot.callback_query_handler(func=lambda call: True)
@@ -867,6 +882,15 @@ def get_excel(message):
     sql_query = "SELECT * from maraphoners"
     common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
 
+@bot.message_handler(commands=['get_sapa'])
+def get_excel(message):
+    sql_query = "SELECT * from sapa"
+    common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
+
+@bot.message_handler(commands=['get_sapa_bonus'])
+def get_excel(message):
+    sql_query = "SELECT * from sapa_bonus"
+    common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
 
 @bot.message_handler(commands=['functionn'])
 def get_excel(message):
@@ -1230,7 +1254,7 @@ def text(message, get_message, lang_py):
     elif get_message in lang_py.fin_gram_field:
         lang_py.fin_gram(bot, message, message.text)
     elif get_message in lang_py.modems_field:
-        lang_py.modems(bot, message, message.text)
+        lang_py.sapa_con(bot, message)
     elif get_message == "📄У меня есть вопрос" or get_message == "📄Менің сұрағым бар":
         lang_py.questions(bot, message)
     elif get_message == "Мои обращения" or get_message == "Менің өтініштерім" \

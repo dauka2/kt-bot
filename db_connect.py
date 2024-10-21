@@ -36,6 +36,8 @@ def execute_set_sql_query(sql_query, params=None):
 def create_db():
     conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
     cur = conn.cursor()
+
+    # Создание таблиц
     cur.execute(
         'CREATE TABLE IF NOT EXISTS users (id varchar(50) primary key, username varchar(50), lastname varchar(50), '
         'firstname varchar(50), table_number varchar(11), phone_number varchar(13), '
@@ -58,6 +60,12 @@ def create_db():
         'competition_name varchar(200), position varchar(100), city varchar(50))')
     cur.execute(
         'CREATE TABLE IF NOT EXISTS financial_literacy(id serial primary key, user_id varchar(50), webinar_name varchar(200))')
+    cur.execute(
+        'CREATE TABLE IF NOT EXISTS sapa(id serial primary key, fullname varchar(200), email varchar(50), table_number varchar(11), score int)')
+    cur.execute(
+        'CREATE TABLE IF NOT EXISTS sapa_bonus(id serial primary key, fullname varchar(200), email varchar(50), table_number varchar(11), bonus_score int DEFAULT 0, total_score int DEFAULT 0)')
+    cur.execute(
+        'CREATE TABLE IF NOT EXISTS sapa_link(id serial primary key, fullname varchar(200), email varchar(50), table_number varchar(11), link varchar(200), is_checked bool DEFAULT FALSE, status bool)')
     cur.execute(
         'CREATE TABLE IF NOT EXISTS performers('
         'id serial primary key, '
@@ -94,6 +102,59 @@ def create_db():
     );
     """
     )
+
+    # # Удаление триггера и функции, если они существуют
+    # cur.execute("""
+    # DO $$
+    # BEGIN
+    #     IF EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_total_score_trigger') THEN
+    #         DROP TRIGGER update_total_score_trigger ON sapa_bonus;
+    #     END IF;
+    #     IF EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'update_total_score') THEN
+    #         DROP FUNCTION update_total_score();
+    #     END IF;
+    # END $$;
+    # """)
+    #
+    # # Создание функции для обновления total_score
+    # cur.execute("""
+    # CREATE OR REPLACE FUNCTION update_total_score()
+    # RETURNS TRIGGER AS $$
+    # BEGIN
+    #     -- Обновляем total_score в sapa_bonus, используя связанное значение score из sapa
+    #     UPDATE sapa_bonus
+    #     SET total_score = NEW.bonus_score + COALESCE(
+    #         (SELECT s.score
+    #          FROM sapa s
+    #          JOIN users u ON s.email = u.email
+    #          WHERE u.id = NEW.user_id
+    #          LIMIT 1), 0)
+    #     WHERE user_id = NEW.user_id;
+    #
+    #     RETURN NEW;
+    # END;
+    # $$ LANGUAGE plpgsql;
+    # """)
+    #
+    # # Создание триггера, который вызывает функцию после вставки или обновления в таблице sapa_bonus
+    # cur.execute("""
+    # CREATE TRIGGER update_total_score_trigger
+    # AFTER INSERT OR UPDATE ON sapa_bonus
+    # FOR EACH ROW
+    # EXECUTE FUNCTION update_total_score();
+    # """)
+    #
+    # # Вставка данных из sapa в sapa_bonus, если их там нет
+    # cur.execute("""
+    # INSERT INTO sapa_bonus (user_id, bonus_score, total_score)
+    # SELECT CAST(s.id AS varchar), 0, s.score
+    # FROM sapa s
+    # LEFT JOIN sapa_bonus sb ON CAST(s.id AS varchar) = sb.user_id
+    # WHERE sb.user_id IS NULL
+    # ON CONFLICT (user_id) DO UPDATE
+    # SET total_score = sapa_bonus.bonus_score + EXCLUDED.total_score;
+    # """)
+
     conn.commit()
     cur.close()
     conn.close()
@@ -146,6 +207,9 @@ def delete_appeals():
     sql_query = "DROP TABLE IF EXISTS appeals"
     execute_set_sql_query(sql_query)
 
+def delete_sapa_bonus():
+    sql_query = "DROP TABLE IF EXISTS sapa_bonus"
+    execute_set_sql_query(sql_query)
 
 def add_column():
     sql_query = "ALTER TABLE users_info ADD COLUMN IF NOT EXISTS subcategory char(50);"
@@ -168,6 +232,11 @@ def add_column_default():
 def delete_verif_columns():
     sql_query = "ALTER TABLE users DROP COLUMN IF EXISTS is_verified; "
     sql_query += "ALTER TABLE users DROP COLUMN IF EXISTS is_verified_decl; "
+    execute_set_sql_query(sql_query)
+
+def update_sapa():
+    sql_query = "ALTER TABLE sapa_bonus ALTER COLUMN bonus_score SET DEFAULT 0; "
+    sql_query += "ALTER TABLE sapa_bonus ALTER COLUMN total_score SET DEFAULT 0; "
     execute_set_sql_query(sql_query)
 
 def update_verification_columns():
@@ -732,7 +801,6 @@ def get_appeal_by_lte_id(lte_id):
     sql_query = "SELECT id, appeal_text from appeals where lte_id = %s"
     params = (str(lte_id),)
     return execute_get_sql_query(sql_query, params)[0]
-
 
 def get_sale(id_i_s):
     sql_query = "SELECT * from internal_sale where id = %s"
