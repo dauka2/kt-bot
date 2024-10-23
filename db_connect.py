@@ -5,7 +5,6 @@ TOKEN = '6145415028:AAEdgPMvSsi3FJw2ccyzWf2QiJrPa_Ycz0A'
 admins_id = ['760906879', '1066191569', '6682886650']
 admins_id = ['760906879', '1066191569', '6682886650', '353845928']
 
-
 def execute_get_sql_query(sql_query, params=None):
     try:
         conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
@@ -61,11 +60,11 @@ def create_db():
     cur.execute(
         'CREATE TABLE IF NOT EXISTS financial_literacy(id serial primary key, user_id varchar(50), webinar_name varchar(200))')
     cur.execute(
-        'CREATE TABLE IF NOT EXISTS sapa(id serial primary key, fullname varchar(200), email varchar(50), table_number varchar(11), score int)')
+        'CREATE TABLE IF NOT EXISTS sapa(id serial primary key, user_id varchar(50), fullname varchar(200), email varchar(50), table_number varchar(11), score int)')
     cur.execute(
-        'CREATE TABLE IF NOT EXISTS sapa_bonus(id serial primary key, fullname varchar(200), email varchar(50), table_number varchar(11), bonus_score int DEFAULT 0, total_score int DEFAULT 0)')
+        'CREATE TABLE IF NOT EXISTS sapa_bonus(id serial primary key, user_id varchar(50), fullname varchar(200), email varchar(50), table_number varchar(11), bonus_score int DEFAULT 0, total_score int DEFAULT 0)')
     cur.execute(
-        'CREATE TABLE IF NOT EXISTS sapa_link(id serial primary key, fullname varchar(200), email varchar(50), table_number varchar(11), link varchar(200), is_checked bool DEFAULT FALSE, status bool)')
+        'CREATE TABLE IF NOT EXISTS sapa_link(id serial primary key, user_id varchar(50), fullname varchar(200), email varchar(50), table_number varchar(11), link varchar(200), is_checked bool DEFAULT FALSE, status bool)')
     cur.execute(
         'CREATE TABLE IF NOT EXISTS performers('
         'id serial primary key, '
@@ -227,6 +226,12 @@ def add_column_dec():
 def add_column_default():
     sql_query = "ALTER TABLE users ALTER COLUMN is_verified SET DEFAULT FALSE; "
     sql_query += "ALTER TABLE users ALTER COLUMN is_verified_decl SET DEFAULT FALSE; "
+    execute_set_sql_query(sql_query)
+
+def add_column_sapa():
+    sql_query = "ALTER TABLE sapa ADD COLUMN is_verified SET DEFAULT FALSE; "
+    sql_query += "ALTER TABLE sapa_bonus ADD COLUMN is_verified_decl SET DEFAULT FALSE; "
+    sql_query += "ALTER TABLE sapa_links ADD COLUMN is_verified_decl SET DEFAULT FALSE; "
     execute_set_sql_query(sql_query)
 
 def delete_verif_columns():

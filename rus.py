@@ -1,7 +1,10 @@
 import types
 from datetime import timedelta
+import pandas as pd
 import requests
 from telebot import *
+import io
+from telebot.apihelper import download_file
 
 import appealsClass
 import common_file
@@ -63,11 +66,12 @@ adapt_field = ["😊Welcome курс | Адаптация", "ДТК", "Обща�
                "Командировки", "Переводы", "Порядок оформления командировки", "Рассторжение ТД"]
 maraphon_field = ["🚀Цифровой марафон | Регистрация"]
 fin_gram_field = ['💸Регистрация на обучение "Финансовая грамотность"']
-modems_field = ['📶Учавствовать в конкурсе "Сапа+"']
+modems_field = ['📶Участие в конкурсе "Сапа+"']
 hse_competition_field = ["👷🏻‍♂️Конкурсы по охране труда"]
 hse_com_field = ["Мой безопасный рабочий день/Менің қауіпсіз жұмыс күнім", "Лучший совет по безопасности/Ең жақсы қауіпсіздік кеңесі", "Принять участие в обоих конкурсах/Екі байқауға қатысу"]
 verification_field = ["📄Подтверждение сдачи декларации"]
 portal_bts = ["Что такое портал 'Бірлік'?", "Как войти на портал?", "Оставить обращение на портал"]
+sapa_admin = ['1066191569']
 # "Бірлік Гид"
 portal_ = ["Мобильная версия", "ПК или ноутбук", "Как авторизоваться", "Личный профиль", "Из портала перейти в ССП",
            "iOS", "Android", "Есть checkpoint", "Нет checkpoint"]
@@ -243,7 +247,7 @@ def get_markup(message):
     #button2 = types.KeyboardButton("🚀Цифровой марафон | Регистрация")
     button2 = types.KeyboardButton('💸Регистрация на обучение "Финансовая грамотность"')
     button9 = types.KeyboardButton("📄Подтверждение сдачи декларации")
-    button10 = types.KeyboardButton('📶Участвовать в конкурсе "Сапа+"')
+    button10 = types.KeyboardButton('📶Участие в конкурсе "Сапа+"')
     button = types.KeyboardButton("😊Welcome курс | Адаптация")
     button3 = types.KeyboardButton("🗃️База знаний")
     button4 = types.KeyboardButton("👷Заполнить карточку БиОТ")
@@ -254,7 +258,7 @@ def get_markup(message):
     markup.add(button1, button9, button2, button)
     if get_branch(message.chat.id) == branches[2]:
         markup.add(button8)
-    markup.add(button3, button7, button5, button4, button6)
+    markup.add(button10, button3, button7, button5, button4, button6)
     return markup
 
 def send_welcome_message(bot, message):
@@ -502,6 +506,252 @@ def start_verification_timer(user_id, bot, message):
     verification_timers[user_id] = threading.Thread(target=timer)
     verification_timers[user_id].start()
 
+
+def sapa_con(bot, message):
+    user_id = message.chat.id
+    message_text = message.text
+
+    if message_text == '📶Участие в конкурсе "Сапа+"':
+        # Проверка наличия пользователя по email и обновление его user_id
+        try:
+            # Получаем email текущего пользователя
+            email_query = "SELECT email FROM users WHERE id = %s"
+            email_result = db_connect.execute_get_sql_query(email_query, (user_id,))
+
+            if email_result:
+                email = email_result[0][0]
+
+                # Проверяем наличие пользователя с таким email в таблице sapa_bonus
+                check_user_query = "SELECT user_id FROM sapa_bonus WHERE email = %s"
+                user_exists = db_connect.execute_get_sql_query(check_user_query, (email,))
+
+                if user_exists:
+                    # Обновляем user_id для найденного пользователя в sapa_bonus
+                    update_user_id_query = "UPDATE sapa_bonus SET user_id = %s WHERE email = %s"
+                    db_connect.execute_set_sql_query(update_user_id_query, (user_id, email))
+                    bot.send_message(user_id, "Ваш user_id обновлен на основе найденного email.")
+                else:
+                    bot.send_message(user_id, "Пользователь с таким email не найден в sapa_bonus.")
+            else:
+                bot.send_message(user_id, "Ваш email не найден в таблице users.")
+        except Exception as e:
+            bot.send_message(user_id, f"Произошла ошибка при проверке email: {e}")
+
+        # Создаем кнопки для ответа
+        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+        if str(user_id) in sapa_admin:
+            download_button = types.KeyboardButton('Оценка ссылок')
+            upload_button = types.KeyboardButton('Загрузить таблицу')
+            markup.add(download_button, upload_button)
+        else:
+            download_button = types.KeyboardButton('Загрузить ссылку')
+            markup.add(download_button)
+
+        leaders_list_button = types.KeyboardButton('Таблица лидеров')
+        markup.add(leaders_list_button)
+
+        bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
+        bot.register_next_step_handler(message, sapa_instruments, bot)
+
+
+def sapa_instruments(message, bot):
+    user_id = str(message.chat.id)
+    response = message.text.strip().lower()
+
+    if response == 'таблица лидеров':
+        try:
+            # SQL-запрос для получения топ-10 лидеров с общей суммой очков
+            sql_query = """
+                        SELECT sb.fullname, sb.email, COALESCE(s.score, 0) + sb.bonus_score AS total_score
+                        FROM sapa_bonus sb
+                        LEFT JOIN sapa s ON sb.email = s.email
+                        ORDER BY total_score DESC
+                        LIMIT 10
+                    """
+            result = db_connect.execute_get_sql_query(sql_query)
+
+            leaderboard = "Таблица лидеров:\n"
+            for i, row in enumerate(result, 1):
+                leaderboard += f"{i}. Пользователь: {row[0]} (Email: {row[1]}) - Общий балл: {row[2]}\n"
+            bot.send_message(message.chat.id, leaderboard)
+
+            # SQL-запрос для получения email текущего пользователя из таблицы users
+            user_email_query = "SELECT email FROM users WHERE id = %s"
+            user_email_result = db_connect.execute_get_sql_query(user_email_query, (user_id,))
+
+            if user_email_result:
+                user_email = user_email_result[0][0]
+
+                # SQL-запрос для получения места текущего пользователя по email
+                user_rank_query = """
+                            SELECT RANK() OVER (ORDER BY COALESCE(s.score, 0) + sb.bonus_score DESC) AS rank,
+                                   COALESCE(s.score, 0) + sb.bonus_score AS total_score
+                            FROM sapa_bonus sb
+                            LEFT JOIN sapa s ON sb.email = s.email
+                            WHERE sb.email = %s
+                        """
+                user_rank_result = db_connect.execute_get_sql_query(user_rank_query, (user_email,))
+
+                if user_rank_result:
+                    user_rank, user_score = user_rank_result[0]
+                    bot.send_message(message.chat.id, f"Ваше место: {user_rank}, Общий балл: {user_score}")
+                else:
+                    bot.send_message(message.chat.id, "Вы пока не участвуете в конкурсе.")
+            else:
+                bot.send_message(message.chat.id, "Не удалось найти ваш email.")
+
+        except Exception as e:
+            bot.send_message(message.chat.id, f"Произошла ошибка при получении таблицы лидеров: {e}")
+
+    elif response.startswith('да ') or response.startswith('нет '):
+        parts = response.split(' ')
+        if len(parts) == 2 and parts[1].isdigit():
+            link_id = parts[1]
+            if response.startswith('да '):
+                approve_link(bot, user_id, link_id, True)
+            elif response.startswith('нет '):
+                approve_link(bot, user_id, link_id, False)
+
+    elif response == 'оценка ссылок' and str(user_id) in sapa_admin:
+        show_pending_links(bot, user_id)
+
+    elif response == 'загрузить таблицу' and str(user_id) in sapa_admin:
+        msg = bot.send_message(message.chat.id, "Пожалуйста, загрузите Excel файл с данными для обновления таблицы.")
+        bot.register_next_step_handler(msg, upload_sapa_table, bot)
+
+    else:
+        msg = bot.send_message(message.chat.id, "Пожалуйста, выберите один из вариантов")
+        bot.register_next_step_handler(msg, sapa_instruments, bot)
+
+def show_pending_links(bot, admin_user_id):
+    try:
+        sql_query = """
+            SELECT id, user_id, link 
+            FROM sapa_link 
+            WHERE is_checked = FALSE 
+            ORDER BY id 
+            LIMIT 20
+        """
+        result = db_connect.execute_get_sql_query(sql_query)
+
+        if result:
+            for row in result:
+                link_id, link_user_id, link = row
+                markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+                yes_button = types.KeyboardButton(f'да {link_id}')
+                no_button = types.KeyboardButton(f'нет {link_id}')
+                markup.add(yes_button, no_button)
+                bot.send_message(admin_user_id, f"Пользователь: {link_user_id}\nСсылка: {link}", reply_markup=markup)
+        else:
+            bot.send_message(admin_user_id, "Нет новых ссылок для проверки.")
+    except Exception as e:
+        bot.send_message(admin_user_id, f"Ошибка при получении ссылок: {e}")
+
+
+def approve_link(bot, admin_user_id, link_id, approved):
+    try:
+        get_user_query = "SELECT user_id FROM sapa_link WHERE id = %s"
+        user_result = db_connect.execute_get_sql_query(get_user_query, (link_id,))
+        if user_result:
+            link_user_id = user_result[0][0]
+            update_query = """
+                UPDATE sapa_link 
+                SET status = %s, is_checked = TRUE 
+                WHERE id = %s
+            """
+            db_connect.execute_set_sql_query(update_query, (approved, link_id))
+
+            if approved:
+                update_score_query = """
+                    UPDATE sapa_bonus 
+                    SET total_score = total_score + 1 
+                    WHERE user_id = %s
+                """
+                db_connect.execute_set_sql_query(update_score_query, (link_user_id,))
+                bot.send_message(admin_user_id, "Ссылка одобрена и балл начислен!")
+                bot.send_message(link_user_id, "Ваша ссылка была одобрена, вам начислен 1 балл!")
+            else:
+                bot.send_message(admin_user_id, "Ссылка отклонена.")
+        else:
+            bot.send_message(admin_user_id, "Ошибка: ссылка не найдена.")
+    except Exception as e:
+        bot.send_message(admin_user_id, f"Ошибка при обновлении ссылки: {e}")
+
+
+def upload_sapa_table(message, bot):
+    user_id = str(message.chat.id)
+    if message.content_type == 'document':
+        file_info = bot.get_file(message.document.file_id)
+        downloaded_file = bot.download_file(file_info.file_path)
+        try:
+            df = pd.read_excel(io.BytesIO(downloaded_file))
+
+            # Очищаем таблицу sapa и вставляем новые данные
+            db_connect.execute_set_sql_query("DELETE FROM sapa")
+            for _, row in df.iterrows():
+                sql_query = "INSERT INTO sapa (fullname, email, score) VALUES (%s, %s, %s)"
+                params = (row['fullname'], row['email'], row['score'])
+                db_connect.execute_set_sql_query(sql_query, params)
+
+                # Проверяем наличие пользователя в sapa_bonus по email
+                check_user_query = "SELECT 1 FROM sapa_bonus WHERE email = %s"
+                user_exists = db_connect.execute_get_sql_query(check_user_query, (row['email'],))
+
+                # Если пользователя нет, добавляем его с начальным значением
+                if not user_exists:
+                    insert_user_query = """
+                        INSERT INTO sapa_bonus (fullname, email, table_number, bonus_score, total_score)
+                        VALUES (%s, %s, %s, 0, %s)
+                    """
+                    # Вставляем пользователя с начальным значением очков (сумма начальных score и bonus_score = 0)
+                    insert_params = (row['fullname'], row['email'], row['table_number'], row['score'])
+                    db_connect.execute_set_sql_query(insert_user_query, insert_params)
+
+            # Обновляем total_score в таблице sapa_bonus
+            update_total_score_query = """
+                UPDATE sapa_bonus sb
+                SET total_score = sb.bonus_score + COALESCE(s.score, 0)
+                FROM sapa s
+                WHERE sb.email = s.email;
+            """
+            db_connect.execute_set_sql_query(update_total_score_query)
+
+            bot.send_message(user_id, "Таблица успешно обновлена!")
+        except Exception as e:
+            bot.send_message(user_id, f"Ошибка при загрузке таблицы: {e}")
+    else:
+        bot.send_message(user_id, "Пожалуйста, загрузите файл в формате Excel.")
+
+
+def process_link(message, bot):
+    user_id = str(message.chat.id)
+    link = message.text.strip()
+    try:
+        sql_query = "INSERT INTO sapa_link (user_id, link) VALUES (%s, %s)"
+        params = (user_id, link)
+        db_connect.execute_set_sql_query(sql_query, params)
+        bot.send_message(user_id, "Ссылка успешно загружена!")
+        menu(bot, message)
+    except Exception as e:
+        bot.send_message(user_id, f"Произошла ошибка при загрузке ссылки: {e}")
+
+def update_bonus_score(user_id, new_bonus_score):
+    try:
+        # Обновляем bonus_score
+        update_score_query = "UPDATE sapa_bonus SET bonus_score = %s WHERE user_id = %s"
+        db_connect.execute_set_sql_query(update_score_query, (new_bonus_score, user_id))
+
+        # Обновляем total_score на основе нового bonus_score и score из sapa
+        update_total_score_query = """
+            UPDATE sapa_bonus sb
+            SET total_score = sb.bonus_score + COALESCE(s.score, 0)
+            FROM sapa s
+            WHERE sb.user_id = s.id;
+        """
+        db_connect.execute_set_sql_query(update_total_score_query)
+
+    except Exception as e:
+        print(f"Ошибка при обновлении бонусного балла: {e}")
 
 def hse_competition_(bot, message, id_i_s = None):
     text = "Сохраненная информация\n\n"
@@ -1420,7 +1670,7 @@ def instructions(bot, message):
         button1_i = types.KeyboardButton("АО 'Казахтелеком'")
         button2_i = types.KeyboardButton("Корпоративный университет")
         markup_instr.add(button1_i, button2_i)
-        bot.send_message(message.chat.id, "Выберете категорию", reply_markup=markup_instr)
+        bot.send_message(message.chat.id, "Выберите категорию", reply_markup=markup_instr)
     elif message.text == "Модемы | Настройка":
         markup_instr = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         button1_i = types.KeyboardButton("ADSL модем")
@@ -1428,20 +1678,20 @@ def instructions(bot, message):
         button3_i = types.KeyboardButton("ONT модемы")
         button4_i = types.KeyboardButton("Router 4G and Router Ethernet")
         markup_instr.add(button1_i, button2_i, button3_i, button4_i)
-        bot.send_message(message.chat.id, "Выберете категорию", reply_markup=markup_instr)
+        bot.send_message(message.chat.id, "Выберите категорию", reply_markup=markup_instr)
     elif message.text == "Lotus | Инструкции":
         markup_instr = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         button1_i = types.KeyboardButton("Данные по серверам филиалов")
         button2_i = types.KeyboardButton("Инструкция по установке Lotus")
         button3_i = types.KeyboardButton("Установочный файл Lotus")
         markup_instr.add(button1_i, button2_i, button3_i)
-        bot.send_message(message.chat.id, "Выберете категорию", reply_markup=markup_instr)
+        bot.send_message(message.chat.id, "Выберите категорию", reply_markup=markup_instr)
     elif message.text == "CheckPoint VPN | Удаленная работа":
         markup_instr = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         button1_i = types.KeyboardButton("Инструкция по установке CheckPoint")
         button2_i = types.KeyboardButton("Установочный файл CheckPoint")
         markup_instr.add(button1_i, button2_i)
-        bot.send_message(message.chat.id, "Выберете категорию", reply_markup=markup_instr)
+        bot.send_message(message.chat.id, "Выберите категорию", reply_markup=markup_instr)
     elif message.text == "Личный кабинет telecom.kz":
         markup_instr = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         button1_i = types.KeyboardButton("Как оплатить услугу")
@@ -1449,7 +1699,7 @@ def instructions(bot, message):
         button3_i = types.KeyboardButton("Как посмотреть подключенные услуги")
         button4_i = types.KeyboardButton("Раздел 'Мои Услуги'")
         markup_instr.add(button1_i, button2_i, button3_i, button4_i)
-        bot.send_message(message.chat.id, "Выберете категорию", reply_markup=markup_instr)
+        bot.send_message(message.chat.id, "Выберите категорию", reply_markup=markup_instr)
     elif message.text == "Командировка | Порядок оформления":
         bot.send_document(message.chat.id, document=open("files/Порядок оформления командировки.pdf", 'rb'))
     elif message.text == "Данные по серверам филиалов":
@@ -1848,14 +2098,14 @@ def checkpoint(bot, message, message_text):
         button1 = types.KeyboardButton(portal_[0])
         button2 = types.KeyboardButton(portal_[1])
         markup_portal.add(button1, button2)
-        bot.send_message(message.chat.id, "Выберете категорию", reply_markup=markup_portal)
+        bot.send_message(message.chat.id, "Выберите категорию", reply_markup=markup_portal)
     elif message_text == portal_[1]:
         markup_pk = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         button1_p = types.KeyboardButton("Как авторизоваться")
         button2_p = types.KeyboardButton("Личный профиль")
         button3_p = types.KeyboardButton("Из портала перейти в ССП")
         markup_pk.add(button1_p, button2_p, button3_p)
-        bot.send_message(message.chat.id, "Выберете категорию", reply_markup=markup_pk)
+        bot.send_message(message.chat.id, "Выберите категорию", reply_markup=markup_pk)
     elif message_text == portal_[2]:
         bot.send_message(message.chat.id, "Для получения информации о категории 'Как авторизоваться на портале "
                                           "работника через ПК?' перейдите по ссылке ниже "
