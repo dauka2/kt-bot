@@ -512,46 +512,35 @@ def sapa_con(bot, message):
     message_text = message.text
 
     if message_text == '📶Участие в конкурсе "Сапа+"':
-        # Проверка наличия пользователя по email и обновление его user_id
-        try:
-            # Получаем email текущего пользователя
-            email_query = "SELECT email FROM users WHERE id = %s"
-            email_result = db_connect.execute_get_sql_query(email_query, (user_id,))
+        handle_email_check(bot, message, user_id)
 
-            if email_result:
-                email = email_result[0][0]
-
-                # Проверяем наличие пользователя с таким email в таблице sapa_bonus
-                check_user_query = "SELECT user_id FROM sapa_bonus WHERE email = %s"
-                user_exists = db_connect.execute_get_sql_query(check_user_query, (email,))
-
-                if user_exists:
-                    # Обновляем user_id для найденного пользователя в sapa_bonus
-                    update_user_id_query = "UPDATE sapa_bonus SET user_id = %s WHERE email = %s"
-                    db_connect.execute_set_sql_query(update_user_id_query, (user_id, email))
-                    bot.send_message(user_id, "Ваш user_id обновлен на основе найденного email.")
-                else:
-                    bot.send_message(user_id, "Пользователь с таким email не найден в sapa_bonus.")
-            else:
-                bot.send_message(user_id, "Ваш email не найден в таблице users.")
-        except Exception as e:
-            bot.send_message(user_id, f"Произошла ошибка при проверке email: {e}")
-
-        # Создаем кнопки для ответа
+        # Кнопки для администратора и участников
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
         if str(user_id) in sapa_admin:
-            download_button = types.KeyboardButton('Оценка ссылок')
-            upload_button = types.KeyboardButton('Загрузить таблицу')
-            markup.add(download_button, upload_button)
-        else:
-            download_button = types.KeyboardButton('Загрузить ссылку')
-            markup.add(download_button)
-
-        leaders_list_button = types.KeyboardButton('Таблица лидеров')
-        markup.add(leaders_list_button)
+            markup.add(types.KeyboardButton('Оценка ссылок'), types.KeyboardButton('Загрузить таблицу'))
+        markup.add(types.KeyboardButton('Загрузить ссылку'), types.KeyboardButton('Таблица лидеров'))
 
         bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
         bot.register_next_step_handler(message, sapa_instruments, bot)
+
+
+def handle_email_check(bot, message, user_id):
+    try:
+        email = get_email(message)
+
+        if email:
+            user_exists = db_connect.execute_get_sql_query("SELECT user_id FROM sapa_bonus WHERE email = %s", (email,))
+
+            if user_exists:
+                db_connect.execute_set_sql_query("UPDATE sapa_bonus SET user_id = %s WHERE email = %s",
+                                                 (user_id, email))
+                bot.send_message(user_id, "Ваш user_id обновлен на основе найденного email.")
+            else:
+                bot.send_message(user_id, "Пользователь с таким email не найден в sapa_bonus.")
+        else:
+            bot.send_message(user_id, "Ваш email не найден в базе данных пользователей")
+    except Exception as e:
+        bot.send_message(user_id, f"Произошла ошибка при проверке email: {e}")
 
 
 def sapa_instruments(message, bot):
@@ -559,199 +548,191 @@ def sapa_instruments(message, bot):
     response = message.text.strip().lower()
 
     if response == 'таблица лидеров':
-        try:
-            # SQL-запрос для получения топ-10 лидеров с общей суммой очков
-            sql_query = """
-                        SELECT sb.fullname, sb.email, COALESCE(s.score, 0) + sb.bonus_score AS total_score
-                        FROM sapa_bonus sb
-                        LEFT JOIN sapa s ON sb.email = s.email
-                        ORDER BY total_score DESC
-                        LIMIT 10
-                    """
-            result = db_connect.execute_get_sql_query(sql_query)
-
-            leaderboard = "Таблица лидеров:\n"
-            for i, row in enumerate(result, 1):
-                leaderboard += f"{i}. Пользователь: {row[0]} (Email: {row[1]}) - Общий балл: {row[2]}\n"
-            bot.send_message(message.chat.id, leaderboard)
-
-            # SQL-запрос для получения email текущего пользователя из таблицы users
-            user_email_query = "SELECT email FROM users WHERE id = %s"
-            user_email_result = db_connect.execute_get_sql_query(user_email_query, (user_id,))
-
-            if user_email_result:
-                user_email = user_email_result[0][0]
-
-                # SQL-запрос для получения места текущего пользователя по email
-                user_rank_query = """
-                            SELECT RANK() OVER (ORDER BY COALESCE(s.score, 0) + sb.bonus_score DESC) AS rank,
-                                   COALESCE(s.score, 0) + sb.bonus_score AS total_score
-                            FROM sapa_bonus sb
-                            LEFT JOIN sapa s ON sb.email = s.email
-                            WHERE sb.email = %s
-                        """
-                user_rank_result = db_connect.execute_get_sql_query(user_rank_query, (user_email,))
-
-                if user_rank_result:
-                    user_rank, user_score = user_rank_result[0]
-                    bot.send_message(message.chat.id, f"Ваше место: {user_rank}, Общий балл: {user_score}")
-                else:
-                    bot.send_message(message.chat.id, "Вы пока не участвуете в конкурсе.")
-            else:
-                bot.send_message(message.chat.id, "Не удалось найти ваш email.")
-
-        except Exception as e:
-            bot.send_message(message.chat.id, f"Произошла ошибка при получении таблицы лидеров: {e}")
-
+        display_leaderboard(bot, message)
     elif response.startswith('да ') or response.startswith('нет '):
-        parts = response.split(' ')
-        if len(parts) == 2 and parts[1].isdigit():
-            link_id = parts[1]
-            if response.startswith('да '):
-                approve_link(bot, user_id, link_id, True)
-            elif response.startswith('нет '):
-                approve_link(bot, user_id, link_id, False)
-
+        handle_admin_response(response, user_id, bot)
     elif response == 'оценка ссылок' and str(user_id) in sapa_admin:
         show_pending_links(bot, user_id)
-
     elif response == 'загрузить таблицу' and str(user_id) in sapa_admin:
-        msg = bot.send_message(message.chat.id, "Пожалуйста, загрузите Excel файл с данными для обновления таблицы.")
+        msg = bot.send_message(user_id, "Пожалуйста, загрузите Excel файл с данными участников.")
         bot.register_next_step_handler(msg, upload_sapa_table, bot)
-
+    elif response == 'загрузить ссылку':
+        msg = bot.send_message(user_id, "Введите ссылку:")
+        bot.register_next_step_handler(msg, upload_link, bot)
     else:
-        msg = bot.send_message(message.chat.id, "Пожалуйста, выберите один из вариантов")
-        bot.register_next_step_handler(msg, sapa_instruments, bot)
+        bot.send_message(user_id, "Пожалуйста, выберите один из вариантов.")
+        bot.register_next_step_handler(message, sapa_instruments, bot)
+
+
+def upload_link(message, bot):
+    user_id = message.chat.id
+    link = message.text.strip()
+
+    if not link.startswith("http"):
+        bot.send_message(user_id, "Неверный формат ссылки. Пожалуйста, укажите корректный URL.")
+        return bot.register_next_step_handler(message, upload_link)
+
+    try:
+        db_connect.execute_set_sql_query("""
+            INSERT INTO sapa_link (link, is_checked, status) 
+            VALUES (%s, FALSE, NULL)
+        """, (link,))
+        bot.send_message(user_id, "Ссылка успешно загружена! Ожидайте проверки.")
+    except Exception as e:
+        bot.send_message(user_id, f"Произошла ошибка при загрузке ссылки: {e}")
+
+
+def display_leaderboard(bot, message):
+    try:
+        result = db_connect.execute_get_sql_query("""
+            SELECT s.fullname, sb.email, COALESCE(s.score, 0) + sb.bonus_score AS total_score
+            FROM sapa_bonus sb
+            LEFT JOIN sapa s ON sb.email = s.email
+            ORDER BY total_score DESC
+            LIMIT 10
+        """)
+
+        leaderboard = "Таблица лидеров:\n" + "\n".join(
+            f"{i}. Пользователь: {row[0]} (Email: {row[1]}) - Общий балл: {row[2]}"
+            for i, row in enumerate(result, 1))
+        bot.send_message(message.chat.id, leaderboard)
+
+        user_email_result = db_connect.execute_get_sql_query("SELECT email FROM users WHERE id = %s",
+                                                             (message.chat.id,))
+        if user_email_result:
+            user_email = user_email_result[0][0]
+            user_rank_result = db_connect.execute_get_sql_query("""
+                SELECT RANK() OVER (ORDER BY COALESCE(s.score, 0) + sb.bonus_score DESC) AS rank,
+                       COALESCE(s.score, 0) + sb.bonus_score AS total_score
+                FROM sapa_bonus sb
+                LEFT JOIN sapa s ON sb.email = s.email
+                WHERE sb.email = %s
+            """, (user_email,))
+            if user_rank_result:
+                user_rank, user_score = user_rank_result[0]
+                bot.send_message(message.chat.id, f"Ваше место: {user_rank}, Общий балл: {user_score}")
+            else:
+                bot.send_message(message.chat.id, "Вы пока не участвуете в конкурсе.")
+        else:
+            bot.send_message(message.chat.id, "Не удалось найти ваш email.")
+    except Exception as e:
+        bot.send_message(message.chat.id, f"Ошибка при получении таблицы лидеров: {e}")
+
 
 def show_pending_links(bot, admin_user_id):
     try:
-        sql_query = """
-            SELECT id, user_id, link 
+        result = db_connect.execute_get_sql_query("""
+            SELECT id, link 
             FROM sapa_link 
             WHERE is_checked = FALSE 
             ORDER BY id 
             LIMIT 20
-        """
-        result = db_connect.execute_get_sql_query(sql_query)
+        """)
 
         if result:
             for row in result:
-                link_id, link_user_id, link = row
+                link_id, link = row
                 markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-                yes_button = types.KeyboardButton(f'да {link_id}')
-                no_button = types.KeyboardButton(f'нет {link_id}')
-                markup.add(yes_button, no_button)
-                bot.send_message(admin_user_id, f"Пользователь: {link_user_id}\nСсылка: {link}", reply_markup=markup)
+
+                markup.add(*(types.KeyboardButton(f'{link_type} {link_id}') for link_type in
+                             ['фото', 'отзыв', 'пост', 'reels', 'ничего']))
+                bot.send_message(admin_user_id, f"Ссылка: {link}", reply_markup=markup)
         else:
             bot.send_message(admin_user_id, "Нет новых ссылок для проверки.")
     except Exception as e:
         bot.send_message(admin_user_id, f"Ошибка при получении ссылок: {e}")
 
 
-def approve_link(bot, admin_user_id, link_id, approved):
+def handle_admin_response(response, user_id, bot):
     try:
-        get_user_query = "SELECT user_id FROM sapa_link WHERE id = %s"
-        user_result = db_connect.execute_get_sql_query(get_user_query, (link_id,))
-        if user_result:
-            link_user_id = user_result[0][0]
-            update_query = """
-                UPDATE sapa_link 
-                SET status = %s, is_checked = TRUE 
-                WHERE id = %s
-            """
-            db_connect.execute_set_sql_query(update_query, (approved, link_id))
+        parts = response.split(' ')
+        if len(parts) == 2 and parts[1].isdigit():
+            link_type = parts[0].lower()
+            link_id = parts[1]
 
-            if approved:
-                update_score_query = """
+            bonus_points = {
+                "фото": 500,
+                "отзыв": 500,
+                "пост": 1000,
+                "reels": 1000,
+                "ничего": 0
+            }
+            new_bonus_score = bonus_points.get(link_type, 0)
+
+            link_result = db_connect.execute_get_sql_query("SELECT user_id, link FROM sapa_link WHERE id = %s",
+                                                           (link_id,))
+            if link_result:
+                link_user_id, link = link_result[0]
+
+                db_connect.execute_set_sql_query("""
+                    UPDATE sapa_link 
+                    SET is_checked = TRUE, status = %s 
+                    WHERE id = %s
+                """, (link_type, link_id))
+
+                db_connect.execute_set_sql_query("""
                     UPDATE sapa_bonus 
-                    SET total_score = total_score + 1 
+                    SET bonus_score = bonus_score + %s, total_score = total_score + %s 
                     WHERE user_id = %s
-                """
-                db_connect.execute_set_sql_query(update_score_query, (link_user_id,))
-                bot.send_message(admin_user_id, "Ссылка одобрена и балл начислен!")
-                bot.send_message(link_user_id, "Ваша ссылка была одобрена, вам начислен 1 балл!")
+                """, (new_bonus_score, new_bonus_score, link_user_id))
+
+                bot.send_message(user_id,
+                                 f"Ссылка '{link}' одобрена. Участнику начислено {new_bonus_score} баллов за тип '{link_type}'!")
+                bot.send_message(link_user_id,
+                                 f"Ваша ссылка '{link}' одобрена! Вам начислено {new_bonus_score} баллов.")
             else:
-                bot.send_message(admin_user_id, "Ссылка отклонена.")
+                bot.send_message(user_id, "Ошибка: ссылка не найдена.")
         else:
-            bot.send_message(admin_user_id, "Ошибка: ссылка не найдена.")
+            bot.send_message(user_id, "Некорректный ответ. Пожалуйста, выберите тип ссылки и укажите номер ссылки.")
     except Exception as e:
-        bot.send_message(admin_user_id, f"Ошибка при обновлении ссылки: {e}")
+        bot.send_message(user_id, f"Ошибка при обработке ответа администратора: {e}")
 
 
+# Функция для загрузки таблицы участников
 def upload_sapa_table(message, bot):
     user_id = str(message.chat.id)
     if message.content_type == 'document':
         file_info = bot.get_file(message.document.file_id)
         downloaded_file = bot.download_file(file_info.file_path)
+
         try:
+            # Загружаем данные из Excel файла в DataFrame
             df = pd.read_excel(io.BytesIO(downloaded_file))
 
             # Очищаем таблицу sapa и вставляем новые данные
             db_connect.execute_set_sql_query("DELETE FROM sapa")
             for _, row in df.iterrows():
-                sql_query = "INSERT INTO sapa (fullname, email, score) VALUES (%s, %s, %s)"
-                params = (row['fullname'], row['email'], row['score'])
+                # Вставка данных в таблицу sapa
+                sql_query = "INSERT INTO sapa (fullname, email, table_number, score) VALUES (%s, %s, %s, %s)"
+                params = (row['fullname'], row['email'], row['table_number'], row['score'])
                 db_connect.execute_set_sql_query(sql_query, params)
 
                 # Проверяем наличие пользователя в sapa_bonus по email
                 check_user_query = "SELECT 1 FROM sapa_bonus WHERE email = %s"
-                user_exists = db_connect.execute_get_sql_query(check_user_query, (row['email'],))
+                user_exists = bool(db_connect.execute_get_sql_query(check_user_query, (row['email'],)))
 
-                # Если пользователя нет, добавляем его с начальным значением
+                # Если пользователя нет, добавляем его с начальным значением total_score = 200
                 if not user_exists:
                     insert_user_query = """
-                        INSERT INTO sapa_bonus (fullname, email, table_number, bonus_score, total_score)
-                        VALUES (%s, %s, %s, 0, %s)
+                        INSERT INTO sapa_bonus (id, email, bonus_score, total_score)
+                        VALUES (%s, %s, 0, %s)
                     """
-                    # Вставляем пользователя с начальным значением очков (сумма начальных score и bonus_score = 0)
-                    insert_params = (row['fullname'], row['email'], row['table_number'], row['score'])
+                    insert_params = (row['id'], row['email'], row['score'])
                     db_connect.execute_set_sql_query(insert_user_query, insert_params)
-
-            # Обновляем total_score в таблице sapa_bonus
-            update_total_score_query = """
-                UPDATE sapa_bonus sb
-                SET total_score = sb.bonus_score + COALESCE(s.score, 0)
-                FROM sapa s
-                WHERE sb.email = s.email;
-            """
-            db_connect.execute_set_sql_query(update_total_score_query)
+                else:
+                    # Обновляем total_score с добавлением 200 баллов за каждый повторный email
+                    update_total_score_query = """
+                        UPDATE sapa_bonus 
+                        SET total_score = total_score + 200 
+                        WHERE email = %s
+                    """
+                    db_connect.execute_set_sql_query(update_total_score_query, (row['email'],))
 
             bot.send_message(user_id, "Таблица успешно обновлена!")
         except Exception as e:
             bot.send_message(user_id, f"Ошибка при загрузке таблицы: {e}")
     else:
         bot.send_message(user_id, "Пожалуйста, загрузите файл в формате Excel.")
-
-
-def process_link(message, bot):
-    user_id = str(message.chat.id)
-    link = message.text.strip()
-    try:
-        sql_query = "INSERT INTO sapa_link (user_id, link) VALUES (%s, %s)"
-        params = (user_id, link)
-        db_connect.execute_set_sql_query(sql_query, params)
-        bot.send_message(user_id, "Ссылка успешно загружена!")
-        menu(bot, message)
-    except Exception as e:
-        bot.send_message(user_id, f"Произошла ошибка при загрузке ссылки: {e}")
-
-def update_bonus_score(user_id, new_bonus_score):
-    try:
-        # Обновляем bonus_score
-        update_score_query = "UPDATE sapa_bonus SET bonus_score = %s WHERE user_id = %s"
-        db_connect.execute_set_sql_query(update_score_query, (new_bonus_score, user_id))
-
-        # Обновляем total_score на основе нового bonus_score и score из sapa
-        update_total_score_query = """
-            UPDATE sapa_bonus sb
-            SET total_score = sb.bonus_score + COALESCE(s.score, 0)
-            FROM sapa s
-            WHERE sb.user_id = s.id;
-        """
-        db_connect.execute_set_sql_query(update_total_score_query)
-
-    except Exception as e:
-        print(f"Ошибка при обновлении бонусного балла: {e}")
 
 def hse_competition_(bot, message, id_i_s = None):
     text = "Сохраненная информация\n\n"

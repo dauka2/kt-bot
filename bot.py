@@ -892,6 +892,19 @@ def get_excel(message):
     sql_query = "SELECT * from sapa_bonus"
     common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
 
+
+@bot.message_handler(commands=['get_sapa__'])
+def get_excel(message):
+    db_connect.sapa_test()
+    bot.send_message(message.chat.id, "Изменения сохранены")
+
+
+@bot.message_handler(commands=['get_sapa___'])
+def get_excel(message):
+    db_connect.sapa_test_()
+    bot.send_message(message.chat.id, "Изменения сохранены")
+
+
 @bot.message_handler(commands=['functionn'])
 def get_excel(message):
     sql_query = "select * from performers where category = %s and subcategory = %s"
