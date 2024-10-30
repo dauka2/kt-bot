@@ -4,6 +4,7 @@ import pandas as pd
 import requests
 from telebot import *
 import io
+import re
 from telebot.apihelper import download_file
 
 import appealsClass
@@ -255,10 +256,10 @@ def get_markup(message):
     button6 = types.KeyboardButton("🧐Мой профиль")
     button7 = types.KeyboardButton('🖥Портал "Бірлік"')
     button8 = types.KeyboardButton(lte_[0])
-    markup.add(button1, button9, button2, button)
+    markup.add(button10, button1, button9, button2, button)
     if get_branch(message.chat.id) == branches[2]:
         markup.add(button8)
-    markup.add(button10, button3, button7, button5, button4, button6)
+    markup.add(button3, button7, button5, button4, button6)
     return markup
 
 def send_welcome_message(bot, message):
@@ -600,7 +601,8 @@ def display_leaderboard(bot, message):
 
     leaderboard = "Таблица лидеров:\n" + "\n".join(
         f"{i}. Пользователь: {row[0]} (Email: {row[1]}) - Общий балл: {row[2]}"
-        for i, row in enumerate(result, 1))
+        for i, row in enumerate(result, 1)
+    )
     bot.send_message(message.chat.id, leaderboard)
 
     # Get user's email based on their chat ID
@@ -611,7 +613,7 @@ def display_leaderboard(bot, message):
 
     # Check if the email was retrieved
     if user_email_result:
-        user_email = user_email_result[0][0].strip()  # Strip any extra spaces
+        user_email = user_email_result[0][0].strip().lower()  # Normalize email to lowercase
 
         # Find the rank and score of the user in the leaderboard
         user_rank_result = db_connect.execute_get_sql_query("""
@@ -625,7 +627,7 @@ def display_leaderboard(bot, message):
                 )
                 SELECT rank, total_score
                 FROM RankedUsers
-                WHERE email = %s
+                WHERE LOWER(email) = %s  -- Ensure case-insensitive comparison
             """, (user_email,))
 
         if user_rank_result:

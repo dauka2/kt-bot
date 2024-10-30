@@ -744,7 +744,6 @@ def get_appeals(message):
     params = (str(message.chat.id), "Решено",)
     return execute_get_sql_query(sql_query, params)
 
-
 def get_all_appeals_by_id_performer(status_1, status_2):
     sql_query = (
         """
