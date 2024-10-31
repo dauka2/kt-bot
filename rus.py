@@ -517,7 +517,7 @@ def sapa_con(bot, message):
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
         if str(user_id) in sapa_admin:
             markup.add(types.KeyboardButton('Оценка ссылок'), types.KeyboardButton('Загрузить таблицу'))
-        markup.add(types.KeyboardButton('Загрузить ссылку'), types.KeyboardButton('Таблица лидеров'))
+        markup.add(types.KeyboardButton('Загрузить ссылку'), types.KeyboardButton('Таблица лидеров'), types.KeyboardButton('Список непроверенных ссылок'))
 
         bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
         bot.register_next_step_handler(message, sapa_instruments, bot)
@@ -541,6 +541,8 @@ def sapa_instruments(message, bot):
     elif response == 'загрузить ссылку':
         msg = bot.send_message(user_id, "Введите ссылку:")
         bot.register_next_step_handler(msg, upload_link, bot)
+    elif response == 'список непроверенных ссылок':
+        show_user_links(bot, message)
     else:
         bot.send_message(user_id, "Пожалуйста, выберите один из вариантов.")
         bot.register_next_step_handler(message, sapa_instruments, bot)
@@ -588,6 +590,28 @@ def get_user_email(user_id):
 
     # If a result is found, return email
     return result[0][0] if result else None
+
+def show_user_links(bot, message):
+    user_email = get_user_email(message.chat.id)
+    if not user_email:
+        bot.send_message(message.chat.id, "Ваш email не найден.")
+        return
+
+    links_result = db_connect.execute_get_sql_query(
+        "SELECT link, status FROM sapa_link WHERE email = %s AND is_checked = FALSE", (user_email,)
+    )
+
+    if links_result:
+        response_message = "Ваши непроверенные ссылки и их статусы:\n"
+        for link, status in links_result:
+            response_message += f"Ссылка: {link}\nСтатус: {status}\n\n"
+        
+        bot.send_message(message.chat.id, response_message)
+    else:
+        bot.send_message(message.chat.id, "У вас нет непроверенных ссылок.")
+    
+    msg = bot.send_message(message.chat.id, "Выберите одно из действий:")
+    bot.register_next_step_handler(msg, sapa_instruments, bot)
 
 
 def display_leaderboard(bot, message):
@@ -997,6 +1021,40 @@ def call_back(bot, call):
 
                     bot.send_message(call.message.chat.id,
                                      f"Ссылка '{link}' одобрена. Участнику начислено {new_bonus_score} баллов за тип '{link_type}'!")
+                    
+                    user_result = db_connect.execute_get_sql_query(
+                        "SELECT id FROM users WHERE email = %s", (email,)
+                    )
+
+                    if user_result:
+                        user_chat_id = user_result[0][0]  # Получаем chat_id пользователя
+
+                        # Извлекаем бонусные баллы и общий счёт пользователя
+                        score_result = db_connect.execute_get_sql_query(
+                            """
+                            SELECT sb.bonus_score, sb.total_score 
+                            FROM sapa_bonus sb
+                            JOIN sapa_link sl ON sb.email = sl.email
+                            WHERE sl.id = %s
+                            """, 
+                            (link_id,)  # Используем link_id последней добавленной ссылки
+                        )
+
+                        if score_result:
+                            bonus_score = score_result[0][0]  # Бонусные баллы за ссылку
+                            total_score = score_result[0][1]  # Общий счёт пользователя
+
+                            message = (
+                                f"Ваша ссылка была проверена.\n"
+                                f"Бонусные баллы за эту ссылку: {bonus_score}\n"
+                                f"Общий счёт: {total_score}"
+                            )
+                            bot.send_message(user_chat_id, message)
+                        else:
+                            bot.send_message(user_chat_id, "Бонусные баллы и общий счёт не найдены.")
+                    else:
+                        print("Пользователь не найден.")
+                    
                     # Call the sapa_con function to present the tool selection again
                     sapa_con(bot, call.message)
                 else:

@@ -1,7 +1,11 @@
 import types
 from datetime import timedelta
+import pandas as pd
 import requests
 from telebot import *
+import io
+import re
+from telebot.apihelper import download_file
 
 import appealsClass
 import common_file
@@ -69,7 +73,7 @@ hse_competition_field = ["👷🏻‍♂️Еңбекті қорғау бойы�
 hse_com_field = ["Мой безопасный рабочий день/Менің қауіпсіз жұмыс күнім", "Лучший совет по безопасности/Ең жақсы қауіпсіздік кеңесі", "Принять участие в обоих конкурсах/Екі байқауға қатысу"]
 verification_field = ["📄Декларацияны тапсыруды растау"]
 portal_bts = ["'Бірлік' порталы дегеніміз не?", "Порталға қалай кіруге болады?", "Порталға өтініш қалдыру"]
-sapa_admin = ['760906879', '1066191569', '353845928']
+sapa_admin = ['1066191569', '353845928']
 # "Бірлік Гид"
 portal_ = ["Мобильді нұсқа", "ДК немесе ноутбук", "Қалай кіруге болады", "Жеке профиль", "Порталдан ССП өту",
            "iOS", "Android", "Есть checkpoint", "Нет checkpoint"]
@@ -466,6 +470,250 @@ def start_verification_timer(user_id, bot, message):
     verification_timers[user_id] = threading.Thread(target=timer)
     verification_timers[user_id].start()
 
+
+def sapa_con(bot, message):
+    user_id = message.chat.id
+    message_text = message.text
+
+    if message_text == '📶"Сапа+" байқауға қатысу':
+        # Кнопки для администратора и участников
+        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+        if str(user_id) in sapa_admin:
+            markup.add(types.KeyboardButton('Сілтемелерді бағалау'), types.KeyboardButton('Кестені жүктеу'))
+        markup.add(types.KeyboardButton('Сілтемені жүктеу'), types.KeyboardButton('Көшбасшылар тақтасы'), types.KeyboardButton('Тексерілмеген сілтемелер тізімі'))
+
+        bot.send_message(user_id, "Әрекеттердің бірін таңдаңыз:", reply_markup=markup)
+        bot.register_next_step_handler(message, sapa_instruments, bot)
+
+
+def sapa_instruments(message, bot):
+    user_id = str(message.chat.id)
+    response = message.text.strip().lower()
+
+    if response.startswith('/'):
+        # Переход в меню, если команда "/menu"
+        if response == '/menu':
+            menu(bot, message)
+            return True
+    elif response == 'көшбасшылар тақтасы':
+        display_leaderboard(bot, message)
+    elif response == 'сілтемелерді бағалау' and str(user_id) in sapa_admin:
+        show_pending_links(bot, user_id)
+    elif response == 'кестені жүктеу' and str(user_id) in sapa_admin:
+        msg = bot.send_message(user_id, "Қатысушының деректері бар Excel файлын жүктеңіз.")
+        bot.register_next_step_handler(msg, upload_sapa_table, bot)
+    elif response == 'сілтемені жүктеу':
+        msg = bot.send_message(user_id, "Сілтемені енгізіңіз:")
+        bot.register_next_step_handler(msg, upload_link, bot)
+    elif response == 'тексерілмеген сілтемелер тізімі':
+        show_user_links(bot, message)
+    else:
+        bot.send_message(user_id, "Нұсқалардың бірін таңдаңыз.")
+        bot.register_next_step_handler(message, sapa_instruments, bot)
+
+
+def upload_link(message, bot):
+    user_id = message.chat.id
+    link = message.text.strip()
+
+    if not link.startswith("http"):
+        bot.send_message(user_id, "Қате сілтеме пішімі. Дұрыс URL мекенжайын көрсетіңіз.")
+        return bot.register_next_step_handler(message, upload_link)
+
+    try:
+        email = get_user_email(user_id)
+        bot.send_message(message.chat.id, "email:" + " " + email)
+        if not email:
+            bot.send_message(user_id, "Қате: email табылмады.")
+            return
+
+        db_connect.execute_set_sql_query("""
+            INSERT INTO sapa_link (email, link, is_checked, status) 
+            VALUES (%s, %s, FALSE, NULL)
+        """, (email, link,))
+
+        bot.send_message(user_id, "Сілтеме сәтті жүктелді! Тексеруді күтіңіз.")
+    except Exception as e:
+        bot.send_message(user_id, f"Сілтемені жүктеу кезінде қате пайда болды: {e}")
+
+    # Redirect back to Sapa instruments
+    msg = bot.send_message(user_id, "Әрекеттердің бірін таңдаңыз:")
+    bot.register_next_step_handler(msg, sapa_instruments, bot)
+
+
+def get_user_email(user_id):
+    # Ensure params is a tuple to avoid SQL errors
+    sql_query = """
+        SELECT email 
+        FROM users 
+        WHERE id = %s
+    """
+    params = (str(user_id),)
+
+    # Execute query and fetch email
+    result = db_connect.execute_get_sql_query(sql_query, params)
+
+    # If a result is found, return email
+    return result[0][0] if result else None
+
+def show_user_links(bot, message):
+    user_email = get_user_email(message.chat.id)
+    if not user_email:
+        bot.send_message(message.chat.id, "Сіздің email-ңыз табылмады.")
+        return
+
+    links_result = db_connect.execute_get_sql_query(
+        "SELECT link, status FROM sapa_link WHERE email = %s AND is_checked = FALSE", (user_email,)
+    )
+
+    if links_result:
+        response_message = "Тексерілмеген сілтемелеріңіз және олардың күйлері:\n"
+        for link, status in links_result:
+            response_message += f"Сілтеме: {link}\nКүйі: {status}\n\n"
+        
+        bot.send_message(message.chat.id, response_message)
+    else:
+        bot.send_message(message.chat.id, "Сізде тексерілмеген сілтемелер жоқ.")
+    
+    msg = bot.send_message(message.chat.id, "Әрекеттердің бірін таңдаңыз:")
+    bot.register_next_step_handler(msg, sapa_instruments, bot)
+
+
+def display_leaderboard(bot, message):
+    result = db_connect.execute_get_sql_query("""
+            SELECT s.fullname, sb.email, COALESCE(s.score, 0) + sb.bonus_score AS total_score
+            FROM sapa_bonus sb
+            LEFT JOIN sapa s ON sb.email = s.email
+            ORDER BY total_score DESC
+            LIMIT 10
+        """)
+
+    leaderboard = "Көшбасшылар тақтасы:\n" + "\n".join(
+        f"{i}. Пайдаланушы: {row[0]} (Email: {row[1]}) - Жалпы балл: {row[2]}"
+        for i, row in enumerate(result, 1)
+    )
+    bot.send_message(message.chat.id, leaderboard)
+
+    # Get user's email based on their chat ID
+    user_email_result = db_connect.execute_get_sql_query(
+        "SELECT email FROM users WHERE id = %s",
+        (str(message.chat.id),)
+    )
+
+    # Check if the email was retrieved
+    if user_email_result:
+        user_email = user_email_result[0][0].strip().lower()  # Normalize email to lowercase
+
+        # Find the rank and score of the user in the leaderboard
+        user_rank_result = db_connect.execute_get_sql_query("""
+                WITH RankedUsers AS (
+                    SELECT 
+                        sb.email,
+                        COALESCE(s.score, 0) + sb.bonus_score AS total_score,
+                        ROW_NUMBER() OVER (ORDER BY COALESCE(s.score, 0) + sb.bonus_score DESC) AS rank
+                    FROM sapa_bonus sb
+                    LEFT JOIN sapa s ON sb.email = s.email
+                )
+                SELECT rank, total_score
+                FROM RankedUsers
+                WHERE LOWER(email) = %s  -- Ensure case-insensitive comparison
+            """, (user_email,))
+
+        if user_rank_result:
+            user_rank, user_score = user_rank_result[0]
+            bot.send_message(message.chat.id, f"Сіздің орныңыз: {user_rank}, Жалпы балл: {user_score}")
+        else:
+            bot.send_message(message.chat.id, "Сіз әзірге байқауға қатыспайсыз.")
+    else:
+        bot.send_message(message.chat.id, "Сіздің email-ңыз табылмады.")
+
+    msg = bot.send_message(message.chat.id, "Әрекеттердің бірін таңдаңыз:")
+    bot.register_next_step_handler(msg, sapa_instruments, bot)
+
+def show_pending_links(bot, admin_user_id):
+    try:
+        result = db_connect.execute_get_sql_query("""
+            SELECT id, link 
+            FROM sapa_link 
+            WHERE is_checked = FALSE 
+            ORDER BY id 
+            LIMIT 1
+        """)
+
+        if result:
+            for row in result:
+                link_id, link = row
+
+                # Создаем инлайн-клавиатуру
+                markup = types.InlineKeyboardMarkup(row_width=2)
+                buttons = [
+                    types.InlineKeyboardButton("Фото", callback_data=f'фото {link_id}'),
+                    types.InlineKeyboardButton("Пікір", callback_data=f'отзыв {link_id}'),
+                    types.InlineKeyboardButton("Пост", callback_data=f'пост {link_id}'),
+                    types.InlineKeyboardButton("Reels", callback_data=f'reels {link_id}'),
+                    types.InlineKeyboardButton("Ештеңе", callback_data=f'ничего {link_id}')
+                ]
+                markup.add(*buttons)
+
+                bot.send_message(admin_user_id, f"Сілтеме: {link}", reply_markup=markup)
+        else:
+            bot.send_message(admin_user_id, "Тексеру үшін жаңа сілтемелер жоқ.")
+            msg = bot.send_message(admin_user_id, "Әрекеттердің бірін таңдаңыз:")
+            bot.register_next_step_handler(msg, sapa_instruments, bot)
+    except Exception as e:
+        bot.send_message(admin_user_id, f"Сілтемелерді алу кезінде қате: {e}")
+
+# Функция для загрузки таблицы участников
+def upload_sapa_table(message, bot):
+    user_id = str(message.chat.id)
+    if message.content_type == 'document':
+        file_info = bot.get_file(message.document.file_id)
+        downloaded_file = bot.download_file(file_info.file_path)
+
+        try:
+            # Загружаем данные из Excel файла в DataFrame
+            df = pd.read_excel(io.BytesIO(downloaded_file))
+
+            # Очищаем таблицу sapa и вставляем новые данные
+            db_connect.execute_set_sql_query("DELETE FROM sapa")
+            for _, row in df.iterrows():
+                # Вставка данных в таблицу sapa
+                sql_query = "INSERT INTO sapa (fullname, email, table_number, score) VALUES (%s, %s, %s, %s)"
+                params = (row['fullname'], row['email'], row['table_number'], row['score'])
+                db_connect.execute_set_sql_query(sql_query, params)
+
+                # Проверяем наличие пользователя в sapa_bonus по email
+                check_user_query = "SELECT 1 FROM sapa_bonus WHERE email = %s"
+                user_exists = bool(db_connect.execute_get_sql_query(check_user_query, (row['email'],)))
+
+                # Если пользователя нет, добавляем его с начальным значением total_score = 200
+                if not user_exists:
+                    insert_user_query = """
+                        INSERT INTO sapa_bonus (id, email, bonus_score, total_score)
+                        VALUES (%s, %s, 0, %s)
+                    """
+                    insert_params = (row['id'], row['email'], row['score'])
+                    db_connect.execute_set_sql_query(insert_user_query, insert_params)
+                else:
+                    # Обновляем total_score с добавлением 200 баллов за каждый повторный email
+                    update_total_score_query = """
+                        UPDATE sapa_bonus 
+                        SET total_score = total_score + 200 
+                        WHERE email = %s
+                    """
+                    db_connect.execute_set_sql_query(update_total_score_query, (row['email'],))
+
+            bot.send_message(user_id, "Кесте сәтті жаңартылды!")
+            msg = bot.send_message(user_id, "Әрекеттердің бірін таңдаңыз:")
+            bot.register_next_step_handler(msg, sapa_instruments, bot)
+        except Exception as e:
+            bot.send_message(user_id, f"Кестені жүктеу кезінде қате: {e}")
+    else:
+        bot.send_message(user_id, "Файлды Excel форматында жүктеңіз.")
+        msg = bot.send_message(user_id, "Әрекеттердің бірін таңдаңыз:")
+        bot.register_next_step_handler(msg, sapa_instruments, bot)
+
+
 def hse_competition_(bot, message, id_i_s = None):
     text = "Сақталған ақпарат\n\n"
     full_name = "Аты-жөні: " + str(get_lastname(message)) + " " + get_firstname(message) + "\n"
@@ -680,6 +928,99 @@ def performer_text(appeal_info, message):
            f" Telegram: {performer_info[7]}\n\n" \
            f" Пікір: {str(appeal_info[8])}"
     return text
+
+
+def call_back(bot, call):
+    user_id = call.from_user.id
+    response = call.data  # Assuming the response comes through call.data
+
+    # Check if the user is an admin and the status of the link is being defined
+    if str(user_id) in sapa_admin and response.startswith(('фото', 'отзыв', 'пост', 'reels', 'ничего')):
+        try:
+            parts = response.split(' ')
+            if len(parts) == 2 and parts[1].isdigit():
+                link_type = parts[0].lower()
+                link_id = parts[1]
+
+                bonus_points = {
+                    "фото": 500,
+                    "отзыв": 500,
+                    "пост": 1000,
+                    "reels": 1000,
+                    "ничего": 0
+                }
+                new_bonus_score = bonus_points.get(link_type, 0)
+
+                # Retrieve email and link
+                link_result = db_connect.execute_get_sql_query(
+                    "SELECT email, link FROM sapa_link WHERE id = %s", (link_id,)
+                )
+                if link_result:
+                    email, link = link_result[0]
+
+                    if email:  # Check if email is not None
+                        email = email.strip()  # Remove extra spaces from email
+                    else:
+                        email = get_user_email(user_id)  # Get email if it's not found in sapa_link
+
+                    # Update link status
+                    db_connect.execute_set_sql_query("""
+                            UPDATE sapa_link 
+                            SET is_checked = TRUE, status = %s 
+                            WHERE id = %s
+                        """, (link_type, link_id))
+
+                    # Award points to the user
+                    db_connect.execute_set_sql_query("""
+                            UPDATE sapa_bonus 
+                            SET bonus_score = bonus_score + %s, total_score = total_score + %s 
+                            WHERE email = %s
+                        """, (new_bonus_score, new_bonus_score, email))
+
+                    bot.send_message(call.message.chat.id,
+                                     f"Сілтеме '{link}' мақұлданды. Қатысушыға '{link_type} ' түрі үшін {new_bonus_score} ұпайлары берілді!")
+                    
+                    user_result = db_connect.execute_get_sql_query(
+                        "SELECT id FROM users WHERE email = %s", (email,)
+                    )
+
+                    if user_result:
+                        user_chat_id = user_result[0][0]  # Получаем chat_id пользователя
+
+                        # Извлекаем бонусные баллы и общий счёт пользователя
+                        score_result = db_connect.execute_get_sql_query(
+                            """
+                            SELECT sb.bonus_score, sb.total_score 
+                            FROM sapa_bonus sb
+                            JOIN sapa_link sl ON sb.email = sl.email
+                            WHERE sl.id = %s
+                            """, 
+                            (link_id,)  # Используем link_id последней добавленной ссылки
+                        )
+
+                        if score_result:
+                            bonus_score = score_result[0][0]  # Бонусные баллы за ссылку
+                            total_score = score_result[0][1]  # Общий счёт пользователя
+
+                            message = (
+                                f"Сіздің сілтемеңіз тексерілді.\n"
+                                f"Осы сілтеме үшін бонустық ұпайлар: {bonus_score}\n"
+                                f"Жалпы есеп: {total_score}"
+                            )
+                            bot.send_message(user_chat_id, message)
+                        else:
+                            bot.send_message(user_chat_id, "Бонустық ұпайлар мен жалпы шот табылған жоқ.")
+                    else:
+                        print("Пайдаланушы табылмады.")
+                    
+                    # Call the sapa_con function to present the tool selection again
+                    sapa_con(bot, call.message)
+                else:
+                    bot.send_message(call.message.chat.id, "Қате: сілтеме табылмады.")
+            else:
+                bot.send_message(call.message.chat.id, "Қате жауап. Сілтеме түрін таңдап, сілтеме нөмірін көрсетіңіз.")
+        except Exception as e:
+            bot.send_message(call.message.chat.id, f"Әкімшінің жауабын өңдеу кезінде қате: {e}")
 
 
 def kaz_get_status(message, appeal_id):
