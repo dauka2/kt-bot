@@ -517,7 +517,7 @@ def sapa_con(bot, message):
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
         if str(user_id) in sapa_admin:
             markup.add(types.KeyboardButton('Оценка ссылок'), types.KeyboardButton('Загрузить таблицу'))
-        markup.add(types.KeyboardButton('Загрузить ссылку'), types.KeyboardButton('Таблица лидеров'), types.KeyboardButton('Список непроверенных ссылок'))
+        markup.add(types.KeyboardButton('Загрузить ссылку'), types.KeyboardButton('Таблица лидеров'))
 
         bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
         bot.register_next_step_handler(message, sapa_instruments, bot)
@@ -539,41 +539,68 @@ def sapa_instruments(message, bot):
         msg = bot.send_message(user_id, "Пожалуйста, загрузите Excel файл с данными участников.")
         bot.register_next_step_handler(msg, upload_sapa_table, bot)
     elif response == 'загрузить ссылку':
-        msg = bot.send_message(user_id, "Введите ссылку:")
+        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+        markup.add(types.KeyboardButton('Загрузка ссылки'), types.KeyboardButton('Список непроверенных ссылок'))
+        bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
+        bot.register_next_step_handler(message, links_instruments, bot)
+    else:
+        bot.send_message(user_id, "Пожалуйста, выберите один из вариантов.")
+        bot.register_next_step_handler(message, sapa_instruments, bot)
+
+def links_instruments(message, bot):
+    user_id = str(message.chat.id)
+    response = message.text.strip().lower()
+
+    if response.startswith('/'):
+        # Переход в меню, если команда "/menu"
+        if response == '/menu':
+            menu(bot, message)
+            return True
+    elif response == 'загрузка ссылки':
+        msg = bot.send_message(user_id, "Введите ссылку (или введите 'стоп' для завершения):")
         bot.register_next_step_handler(msg, upload_link, bot)
     elif response == 'список непроверенных ссылок':
         show_user_links(bot, message)
     else:
         bot.send_message(user_id, "Пожалуйста, выберите один из вариантов.")
-        bot.register_next_step_handler(message, sapa_instruments, bot)
+        bot.register_next_step_handler(message, links_instruments, bot)
 
 def upload_link(message, bot):
     user_id = message.chat.id
     link = message.text.strip()
 
+    if link.lower() == 'стоп':
+        bot.send_message(user_id, "Процесс загрузки ссылок завершён.")
+        # Возвращаемся к основным действиям
+        msg = bot.send_message(user_id, "Выберите одно из действий:")
+        bot.register_next_step_handler(msg, links_instruments, bot)  # Сброс контекста
+        return
+
     if not link.startswith("http"):
         bot.send_message(user_id, "Неверный формат ссылки. Пожалуйста, укажите корректный URL.")
-        return bot.register_next_step_handler(message, upload_link)
+        msg = bot.send_message(user_id, "Введите ссылку (или введите 'стоп' для завершения):")
+        bot.register_next_step_handler(msg, upload_link, bot)
+        return
 
     try:
         email = get_user_email(user_id)
-        bot.send_message(message.chat.id, "email:" + " " + email)
         if not email:
             bot.send_message(user_id, "Ошибка: email не найден.")
             return
 
         db_connect.execute_set_sql_query("""
-            INSERT INTO sapa_link (email, link, is_checked, status) 
-            VALUES (%s, %s, FALSE, NULL)
-        """, (email, link,))
+                INSERT INTO sapa_link (email, link, is_checked, status) 
+                VALUES (%s, %s, FALSE, NULL)
+            """, (email, link,))
 
         bot.send_message(user_id, "Ссылка успешно загружена! Ожидайте проверки.")
+
+        # Запрашиваем следующую ссылку
+        msg = bot.send_message(user_id, "Введите следующую ссылку (или введите 'стоп' для завершения):")
+        bot.register_next_step_handler(msg, upload_link, bot)
     except Exception as e:
         bot.send_message(user_id, f"Произошла ошибка при загрузке ссылки: {e}")
 
-    # Redirect back to Sapa instruments
-    msg = bot.send_message(user_id, "Выберите одно из действий:")
-    bot.register_next_step_handler(msg, sapa_instruments, bot)
 
 
 def get_user_email(user_id):
@@ -602,16 +629,16 @@ def show_user_links(bot, message):
     )
 
     if links_result:
-        response_message = "Ваши непроверенные ссылки и их статусы:\n"
+        response_message = "Ваши ссылки и их статусы:\n"
         for link, status in links_result:
             response_message += f"Ссылка: {link}\nСтатус: {status}\n\n"
-        
+
         bot.send_message(message.chat.id, response_message)
+        msg = bot.send_message(message.chat.id, "Выберите одно из действий:")
+        bot.register_next_step_handler(msg, links_instruments, bot)
     else:
-        bot.send_message(message.chat.id, "У вас нет непроверенных ссылок.")
-    
-    msg = bot.send_message(message.chat.id, "Выберите одно из действий:")
-    bot.register_next_step_handler(msg, sapa_instruments, bot)
+        msg = bot.send_message(message.chat.id, "У вас нет непроверенных ссылок.")
+        bot.register_next_step_handler(msg, sapa_instruments, bot)
 
 
 def display_leaderboard(bot, message):
