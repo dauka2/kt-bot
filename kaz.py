@@ -247,11 +247,11 @@ def get_markup(message):
     button6 = types.KeyboardButton("🧐Менің профилім")
     button7 = types.KeyboardButton('🖥Портал "Бірлік"')
     button8 = types.KeyboardButton(lte_[0])
-    markup.add(button1, button9, button)
+    markup.add(button10, button1, button9, button)
     #markup.add(button1, button9, button2, button)
     if get_branch(message.chat.id) == branches[2]:
         markup.add(button8)
-    markup.add(button10, button3, button7, button5, button4, button6)
+    markup.add(button3, button7, button5, button4, button6)
     return markup
 
 
@@ -929,6 +929,17 @@ def performer_text(appeal_info, message):
            f" Пікір: {str(appeal_info[8])}"
     return text
 
+def kaz_get_status(message, appeal_id):
+    language = userClass.get_language(message)
+    status = get_status(appeal_id)[0][0]
+    if language == "kaz":
+        if status == "Решено":
+            return "Шешілді"
+        elif status == "В процессе":
+            return "Процесінде"
+        return "Өтініш қабылданды"
+    return status
+
 
 def call_back(bot, call):
     user_id = call.from_user.id
@@ -979,7 +990,7 @@ def call_back(bot, call):
 
                     bot.send_message(call.message.chat.id,
                                      f"Сілтеме '{link}' мақұлданды. Қатысушыға '{link_type} ' түрі үшін {new_bonus_score} ұпайлары берілді!")
-                    
+
                     user_result = db_connect.execute_get_sql_query(
                         "SELECT id FROM users WHERE email = %s", (email,)
                     )
@@ -994,7 +1005,7 @@ def call_back(bot, call):
                             FROM sapa_bonus sb
                             JOIN sapa_link sl ON sb.email = sl.email
                             WHERE sl.id = %s
-                            """, 
+                            """,
                             (link_id,)  # Используем link_id последней добавленной ссылки
                         )
 
@@ -1008,11 +1019,13 @@ def call_back(bot, call):
                                 f"Жалпы есеп: {total_score}"
                             )
                             bot.send_message(user_chat_id, message)
+                            sapa_con(bot, call.message)
                         else:
                             bot.send_message(user_chat_id, "Бонустық ұпайлар мен жалпы шот табылған жоқ.")
+                            sapa_con(bot, call.message)
                     else:
                         print("Пайдаланушы табылмады.")
-                    
+
                     # Call the sapa_con function to present the tool selection again
                     sapa_con(bot, call.message)
                 else:
@@ -1022,20 +1035,6 @@ def call_back(bot, call):
         except Exception as e:
             bot.send_message(call.message.chat.id, f"Әкімшінің жауабын өңдеу кезінде қате: {e}")
 
-
-def kaz_get_status(message, appeal_id):
-    language = userClass.get_language(message)
-    status = get_status(appeal_id)[0][0]
-    if language == "kaz":
-        if status == "Решено":
-            return "Шешілді"
-        elif status == "В процессе":
-            return "Процесінде"
-        return "Өтініш қабылданды"
-    return status
-
-
-def call_back(bot, call):
     if call.data == 'Начинаем!':
         cm_sv_db(call.message, 'Начинаем!')
         time.sleep(0.75)
