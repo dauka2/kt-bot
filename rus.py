@@ -519,7 +519,7 @@ def sapa_con(bot, message):
             markup.add(types.KeyboardButton('Оценка ссылок'), types.KeyboardButton('Загрузить таблицу'))
         markup.add(types.KeyboardButton('Загрузить ссылку'), types.KeyboardButton('Таблица лидеров'))
 
-        bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
+        bot.send_message(user_id, "Выберите один из доступных вариантов ниже:", reply_markup=markup)
         bot.register_next_step_handler(message, sapa_instruments, bot)
 
 def sapa_instruments(message, bot):
@@ -541,7 +541,7 @@ def sapa_instruments(message, bot):
     elif response == 'загрузить ссылку':
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
         markup.add(types.KeyboardButton('Загрузка ссылки'), types.KeyboardButton('Список непроверенных ссылок'))
-        bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
+        bot.send_message(user_id, "Выберите один из доступных вариантов ниже:", reply_markup=markup)
         bot.register_next_step_handler(message, links_instruments, bot)
     else:
         bot.send_message(user_id, "Пожалуйста, выберите один из вариантов.")
@@ -557,7 +557,7 @@ def links_instruments(message, bot):
             menu(bot, message)
             return True
     elif response == 'загрузка ссылки':
-        msg = bot.send_message(user_id, "Введите ссылку (или введите 'стоп' для завершения):")
+        msg = bot.send_message(user_id, "Пожалуйста введите ссылку (или введите 'стоп' для завершения):")
         bot.register_next_step_handler(msg, upload_link, bot)
     elif response == 'список непроверенных ссылок':
         show_user_links(bot, message)
@@ -572,13 +572,13 @@ def upload_link(message, bot):
     if link.lower() == 'стоп':
         bot.send_message(user_id, "Процесс загрузки ссылок завершён.")
         # Возвращаемся к основным действиям
-        msg = bot.send_message(user_id, "Выберите одно из действий:")
+        msg = bot.send_message(user_id, "Выберите один из доступных вариантов ниже:")
         bot.register_next_step_handler(msg, links_instruments, bot)  # Сброс контекста
         return
 
     if not link.startswith("http"):
         bot.send_message(user_id, "Неверный формат ссылки. Пожалуйста, укажите корректный URL.")
-        msg = bot.send_message(user_id, "Введите ссылку (или введите 'стоп' для завершения):")
+        msg = bot.send_message(user_id, "Пожалуйста введите ссылку (или введите 'стоп' для завершения):")
         bot.register_next_step_handler(msg, upload_link, bot)
         return
 
@@ -596,7 +596,7 @@ def upload_link(message, bot):
         bot.send_message(user_id, "Ссылка успешно загружена! Ожидайте проверки.")
 
         # Запрашиваем следующую ссылку
-        msg = bot.send_message(user_id, "Введите следующую ссылку (или введите 'стоп' для завершения):")
+        msg = bot.send_message(user_id, "Пожалуйста введите следующую ссылку (или введите 'стоп' для завершения):")
         bot.register_next_step_handler(msg, upload_link, bot)
     except Exception as e:
         bot.send_message(user_id, f"Произошла ошибка при загрузке ссылки: {e}")
@@ -634,10 +634,10 @@ def show_user_links(bot, message):
             response_message += f"Ссылка: {link}\nСтатус: {status}\n\n"
 
         bot.send_message(message.chat.id, response_message)
-        msg = bot.send_message(message.chat.id, "Выберите одно из действий:")
+        msg = bot.send_message(message.chat.id, "Выберите один из доступных вариантов ниже:")
         bot.register_next_step_handler(msg, links_instruments, bot)
     else:
-        msg = bot.send_message(message.chat.id, "У вас нет непроверенных ссылок.")
+        msg = bot.send_message(message.chat.id, "На данный момент у вас нет ссылок, ожидающих проверки.")
         bot.register_next_step_handler(msg, sapa_instruments, bot)
 
 
@@ -689,7 +689,7 @@ def display_leaderboard(bot, message):
     else:
         bot.send_message(message.chat.id, "Не удалось найти ваш email.")
 
-    msg = bot.send_message(message.chat.id, "Выберите одно из действий:")
+    msg = bot.send_message(message.chat.id, "Выберите один из доступных вариантов ниже:")
     bot.register_next_step_handler(msg, sapa_instruments, bot)
 
 def show_pending_links(bot, admin_user_id):
@@ -719,8 +719,8 @@ def show_pending_links(bot, admin_user_id):
 
                 bot.send_message(admin_user_id, f"Ссылка: {link}", reply_markup=markup)
         else:
-            bot.send_message(admin_user_id, "Нет новых ссылок для проверки.")
-            msg = bot.send_message(admin_user_id, "Выберите одно из действий:")
+            bot.send_message(admin_user_id, "На данный момент нет новых ссылок для проверки. Пожалуйста, загрузите новую ссылку или выберите другое действие.")
+            msg = bot.send_message(admin_user_id, "Выберите один из доступных вариантов ниже:")
             bot.register_next_step_handler(msg, sapa_instruments, bot)
     except Exception as e:
         bot.send_message(admin_user_id, f"Ошибка при получении ссылок: {e}")
@@ -766,13 +766,13 @@ def upload_sapa_table(message, bot):
                     db_connect.execute_set_sql_query(update_total_score_query, (row['email'],))
 
             bot.send_message(user_id, "Таблица успешно обновлена!")
-            msg = bot.send_message(user_id, "Выберите одно из действий:")
+            msg = bot.send_message(user_id, "Выберите один из доступных вариантов ниже:")
             bot.register_next_step_handler(msg, sapa_instruments, bot)
         except Exception as e:
             bot.send_message(user_id, f"Ошибка при загрузке таблицы: {e}")
     else:
         bot.send_message(user_id, "Пожалуйста, загрузите файл в формате Excel.")
-        msg = bot.send_message(user_id, "Выберите одно из действий:")
+        msg = bot.send_message(user_id, "Выберите один из доступных вариантов ниже:")
         bot.register_next_step_handler(msg, sapa_instruments, bot)
 
 def hse_competition_(bot, message, id_i_s = None):
@@ -1068,7 +1068,7 @@ def call_back(bot, call):
                         )
 
                         if score_result:
-                            bonus_score = score_result[0][0]  # Бонусные баллы за ссылку
+                            bonus_score = new_bonus_score  # Бонусные баллы за ссылку
                             total_score = score_result[0][1]  # Общий счёт пользователя
 
                             message = (
