@@ -482,7 +482,7 @@ def sapa_con(bot, message):
             markup.add(types.KeyboardButton('Сілтемелерді бағалау'), types.KeyboardButton('Кестені жүктеу'))
         markup.add(types.KeyboardButton('Сілтемені жүктеу'), types.KeyboardButton('Көшбасшылар тақтасы'))
 
-        bot.send_message(user_id, "Әрекеттердің бірін таңдаңыз:", reply_markup=markup)
+        bot.send_message(user_id, "Төменде қол жетімді опциялардың бірін таңдаңыз:", reply_markup=markup)
         bot.register_next_step_handler(message, sapa_instruments, bot)
 
 
@@ -504,11 +504,11 @@ def sapa_instruments(message, bot):
         bot.register_next_step_handler(msg, upload_sapa_table, bot)
     elif response == 'сілтемені жүктеу':
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-        markup.add(types.KeyboardButton('Сілтеме жүктеу'), types.KeyboardButton('Тексерілмеген сілтемелер тізімі'))
-        bot.send_message(user_id, "Әрекеттердің бірін таңдаңыз:", reply_markup=markup)
+        markup.add(types.KeyboardButton('Сілтемені жүктеу'), types.KeyboardButton('Тексерілмеген сілтемелер тізімі'))
+        bot.send_message(user_id, "Төменде қол жетімді опциялардың бірін таңдаңыз:", reply_markup=markup)
         bot.register_next_step_handler(message, links_instruments, bot)
     else:
-        bot.send_message(user_id, "Өтінемін, таңдаудың бірін таңдаңыз.")
+        bot.send_message(user_id, "Опциялардың бірін таңдаңыз.")
         bot.register_next_step_handler(message, sapa_instruments, bot)
 
 
@@ -521,19 +521,26 @@ def links_instruments(message, bot):
         if response == '/menu':
             menu(bot, message)
             return True
-    elif response == 'сілтеме жүктеу':
-        msg = bot.send_message(user_id, "Сілтемені енгізіңіз:")
+    elif response == 'сілтемені жүктеу':
+        msg = bot.send_message(user_id, "Сілтемені енгізіңіз (немесе 'стоп' деп жазыңыз):")
         bot.register_next_step_handler(msg, upload_link, bot)
     elif response == 'тексерілмеген сілтемелер тізімі':
         show_user_links(bot, message)
     else:
-        bot.send_message(user_id, "Өтінемін, таңдаудың бірін таңдаңыз.")
+        bot.send_message(user_id, "Опциялардың бірін таңдаңыз.")
         bot.register_next_step_handler(message, links_instruments, bot)
 
 
 def upload_link(message, bot):
     user_id = message.chat.id
     link = message.text.strip()
+
+    if link.lower() == 'стоп':
+        bot.send_message(user_id, "Сілтемелерді жүктеу процесі тоқтатылды.")
+        # Возвращаемся к основным действиям
+        msg = bot.send_message(user_id, "Төменде қол жетімді опциялардың бірін таңдаңыз:")
+        bot.register_next_step_handler(msg, links_instruments, bot)  # Сброс контекста
+        return
 
     if not link.startswith("http"):
         bot.send_message(user_id, "Сілтеменің форматы дұрыс емес. Өтінемін, дұрыстаңыз.")
@@ -554,8 +561,9 @@ def upload_link(message, bot):
 
         bot.send_message(user_id, "Сілтеме сәтті жүктелді! Тексеруді күтіңіз.")
 
-        msg = bot.send_message(user_id, "Әрекеттердің бірін таңдаңыз:")
-        bot.register_next_step_handler(msg, links_instruments, bot)  # Сброс контекста
+        # Запрашиваем следующую ссылку
+        msg = bot.send_message(user_id, "Келесі сілтемені енгізіңіз (немесе 'стоп' деп жазыңыз):")
+        bot.register_next_step_handler(msg, upload_link, bot)
     except Exception as e:
         bot.send_message(user_id, f"Сілтемені жүктеуде қате орын алды: {e}")
 
@@ -579,7 +587,7 @@ def get_user_email(user_id):
 def show_user_links(bot, message):
     user_email = get_user_email(message.chat.id)
     if not user_email:
-        bot.send_message(message.chat.id, "Сіздің email табылмады.")
+        bot.send_message(message.chat.id, "Сіздің email-ңыз табылмады.")
         return
 
     links_result = db_connect.execute_get_sql_query(
@@ -592,10 +600,10 @@ def show_user_links(bot, message):
             response_message += f"Сілтеме: {link}\nСтатус: {status}\n\n"
 
         bot.send_message(message.chat.id, response_message)
-        msg = bot.send_message(message.chat.id, "Әрекеттердің бірін таңдаңыз:")
+        msg = bot.send_message(message.chat.id, "Төменде қол жетімді опциялардың бірін таңдаңыз:")
         bot.register_next_step_handler(msg, links_instruments, bot)
     else:
-        msg = bot.send_message(message.chat.id, "Сізде тексерілмеген сілтемелер жоқ.")
+        msg = bot.send_message(message.chat.id, "Қазіргі уақытта сізде тексеруді күтетін сілтемелер жоқ.")
         bot.register_next_step_handler(msg, sapa_instruments, bot)
 
 
@@ -609,7 +617,7 @@ def display_leaderboard(bot, message):
         """)
 
     leaderboard = "Көшбасшылар тақтасы:\n" + "\n".join(
-        f"{i}. Пайдаланушы: {row[0]} (Email: {row[1]}) - Жалпы балл: {row[2]}"
+        f"{i}. Қатысушы: {row[0]} (Email: {row[1]}) - Жалпы балл: {row[2]}"
         for i, row in enumerate(result, 1)
     )
     bot.send_message(message.chat.id, leaderboard)
@@ -647,7 +655,7 @@ def display_leaderboard(bot, message):
     else:
         bot.send_message(message.chat.id, "Сіздің email-ңыз табылмады.")
 
-    msg = bot.send_message(message.chat.id, "Әрекеттердің бірін таңдаңыз:")
+    msg = bot.send_message(message.chat.id, "Төменде қол жетімді опциялардың бірін таңдаңыз:")
     bot.register_next_step_handler(msg, sapa_instruments, bot)
 
 def show_pending_links(bot, admin_user_id):
@@ -677,8 +685,8 @@ def show_pending_links(bot, admin_user_id):
 
                 bot.send_message(admin_user_id, f"Сілтеме: {link}", reply_markup=markup)
         else:
-            bot.send_message(admin_user_id, "Тексеру үшін жаңа сілтемелер жоқ.")
-            msg = bot.send_message(admin_user_id, "Әрекеттердің бірін таңдаңыз:")
+            bot.send_message(admin_user_id, "Қазіргі уақытта тексеріске жаңа сілтемелер жоқ. Жаңа сілтемені жүктеңіз немесе басқа опцияны таңдаңыз.")
+            msg = bot.send_message(admin_user_id, "Төменде қол жетімді опциялардың бірін таңдаңыз:")
             bot.register_next_step_handler(msg, sapa_instruments, bot)
     except Exception as e:
         bot.send_message(admin_user_id, f"Сілтемелерді алу кезінде қате: {e}")
@@ -724,13 +732,13 @@ def upload_sapa_table(message, bot):
                     db_connect.execute_set_sql_query(update_total_score_query, (row['email'],))
 
             bot.send_message(user_id, "Кесте сәтті жаңартылды!")
-            msg = bot.send_message(user_id, "Әрекеттердің бірін таңдаңыз:")
+            msg = bot.send_message(user_id, "Төменде қол жетімді опциялардың бірін таңдаңыз:")
             bot.register_next_step_handler(msg, sapa_instruments, bot)
         except Exception as e:
-            bot.send_message(user_id, f"Кестені жүктеу кезінде қате: {e}")
+            bot.send_message(user_id, f"Кестені жүктеу кезінде қате орын алды: {e}")
     else:
         bot.send_message(user_id, "Файлды Excel форматында жүктеңіз.")
-        msg = bot.send_message(user_id, "Әрекеттердің бірін таңдаңыз:")
+        msg = bot.send_message(user_id, "Төменде қол жетімді опциялардың бірін таңдаңыз:")
         bot.register_next_step_handler(msg, sapa_instruments, bot)
 
 def hse_competition_(bot, message, id_i_s = None):
@@ -973,10 +981,10 @@ def call_back(bot, call):
                 link_id = parts[1]
 
                 bonus_points = {
-                    "фото": 200,
+                    "фото": 500,
                     "отзыв": 500,
                     "пост": 1000,
-                    "reels": 500,
+                    "reels": 1000,
                     "ничего": 0
                 }
                 new_bonus_score = bonus_points.get(link_type, 0)
@@ -1029,9 +1037,9 @@ def call_back(bot, call):
                         )
 
                         if score_result:
-                            bonus_score = score_result[0][0]  # Бонусные баллы за ссылку
+                            bonus_score = new_bonus_score  # Бонусные баллы за ссылку
                             total_score = score_result[0][1]  # Общий счёт пользователя
-
+                            
                             message = (
                                 f"Сіздің сілтемеңіз тексерілді.\n"
                                 f"Осы сілтеме үшін бонустық ұпайлар: {bonus_score}\n"
@@ -1043,14 +1051,14 @@ def call_back(bot, call):
                             bot.send_message(user_chat_id, "Бонустық ұпайлар мен жалпы шот табылған жоқ.")
                             sapa_con(bot, call.message)
                     else:
-                        print("Пайдаланушы табылмады.")
+                        print("Қатысушы табылмады.")
 
                     # Call the sapa_con function to present the tool selection again
                     sapa_con(bot, call.message)
                 else:
                     bot.send_message(call.message.chat.id, "Қате: сілтеме табылмады.")
             else:
-                bot.send_message(call.message.chat.id, "Қате жауап. Сілтеме түрін таңдап, сілтеме нөмірін көрсетіңіз.")
+                bot.send_message(call.message.chat.id, "Қате жауап. Сілтеме түрін таңдаңыз және сілтеме нөмірін көрсетіңіз.")
         except Exception as e:
             bot.send_message(call.message.chat.id, f"Әкімшінің жауабын өңдеу кезінде қате: {e}")
 
