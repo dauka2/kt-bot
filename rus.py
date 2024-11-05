@@ -513,14 +513,37 @@ def sapa_con(bot, message):
     message_text = message.text
 
     if message_text == '📶Участие в конкурсе "Сапа+"':
-        # Кнопки для администратора и участников
+        # Основное меню с двумя кнопками
+        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+        markup.add(types.KeyboardButton('Основные действия'), types.KeyboardButton('Необходимая информация'))
+
+        bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
+        bot.register_next_step_handler(message, sapa_main_menu, bot)
+
+
+def sapa_main_menu(message, bot):
+    user_id = message.chat.id
+    choice = message.text.strip().lower()
+
+    if choice == 'основные действия':
+        # Меню с действиями для администратора и участников
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
         if str(user_id) in sapa_admin:
             markup.add(types.KeyboardButton('Оценка ссылок'), types.KeyboardButton('Загрузить таблицу'))
         markup.add(types.KeyboardButton('Загрузить ссылку'), types.KeyboardButton('Таблица лидеров'))
 
-        bot.send_message(user_id, "Выберите один из доступных вариантов ниже:", reply_markup=markup)
+        bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
         bot.register_next_step_handler(message, sapa_instruments, bot)
+
+    elif choice == 'необходимая информация':
+        # Меню с четырьмя дополнительными кнопками
+        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+        markup.add(types.KeyboardButton('Инструкция по установке модема'), types.KeyboardButton('Инструкция для регистрации в Сапа+'))
+        markup.add(types.KeyboardButton('Адреса получения модемов'), types.KeyboardButton('Что-то еще'))
+
+        bot.send_message(user_id, "Вот необходимая информация:", reply_markup=markup)
+        bot.register_next_step_handler(message, additional_info_handler, bot)
+
 
 def sapa_instruments(message, bot):
     user_id = str(message.chat.id)
@@ -541,11 +564,29 @@ def sapa_instruments(message, bot):
     elif response == 'загрузить ссылку':
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
         markup.add(types.KeyboardButton('Загрузка ссылки'), types.KeyboardButton('Список непроверенных ссылок'))
-        bot.send_message(user_id, "Выберите один из доступных вариантов ниже:", reply_markup=markup)
+        bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
         bot.register_next_step_handler(message, links_instruments, bot)
     else:
         bot.send_message(user_id, "Пожалуйста, выберите один из вариантов.")
         bot.register_next_step_handler(message, sapa_instruments, bot)
+
+
+def additional_info_handler(message, bot):
+    user_id = message.chat.id
+    info_request = message.text.strip().lower()
+
+    # Обработка кнопок "необходимая информация"
+    if info_request == 'инструкция по установке модема':
+        bot.send_message(user_id, "Здесь находится инструкция по установке модема...")
+    elif info_request == 'инструкция для регистрации в Сапа+':
+        bot.send_message(user_id, "Здесь указана инструкция для регистрации в Сапа+...")
+    elif info_request == 'адреса получения модемов':
+        bot.send_message(user_id, "адреса получения модемов указаны здесь...")
+    elif info_request == 'что-то еще':
+        bot.send_message(user_id, "что-то еще...")
+    else:
+        bot.send_message(user_id, "Пожалуйста, выберите один из вариантов.")
+        bot.register_next_step_handler(message, additional_info_handler, bot)
 
 def links_instruments(message, bot):
     user_id = str(message.chat.id)
