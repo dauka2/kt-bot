@@ -476,7 +476,19 @@ def sapa_con(bot, message):
     message_text = message.text
 
     if message_text == '📶"Сапа+" байқауға қатысу':
-        # Кнопки для администратора и участников
+        # Основное меню с двумя кнопками
+        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+        markup.add(types.KeyboardButton('Негізгі әрекеттер'), types.KeyboardButton('Қажетті ақпарат'))
+
+        bot.send_message(user_id, "Әрекеттердің бірін таңдаңыз:", reply_markup=markup)
+        bot.register_next_step_handler(message, sapa_main_menu, bot)
+
+def sapa_main_menu(message, bot):
+    user_id = message.chat.id
+    choice = message.text.strip().lower()
+
+    if choice == 'негізгі әрекеттер':
+        # Меню с действиями для администратора и участников
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
         if str(user_id) in sapa_admin:
             markup.add(types.KeyboardButton('Сілтемелерді бағалау'), types.KeyboardButton('Кестені жүктеу'))
@@ -484,6 +496,16 @@ def sapa_con(bot, message):
 
         bot.send_message(user_id, "Төменде қол жетімді опциялардың бірін таңдаңыз:", reply_markup=markup)
         bot.register_next_step_handler(message, sapa_instruments, bot)
+
+    elif choice == 'қажетті ақпарат':
+        # Меню с четырьмя дополнительными кнопками
+        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+        markup.add(types.KeyboardButton('Модемді орнату бойынша нұсқаулық'), types.KeyboardButton('Тіркелу нұсқаулығы'))
+        markup.add(types.KeyboardButton('Модемдерді алу мекенжайлары'), types.KeyboardButton('Что-то еще'))
+
+        bot.send_message(user_id, "Міне, қажетті ақпарат:", reply_markup=markup)
+        bot.register_next_step_handler(message, additional_info_handler, bot)
+        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
 
 
 def sapa_instruments(message, bot):
@@ -511,6 +533,22 @@ def sapa_instruments(message, bot):
         bot.send_message(user_id, "Опциялардың бірін таңдаңыз.")
         bot.register_next_step_handler(message, sapa_instruments, bot)
 
+def additional_info_handler(message, bot):
+    user_id = message.chat.id
+    info_request = message.text.strip().lower()
+
+    # Обработка кнопок "необходимая информация"
+    if info_request == 'модемді орнату бойынша нұсқаулық':
+        bot.send_message(user_id, "Здесь находится инструкция по установке модема...")
+    elif info_request == 'тіркелу нұсқаулығы':
+        bot.send_message(user_id, "Здесь указана инструкция для регистрации в Сапа+...")
+    elif info_request == 'Модемдерді алу мекенжайлары':
+        bot.send_message(user_id, "адреса получения модемов указаны здесь...")
+    elif info_request == 'что-то еще':
+        bot.send_message(user_id, "что-то еще...")
+    else:
+        bot.send_message(user_id, "Төменде қол жетімді опциялардың бірін таңдаңыз.")
+        bot.register_next_step_handler(message, additional_info_handler, bot)
 
 def links_instruments(message, bot):
     user_id = str(message.chat.id)
