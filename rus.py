@@ -513,7 +513,20 @@ def sapa_con(bot, message):
     message_text = message.text
 
     if message_text == '📶Участие в конкурсе "Сапа+"':
-        # Кнопки для администратора и участников
+        # Основное меню с двумя кнопками
+        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+        markup.add(types.KeyboardButton('Основные действия'), types.KeyboardButton('Необходимая информация'))
+
+        bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
+        bot.register_next_step_handler(message, sapa_main_menu, bot)
+
+
+def sapa_main_menu(message, bot):
+    user_id = message.chat.id
+    choice = message.text.strip().lower()
+
+    if choice == 'основные действия':
+        # Меню с действиями для администратора и участников
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
         if str(user_id) in sapa_admin:
             markup.add(types.KeyboardButton('Оценка ссылок'), types.KeyboardButton('Загрузить таблицу'))
@@ -521,6 +534,16 @@ def sapa_con(bot, message):
 
         bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
         bot.register_next_step_handler(message, sapa_instruments, bot)
+
+    elif choice == 'необходимая информация':
+        # Меню с четырьмя дополнительными кнопками
+        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+        markup.add(types.KeyboardButton('Инструкция по установке модема'), types.KeyboardButton('Инструкция для регистрации в Сапа+'))
+        markup.add(types.KeyboardButton('Адреса получения модема'), types.KeyboardButton('Что-то еще'))
+
+        bot.send_message(user_id, "Вот необходимая информация:", reply_markup=markup)
+        bot.register_next_step_handler(message, additional_info_handler, bot)
+
 
 def sapa_instruments(message, bot):
     user_id = str(message.chat.id)
@@ -547,6 +570,29 @@ def sapa_instruments(message, bot):
         bot.send_message(user_id, "Пожалуйста, выберите один из вариантов.")
         bot.register_next_step_handler(message, sapa_instruments, bot)
 
+
+def additional_info_handler(message, bot):
+    user_id = message.chat.id
+    info_request = message.text.strip().lower()
+
+    # Обработка кнопок "необходимая информация"
+    if info_request.startswith('/'):
+        # Переход в меню, если команда "/menu"
+        if info_request == '/menu':
+            menu(bot, message)
+            return True
+    elif info_request == 'инструкция по установке модема':
+        bot.send_message(user_id, "Здесь находится инструкция по установке модема...")
+    elif info_request == 'инструкция для регистрации в Сапа+':
+        bot.send_message(user_id, "Здесь указана инструкция для регистрации в Сапа+...")
+    elif info_request == 'адреса получения модема':
+        bot.send_message(user_id, "адреса получения модема...")
+    elif info_request == 'что-то еще':
+        bot.send_message(user_id, "Ссылки на что-то еще...")
+    else:
+        bot.send_message(user_id, "Пожалуйста, выберите один из вариантов.")
+        bot.register_next_step_handler(message, additional_info_handler, bot)
+
 def links_instruments(message, bot):
     user_id = str(message.chat.id)
     response = message.text.strip().lower()
@@ -557,7 +603,7 @@ def links_instruments(message, bot):
             menu(bot, message)
             return True
     elif response == 'загрузка ссылки':
-        msg = bot.send_message(user_id, "Введите ссылку (или введите 'стоп' для завершения):")
+        msg = bot.send_message(user_id, "Введите ссылку с отзывом клиента:")
         bot.register_next_step_handler(msg, upload_link, bot)
     elif response == 'список непроверенных ссылок':
         show_user_links(bot, message)
@@ -569,16 +615,9 @@ def upload_link(message, bot):
     user_id = message.chat.id
     link = message.text.strip()
 
-    if link.lower() == 'стоп':
-        bot.send_message(user_id, "Процесс загрузки ссылок завершён.")
-        # Возвращаемся к основным действиям
-        msg = bot.send_message(user_id, "Выберите одно из действий:")
-        bot.register_next_step_handler(msg, links_instruments, bot)  # Сброс контекста
-        return
-
     if not link.startswith("http"):
         bot.send_message(user_id, "Неверный формат ссылки. Пожалуйста, укажите корректный URL.")
-        msg = bot.send_message(user_id, "Введите ссылку (или введите 'стоп' для завершения):")
+        msg = bot.send_message(user_id, "Введите ссылку с отзывом клиента:")
         bot.register_next_step_handler(msg, upload_link, bot)
         return
 
@@ -595,9 +634,8 @@ def upload_link(message, bot):
 
         bot.send_message(user_id, "Ссылка успешно загружена! Ожидайте проверки.")
 
-        # Запрашиваем следующую ссылку
-        msg = bot.send_message(user_id, "Введите следующую ссылку (или введите 'стоп' для завершения):")
-        bot.register_next_step_handler(msg, upload_link, bot)
+        msg = bot.send_message(user_id, "Выберите одно из действий:")
+        bot.register_next_step_handler(msg, links_instruments, bot)  # Сброс контекста
     except Exception as e:
         bot.send_message(user_id, f"Произошла ошибка при загрузке ссылки: {e}")
 
@@ -1012,10 +1050,10 @@ def call_back(bot, call):
                 link_id = parts[1]
 
                 bonus_points = {
-                    "фото": 500,
+                    "фото": 200,
                     "отзыв": 500,
                     "пост": 1000,
-                    "reels": 1000,
+                    "reels": 500,
                     "ничего": 0
                 }
                 new_bonus_score = bonus_points.get(link_type, 0)

@@ -522,7 +522,7 @@ def links_instruments(message, bot):
             menu(bot, message)
             return True
     elif response == 'сілтеме жүктеу':
-        msg = bot.send_message(user_id, "Сілтемені енгізіңіз (немесе 'стоп' деп жазыңыз):")
+        msg = bot.send_message(user_id, "Сілтемені енгізіңіз:")
         bot.register_next_step_handler(msg, upload_link, bot)
     elif response == 'тексерілмеген сілтемелер тізімі':
         show_user_links(bot, message)
@@ -534,13 +534,6 @@ def links_instruments(message, bot):
 def upload_link(message, bot):
     user_id = message.chat.id
     link = message.text.strip()
-
-    if link.lower() == 'стоп':
-        bot.send_message(user_id, "Сілтемелерді жүктеу процесі тоқтатылды.")
-        # Возвращаемся к основным действиям
-        msg = bot.send_message(user_id, "Әрекеттердің бірін таңдаңыз:")
-        bot.register_next_step_handler(msg, links_instruments, bot)  # Сброс контекста
-        return
 
     if not link.startswith("http"):
         bot.send_message(user_id, "Сілтеменің форматы дұрыс емес. Өтінемін, дұрыстаңыз.")
@@ -561,9 +554,8 @@ def upload_link(message, bot):
 
         bot.send_message(user_id, "Сілтеме сәтті жүктелді! Тексеруді күтіңіз.")
 
-        # Запрашиваем следующую ссылку
-        msg = bot.send_message(user_id, "Келесі сілтемені енгізіңіз (немесе 'стоп' деп жазыңыз):")
-        bot.register_next_step_handler(msg, upload_link, bot)
+        msg = bot.send_message(user_id, "Әрекеттердің бірін таңдаңыз:")
+        bot.register_next_step_handler(msg, links_instruments, bot)  # Сброс контекста
     except Exception as e:
         bot.send_message(user_id, f"Сілтемені жүктеуде қате орын алды: {e}")
 
@@ -981,10 +973,10 @@ def call_back(bot, call):
                 link_id = parts[1]
 
                 bonus_points = {
-                    "фото": 500,
+                    "фото": 200,
                     "отзыв": 500,
                     "пост": 1000,
-                    "reels": 1000,
+                    "reels": 500,
                     "ничего": 0
                 }
                 new_bonus_score = bonus_points.get(link_type, 0)
