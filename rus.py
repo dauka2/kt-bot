@@ -530,7 +530,9 @@ def sapa_main_menu(message, bot):
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
         if str(user_id) in sapa_admin:
             markup.add(types.KeyboardButton('Оценка ссылок'), types.KeyboardButton('Загрузить таблицу'))
-        markup.add(types.KeyboardButton('Загрузить ссылку'), types.KeyboardButton('Таблица лидеров'))
+        else:
+            markup.add(types.KeyboardButton('Загрузить ссылку'))
+        markup.add(types.KeyboardButton('Таблица лидеров'))
 
         bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
         bot.register_next_step_handler(message, sapa_instruments, bot)
@@ -539,7 +541,7 @@ def sapa_main_menu(message, bot):
         # Меню с четырьмя дополнительными кнопками
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
         markup.add(types.KeyboardButton('Инструкция по установке модема'), types.KeyboardButton('Инструкция для регистрации в Сапа+'))
-        markup.add(types.KeyboardButton('Адреса получения модемов'), types.KeyboardButton('Что-то еще'))
+        markup.add(types.KeyboardButton('Адреса получения модемов'), types.KeyboardButton('Общий чат'))
 
         bot.send_message(user_id, "Вот необходимая информация:", reply_markup=markup)
         bot.register_next_step_handler(message, additional_info_handler, bot)
@@ -582,8 +584,8 @@ def additional_info_handler(message, bot):
         bot.send_message(user_id, "Здесь указана инструкция для регистрации в Сапа+...")
     elif info_request == 'адреса получения модемов':
         bot.send_message(user_id, "адреса получения модемов указаны здесь...")
-    elif info_request == 'что-то еще':
-        bot.send_message(user_id, "что-то еще...")
+    elif info_request == 'общий чат':
+        bot.send_message(user_id, "Ссылка в общий чат")
     else:
         bot.send_message(user_id, "Пожалуйста, выберите один из вариантов.")
         bot.register_next_step_handler(message, additional_info_handler, bot)

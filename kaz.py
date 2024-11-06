@@ -492,7 +492,9 @@ def sapa_main_menu(message, bot):
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
         if str(user_id) in sapa_admin:
             markup.add(types.KeyboardButton('Сілтемелерді бағалау'), types.KeyboardButton('Кестені жүктеу'))
-        markup.add(types.KeyboardButton('Сілтемені жүктеу'), types.KeyboardButton('Көшбасшылар тақтасы'))
+        else:
+            markup.add(types.KeyboardButton('Сілтемені жүктеу'))
+        markup.add(types.KeyboardButton('Көшбасшылар тақтасы'))
 
         bot.send_message(user_id, "Төменде қол жетімді опциялардың бірін таңдаңыз:", reply_markup=markup)
         bot.register_next_step_handler(message, sapa_instruments, bot)
@@ -501,7 +503,7 @@ def sapa_main_menu(message, bot):
         # Меню с четырьмя дополнительными кнопками
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
         markup.add(types.KeyboardButton('Модемді орнату бойынша нұсқаулық'), types.KeyboardButton('Тіркелу нұсқаулығы'))
-        markup.add(types.KeyboardButton('Модемдерді алу мекенжайлары'), types.KeyboardButton('Что-то еще'))
+        markup.add(types.KeyboardButton('Модемдерді алу мекенжайлары'), types.KeyboardButton('Общий чат'))
 
         bot.send_message(user_id, "Міне, қажетті ақпарат:", reply_markup=markup)
         bot.register_next_step_handler(message, additional_info_handler, bot)
@@ -542,10 +544,10 @@ def additional_info_handler(message, bot):
         bot.send_message(user_id, "Здесь находится инструкция по установке модема...")
     elif info_request == 'тіркелу нұсқаулығы':
         bot.send_message(user_id, "Здесь указана инструкция для регистрации в Сапа+...")
-    elif info_request == 'Модемдерді алу мекенжайлары':
+    elif info_request == 'модемдерді алу мекенжайлары':
         bot.send_message(user_id, "адреса получения модемов указаны здесь...")
-    elif info_request == 'что-то еще':
-        bot.send_message(user_id, "что-то еще...")
+    elif info_request == 'общий чат':
+        bot.send_message(user_id, "Ссылка на общий чат")
     else:
         bot.send_message(user_id, "Төменде қол жетімді опциялардың бірін таңдаңыз.")
         bot.register_next_step_handler(message, additional_info_handler, bot)
