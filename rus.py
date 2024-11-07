@@ -621,7 +621,7 @@ def links_instruments(message, bot):
             menu(bot, message)
             return True
     elif response == 'загрузить':
-        msg = bot.send_message(user_id, "Пожалуйста введите ссылку или отправьте фото(или введите 'стоп' для завершения):")
+        msg = bot.send_message(user_id, "Пожалуйста введите ссылку/фото(или введите 'стоп' для завершения):")
         bot.register_next_step_handler(msg, upload_link, bot)
     elif response == 'список непроверенных ссылок':
         show_user_links(bot, message)
@@ -629,8 +629,10 @@ def links_instruments(message, bot):
         bot.send_message(user_id, "Пожалуйста, выберите один из вариантов.")
         bot.register_next_step_handler(message, links_instruments, bot)
 
+
 def upload_link(message, bot):
     user_id = message.chat.id
+    # Условие для обработки текстовых ссылок
     link = message.text.strip()
 
     if link.lower() == 'стоп':
@@ -640,24 +642,49 @@ def upload_link(message, bot):
         bot.register_next_step_handler(msg, links_instruments, bot)  # Сброс контекста
         return
 
+    # Если сообщение содержит фотографию
+    if message.photo:
+        try:
+            # Получаем информацию о фотографии и создаем URL для загрузки
+            file_info = bot.get_file(message.photo[-1].file_id)
+            file_url = 'https://api.telegram.org/file/bot{}/{}'.format(db_connect.TOKEN, file_info.file_path)
+            file_data = requests.get(file_url).content
+
+            # Получаем email пользователя
+            email = get_user_email(user_id)
+            if not email:
+                bot.send_message(user_id, "Ошибка: email не найден.")
+                return
+
+            # Сохраняем фотографию в базу данных
+            db_connect.execute_set_sql_query("""
+                        INSERT INTO sapa_link (email, link, is_checked, status, image_data) 
+                        VALUES (%s, %s, FALSE, NULL, %s)
+                    """, (email, None, file_data,))
+
+            bot.send_message(user_id, "Фото успешно загружено и ожидает проверки.")
+            msg = bot.send_message(user_id, "Пожалуйста введите ссылку/фото (или введите 'стоп' для завершения):")
+            bot.register_next_step_handler(msg, upload_link, bot)
+
+        except Exception as e:
+            bot.send_message(user_id, f"Произошла ошибка при загрузке фотографии: {e}")
+
     if not link.startswith("http"):
         bot.send_message(user_id, "Неверный формат ссылки. Пожалуйста, укажите корректный URL.")
-        msg = bot.send_message(user_id, "Пожалуйста введите ссылку (или введите 'стоп' для завершения):")
+        msg = bot.send_message(user_id, "Пожалуйста введите ссылку/фото (или введите 'стоп' для завершения):")
         bot.register_next_step_handler(msg, upload_link, bot)
         return
 
     try:
-        user_info = get_user(message.chat.id)
-        email = user_info[6]
-        branch = user_info[7]
-        if not email or not branch:
-            bot.send_message(user_id, "Ошибка: email или филиал не найден.")
+        email = get_user_email(user_id)
+        if not email:
+            bot.send_message(user_id, "Ошибка: email не найден.")
             return
 
         db_connect.execute_set_sql_query("""
-                INSERT INTO sapa_link (email, link, is_checked, status, branch) 
-                VALUES (%s, %s, FALSE, NULL, %s)
-            """, (email, link, branch))
+                INSERT INTO sapa_link (email, link, is_checked, status) 
+                VALUES (%s, %s, FALSE, NULL)
+            """, (email, link,))
 
         bot.send_message(user_id, "Ссылка успешно загружена! Ожидайте проверки.")
 
@@ -758,23 +785,23 @@ def display_leaderboard(bot, message):
 
 
 # Функция для отображения ссылок для администратора с фильтрацией по branch
+
 def show_pending_links(bot, admin_user_id):
     try:
-        # Получаем филиал администратора
+        # Логика получения филиала администратора
         admin_branch = None
         for branch_info in branches_admin:
             if branch_info['sapa_admin'] == str(admin_user_id):
                 admin_branch = branch_info['branch']
-                bot.send_message(admin_user_id, str(admin_branch))
                 break
 
         if not admin_branch:
             bot.send_message(admin_user_id, "Ошибка: филиал администратора не найден.")
             return
 
-        # Получаем ссылки, отправленные пользователями с тем же branch
+        # Получаем ссылки или фотографии, отправленные пользователями с тем же branch
         result = db_connect.execute_get_sql_query("""
-            SELECT id, link 
+            SELECT id, link, image_data 
             FROM sapa_link 
             WHERE is_checked = FALSE 
             AND email IN (
@@ -786,9 +813,13 @@ def show_pending_links(bot, admin_user_id):
 
         if result:
             for row in result:
-                link_id, link = row
+                link_id, link, image_data = row
+                if link:
+                    bot.send_message(admin_user_id, f"Ссылка: {link}")
+                elif image_data:
+                    bot.send_photo(admin_user_id, image_data)
 
-                # Создаем инлайн-клавиатуру
+                # Инлайн-клавиатура для оценок
                 markup = types.InlineKeyboardMarkup(row_width=2)
                 buttons = [
                     types.InlineKeyboardButton("Фото", callback_data=f'фото {link_id}'),
@@ -799,9 +830,9 @@ def show_pending_links(bot, admin_user_id):
                 ]
                 markup.add(*buttons)
 
-                bot.send_message(admin_user_id, f"Ссылка: {link}", reply_markup=markup)
+                bot.send_message(admin_user_id, "Выберите действие:", reply_markup=markup)
         else:
-            bot.send_message(admin_user_id, "На данный момент нет новых ссылок для проверки.")
+            bot.send_message(admin_user_id, "На данный момент нет новых ссылок или фото для проверки.")
             msg = bot.send_message(admin_user_id, "Выберите один из доступных вариантов ниже:")
             bot.register_next_step_handler(msg, sapa_instruments, bot)
     except Exception as e:
@@ -1166,7 +1197,7 @@ def call_back(bot, call):
                         print("Пользователь не найден.")
                     
                     # Call the sapa_con function to present the tool selection again
-                    sapa_con(bot, call.message)
+                    sapa_main_menu(call.message, bot)
                 else:
                     bot.send_message(call.message.chat.id, "Ошибка: ссылка не найдена.")
             else:

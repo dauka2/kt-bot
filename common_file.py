@@ -127,6 +127,7 @@ def useful_links():
                                          url='https://www.instagram.com/kazakhtelecom_university/')
     button5 = types.InlineKeyboardButton(text='СФ чат', url='https://t.me/sf_kazakhtelecom')
     button6 = types.InlineKeyboardButton(text='Промышленный чат-бот', url='https://t.me/Lira_SF_bot')
+    # button7 = types.InlineKeyboardButton(text='Чат-бот ОДС', url='https://t.me/Lira_SF_bot')
     markup.add(button1, button2, button3, button5, button6)
     return markup
 
