@@ -588,7 +588,7 @@ def additional_info_handler(message, bot):
     info_request = message.text.strip().lower()
 
     # Обработка кнопок "необходимая информация"
-    if info_request.startswith == ('/'):
+    if info_request.startswith('/'):
         if info_request == '/menu':
             menu(bot, message)
             return True
@@ -632,18 +632,10 @@ def links_instruments(message, bot):
 
 def upload_link(message, bot):
     user_id = message.chat.id
-    # Условие для обработки текстовых ссылок
-    link = message.text.strip()
-
-    if link.lower() == 'стоп':
-        bot.send_message(user_id, "Процесс загрузки ссылок завершён.")
-        # Возвращаемся к основным действиям
-        msg = bot.send_message(user_id, "Выберите один из доступных вариантов ниже:")
-        bot.register_next_step_handler(msg, links_instruments, bot)  # Сброс контекста
-        return
-
-    # Если сообщение содержит фотографию
+    
+    # Проверяем, есть ли фото
     if message.photo:
+        bot.send_message(user_id, "Фото получено, начинаем загрузку...")
         try:
             # Получаем информацию о фотографии и создаем URL для загрузки
             file_info = bot.get_file(message.photo[-1].file_id)
@@ -663,11 +655,25 @@ def upload_link(message, bot):
                     """, (email, None, file_data,))
 
             bot.send_message(user_id, "Фото успешно загружено и ожидает проверки.")
-            msg = bot.send_message(user_id, "Пожалуйста введите ссылку/фото (или введите 'стоп' для завершения):")
+            
+            # Запрашиваем следующую ссылку или фото и регистрируем `upload_link` для обработки
+            msg = bot.send_message(user_id, "Пожалуйста, введите следующую ссылку или отправьте фото (или введите 'стоп' для завершения):")
             bot.register_next_step_handler(msg, upload_link, bot)
+            return  # Завершаем выполнение, чтобы не обрабатывать дальше как ссылку
 
         except Exception as e:
             bot.send_message(user_id, f"Произошла ошибка при загрузке фотографии: {e}")
+            return
+
+    # Условие для обработки текстовых ссылок
+    link = message.text.strip()
+
+    if link.lower() == 'стоп':
+        bot.send_message(user_id, "Процесс загрузки ссылок завершён.")
+        # Возвращаемся к основным действиям
+        msg = bot.send_message(user_id, "Выберите один из доступных вариантов ниже:")
+        bot.register_next_step_handler(msg, links_instruments, bot)  # Сброс контекста
+        return
 
     if not link.startswith("http"):
         bot.send_message(user_id, "Неверный формат ссылки. Пожалуйста, укажите корректный URL.")
@@ -693,6 +699,7 @@ def upload_link(message, bot):
         bot.register_next_step_handler(msg, upload_link, bot)
     except Exception as e:
         bot.send_message(user_id, f"Произошла ошибка при загрузке ссылки: {e}")
+
 
 def get_user_email(user_id):
     # Ensure params is a tuple to avoid SQL errors
@@ -1204,7 +1211,6 @@ def call_back(bot, call):
                 bot.send_message(call.message.chat.id, "Некорректный ответ. Пожалуйста, выберите тип ссылки и укажите номер ссылки.")
         except Exception as e:
             bot.send_message(call.message.chat.id, f"Ошибка при обработке ответа администратора: {e}")
-
 
     elif call.data == 'Начинаем!':
         cm_sv_db(call.message, 'Начинаем!')
