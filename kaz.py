@@ -504,10 +504,10 @@ def sapa_main_menu(message, bot):
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
         markup.add(types.KeyboardButton('Модемді орнату бойынша нұсқаулық'), types.KeyboardButton('Тіркелу нұсқаулығы'))
         markup.add(types.KeyboardButton('Модемдерді алу мекенжайлары'), types.KeyboardButton('Общий чат'))
+        markup.add(types.KeyboardButton('Общий чат2'), types.KeyboardButton('Инфо канал'))
 
         bot.send_message(user_id, "Міне, қажетті ақпарат:", reply_markup=markup)
         bot.register_next_step_handler(message, additional_info_handler, bot)
-        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
 
 
 def sapa_instruments(message, bot):
@@ -540,14 +540,22 @@ def additional_info_handler(message, bot):
     info_request = message.text.strip().lower()
 
     # Обработка кнопок "необходимая информация"
-    if info_request == 'модемді орнату бойынша нұсқаулық':
+    if info_request.startswith == ('/'):
+        if info_request == '/menu':
+            menu(bot, message)
+            return True
+    elif info_request == 'модемді орнату бойынша нұсқаулық':
         bot.send_message(user_id, "Здесь находится инструкция по установке модема...")
     elif info_request == 'тіркелу нұсқаулығы':
         bot.send_message(user_id, "Здесь указана инструкция для регистрации в Сапа+...")
     elif info_request == 'модемдерді алу мекенжайлары':
-        bot.send_message(user_id, "адреса получения модемов указаны здесь...")
+        bot.send_document(user_id, open("files/Пункты выдачи по городам РК.pdf", 'rb'))
     elif info_request == 'общий чат':
-        bot.send_message(user_id, "Ссылка на общий чат")
+        bot.send_message(user_id, "Ссылка в общий чат")
+    elif info_request == 'общий чат2':
+        bot.send_message(user_id, "Ссылка в общий чат")
+    elif info_request == 'инфо канал':
+        bot.send_message(user_id, "Ссылка на канал")
     else:
         bot.send_message(user_id, "Төменде қол жетімді опциялардың бірін таңдаңыз.")
         bot.register_next_step_handler(message, additional_info_handler, bot)

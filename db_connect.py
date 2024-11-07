@@ -64,7 +64,7 @@ def create_db():
     cur.execute(
         'CREATE TABLE IF NOT EXISTS sapa_bonus(id serial primary key, email varchar(50), bonus_score int DEFAULT 0, total_score int DEFAULT 0)')
     cur.execute(
-        'CREATE TABLE IF NOT EXISTS sapa_link(id serial primary key, email varchar(50), link varchar(200), is_checked bool DEFAULT FALSE, status varchar(50))')
+        'CREATE TABLE IF NOT EXISTS sapa_link(id serial primary key, email varchar(50), link varchar(200), branch varchar(50), is_checked bool DEFAULT FALSE, status varchar(50))')
     cur.execute(
         'CREATE TABLE IF NOT EXISTS performers('
         'id serial primary key, '
@@ -238,7 +238,7 @@ def add_column_default():
     execute_set_sql_query(sql_query)
 
 def add_column_sapa():
-    sql_query = "ALTER TABLE sapa_link ADD COLUMN email VARCHAR(50);"
+    sql_query = "ALTER TABLE sapa_link ADD COLUMN branch VARCHAR(50);"
     execute_set_sql_query(sql_query)
 
 def delete_verif_columns():

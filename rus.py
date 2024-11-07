@@ -238,7 +238,17 @@ branches = ['Центральный Аппарат', 'Объединение Д�
             'Дивизион по Корпоративному Бизнесу', 'Корпоративный Университет', 'Дивизион Информационных Технологий',
             'Дирекция Телеком Комплект', 'Дирекция Управления Проектами',
             'Сервисная Фабрика']
-
+branches_admin = [
+    {'branch': 'Центральный Аппарат', 'sapa_admin': '353845928'},
+    {'branch': 'Обьединение Дивизион "Сеть"', 'sapa_admin': '353845928'},
+    {'branch': 'Дивизион по Розничному Бизнесу', 'sapa_admin': '353845928'},
+    {'branch': 'Дивизион по Корпоративному Бизнесу', 'sapa_admin': '353845928'},
+    {'branch': 'Корпоративный Университет', 'sapa_admin': '1066191569'},
+    {'branch': 'Дивизион Информационных Технологий', 'sapa_admin': '353845928'},
+    {'branch': 'Дирекция Телеком Комплект', 'sapa_admin': '353845928'},
+    {'branch': 'Дирекция Управления Проектами', 'sapa_admin': '353845928'},
+    {'branch': 'Сервисная Фабрика', 'sapa_admin': '353845928'}
+]
 
 def get_markup(message):
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
@@ -530,9 +540,9 @@ def sapa_main_menu(message, bot):
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
         if str(user_id) in sapa_admin:
             markup.add(types.KeyboardButton('Оценка ссылок'), types.KeyboardButton('Загрузить таблицу'))
-        else:
-            markup.add(types.KeyboardButton('Загрузить ссылку'))
-        markup.add(types.KeyboardButton('Таблица лидеров'))
+        # else:
+        #     markup.add(types.KeyboardButton('Загрузить ссылку'))
+        markup.add(types.KeyboardButton('Таблица лидеров'), types.KeyboardButton('Загрузить ссылку'))
 
         bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
         bot.register_next_step_handler(message, sapa_instruments, bot)
@@ -542,6 +552,7 @@ def sapa_main_menu(message, bot):
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
         markup.add(types.KeyboardButton('Инструкция по установке модема'), types.KeyboardButton('Инструкция для регистрации в Сапа+'))
         markup.add(types.KeyboardButton('Адреса получения модемов'), types.KeyboardButton('Общий чат'))
+        markup.add(types.KeyboardButton('Общий чат2'), types.KeyboardButton('Инфо канал'))
 
         bot.send_message(user_id, "Вот необходимая информация:", reply_markup=markup)
         bot.register_next_step_handler(message, additional_info_handler, bot)
@@ -573,19 +584,49 @@ def sapa_instruments(message, bot):
         bot.register_next_step_handler(message, sapa_instruments, bot)
 
 
+def get_user_branch(user_id):
+    # Запрос филиала пользователя по user_id из таблицы users
+    result = db_connect.execute_get_sql_query("""
+        SELECT branch 
+        FROM users 
+        WHERE id = %s
+    """, (user_id,))
+
+    if result:
+        return result[0][0]  # возвращаем филиал
+    return None
+
+# Пример поиска администратора для конкретного branch
+def get_sapa_admin(branch_name):
+    for branch in branches_admin:
+        if branch['branch'] == branch_name:
+            return branch['sapa_admin']
+    return None  # Если филиал не найден, возвращаем None
+
 def additional_info_handler(message, bot):
     user_id = message.chat.id
     info_request = message.text.strip().lower()
 
     # Обработка кнопок "необходимая информация"
-    if info_request == 'инструкция по установке модема':
-        bot.send_message(user_id, "Здесь находится инструкция по установке модема...")
-    elif info_request == 'инструкция для регистрации в Сапа+':
-        bot.send_message(user_id, "Здесь указана инструкция для регистрации в Сапа+...")
+    if info_request.startswith == ('/'):
+        if info_request == '/menu':
+            menu(bot, message)
+            return True
+    elif info_request == 'инструкция по установке модема':
+        bot.send_message(user_id, "Здесь находится инструкция по установке модема https://t.me/+LJl92t3A3NE2MzMy")
+    elif info_request == 'инструкция по участию в Сапа+':
+        bot.send_message(user_id, "Для участия в Программе участник должен выполнить следующие действия: \nполучение доп оплаты в сумме 2100тг и Telecoin-ов размере 100:\nбыть зарегистрированным в приложении Общества telecom.kz;\nбыть зарегистрированным на портале Общества BIRLIK;\nбыть зарегистрированным в Телеграмм канале @ktwelcome_bot (ktbot);"
+                                  "\nвыполнить соответствующие действия по установке Wi-Fi-роутера\n\nполучение телекоинов от 200 до 1000:\nБыть подписанным на IG страницу telecomkz\n1. Разместить фото с клиентом, отметить @telecomkz #telecomsapa   - 200телекоинов\n2. Разместить Reels(видеоролик) в личном аккаунте соц сети о проведенной установке WiFi "
+                                  "роутера у клиента, с  отметкой @telecomkz #telecomsapa - 500 телекоинов\n3. Мотивировать клиента разместить положительную публикацию в соц сетях в личном аккаунте с  отметкой @telecomkz #telecomsapa - 1000 телекоинов\n4. Мотивировать клиента разместить положительный отзыв в приложении 2GIS - 1000 телекоинов\n\nОбязательно"
+                                  "\nЛюбая публикация фиксируется в ktbot (фото/скриншот + ссылка)\nНа время проведения проекта аккаунт участника должен быть открыт и не должен являться конкурсным аккаунтом.\nУчастник должен получить предварительное согласие клиента на размещение фото-видео контента в личном аккаунте.\n\nНа дату выплаты/получения вознаграждения работник должен состоять в трудовых отношениях с Обществом.")
     elif info_request == 'адреса получения модемов':
-        bot.send_message(user_id, "адреса получения модемов указаны здесь...")
+        bot.send_document(user_id, open("files/Пункты выдачи по городам РК.pdf", 'rb'))
     elif info_request == 'общий чат':
         bot.send_message(user_id, "Ссылка в общий чат")
+    elif info_request == 'общий чат2':
+        bot.send_message(user_id, "Ссылка в общий чат")
+    elif info_request == 'инфо канал':
+        bot.send_message(user_id, "Cсылка на информационый канал:https://t.me/+LJl92t3A3NE2Mz")
     else:
         bot.send_message(user_id, "Пожалуйста, выберите один из вариантов.")
         bot.register_next_step_handler(message, additional_info_handler, bot)
@@ -600,7 +641,7 @@ def links_instruments(message, bot):
             menu(bot, message)
             return True
     elif response == 'загрузка ссылки':
-        msg = bot.send_message(user_id, "Пожалуйста введите ссылку (или введите 'стоп' для завершения):")
+        msg = bot.send_message(user_id, "Пожалуйста введите ссылку или отправьте фото(или введите 'стоп' для завершения):")
         bot.register_next_step_handler(msg, upload_link, bot)
     elif response == 'список непроверенных ссылок':
         show_user_links(bot, message)
@@ -626,15 +667,17 @@ def upload_link(message, bot):
         return
 
     try:
-        email = get_user_email(user_id)
-        if not email:
-            bot.send_message(user_id, "Ошибка: email не найден.")
+        user_info = get_user(message.chat.id)
+        email = user_info[6]
+        branch = user_info[7]
+        if not email or not branch:
+            bot.send_message(user_id, "Ошибка: email или филиал не найден.")
             return
 
         db_connect.execute_set_sql_query("""
-                INSERT INTO sapa_link (email, link, is_checked, status) 
-                VALUES (%s, %s, FALSE, NULL)
-            """, (email, link,))
+                INSERT INTO sapa_link (email, link, is_checked, status, branch) 
+                VALUES (%s, %s, FALSE, NULL, %s)
+            """, (email, link, branch))
 
         bot.send_message(user_id, "Ссылка успешно загружена! Ожидайте проверки.")
 
@@ -643,8 +686,6 @@ def upload_link(message, bot):
         bot.register_next_step_handler(msg, upload_link, bot)
     except Exception as e:
         bot.send_message(user_id, f"Произошла ошибка при загрузке ссылки: {e}")
-
-
 
 def get_user_email(user_id):
     # Ensure params is a tuple to avoid SQL errors
@@ -735,15 +776,33 @@ def display_leaderboard(bot, message):
     msg = bot.send_message(message.chat.id, "Выберите один из доступных вариантов ниже:")
     bot.register_next_step_handler(msg, sapa_instruments, bot)
 
+
+# Функция для отображения ссылок для администратора с фильтрацией по branch
 def show_pending_links(bot, admin_user_id):
     try:
+        # Получаем филиал администратора
+        admin_branch = None
+        for branch_info in branches_admin:
+            if branch_info['sapa_admin'] == str(admin_user_id):
+                admin_branch = branch_info['branch']
+                bot.send_message(admin_user_id, str(admin_branch))
+                break
+
+        if not admin_branch:
+            bot.send_message(admin_user_id, "Ошибка: филиал администратора не найден.")
+            return
+
+        # Получаем ссылки, отправленные пользователями с тем же branch
         result = db_connect.execute_get_sql_query("""
             SELECT id, link 
             FROM sapa_link 
             WHERE is_checked = FALSE 
+            AND email IN (
+                SELECT email FROM users WHERE branch = %s
+            )
             ORDER BY id 
             LIMIT 1
-        """)
+        """, (admin_branch,))
 
         if result:
             for row in result:
@@ -762,11 +821,12 @@ def show_pending_links(bot, admin_user_id):
 
                 bot.send_message(admin_user_id, f"Ссылка: {link}", reply_markup=markup)
         else:
-            bot.send_message(admin_user_id, "На данный момент нет новых ссылок для проверки. Пожалуйста, загрузите новую ссылку или выберите другое действие.")
+            bot.send_message(admin_user_id, "На данный момент нет новых ссылок для проверки.")
             msg = bot.send_message(admin_user_id, "Выберите один из доступных вариантов ниже:")
             bot.register_next_step_handler(msg, sapa_instruments, bot)
     except Exception as e:
         bot.send_message(admin_user_id, f"Ошибка при получении ссылок: {e}")
+
 
 # Функция для загрузки таблицы участников
 def upload_sapa_table(message, bot):
@@ -1055,10 +1115,10 @@ def call_back(bot, call):
                 link_id = parts[1]
 
                 bonus_points = {
-                    "фото": 500,
-                    "отзыв": 500,
+                    "фото": 200,
+                    "отзыв": 1000,
                     "пост": 1000,
-                    "reels": 1000,
+                    "reels": 500,
                     "ничего": 0
                 }
                 new_bonus_score = bonus_points.get(link_type, 0)
