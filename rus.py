@@ -1207,6 +1207,7 @@ def call_back(bot, call):
                     sapa_main_menu(call.message, bot)
                 else:
                     bot.send_message(call.message.chat.id, "Ошибка: ссылка не найдена.")
+                sapa_main_menu(call.message, bot)
             else:
                 bot.send_message(call.message.chat.id, "Некорректный ответ. Пожалуйста, выберите тип ссылки и укажите номер ссылки.")
         except Exception as e:
