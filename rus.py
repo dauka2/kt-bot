@@ -542,7 +542,7 @@ def sapa_main_menu(message, bot):
             markup.add(types.KeyboardButton('Оценка ссылок'), types.KeyboardButton('Загрузить таблицу'))
         # else:
         #     markup.add(types.KeyboardButton('Загрузить ссылку'))
-        markup.add(types.KeyboardButton('Таблица лидеров'), types.KeyboardButton('Загрузить ссылку'))
+        markup.add(types.KeyboardButton('Таблица лидеров'), types.KeyboardButton('Загрузить ссылку/фото'))
 
         bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
         bot.register_next_step_handler(message, sapa_instruments, bot)
@@ -574,34 +574,14 @@ def sapa_instruments(message, bot):
     elif response == 'загрузить таблицу' and str(user_id) in sapa_admin:
         msg = bot.send_message(user_id, "Пожалуйста, загрузите Excel файл с данными участников.")
         bot.register_next_step_handler(msg, upload_sapa_table, bot)
-    elif response == 'загрузить ссылку':
+    elif response == 'загрузить ссылку/фото':
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-        markup.add(types.KeyboardButton('Загрузка ссылки'), types.KeyboardButton('Список непроверенных ссылок'))
+        markup.add(types.KeyboardButton('Загрузить'), types.KeyboardButton('Список непроверенных ссылок'))
         bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
         bot.register_next_step_handler(message, links_instruments, bot)
     else:
         bot.send_message(user_id, "Пожалуйста, выберите один из вариантов.")
         bot.register_next_step_handler(message, sapa_instruments, bot)
-
-
-def get_user_branch(user_id):
-    # Запрос филиала пользователя по user_id из таблицы users
-    result = db_connect.execute_get_sql_query("""
-        SELECT branch 
-        FROM users 
-        WHERE id = %s
-    """, (user_id,))
-
-    if result:
-        return result[0][0]  # возвращаем филиал
-    return None
-
-# Пример поиска администратора для конкретного branch
-def get_sapa_admin(branch_name):
-    for branch in branches_admin:
-        if branch['branch'] == branch_name:
-            return branch['sapa_admin']
-    return None  # Если филиал не найден, возвращаем None
 
 def additional_info_handler(message, bot):
     user_id = message.chat.id
@@ -640,7 +620,7 @@ def links_instruments(message, bot):
         if response == '/menu':
             menu(bot, message)
             return True
-    elif response == 'загрузка ссылки':
+    elif response == 'загрузить':
         msg = bot.send_message(user_id, "Пожалуйста введите ссылку или отправьте фото(или введите 'стоп' для завершения):")
         bot.register_next_step_handler(msg, upload_link, bot)
     elif response == 'список непроверенных ссылок':
