@@ -564,20 +564,16 @@ def additional_info_handler(message, bot):
             menu(bot, message)
             return True
     elif info_request == 'модемді орнату бойынша нұсқаулық':
-        bot.send_message(user_id, "Мұнда модемді орнату туралы нұсқаулық бар https://t.me/+LJl92t3A3NE2MzMy")
-    elif info_request == 'тіркелу нұсқаулығы':
-        bot.send_message(user_id, "Бағдарламаға қатысу үшін қатысушы келесі әрекеттерді орындауы керек: \n2100 теңге және 100 Telecoin көлемінде қосымша төлем алу үшін:\nҚоғамның telecom.kz қосымшасында тіркелуі қажет;\nҚоғамның BIRLIK порталында тіркелуі қажет;\n@ktwelcome_bot (ktbot) Telegram арнасына тіркелуі қажет;"
-                                  "\nWi-Fi маршрутизаторын орнату бойынша тиісті әрекеттерді орындауы қажет.\n\n200-ден 1000-ға дейінгі телекоиндерді алу үшін:\ntelecomkz IG парақшасына жазылу керек.\n1. Клиентпен бірге түскен фотоны орналастырып, @telecomkz және #telecomsapa белгілерімен бөлісу – 200 телекоин.\n2. Жеке әлеуметтік желідегі аккаунтта клиенттің үйінде Wi-Fi маршрутизаторын орнату "
-                                  "туралы Reels (бейнеролик) орналастыру, @telecomkz және #telecomsapa белгілерімен – 500 телекоин.\n3. Клиентті өз аккаунтында @telecomkz және #telecomsapa белгілерімен оң пікір жариялауға ынталандыру – 1000 телекоин.\n4. Клиентті 2GIS қосымшасында оң пікір қалдыруға ынталандыру – 1000 телекоин.\n\nМіндетті талаптар:"
-                                  "\nБарлық жарияланымдар ktbot-қа (фото/скриншот + сілтеме) тіркеледі.\nЖоба барысында қатысушының аккаунты ашық болуы және конкурс аккаунты болмауы қажет.\nҚатысушы клиенттен жеке аккаунтында фото-видео контентті жариялау үшін алдын ала келісім алуы қажет.\n\nСыйақыны төлеу/алу күніне қатысушы Қоғаммен еңбек қатынасында болуы тиіс.")
-    elif info_request == 'модемдерді алу мекенжайлары':
+        bot.send_message(user_id, "Инструкция для мегалайнера. Помощь в установке роутера для абонента https://youtu.be/0e4Yc5Kdzpo")
+        bot.send_document(user_id, open("files/Настройки KC-Link Wi-Fi.pdf", 'rb'))
+        bot.send_document(user_id, open("files/Инструкция_по_подключению_и_настройке_роутера.pdf", 'rb'))
+        bot.send_document(user_id, open("files/Инструкция_пользователя_WFM_инсталлятор.pdf", 'rb'))
+    elif info_request == 'сапа роутердің беру пункттері+':
         bot.send_document(user_id, open("files/Пункты выдачи по городам РК.pdf", 'rb'))
-    elif info_request == 'ортақ чат':
-        bot.send_message(user_id, "Ссылка в общий чат")
-    elif info_request == 'ортақ чат2':
-        bot.send_message(user_id, "Ссылка в общий чат")
-    elif info_request == 'ақпараттық арна':
-        bot.send_message(user_id, "Ақпараттық арнаға сілтеме:https://t.me/+LJl92t3A3NE2Mz")
+    elif info_request == 'cапа+ техникалық қолдау чаты':
+        bot.send_message(user_id, "Ссылка для присоединения к группе: https://t.me/+gCyDTZGRZIBlZDIy")
+    elif info_request == 'sapa quest+ чаты':
+        bot.send_message(user_id, "Cсылка на информационый канал:https://t.me/+LJl92t3A3NE2MzMy")
     else:
         bot.send_message(user_id, "Опциялардың бірін таңдаңыз.")
         bot.register_next_step_handler(message, additional_info_handler, bot)
