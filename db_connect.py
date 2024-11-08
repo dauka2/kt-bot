@@ -64,7 +64,7 @@ def create_db():
     cur.execute(
         'CREATE TABLE IF NOT EXISTS sapa_bonus(id serial primary key, email varchar(50), bonus_score int DEFAULT 0, total_score int DEFAULT 0)')
     cur.execute(
-        'CREATE TABLE IF NOT EXISTS sapa_link(id serial primary key, email varchar(50), link varchar(200), branch varchar(50), is_checked bool DEFAULT FALSE, status varchar(50))')
+        'CREATE TABLE IF NOT EXISTS sapa_link(id serial primary key, email varchar(50), link varchar(200), branch varchar(50), is_checked bool DEFAULT FALSE, status varchar(50), image_data bytea)')
     cur.execute(
         'CREATE TABLE IF NOT EXISTS performers('
         'id serial primary key, '
@@ -199,13 +199,18 @@ def delete_performers():
 
 
 def sapa_test():
-    sql_query = "INSERT INTO sapa(fullname) VALUES ('SDF')"
+    sql_query = "DROP TABLE IF EXISTS sapa_bonus"
     execute_set_sql_query(sql_query)
 
 def sapa_test_():
-    sql_query = "DROP TABLE IF EXISTS sapa_link"
+    sql_query = "DROP TABLE IF EXISTS sapa"
+    sql_query += "DROP TABLE IF EXISTS sapa_bonus"
+    sql_query += "DROP TABLE IF EXISTS sapa_link"
     execute_set_sql_query(sql_query)
 
+def sapa_test__():
+    sql_query = "DROP TABLE IF EXISTS sapa_link"
+    execute_set_sql_query(sql_query)
 # def delete_nenuzhnoe_v_usersinfo():
 #     sql_query = "ALTER TABLE users_info DROP COLUMN IF EXISTS appeal_id;"
 #     sql_query += "ALTER TABLE users_info DROP COLUMN IF EXISTS is_appeal_anon;"
@@ -238,7 +243,8 @@ def add_column_default():
     execute_set_sql_query(sql_query)
 
 def add_column_sapa():
-    sql_query = "ALTER TABLE sapa_link ADD COLUMN branch VARCHAR(50);"
+    sql_query = "ALTER TABLE sapa_link ADD COLUMN branch varchar(50);"
+    sql_query += "ALTER TABLE sapa_link ADD COLUMN image_data bytea;"
     execute_set_sql_query(sql_query)
 
 def delete_verif_columns():

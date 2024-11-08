@@ -535,28 +535,36 @@ def sapa_main_menu(message, bot):
     user_id = message.chat.id
     choice = message.text.strip().lower()
 
-    if choice == 'основные действия':
+    if choice.startswith('/'):
+        # Переход в меню, если команда "/menu"
+        if choice == '/menu':
+            menu(bot, message)
+            return True
+    elif choice == 'основные действия':
         # Меню с действиями для администратора и участников
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
         if str(user_id) in sapa_admin:
             markup.add(types.KeyboardButton('Оценка ссылок'), types.KeyboardButton('Загрузить таблицу'))
-        # else:
-        #     markup.add(types.KeyboardButton('Загрузить ссылку'))
         markup.add(types.KeyboardButton('Таблица лидеров'), types.KeyboardButton('Загрузить ссылку/фото'))
 
-        bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
+        bot.send_message(user_id, "Выберите одно из действий в меню:", reply_markup=markup)
         bot.register_next_step_handler(message, sapa_instruments, bot)
 
     elif choice == 'необходимая информация':
         # Меню с четырьмя дополнительными кнопками
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-        markup.add(types.KeyboardButton('Инструкция по установке модема'), types.KeyboardButton('Инструкция для регистрации в Сапа+'))
+        markup.add(types.KeyboardButton('Инструкция по установке модема'),
+                   types.KeyboardButton('Инструкция для регистрации в Сапа+'))
         markup.add(types.KeyboardButton('Адреса получения модемов'), types.KeyboardButton('Общий чат'))
         markup.add(types.KeyboardButton('Общий чат2'), types.KeyboardButton('Инфо канал'))
 
         bot.send_message(user_id, "Вот необходимая информация:", reply_markup=markup)
         bot.register_next_step_handler(message, additional_info_handler, bot)
 
+    else:
+        # Если пользователь ввел что-то другое, попросим сделать выбор снова
+        bot.send_message(user_id, "Пожалуйста, выберите действие из предложенных вариантов.")
+        bot.register_next_step_handler(message, sapa_main_menu, bot)
 
 def sapa_instruments(message, bot):
     user_id = str(message.chat.id)
@@ -577,7 +585,7 @@ def sapa_instruments(message, bot):
     elif response == 'загрузить ссылку/фото':
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
         markup.add(types.KeyboardButton('Загрузить'), types.KeyboardButton('Список непроверенных ссылок'))
-        bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
+        bot.send_message(user_id, "Выберите одно из действий загрузки ссылки:", reply_markup=markup)
         bot.register_next_step_handler(message, links_instruments, bot)
     else:
         bot.send_message(user_id, "Пожалуйста, выберите один из вариантов.")
@@ -801,6 +809,7 @@ def show_pending_links(bot, admin_user_id):
             if branch_info['sapa_admin'] == str(admin_user_id):
                 admin_branch = branch_info['branch']
                 break
+        bot.send_message(admin_user_id, str(admin_branch))
 
         if not admin_branch:
             bot.send_message(admin_user_id, "Ошибка: филиал администратора не найден.")
@@ -1120,11 +1129,11 @@ def performer_text(appeal_info):
            f" Комментарий: {str(appeal_info[8])}"
     return text
 
+
 def call_back(bot, call):
     user_id = call.from_user.id
     response = call.data  # Assuming the response comes through call.data
 
-    # Check if the user is an admin and the status of the link is being defined
     if str(user_id) in sapa_admin and response.startswith(('фото', 'отзыв', 'пост', 'reels', 'ничего')):
         try:
             parts = response.split(' ')
@@ -1148,49 +1157,49 @@ def call_back(bot, call):
                 if link_result:
                     email, link = link_result[0]
 
-                    if email:  # Check if email is not None
-                        email = email.strip()  # Remove extra spaces from email
+                    if email:
+                        email = email.strip()
                     else:
-                        email = get_user_email(user_id)  # Get email if it's not found in sapa_link
+                        email = get_user_email(user_id)
 
                     # Update link status
                     db_connect.execute_set_sql_query("""
-                            UPDATE sapa_link 
-                            SET is_checked = TRUE, status = %s 
-                            WHERE id = %s
-                        """, (link_type, link_id))
+                        UPDATE sapa_link 
+                        SET is_checked = TRUE, status = %s 
+                        WHERE id = %s
+                    """, (link_type, link_id))
 
                     # Award points to the user
                     db_connect.execute_set_sql_query("""
-                            UPDATE sapa_bonus 
-                            SET bonus_score = bonus_score + %s, total_score = total_score + %s 
-                            WHERE email = %s
-                        """, (new_bonus_score, new_bonus_score, email))
+                        UPDATE sapa_bonus 
+                        SET bonus_score = bonus_score + %s, total_score = total_score + %s 
+                        WHERE email = %s
+                    """, (new_bonus_score, new_bonus_score, email))
 
                     bot.send_message(call.message.chat.id,
                                      f"Ссылка '{link}' одобрена. Участнику начислено {new_bonus_score} баллов за тип '{link_type}'!")
-                    
+
                     user_result = db_connect.execute_get_sql_query(
                         "SELECT id FROM users WHERE email = %s", (email,)
                     )
 
                     if user_result:
-                        user_chat_id = user_result[0][0]  # Получаем chat_id пользователя
+                        user_chat_id = user_result[0][0]
 
-                        # Извлекаем бонусные баллы и общий счёт пользователя
+                        # Extract bonus and total score for the user
                         score_result = db_connect.execute_get_sql_query(
                             """
                             SELECT sb.bonus_score, sb.total_score 
                             FROM sapa_bonus sb
                             JOIN sapa_link sl ON sb.email = sl.email
                             WHERE sl.id = %s
-                            """, 
-                            (link_id,)  # Используем link_id последней добавленной ссылки
+                            """,
+                            (link_id,)
                         )
 
                         if score_result:
-                            bonus_score = new_bonus_score  # Бонусные баллы за ссылку
-                            total_score = score_result[0][1]  # Общий счёт пользователя
+                            bonus_score = new_bonus_score
+                            total_score = score_result[0][1]
 
                             message = (
                                 f"Ваша ссылка была проверена.\n"
@@ -1198,18 +1207,40 @@ def call_back(bot, call):
                                 f"Общий счёт: {total_score}"
                             )
                             bot.send_message(user_chat_id, message)
+                            markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+                            markup.add(types.KeyboardButton('Основные действия'),
+                                       types.KeyboardButton('Необходимая информация'))
+
+                            msg = bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
+                            bot.register_next_step_handler(msg, sapa_main_menu, bot)
                         else:
                             bot.send_message(user_chat_id, "Бонусные баллы и общий счёт не найдены.")
+                            markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+                            markup.add(types.KeyboardButton('Основные действия'),
+                                       types.KeyboardButton('Необходимая информация'))
+
+                            msg = bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
+                            bot.register_next_step_handler(msg, sapa_main_menu, bot)
                     else:
                         print("Пользователь не найден.")
-                    
-                    # Call the sapa_con function to present the tool selection again
-                    sapa_main_menu(call.message, bot)
+
+                        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+                        markup.add(types.KeyboardButton('Основные действия'),
+                                   types.KeyboardButton('Необходимая информация'))
+
+                        msg = bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
+                        bot.register_next_step_handler(msg, sapa_main_menu, bot)
                 else:
                     bot.send_message(call.message.chat.id, "Ошибка: ссылка не найдена.")
-                sapa_main_menu(call.message, bot)
+                    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+                    markup.add(types.KeyboardButton('Основные действия'),
+                               types.KeyboardButton('Необходимая информация'))
+
+                    msg = bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
+                    bot.register_next_step_handler(msg, sapa_main_menu, bot)
             else:
-                bot.send_message(call.message.chat.id, "Некорректный ответ. Пожалуйста, выберите тип ссылки и укажите номер ссылки.")
+                bot.send_message(call.message.chat.id,
+                                 "Некорректный ответ. Пожалуйста, выберите тип ссылки и укажите номер ссылки.")
         except Exception as e:
             bot.send_message(call.message.chat.id, f"Ошибка при обработке ответа администратора: {e}")
 
