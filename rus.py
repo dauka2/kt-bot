@@ -545,7 +545,7 @@ def sapa_main_menu(message, bot):
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
         if str(user_id) in sapa_admin:
             markup.add(types.KeyboardButton('Оценка ссылок'), types.KeyboardButton('Загрузить таблицу'))
-        markup.add(types.KeyboardButton('Таблица лидеров'), types.KeyboardButton('Загрузить ссылку/фото'))
+        markup.add(types.KeyboardButton('Таблица лидеров'), types.KeyboardButton('Загрузить ссылку/фото'), types.KeyboardButton('Назад'))
 
         bot.send_message(user_id, "Выберите одно из действий в меню:", reply_markup=markup)
         bot.register_next_step_handler(message, sapa_instruments, bot)
@@ -586,6 +586,9 @@ def sapa_instruments(message, bot):
         markup.add(types.KeyboardButton('Загрузить'), types.KeyboardButton('Список непроверенных ссылок'))
         bot.send_message(user_id, "Выберите одно из действий загрузки ссылки:", reply_markup=markup)
         bot.register_next_step_handler(message, links_instruments, bot)
+    elif response == 'назад':
+        msg = bot.send_message(user_id, "Вы в Меню")
+        bot.register_next_step_handler(msg, sapa_main_menu, bot)
     else:
         bot.send_message(user_id, "Пожалуйста, выберите один из вариантов.")
         bot.register_next_step_handler(message, sapa_instruments, bot)
