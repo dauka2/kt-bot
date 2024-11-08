@@ -488,7 +488,7 @@ def sapa_con(bot, message):
     if message_text == '📶"Сапа+" байқауға қатысу':
         # Основное меню с двумя кнопками
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-        markup.add(types.KeyboardButton('Негізгі әрекеттер'), types.KeyboardButton('Қажетті ақпарат'))
+        markup.add(types.KeyboardButton('Негізгі әрекеттер'), types.KeyboardButton('Нұсқаулар, техникалық қолдау және беру нүктелері'))
 
         bot.send_message(user_id, "Әрекеттердің бірін таңдаңыз:", reply_markup=markup)
         bot.register_next_step_handler(message, sapa_main_menu, bot)
@@ -503,24 +503,25 @@ def sapa_main_menu(message, bot):
             menu(bot, message)
             return True
     elif choice == 'негізгі әрекеттер':
+        bot.send_message(message.chat.id, "Жақында...")
+        bot.send_message(message.chat.id, 'Негізгі мәзірге оралу үшін - "/menu" пәрменін енгізіңіз')
         # Меню с действиями для администратора и участников
-        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-        if str(user_id) in sapa_admin:
-            markup.add(types.KeyboardButton('Сілтемелерді бағалау'), types.KeyboardButton('Кестені жүктеу'))
-        markup.add(types.KeyboardButton('Көшбасшылар тақтасы'), types.KeyboardButton('Сілтемені/Фотосуретті жүктеу'))
+        # markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+        # if str(user_id) in sapa_admin:
+        #     markup.add(types.KeyboardButton('Сілтемелерді бағалау'), types.KeyboardButton('Кестені жүктеу'))
+        # markup.add(types.KeyboardButton('Көшбасшылар тақтасы'), types.KeyboardButton('Сілтемені/Фотосуретті жүктеу'))
+        #
+        # bot.send_message(user_id, "Төменде қол жетімді опциялардың бірін таңдаңыз:", reply_markup=markup)
+        # bot.register_next_step_handler(message, sapa_instruments, bot)
 
-        bot.send_message(user_id, "Төменде қол жетімді опциялардың бірін таңдаңыз:", reply_markup=markup)
-        bot.register_next_step_handler(message, sapa_instruments, bot)
-
-    elif choice == 'қажетті ақпарат':
+    elif choice == 'нұсқаулар, техникалық қолдау және беру нүктелері':
         # Меню с четырьмя дополнительными кнопками
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-        markup.add(types.KeyboardButton('Модемді орнату бойынша нұсқаулық'),
-                   types.KeyboardButton('Тіркелу нұсқаулығы'))
-        markup.add(types.KeyboardButton('Модемдерді алу мекенжайлары'), types.KeyboardButton('Ортақ чат'))
-        markup.add(types.KeyboardButton('Ортақ чат2'), types.KeyboardButton('Ақпараттық арна'))
+        markup.add(types.KeyboardButton('Модемді орнату бойынша нұсқаулық'))
+        markup.add(types.KeyboardButton('Сапа роутердің беру пункттері+'))
+        markup.add(types.KeyboardButton('Cапа+ техникалық қолдау чаты'), types.KeyboardButton('Sapa quest+ чаты'))
 
-        bot.send_message(user_id, "Міне, қажетті ақпарат:", reply_markup=markup)
+        bot.send_message(user_id, "Қажетті ақпаратты таңдаңыз:", reply_markup=markup)
         bot.register_next_step_handler(message, additional_info_handler, bot)
 
     else:
