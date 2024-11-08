@@ -554,7 +554,7 @@ def sapa_main_menu(message, bot):
         # Меню с четырьмя дополнительными кнопками
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
         markup.add(types.KeyboardButton('Инструкция по установке модема'),
-                   types.KeyboardButton('Инструкция для регистрации в Сапа+'))
+                   types.KeyboardButton('Инструкция по участию в Сапа+'))
         markup.add(types.KeyboardButton('Адреса получения модемов'), types.KeyboardButton('Общий чат'))
         markup.add(types.KeyboardButton('Общий чат2'), types.KeyboardButton('Инфо канал'))
 
@@ -809,7 +809,6 @@ def show_pending_links(bot, admin_user_id):
             if branch_info['sapa_admin'] == str(admin_user_id):
                 admin_branch = branch_info['branch']
                 break
-        bot.send_message(admin_user_id, str(admin_branch))
 
         if not admin_branch:
             bot.send_message(admin_user_id, "Ошибка: филиал администратора не найден.")
@@ -1160,7 +1159,7 @@ def call_back(bot, call):
                     email, link = link_result[0]
 
                     if email:
-                        email = email.strip.lower()
+                        email = email.strip().lower()
                     else:
                         email = get_user_email(user_id)
 
