@@ -541,14 +541,16 @@ def sapa_main_menu(message, bot):
             menu(bot, message)
             return True
     elif choice == 'бонусная система сапа+':
+        bot.send_message(message.chat.id, "Уже скоро...")
+        bot.send_message(message.chat.id, 'Чтобы вернуться в Главное меню - введите команду "/menu"')
         # Меню с действиями для администратора и участников
-        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-        if str(user_id) in sapa_admin:
-            markup.add(types.KeyboardButton('Оценка ссылок'), types.KeyboardButton('Загрузить таблицу'))
-        markup.add(types.KeyboardButton('Таблица лидеров'), types.KeyboardButton('Загрузить ссылку/фото'), types.KeyboardButton('Назад'))
-
-        bot.send_message(user_id, "Выберите одно из действий в меню:", reply_markup=markup)
-        bot.register_next_step_handler(message, sapa_instruments, bot)
+        # markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+        # if str(user_id) in sapa_admin:
+        #     markup.add(types.KeyboardButton('Оценка ссылок'), types.KeyboardButton('Загрузить таблицу'))
+        # markup.add(types.KeyboardButton('Таблица лидеров'), types.KeyboardButton('Загрузить ссылку/фото'), types.KeyboardButton('Назад'))
+        #
+        # bot.send_message(user_id, "Выберите одно из действий в меню:", reply_markup=markup)
+        # bot.register_next_step_handler(message, sapa_instruments, bot)
 
     elif choice == 'инструкции, техническая поддержка и точки передачи':
         # Меню с четырьмя дополнительными кнопками
@@ -609,6 +611,8 @@ def additional_info_handler(message, bot):
     elif info_request == 'инструкция по установке модема':
         bot.send_message(user_id, "Инструкция для мегалайнера. Помощь в установке роутера для абонента https://youtu.be/0e4Yc5Kdzpo")
         bot.send_document(user_id, open("files/Настройки KC-Link Wi-Fi.pdf", 'rb'))
+        bot.send_document(user_id, open("files/Инструкция_по_подключению_и_настройке_роутера.pdf", 'rb'))
+        bot.send_document(user_id, open("files/Инструкция_пользователя_WFM_инсталлятор.pdf", 'rb'))
     elif info_request == 'пункты выдачи роутеров сапа+':
         bot.send_document(user_id, open("files/Пункты выдачи по городам РК.pdf", 'rb'))
     elif info_request == 'чат по тех поддержке Сапа+':
