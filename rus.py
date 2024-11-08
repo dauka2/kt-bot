@@ -1160,7 +1160,7 @@ def call_back(bot, call):
                     email, link = link_result[0]
 
                     if email:
-                        email = email.strip()
+                        email = email.strip.lower()
                     else:
                         email = get_user_email(user_id)
 
