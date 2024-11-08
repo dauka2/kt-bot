@@ -525,7 +525,7 @@ def sapa_con(bot, message):
     if message_text == '📶Участие в конкурсе "Сапа+"':
         # Основное меню с двумя кнопками
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-        markup.add(types.KeyboardButton('Бонусная система сапа+'), types.KeyboardButton('Необходимая информация'))
+        markup.add(types.KeyboardButton('Бонусная система сапа+'), types.KeyboardButton('Инструкции, техподдержка и точки выдачи'))
 
         bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
         bot.register_next_step_handler(message, sapa_main_menu, bot)
@@ -541,23 +541,25 @@ def sapa_main_menu(message, bot):
             menu(bot, message)
             return True
     elif choice == 'бонусная система сапа+':
+        bot.send_message(message.chat.id, "Уже скоро...")
+        bot.send_message(message.chat.id, 'Для возврата в главное меню, введите команду - "/menu"')
         # Меню с действиями для администратора и участников
-        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-        if str(user_id) in sapa_admin:
-            markup.add(types.KeyboardButton('Оценка ссылок'), types.KeyboardButton('Загрузить таблицу'))
-        markup.add(types.KeyboardButton('Таблица лидеров'), types.KeyboardButton('Загрузить ссылку/фото'))
+        # markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+        # if str(user_id) in sapa_admin:
+        #     markup.add(types.KeyboardButton('Оценка ссылок'), types.KeyboardButton('Загрузить таблицу'))
+        # markup.add(types.KeyboardButton('Таблица лидеров'), types.KeyboardButton('Загрузить ссылку/фото'))
+        #
+        # bot.send_message(user_id, "Выберите одно из действий в меню:", reply_markup=markup)
+        # bot.register_next_step_handler(message, sapa_instruments, bot)
 
-        bot.send_message(user_id, "Выберите одно из действий в меню:", reply_markup=markup)
-        bot.register_next_step_handler(message, sapa_instruments, bot)
-
-    elif choice == 'необходимая информация':
+    elif choice == 'инструкции, техподдержка и точки выдачи':
         # Меню с четырьмя дополнительными кнопками
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
         markup.add(types.KeyboardButton('Инструкция по установке модема'))
         markup.add(types.KeyboardButton('Пункты выдачи роутеров сапа+'))
         markup.add(types.KeyboardButton('Чат по тех поддержке Сапа+'), types.KeyboardButton('Чат Sapa quest+'))
 
-        bot.send_message(user_id, "Вот необходимая информация:", reply_markup=markup)
+        bot.send_message(user_id, "Выберите необходимую информацию:", reply_markup=markup)
         bot.register_next_step_handler(message, additional_info_handler, bot)
 
     else:
@@ -602,6 +604,8 @@ def additional_info_handler(message, bot):
     elif info_request == 'инструкция по установке модема':
         bot.send_message(user_id, "Инструкция для мегалайнера. Помощь в установке роутера для абонента https://youtu.be/0e4Yc5Kdzpo")
         bot.send_document(user_id, open("files/Настройки KC-Link Wi-Fi.pdf", 'rb'))
+        bot.send_document(user_id, open("files/Инструкция_по_подключению_и_настройке_роутера.pdf", 'rb'))
+        bot.send_document(user_id, open("files/Инструкция_пользователя_WFM_инсталлятор.pdf", 'rb'))
     elif info_request == 'пункты выдачи роутеров сапа+':
         bot.send_document(user_id, open("files/Пункты выдачи по городам РК.pdf", 'rb'))
     elif info_request == 'чат по тех поддержке Сапа+':
@@ -622,7 +626,7 @@ def links_instruments(message, bot):
             menu(bot, message)
             return True
     elif response == 'загрузить':
-        msg = bot.send_message(user_id, "Пожалуйста введите ссылку/фото(или введите 'стоп' для завершения):")
+        msg = bot.send_message(user_id, "Пожалуйста введите ссылку/фото:")
         bot.register_next_step_handler(msg, upload_link, bot)
     elif response == 'список непроверенных ссылок':
         show_user_links(bot, message)
@@ -633,14 +637,14 @@ def links_instruments(message, bot):
 
 def upload_link(message, bot):
     user_id = message.chat.id
-    
+
     # Проверяем, есть ли фото
     if message.photo:
         bot.send_message(user_id, "Фото получено, начинаем загрузку...")
         try:
             # Получаем информацию о фотографии и создаем URL для загрузки
             file_info = bot.get_file(message.photo[-1].file_id)
-            file_url = 'https://api.telegram.org/file/bot{}/{}'.format(db_connect.TOKEN, file_info.file_path)
+            file_url = f'https://api.telegram.org/file/bot{db_connect.TOKEN}/{file_info.file_path}'
             file_data = requests.get(file_url).content
 
             # Получаем email пользователя
@@ -651,16 +655,20 @@ def upload_link(message, bot):
 
             # Сохраняем фотографию в базу данных
             db_connect.execute_set_sql_query("""
-                        INSERT INTO sapa_link (email, link, is_checked, status, image_data) 
-                        VALUES (%s, %s, FALSE, NULL, %s)
-                    """, (email, None, file_data,))
+                INSERT INTO sapa_link (email, link, is_checked, status, image_data) 
+                VALUES (%s, %s, FALSE, NULL, %s)
+            """, (email, None, file_data,))
 
             bot.send_message(user_id, "Фото успешно загружено и ожидает проверки.")
-            
-            # Запрашиваем следующую ссылку или фото и регистрируем `upload_link` для обработки
-            msg = bot.send_message(user_id, "Пожалуйста, введите следующую ссылку или отправьте фото (или введите 'стоп' для завершения):")
-            bot.register_next_step_handler(msg, upload_link, bot)
-            return  # Завершаем выполнение, чтобы не обрабатывать дальше как ссылку
+
+            # Добавляем кнопки для возврата в меню
+            markup = types.InlineKeyboardMarkup()
+            markup.add(
+                types.InlineKeyboardButton("Вернуться в главное меню", callback_data="menu"),
+                types.InlineKeyboardButton("Вернуться в меню сапа+", callback_data="sapa_main_menu")
+            )
+            bot.send_message(user_id, "Выберите следующий шаг:", reply_markup=markup)
+            return
 
         except Exception as e:
             bot.send_message(user_id, f"Произошла ошибка при загрузке фотографии: {e}")
@@ -669,16 +677,9 @@ def upload_link(message, bot):
     # Условие для обработки текстовых ссылок
     link = message.text.strip()
 
-    if link.lower() == 'стоп':
-        bot.send_message(user_id, "Процесс загрузки ссылок завершён.")
-        # Возвращаемся к основным действиям
-        msg = bot.send_message(user_id, "Выберите один из доступных вариантов ниже:")
-        bot.register_next_step_handler(msg, links_instruments, bot)  # Сброс контекста
-        return
-
     if not link.startswith("http"):
         bot.send_message(user_id, "Неверный формат ссылки. Пожалуйста, укажите корректный URL.")
-        msg = bot.send_message(user_id, "Пожалуйста введите ссылку/фото (или введите 'стоп' для завершения):")
+        msg = bot.send_message(user_id, "Пожалуйста введите ссылку/фото:")
         bot.register_next_step_handler(msg, upload_link, bot)
         return
 
@@ -689,15 +690,20 @@ def upload_link(message, bot):
             return
 
         db_connect.execute_set_sql_query("""
-                INSERT INTO sapa_link (email, link, is_checked, status) 
-                VALUES (%s, %s, FALSE, NULL)
-            """, (email, link,))
+            INSERT INTO sapa_link (email, link, is_checked, status) 
+            VALUES (%s, %s, FALSE, NULL)
+        """, (email, link,))
 
         bot.send_message(user_id, "Ссылка успешно загружена! Ожидайте проверки.")
 
-        # Запрашиваем следующую ссылку
-        msg = bot.send_message(user_id, "Пожалуйста введите следующую ссылку (или введите 'стоп' для завершения):")
-        bot.register_next_step_handler(msg, upload_link, bot)
+        # Добавляем кнопки для возврата в меню
+        markup = types.InlineKeyboardMarkup()
+        markup.add(
+            types.InlineKeyboardButton("Вернуться в главное меню", callback_data="menu"),
+            types.InlineKeyboardButton("Вернуться в меню сапа+", callback_data="sapa_main_menu")
+        )
+        bot.send_message(user_id, "Выберите следующий шаг:", reply_markup=markup)
+
     except Exception as e:
         bot.send_message(user_id, f"Произошла ошибка при загрузке ссылки: {e}")
 
@@ -1128,7 +1134,20 @@ def call_back(bot, call):
     user_id = call.from_user.id
     response = call.data  # Assuming the response comes through call.data
 
-    if str(user_id) in sapa_admin and response.startswith(('фото', 'отзыв', 'пост', 'reels', 'ничего')):
+    if call.data == 'menu':
+            bot.send_message(call.message.chat.id, "Возвращаемся в меню.")
+            # Здесь можно вызвать функцию `menu`, если она у вас определена
+            menu(call.message, bot)
+
+    elif call.data == 'sapa_main_menu':
+            markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+            markup.add(types.KeyboardButton('Бонусная система сапа+'),
+                       types.KeyboardButton('Необходимая информация'))
+
+            msg = bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
+            bot.register_next_step_handler(msg, sapa_main_menu, bot)
+
+    elif str(user_id) in sapa_admin and response.startswith(('фото', 'отзыв', 'пост', 'reels', 'ничего')):
         try:
             parts = response.split(' ')
             if len(parts) == 2 and parts[1].isdigit():
@@ -1202,7 +1221,7 @@ def call_back(bot, call):
                             )
                             bot.send_message(user_chat_id, message)
                             markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-                            markup.add(types.KeyboardButton('бонусная система сапа+'),
+                            markup.add(types.KeyboardButton('Бонусная система сапа+'),
                                        types.KeyboardButton('Необходимая информация'))
 
                             msg = bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
@@ -1210,7 +1229,7 @@ def call_back(bot, call):
                         else:
                             bot.send_message(user_chat_id, "Бонусные баллы и общий счёт не найдены.")
                             markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-                            markup.add(types.KeyboardButton('бонусная система сапа+'),
+                            markup.add(types.KeyboardButton('Бонусная система сапа+'),
                                        types.KeyboardButton('Необходимая информация'))
 
                             msg = bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
@@ -1219,7 +1238,7 @@ def call_back(bot, call):
                         print("Пользователь не найден.")
 
                         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-                        markup.add(types.KeyboardButton('бонусная система сапа+'),
+                        markup.add(types.KeyboardButton('Бонусная система сапа+'),
                                    types.KeyboardButton('Необходимая информация'))
 
                         msg = bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
@@ -1227,7 +1246,7 @@ def call_back(bot, call):
                 else:
                     bot.send_message(call.message.chat.id, "Ошибка: ссылка не найдена.")
                     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-                    markup.add(types.KeyboardButton('бонусная система'),
+                    markup.add(types.KeyboardButton('Бонусная система сапа+'),
                                types.KeyboardButton('Необходимая информация'))
 
                     msg = bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)

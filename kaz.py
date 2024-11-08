@@ -488,7 +488,7 @@ def sapa_con(bot, message):
     if message_text == '📶"Сапа+" байқауға қатысу':
         # Основное меню с двумя кнопками
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-        markup.add(types.KeyboardButton('Негізгі әрекеттер'), types.KeyboardButton('Қажетті ақпарат'))
+        markup.add(types.KeyboardButton('Негізгі әрекеттер'), types.KeyboardButton('Нұсқаулар, техникалық қолдау және беру нүктелері'))
 
         bot.send_message(user_id, "Әрекеттердің бірін таңдаңыз:", reply_markup=markup)
         bot.register_next_step_handler(message, sapa_main_menu, bot)
@@ -503,24 +503,25 @@ def sapa_main_menu(message, bot):
             menu(bot, message)
             return True
     elif choice == 'негізгі әрекеттер':
+        bot.send_message(message.chat.id, "Жақында...")
+        bot.send_message(message.chat.id, 'Негізгі мәзірге оралу үшін - "/menu" пәрменін енгізіңіз')
         # Меню с действиями для администратора и участников
-        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-        if str(user_id) in sapa_admin:
-            markup.add(types.KeyboardButton('Сілтемелерді бағалау'), types.KeyboardButton('Кестені жүктеу'))
-        markup.add(types.KeyboardButton('Көшбасшылар тақтасы'), types.KeyboardButton('Сілтемені/Фотосуретті жүктеу'))
+        # markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+        # if str(user_id) in sapa_admin:
+        #     markup.add(types.KeyboardButton('Сілтемелерді бағалау'), types.KeyboardButton('Кестені жүктеу'))
+        # markup.add(types.KeyboardButton('Көшбасшылар тақтасы'), types.KeyboardButton('Сілтемені/Фотосуретті жүктеу'))
+        #
+        # bot.send_message(user_id, "Төменде қол жетімді опциялардың бірін таңдаңыз:", reply_markup=markup)
+        # bot.register_next_step_handler(message, sapa_instruments, bot)
 
-        bot.send_message(user_id, "Төменде қол жетімді опциялардың бірін таңдаңыз:", reply_markup=markup)
-        bot.register_next_step_handler(message, sapa_instruments, bot)
-
-    elif choice == 'қажетті ақпарат':
+    elif choice == 'нұсқаулар, техникалық қолдау және беру нүктелері':
         # Меню с четырьмя дополнительными кнопками
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-        markup.add(types.KeyboardButton('Модемді орнату бойынша нұсқаулық'),
-                   types.KeyboardButton('Тіркелу нұсқаулығы'))
-        markup.add(types.KeyboardButton('Модемдерді алу мекенжайлары'), types.KeyboardButton('Ортақ чат'))
-        markup.add(types.KeyboardButton('Ортақ чат2'), types.KeyboardButton('Ақпараттық арна'))
+        markup.add(types.KeyboardButton('Модемді орнату бойынша нұсқаулық'))
+        markup.add(types.KeyboardButton('Сапа роутердің беру пункттері+'))
+        markup.add(types.KeyboardButton('Cапа+ техникалық қолдау чаты'), types.KeyboardButton('Sapa quest+ чаты'))
 
-        bot.send_message(user_id, "Міне, қажетті ақпарат:", reply_markup=markup)
+        bot.send_message(user_id, "Қажетті ақпаратты таңдаңыз:", reply_markup=markup)
         bot.register_next_step_handler(message, additional_info_handler, bot)
 
     else:
@@ -563,20 +564,16 @@ def additional_info_handler(message, bot):
             menu(bot, message)
             return True
     elif info_request == 'модемді орнату бойынша нұсқаулық':
-        bot.send_message(user_id, "Мұнда модемді орнату туралы нұсқаулық бар https://t.me/+LJl92t3A3NE2MzMy")
-    elif info_request == 'тіркелу нұсқаулығы':
-        bot.send_message(user_id, "Бағдарламаға қатысу үшін қатысушы келесі әрекеттерді орындауы керек: \n2100 теңге және 100 Telecoin көлемінде қосымша төлем алу үшін:\nҚоғамның telecom.kz қосымшасында тіркелуі қажет;\nҚоғамның BIRLIK порталында тіркелуі қажет;\n@ktwelcome_bot (ktbot) Telegram арнасына тіркелуі қажет;"
-                                  "\nWi-Fi маршрутизаторын орнату бойынша тиісті әрекеттерді орындауы қажет.\n\n200-ден 1000-ға дейінгі телекоиндерді алу үшін:\ntelecomkz IG парақшасына жазылу керек.\n1. Клиентпен бірге түскен фотоны орналастырып, @telecomkz және #telecomsapa белгілерімен бөлісу – 200 телекоин.\n2. Жеке әлеуметтік желідегі аккаунтта клиенттің үйінде Wi-Fi маршрутизаторын орнату "
-                                  "туралы Reels (бейнеролик) орналастыру, @telecomkz және #telecomsapa белгілерімен – 500 телекоин.\n3. Клиентті өз аккаунтында @telecomkz және #telecomsapa белгілерімен оң пікір жариялауға ынталандыру – 1000 телекоин.\n4. Клиентті 2GIS қосымшасында оң пікір қалдыруға ынталандыру – 1000 телекоин.\n\nМіндетті талаптар:"
-                                  "\nБарлық жарияланымдар ktbot-қа (фото/скриншот + сілтеме) тіркеледі.\nЖоба барысында қатысушының аккаунты ашық болуы және конкурс аккаунты болмауы қажет.\nҚатысушы клиенттен жеке аккаунтында фото-видео контентті жариялау үшін алдын ала келісім алуы қажет.\n\nСыйақыны төлеу/алу күніне қатысушы Қоғаммен еңбек қатынасында болуы тиіс.")
-    elif info_request == 'модемдерді алу мекенжайлары':
+        bot.send_message(user_id, "Инструкция для мегалайнера. Помощь в установке роутера для абонента https://youtu.be/0e4Yc5Kdzpo")
+        bot.send_document(user_id, open("files/Настройки KC-Link Wi-Fi.pdf", 'rb'))
+        bot.send_document(user_id, open("files/Инструкция_по_подключению_и_настройке_роутера.pdf", 'rb'))
+        bot.send_document(user_id, open("files/Инструкция_пользователя_WFM_инсталлятор.pdf", 'rb'))
+    elif info_request == 'сапа роутердің беру пункттері+':
         bot.send_document(user_id, open("files/Пункты выдачи по городам РК.pdf", 'rb'))
-    elif info_request == 'ортақ чат':
-        bot.send_message(user_id, "Ссылка в общий чат")
-    elif info_request == 'ортақ чат2':
-        bot.send_message(user_id, "Ссылка в общий чат")
-    elif info_request == 'ақпараттық арна':
-        bot.send_message(user_id, "Ақпараттық арнаға сілтеме:https://t.me/+LJl92t3A3NE2Mz")
+    elif info_request == 'cапа+ техникалық қолдау чаты':
+        bot.send_message(user_id, "Ссылка для присоединения к группе: https://t.me/+gCyDTZGRZIBlZDIy")
+    elif info_request == 'sapa quest+ чаты':
+        bot.send_message(user_id, "Cсылка на информационый канал:https://t.me/+LJl92t3A3NE2MzMy")
     else:
         bot.send_message(user_id, "Опциялардың бірін таңдаңыз.")
         bot.register_next_step_handler(message, additional_info_handler, bot)
