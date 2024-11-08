@@ -870,30 +870,32 @@ def upload_sapa_table(message, bot):
             db_connect.execute_set_sql_query("DELETE FROM sapa")
             for _, row in df.iterrows():
                 # Вставка данных в таблицу sapa
-                sql_query = "INSERT INTO sapa (fullname, email, table_number, score) VALUES (%s, %s, %s, %s)"
-                params = (row['fullname'], row['email'], row['table_number'], row['score'])
-                db_connect.execute_set_sql_query(sql_query, params)
+                insert_sapa_query = "INSERT INTO sapa (fullname, email, table_number, score) VALUES (%s, %s, %s, %s)"
+                insert_params = (row['fullname'], row['email'], row['table_number'], row['score'])
+                db_connect.execute_set_sql_query(insert_sapa_query, insert_params)
 
-                # Проверяем наличие пользователя в sapa_bonus по email
-                check_user_query = "SELECT 1 FROM sapa_bonus WHERE email = %s"
-                user_exists = bool(db_connect.execute_get_sql_query(check_user_query, (row['email'],)))
+                # Обновляем или вставляем данные в sapa_bonus
+                check_user_query = "SELECT bonus_score FROM sapa_bonus WHERE email = %s"
+                result = db_connect.execute_get_sql_query(check_user_query, (row['email'],))
 
-                # Если пользователя нет, добавляем его с начальным значением total_score = 200
-                if not user_exists:
-                    insert_user_query = """
-                        INSERT INTO sapa_bonus (id, email, bonus_score, total_score)
-                        VALUES (%s, %s, 0, %s)
-                    """
-                    insert_params = (row['id'], row['email'], row['score'])
-                    db_connect.execute_set_sql_query(insert_user_query, insert_params)
-                else:
-                    # Обновляем total_score с добавлением 200 баллов за каждый повторный email
+                if result:
+                    # Если пользователь уже существует, пересчитаем total_score
+                    current_bonus_score = result[0][0]  # Используем числовой индекс [0][0]
+                    new_total_score = current_bonus_score + row['score']
                     update_total_score_query = """
                         UPDATE sapa_bonus 
-                        SET total_score = total_score + 200 
+                        SET total_score = %s
                         WHERE email = %s
                     """
-                    db_connect.execute_set_sql_query(update_total_score_query, (row['email'],))
+                    db_connect.execute_set_sql_query(update_total_score_query, (new_total_score, row['email']))
+                else:
+                    # Если пользователь не существует, добавим его с начальным значением bonus_score = 0
+                    insert_user_query = """
+                        INSERT INTO sapa_bonus (email, bonus_score, total_score)
+                        VALUES (%s, %s, %s)
+                    """
+                    insert_params = (row['email'], 0, row['score'])
+                    db_connect.execute_set_sql_query(insert_user_query, insert_params)
 
             bot.send_message(user_id, "Таблица успешно обновлена!")
             msg = bot.send_message(user_id, "Выберите один из доступных вариантов ниже:")
