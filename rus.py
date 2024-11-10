@@ -557,6 +557,7 @@ def sapa_main_menu(message, bot):
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
         markup.add(types.KeyboardButton('Инструкция по установке модема'))
         markup.add(types.KeyboardButton('Пункты выдачи роутеров сапа+'))
+        markup.add(types.KeyboardButton('Телеграм-бот для мегалайнеров'))
         markup.add(types.KeyboardButton('Чат по тех поддержке Сапа+'), types.KeyboardButton('Чат Sapa quest+'))
 
         bot.send_message(user_id, "Вот необходимая информация:", reply_markup=markup)
@@ -613,12 +614,19 @@ def additional_info_handler(message, bot):
         bot.send_document(user_id, open("files/Настройки KC-Link Wi-Fi.pdf", 'rb'))
         bot.send_document(user_id, open("files/Инструкция_по_подключению_и_настройке_роутера.pdf", 'rb'))
         bot.send_document(user_id, open("files/Инструкция_пользователя_WFM_инсталлятор.pdf", 'rb'))
+        bot.register_next_step_handler(message, additional_info_handler, bot)
     elif info_request == 'пункты выдачи роутеров сапа+':
         bot.send_document(user_id, open("files/Пункты выдачи по городам РК.pdf", 'rb'))
-    elif info_request == 'чат по тех поддержке Сапа+':
+        bot.register_next_step_handler(message, additional_info_handler, bot)
+    elif info_request == 'телеграм-бот для мегалайнеров':
+        bot.send_message(user_id, "Ссылка для подключению к боту: https://t.me/C_M_S_bot")
+        bot.register_next_step_handler(message, additional_info_handler, bot)
+    elif info_request == 'чат по тех поддержке сапа+':
         bot.send_message(user_id, "Ссылка для присоединения к группе: https://t.me/+gCyDTZGRZIBlZDIy")
-    elif info_request == 'чат Sapa quest+':
-        bot.send_message(user_id, "Cсылка на информационый канал:https://t.me/+LJl92t3A3NE2MzMy")
+        bot.register_next_step_handler(message, additional_info_handler, bot)
+    elif info_request == 'чат sapa quest+':
+        bot.send_message(user_id, "Cсылка на информационый канал: https://t.me/+LJl92t3A3NE2MzMy")
+        bot.register_next_step_handler(message, additional_info_handler, bot)
     else:
         bot.send_message(user_id, "Пожалуйста, выберите один из вариантов.")
         bot.register_next_step_handler(message, additional_info_handler, bot)

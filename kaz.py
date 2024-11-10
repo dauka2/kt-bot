@@ -519,6 +519,7 @@ def sapa_main_menu(message, bot):
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
         markup.add(types.KeyboardButton('Модемді орнату бойынша нұсқаулық'))
         markup.add(types.KeyboardButton('Сапа роутердің беру пункттері+'))
+        markup.add(types.KeyboardButton('Мегалайнерлерге арналған телеграм-бот'))
         markup.add(types.KeyboardButton('Cапа+ техникалық қолдау чаты'), types.KeyboardButton('Sapa quest+ чаты'))
 
         bot.send_message(user_id, "Қажетті ақпаратты таңдаңыз:", reply_markup=markup)
@@ -568,12 +569,19 @@ def additional_info_handler(message, bot):
         bot.send_document(user_id, open("files/Настройки KC-Link Wi-Fi.pdf", 'rb'))
         bot.send_document(user_id, open("files/Инструкция_по_подключению_и_настройке_роутера.pdf", 'rb'))
         bot.send_document(user_id, open("files/Инструкция_пользователя_WFM_инсталлятор.pdf", 'rb'))
+        bot.register_next_step_handler(message, additional_info_handler, bot)
     elif info_request == 'сапа роутердің беру пункттері+':
         bot.send_document(user_id, open("files/Пункты выдачи по городам РК.pdf", 'rb'))
+        bot.register_next_step_handler(message, additional_info_handler, bot)
+    elif info_request == 'мегалайнерлерге арналған телеграм-бот':
+        bot.send_message(user_id, "Ботқа қосылу сілтемесі: https://t.me/C_M_S_bot")
+        bot.register_next_step_handler(message, additional_info_handler, bot)
     elif info_request == 'cапа+ техникалық қолдау чаты':
         bot.send_message(user_id, "Ссылка для присоединения к группе: https://t.me/+gCyDTZGRZIBlZDIy")
+        bot.register_next_step_handler(message, additional_info_handler, bot)
     elif info_request == 'sapa quest+ чаты':
         bot.send_message(user_id, "Cсылка на информационый канал:https://t.me/+LJl92t3A3NE2MzMy")
+        bot.register_next_step_handler(message, additional_info_handler, bot)
     else:
         bot.send_message(user_id, "Опциялардың бірін таңдаңыз.")
         bot.register_next_step_handler(message, additional_info_handler, bot)
