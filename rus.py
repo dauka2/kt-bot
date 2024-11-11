@@ -1200,11 +1200,13 @@ def call_back(bot, call):
                     """, (link_type, link_id))
 
                     # Award points to the user
+                    user_info = get_user(message.chat.id)
+                    user_email = user_info[6]
                     db_connect.execute_set_sql_query("""
                         UPDATE sapa_bonus 
                         SET bonus_score = bonus_score + %s, total_score = total_score + %s 
                         WHERE email = %s
-                    """, (new_bonus_score, new_bonus_score, email))
+                    """, (new_bonus_score, new_bonus_score, user_email))
 
                     bot.send_message(call.message.chat.id,
                                      f"Ссылка '{link}' одобрена. Участнику начислено {new_bonus_score} баллов за тип '{link_type}'!")
