@@ -557,8 +557,8 @@ def sapa_main_menu(message, bot):
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
         markup.add(types.KeyboardButton('Инструкция по установке модема'))
         markup.add(types.KeyboardButton('Пункты выдачи роутеров SAPA+'))
-        markup.add(types.KeyboardButton('Телеграм-бот для мегалайнеров'))
-        markup.add(types.KeyboardButton('Чат по тех поддержке SAPA+'), types.KeyboardButton('Чат SAPA quest+'))
+        markup.add(types.KeyboardButton('Чат бот по техническим вопросам/ОДС'))
+        markup.add(types.KeyboardButton('Тех поддержка SAPA+ для мегалайнеров'), types.KeyboardButton('Чат SAPA quest+'))
 
         bot.send_message(user_id, "Вот необходимая информация:", reply_markup=markup)
         bot.register_next_step_handler(message, additional_info_handler, bot)
@@ -617,10 +617,10 @@ def additional_info_handler(message, bot):
     elif info_request == 'пункты выдачи роутеров sapa+':
         bot.send_document(user_id, open("files/Пункты выдачи по городам РК.pdf", 'rb'))
         bot.register_next_step_handler(message, additional_info_handler, bot)
-    elif info_request == 'телеграм-бот для мегалайнеров':
+    elif info_request == 'чат бот по техническим вопросам/одс':
         bot.send_message(user_id, "Ссылка для подключению к боту: https://t.me/C_M_S_bot")
         bot.register_next_step_handler(message, additional_info_handler, bot)
-    elif info_request == 'чат по тех поддержке sapa+':
+    elif info_request == 'тех поддержка sapa+ для мегалайнеров':
         bot.send_message(user_id, "Ссылка для присоединения к группе: https://t.me/+gCyDTZGRZIBlZDIy")
         bot.register_next_step_handler(message, additional_info_handler, bot)
     elif info_request == 'чат sapa quest+':
