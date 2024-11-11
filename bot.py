@@ -825,7 +825,6 @@ def get_excel(message):
     """
     common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
 
-
 @bot.message_handler(commands=['get_users'])
 def get_excel(message):
     sql_query = "SELECT * from users"
@@ -861,8 +860,6 @@ def get_excel(message):
     # Выполнение запроса и сохранение в Excel-файл
     common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
 
-
-
 @bot.message_handler(commands=['get_users_info'])
 def get_excel(message):
     sql_query = "SELECT * from users_info"
@@ -875,7 +872,6 @@ def get_excel(message):
                  'age, position, region from maraphoners inner join users on maraphoners.user_id = users.id '
                  'order by maraphoners.id')
     common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
-
 
 @bot.message_handler(commands=['get_marathoners_'])
 def get_excel(message):
@@ -1194,7 +1190,7 @@ def message_sender(message, broadcast_message):
                     bot.send_voice(user_id[0], voice_id, broadcast_message.caption)
                 if broadcast_message.text:
                     bot.send_message(user_id[0], broadcast_message.text)
-                time.sleep(0.5)  # Задержка между отправками сообщений
+                time.sleep(0.7)  # Задержка между отправками сообщений
             except:
                 continue
         bot.send_message(message.chat.id, "Рассылка отправлена")

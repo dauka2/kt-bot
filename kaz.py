@@ -503,16 +503,14 @@ def sapa_main_menu(message, bot):
             menu(bot, message)
             return True
     elif choice == 'sapa+ бонустық жүйесі':
-        bot.send_message(message.chat.id, "Жақында...")
-        bot.send_message(message.chat.id, 'Негізгі мәзірге оралу үшін - "/menu" пәрменін енгізіңіз')
         # Меню с действиями для администратора и участников
-        # markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-        # if str(user_id) in sapa_admin:
-        #     markup.add(types.KeyboardButton('Сілтемелерді бағалау'), types.KeyboardButton('Кестені жүктеу'))
-        # markup.add(types.KeyboardButton('Көшбасшылар тақтасы'), types.KeyboardButton('Сілтемені/Фотосуретті жүктеу'))
-        #
-        # bot.send_message(user_id, "Төменде қол жетімді опциялардың бірін таңдаңыз:", reply_markup=markup)
-        # bot.register_next_step_handler(message, sapa_instruments, bot)
+        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+        if str(user_id) in sapa_admin:
+            markup.add(types.KeyboardButton('Сілтемелерді бағалау'), types.KeyboardButton('Кестені жүктеу'))
+        markup.add(types.KeyboardButton('Көшбасшылар тақтасы'), types.KeyboardButton('Сілтемені/Фотосуретті жүктеу'))
+
+        bot.send_message(user_id, "Төменде қол жетімді опциялардың бірін таңдаңыз:", reply_markup=markup)
+        bot.register_next_step_handler(message, sapa_instruments, bot)
 
     elif choice == 'нұсқаулар, техникалық қолдау және беру нүктелері':
         # Меню с четырьмя дополнительными кнопками
