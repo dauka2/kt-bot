@@ -744,7 +744,8 @@ def get_user_email(user_id):
     return result[0][0] if result else None
 
 def show_user_links(bot, message):
-    user_email = get_user_email(message.chat.id)
+    user_info = get_user(message.chat.id)
+    user_email = user_info[6]
     if not user_email:
         bot.send_message(message.chat.id, "Ваш email не найден.")
         return
@@ -924,6 +925,8 @@ def upload_sapa_table(message, bot):
         bot.send_message(user_id, "Пожалуйста, загрузите файл в формате Excel.")
         msg = bot.send_message(user_id, "Выберите один из доступных вариантов ниже:")
         bot.register_next_step_handler(msg, sapa_instruments, bot)
+
+
 
 def hse_competition_(bot, message, id_i_s = None):
     text = "Сохраненная информация\n\n"
@@ -1149,7 +1152,6 @@ def performer_text(appeal_info):
            f" Комментарий: {str(appeal_info[8])}"
     return text
 
-
 def call_back(bot, call):
     user_id = call.from_user.id
     response = call.data  # Assuming the response comes through call.data
@@ -1174,101 +1176,84 @@ def call_back(bot, call):
                 link_result = db_connect.execute_get_sql_query(
                     "SELECT email, link FROM sapa_link WHERE id = %s", (link_id,)
                 )
-
                 if link_result:
                     email, link = link_result[0]
 
                     if email:
-                        email = email.strip().lower()  # Ensure the email is lowercase
+                        email = email.strip()
                     else:
-                        email = get_user_email(user_id).strip().lower()
+                        email = get_user_email(user_id)
 
-                    # Check if the user exists in the sapa_bonus table
-                    user_check_result = db_connect.execute_get_sql_query(
-                        "SELECT email FROM sapa_bonus WHERE LOWER(email) = %s", (email,)
+                    # Update link status
+                    db_connect.execute_set_sql_query("""
+                        UPDATE sapa_link 
+                        SET is_checked = TRUE, status = %s 
+                        WHERE id = %s
+                    """, (link_type, link_id))
+
+                    # Award points to the user
+                    db_connect.execute_set_sql_query("""
+                        UPDATE sapa_bonus 
+                        SET bonus_score = bonus_score + %s, total_score = total_score + %s 
+                        WHERE email = %s
+                    """, (new_bonus_score, new_bonus_score, email))
+
+                    bot.send_message(call.message.chat.id,
+                                     f"Ссылка '{link}' одобрена. Участнику начислено {new_bonus_score} баллов за тип '{link_type}'!")
+
+                    user_result = db_connect.execute_get_sql_query(
+                        "SELECT id FROM users WHERE email = %s", (email,)
                     )
 
-                    if not user_check_result:
-                        bot.send_message(call.message.chat.id, f"Ошибка: пользователь с email {email} не найден в таблице sapa_bonus.")
-                    else:
-                        # Update link status
-                        db_connect.execute_set_sql_query("""
-                            UPDATE sapa_link 
-                            SET is_checked = TRUE, status = %s 
-                            WHERE id = %s
-                        """, (link_type, link_id))
+                    if user_result:
+                        user_chat_id = user_result[0][0]
 
-                        # Award points to the user
-                        rows_updated = db_connect.execute_set_sql_query("""
-                            UPDATE sapa_bonus 
-                            SET bonus_score = bonus_score + %s, total_score = total_score + %s 
-                            WHERE email = %s
-                        """, (new_bonus_score, new_bonus_score, email))
-
-                        # Add debugging messages to trace the issue
-                        bot.send_message(call.message.chat.id, f"Обновлено строк в sapa_bonus: {rows_updated}")
-                        bot.send_message(call.message.chat.id, f"Пользователь email: {email}, баллы начислены: {new_bonus_score}")
-
-                        if rows_updated == 0:
-                            bot.send_message(call.message.chat.id, f"Ошибка: не удалось обновить баллы для пользователя с email: {email}")
-                        else:
-                            bot.send_message(call.message.chat.id,
-                                             f"Ссылка '{link}' одобрена. Участнику начислено {new_bonus_score} баллов за тип '{link_type}'!")
-
-                        user_result = db_connect.execute_get_sql_query(
-                            "SELECT id FROM users WHERE LOWER(email) = %s", (email,)  # Ensuring email comparison is case-insensitive
+                        # Extract bonus and total score for the user
+                        score_result = db_connect.execute_get_sql_query(
+                            """
+                            SELECT sb.bonus_score, sb.total_score 
+                            FROM sapa_bonus sb
+                            JOIN sapa_link sl ON sb.email = sl.email
+                            WHERE sl.id = %s
+                            """,
+                            (link_id,)
                         )
 
-                        if user_result:
-                            user_chat_id = user_result[0][0]
+                        if score_result:
+                            bonus_score = new_bonus_score
+                            total_score = score_result[0][1]
 
-                            # Extract bonus and total score for the user
-                            score_result = db_connect.execute_get_sql_query(
-                                """
-                                SELECT sb.bonus_score, sb.total_score 
-                                FROM sapa_bonus sb
-                                JOIN sapa_link sl ON sb.email = sl.email
-                                WHERE sl.id = %s
-                                """,
-                                (link_id,)
+                            message = (
+                                f"Ваша ссылка была проверена.\n"
+                                f"Бонусные баллы за эту ссылку: {bonus_score}\n"
+                                f"Общий счёт: {total_score}"
                             )
-
-                            if score_result:
-                                bonus_score = new_bonus_score
-                                total_score = score_result[0][1]
-
-                                message = (
-                                    f"Ваша ссылка была проверена.\n"
-                                    f"Бонусные баллы за эту ссылку: {bonus_score}\n"
-                                    f"Общий счёт: {total_score}"
-                                )
-                                bot.send_message(user_chat_id, message)
-                                markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-                                markup.add(types.KeyboardButton('бонусная система SAPA+'),
-                                           types.KeyboardButton('Необходимая информация'))
-
-                                msg = bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
-                                bot.register_next_step_handler(msg, sapa_main_menu, bot)
-                            else:
-                                bot.send_message(user_chat_id, "Ошибка: не удалось получить бонусные баллы и общий счёт.")
-                                markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-                                markup.add(types.KeyboardButton('бонусная система SAPA+'),
-                                           types.KeyboardButton('Необходимая информация'))
-
-                                msg = bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
-                                bot.register_next_step_handler(msg, sapa_main_menu, bot)
-                        else:
-                            bot.send_message(call.message.chat.id, f"Пользователь с email {email} не найден.")
+                            bot.send_message(user_chat_id, message)
                             markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
                             markup.add(types.KeyboardButton('бонусная система SAPA+'),
                                        types.KeyboardButton('Необходимая информация'))
 
                             msg = bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
                             bot.register_next_step_handler(msg, sapa_main_menu, bot)
+                        else:
+                            bot.send_message(user_chat_id, "Бонусные баллы и общий счёт не найдены.")
+                            markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+                            markup.add(types.KeyboardButton('бонусная система SAPA+'),
+                                       types.KeyboardButton('Необходимая информация'))
+
+                            msg = bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
+                            bot.register_next_step_handler(msg, sapa_main_menu, bot)
+                    else:
+                        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+                        markup.add(types.KeyboardButton('бонусная система SAPA+'),
+                                   types.KeyboardButton('Необходимая информация'))
+
+                        msg = bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
+                        bot.register_next_step_handler(msg, sapa_main_menu, bot)
                 else:
                     bot.send_message(call.message.chat.id, "Ошибка: ссылка не найдена.")
                     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-                    markup.add(types.KeyboardButton('бонусная система'),
+                    markup.add(types.KeyboardButton('бонусная система SAPA+'),
                                types.KeyboardButton('Необходимая информация'))
 
                     msg = bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
