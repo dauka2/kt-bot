@@ -668,9 +668,9 @@ def upload_link(message, bot):
 
             # Получаем email пользователя
             user_info = get_user(message.chat.id)
-            email = user_info[6]
+            user_email = user_info[6]
             branch = user_info[7]
-            if not email or not branch:
+            if not user_email or not branch:
                 bot.send_message(user_id, "Ошибка: email или филиал не найден.")
                 return
 
@@ -678,7 +678,7 @@ def upload_link(message, bot):
             db_connect.execute_set_sql_query("""
                 INSERT INTO sapa_link (email, link, is_checked, status, image_data, branch) 
                 VALUES (%s, NULL, FALSE, NULL, %s, %s)
-            """, (email, file_data, branch))
+            """, (user_email, file_data, branch))
 
             bot.send_message(user_id, "Фото успешно загружено и ожидает проверки.")
 
@@ -710,15 +710,15 @@ def upload_link(message, bot):
 
     try:
         user_info = get_user(message.chat.id)
-        email = user_info[6]
+        user_email = user_info[6]
         branch = user_info[7]
-        if not email or not branch:
+        if not user_email or not branch:
             bot.send_message(user_id, "Ошибка: email или филиал не найден.")
 
         db_connect.execute_set_sql_query("""
             INSERT INTO sapa_link (email, link, is_checked, status, branch) 
                 VALUES (%s, %s, FALSE, NULL, %s)
-            """, (email, link, branch))
+            """, (user_email, link, branch))
 
         bot.send_message(user_id, "Ссылка успешно загружена! Ожидайте проверки.")
 
@@ -768,13 +768,22 @@ def show_user_links(bot, message):
 
 
 def display_leaderboard(bot, message):
+    user_info = get_user(message.chat.id)
+    user_email = user_info[6]
+    if not user_email:
+        bot.send_message(message.chat.id, "Ваш email не найден.")
+        return
+    
     result = db_connect.execute_get_sql_query("""
             SELECT s.fullname, sb.email, COALESCE(s.score, 0) + sb.bonus_score AS total_score
             FROM sapa_bonus sb
             LEFT JOIN sapa s ON sb.email = s.email
             ORDER BY total_score DESC
             LIMIT 10
-        """)
+        """, (user_email,))
+    if not result:
+        bot.send_message(message.chat.id, "Для вашего email нет данных в таблице лидеров.")
+        return
 
     leaderboard = "Таблица лидеров:\n" + "\n".join(
         f"{i}. Пользователь: {row[0]} (Email: {row[1]}) - Общий балл: {row[2]}"
