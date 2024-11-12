@@ -72,7 +72,7 @@ hse_competition_field = ["👷🏻‍♂️Конкурсы по охране т
 hse_com_field = ["Мой безопасный рабочий день/Менің қауіпсіз жұмыс күнім", "Лучший совет по безопасности/Ең жақсы қауіпсіздік кеңесі", "Принять участие в обоих конкурсах/Екі байқауға қатысу"]
 verification_field = ["📄Подтверждение сдачи декларации"]
 portal_bts = ["Что такое портал 'Бірлік'?", "Как войти на портал?", "Оставить обращение на портал"]
-sapa_admin = ['1066191569', '353845928']
+sapa_admin = ['1066191569', '353845928', '947621727', '468270698', '531622371', '1621516433', '477945972', '577247261', '1009867354', '476878708']
 # "Бірлік Гид"
 portal_ = ["Мобильная версия", "ПК или ноутбук", "Как авторизоваться", "Личный профиль", "Из портала перейти в ССП",
            "iOS", "Android", "Есть checkpoint", "Нет checkpoint"]
@@ -238,16 +238,28 @@ branches = ['Центральный Аппарат', 'Объединение Д�
             'Дивизион по Корпоративному Бизнесу', 'Корпоративный Университет', 'Дивизион Информационных Технологий',
             'Дирекция Телеком Комплект', 'Дирекция Управления Проектами',
             'Сервисная Фабрика']
+# branches_admin = [
+#     {'branch': 'Центральный Аппарат', 'sapa_admin': '353845928'},
+#     {'branch': 'Обьединение Дивизион "Сеть"', 'sapa_admin': '353845928'},
+#     {'branch': 'Дивизион по Розничному Бизнесу', 'sapa_admin': '353845928'},
+#     {'branch': 'Дивизион по Корпоративному Бизнесу', 'sapa_admin': '353845928'},
+#     {'branch': 'Корпоративный Университет', 'sapa_admin': '1066191569'},
+#     {'branch': 'Дивизион Информационных Технологий', 'sapa_admin': '353845928'},
+#     {'branch': 'Дирекция Телеком Комплект', 'sapa_admin': '353845928'},
+#     {'branch': 'Дирекция Управления Проектами', 'sapa_admin': '353845928'},
+#     {'branch': 'Сервисная Фабрика', 'sapa_admin': '353845928'}
+# ]
+
 branches_admin = [
-    {'branch': 'Центральный Аппарат', 'sapa_admin': '353845928'},
-    {'branch': 'Обьединение Дивизион "Сеть"', 'sapa_admin': '353845928'},
-    {'branch': 'Дивизион по Розничному Бизнесу', 'sapa_admin': '353845928'},
-    {'branch': 'Дивизион по Корпоративному Бизнесу', 'sapa_admin': '353845928'},
-    {'branch': 'Корпоративный Университет', 'sapa_admin': '1066191569'},
-    {'branch': 'Дивизион Информационных Технологий', 'sapa_admin': '353845928'},
+    {'branch': 'Центральный Аппарат', 'sapa_admin': '1009867354'},
+    {'branch': 'Обьединение Дивизион "Сеть"', 'sapa_admin': '1621516433'},
+    {'branch': 'Дивизион по Розничному Бизнесу', 'sapa_admin': '531622371'},
+    {'branch': 'Дивизион по Корпоративному Бизнесу', 'sapa_admin': '468270698'},
+    {'branch': 'Корпоративный Университет', 'sapa_admin': '476878708'},
+    {'branch': 'Дивизион Информационных Технологий', 'sapa_admin': '577247261'},
     {'branch': 'Дирекция Телеком Комплект', 'sapa_admin': '353845928'},
-    {'branch': 'Дирекция Управления Проектами', 'sapa_admin': '353845928'},
-    {'branch': 'Сервисная Фабрика', 'sapa_admin': '353845928'}
+    {'branch': 'Дирекция Управления Проектами', 'sapa_admin': '947621727'},
+    {'branch': 'Сервисная Фабрика', 'sapa_admin': '477945972'}
 ]
 
 def get_markup(message):
@@ -680,9 +692,24 @@ def upload_link(message, bot):
                 VALUES (%s, NULL, FALSE, NULL, %s, %s)
             """, (email, file_data, branch))
 
+            # Проверяем и добавляем пользователя в sapa_bonus, если его нет
+            check_user_query = "SELECT * FROM sapa_bonus WHERE email = %s"
+            result = db_connect.execute_get_sql_query(check_user_query, (email,))
+
+            if not result:
+                user_query = "SELECT firstname, lastname FROM users WHERE email = %s"
+                user_info = db_connect.execute_get_sql_query(user_query, (email,))
+                if user_info:
+                    firstname, lastname = user_info[0]
+                    fullname = f"{firstname} {lastname}"
+                    db_connect.execute_set_sql_query("""
+                        INSERT INTO sapa_bonus (email, fullname, bonus_score, total_score)
+                        VALUES (%s, %s, 0, 0)
+                    """, (email, fullname))
+
             bot.send_message(user_id, "Фото успешно загружено и ожидает проверки.")
 
-            # Запрашиваем следующую ссылку или фото и регистрируем `upload_link` для обработки
+            # Запрашиваем следующую ссылку или фото
             msg = bot.send_message(user_id,
                                    "Пожалуйста, введите следующую ссылку или отправьте фото (или введите 'стоп' для завершения):")
             bot.register_next_step_handler(msg, upload_link, bot)
@@ -697,9 +724,8 @@ def upload_link(message, bot):
 
     if link.lower() == 'стоп':
         bot.send_message(user_id, "Процесс загрузки ссылок завершён.")
-        # Возвращаемся к основным действиям
         msg = bot.send_message(user_id, "Выберите один из доступных вариантов ниже:")
-        bot.register_next_step_handler(msg, links_instruments, bot)  # Сброс контекста
+        bot.register_next_step_handler(msg, links_instruments, bot)
         return
 
     if not link.startswith("http"):
@@ -719,6 +745,21 @@ def upload_link(message, bot):
             INSERT INTO sapa_link (email, link, is_checked, status, branch) 
                 VALUES (%s, %s, FALSE, NULL, %s)
             """, (email, link, branch))
+
+        # Проверяем и добавляем пользователя в sapa_bonus, если его нет
+        check_user_query = "SELECT * FROM sapa_bonus WHERE email = %s"
+        result = db_connect.execute_get_sql_query(check_user_query, (email,))
+
+        if not result:
+            user_query = "SELECT firstname, lastname FROM users WHERE email = %s"
+            user_info = db_connect.execute_get_sql_query(user_query, (email,))
+            if user_info:
+                firstname, lastname = user_info[0]
+                fullname = f"{firstname} {lastname}"
+                db_connect.execute_set_sql_query("""
+                    INSERT INTO sapa_bonus (email, fullname, bonus_score, total_score)
+                    VALUES (%s, %s, 0, 0)
+                """, (email, fullname))
 
         bot.send_message(user_id, "Ссылка успешно загружена! Ожидайте проверки.")
 
@@ -768,31 +809,33 @@ def show_user_links(bot, message):
 
 
 def display_leaderboard(bot, message):
+    # Запрос на получение fullname и общего балла, сортировка по общему баллу
     result = db_connect.execute_get_sql_query("""
-            SELECT s.fullname, sb.email, COALESCE(s.score, 0) + sb.bonus_score AS total_score
+            SELECT sb.fullname, COALESCE(s.score, 0) + sb.bonus_score AS total_score
             FROM sapa_bonus sb
             LEFT JOIN sapa s ON sb.email = s.email
             ORDER BY total_score DESC
             LIMIT 10
         """)
 
+    # Формируем текст для таблицы лидеров
     leaderboard = "Таблица лидеров:\n" + "\n".join(
-        f"{i}. Пользователь: {row[0]} (Email: {row[1]}) - Общий балл: {row[2]}"
+        f"{i}. Пользователь: {row[0]} - Общий балл: {row[1]}"
         for i, row in enumerate(result, 1)
     )
     bot.send_message(message.chat.id, leaderboard)
 
-    # Get user's email based on their chat ID
+    # Получаем email пользователя на основе их chat ID
     user_email_result = db_connect.execute_get_sql_query(
         "SELECT email FROM users WHERE id = %s",
         (str(message.chat.id),)
     )
 
-    # Check if the email was retrieved
+    # Проверяем, был ли найден email
     if user_email_result:
-        user_email = user_email_result[0][0].strip().lower()  # Normalize email to lowercase
+        user_email = user_email_result[0][0].strip().lower()  # Нормализуем email в нижний регистр
 
-        # Find the rank and score of the user in the leaderboard
+        # Находим ранг и балл пользователя в таблице лидеров
         user_rank_result = db_connect.execute_get_sql_query("""
                 WITH RankedUsers AS (
                     SELECT 
@@ -804,7 +847,7 @@ def display_leaderboard(bot, message):
                 )
                 SELECT rank, total_score
                 FROM RankedUsers
-                WHERE LOWER(email) = %s  -- Ensure case-insensitive comparison
+                WHERE LOWER(email) = %s  -- Сравнение без учета регистра
             """, (user_email,))
 
         if user_rank_result:
@@ -815,12 +858,11 @@ def display_leaderboard(bot, message):
     else:
         bot.send_message(message.chat.id, "Не удалось найти ваш email.")
 
+    # Переход к доступным опциям
     msg = bot.send_message(message.chat.id, "Выберите один из доступных вариантов ниже:")
     bot.register_next_step_handler(msg, sapa_instruments, bot)
 
-
 # Функция для отображения ссылок для администратора с фильтрацией по branch
-
 def show_pending_links(bot, admin_user_id):
     try:
         # Логика получения филиала администратора
@@ -875,6 +917,57 @@ def show_pending_links(bot, admin_user_id):
 
 
 # Функция для загрузки таблицы участников
+# def upload_sapa_table(message, bot):
+#     user_id = str(message.chat.id)
+#     if message.content_type == 'document':
+#         file_info = bot.get_file(message.document.file_id)
+#         downloaded_file = bot.download_file(file_info.file_path)
+#
+#         try:
+#             # Загружаем данные из Excel файла в DataFrame
+#             df = pd.read_excel(io.BytesIO(downloaded_file))
+#
+#             # Очищаем таблицу sapa и вставляем новые данные
+#             db_connect.execute_set_sql_query("DELETE FROM sapa")
+#             for _, row in df.iterrows():
+#                 # Вставка данных в таблицу sapa
+#                 insert_sapa_query = "INSERT INTO sapa (fullname, email, table_number, score) VALUES (%s, %s, %s, %s)"
+#                 insert_params = (row['fullname'], row['email'], row['table_number'], row['score'])
+#                 db_connect.execute_set_sql_query(insert_sapa_query, insert_params)
+#
+#                 # Обновляем или вставляем данные в sapa_bonus
+#                 check_user_query = "SELECT bonus_score FROM sapa_bonus WHERE email = %s"
+#                 result = db_connect.execute_get_sql_query(check_user_query, (row['email'],))
+#
+#                 if result:
+#                     # Если пользователь уже существует, пересчитаем total_score
+#                     current_bonus_score = result[0][0]  # Используем числовой индекс [0][0]
+#                     new_total_score = current_bonus_score + row['score']
+#                     update_total_score_query = """
+#                         UPDATE sapa_bonus
+#                         SET total_score = %s
+#                         WHERE email = %s
+#                     """
+#                     db_connect.execute_set_sql_query(update_total_score_query, (new_total_score, row['email']))
+#                 else:
+#                     # Если пользователь не существует, добавим его с начальным значением bonus_score = 0
+#                     insert_user_query = """
+#                         INSERT INTO sapa_bonus (email, bonus_score, total_score)
+#                         VALUES (%s, %s, %s)
+#                     """
+#                     insert_params = (row['email'], 0, row['score'])
+#                     db_connect.execute_set_sql_query(insert_user_query, insert_params)
+#
+#             bot.send_message(user_id, "Таблица успешно обновлена!")
+#             msg = bot.send_message(user_id, "Выберите один из доступных вариантов ниже:")
+#             bot.register_next_step_handler(msg, sapa_instruments, bot)
+#         except Exception as e:
+#             bot.send_message(user_id, f"Ошибка при загрузке таблицы: {e}")
+#     else:
+#         bot.send_message(user_id, "Пожалуйста, загрузите файл в формате Excel.")
+#         msg = bot.send_message(user_id, "Выберите один из доступных вариантов ниже:")
+#         bot.register_next_step_handler(msg, sapa_instruments, bot)
+
 def upload_sapa_table(message, bot):
     user_id = str(message.chat.id)
     if message.content_type == 'document':
@@ -925,8 +1018,6 @@ def upload_sapa_table(message, bot):
         bot.send_message(user_id, "Пожалуйста, загрузите файл в формате Excel.")
         msg = bot.send_message(user_id, "Выберите один из доступных вариантов ниже:")
         bot.register_next_step_handler(msg, sapa_instruments, bot)
-
-
 
 def hse_competition_(bot, message, id_i_s = None):
     text = "Сохраненная информация\n\n"
@@ -1199,7 +1290,7 @@ def call_back(bot, call):
                     """, (new_bonus_score, new_bonus_score, email))
 
                     bot.send_message(call.message.chat.id,
-                                     f"Ссылка '{link}' одобрена. Участнику начислено {new_bonus_score} баллов за тип '{link_type}'!")
+                                     f"Ссылка одобрена. Участнику начислено {new_bonus_score} баллов за тип '{link_type}'!")
 
                     user_result = db_connect.execute_get_sql_query(
                         "SELECT id FROM users WHERE email = %s", (email,)

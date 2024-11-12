@@ -62,7 +62,7 @@ def create_db():
     cur.execute(
         'CREATE TABLE IF NOT EXISTS sapa(id serial primary key, fullname varchar(200), email varchar(50), table_number varchar(11), score int)')
     cur.execute(
-        'CREATE TABLE IF NOT EXISTS sapa_bonus(id serial primary key, email varchar(50), bonus_score int DEFAULT 0, total_score int DEFAULT 0)')
+        'CREATE TABLE IF NOT EXISTS sapa_bonus(id serial primary key, fullname varchar(500), email varchar(50), bonus_score int DEFAULT 0, total_score int DEFAULT 0)')
     cur.execute(
         'CREATE TABLE IF NOT EXISTS sapa_link(id serial primary key, email varchar(50), link varchar(500), branch varchar(50), is_checked bool DEFAULT FALSE, status varchar(50), image_data bytea)')
     cur.execute(
@@ -204,8 +204,7 @@ def sapa_test():
 
 def sapa_test_():
     sql_query = "DROP TABLE IF EXISTS sapa"
-    sql_query += "DROP TABLE IF EXISTS sapa_bonus"
-    sql_query += "DROP TABLE IF EXISTS sapa_link"
+    sql_query += "ALTER TABLE sapa_bonus INSERT INTO fullname 'qwerty'"
     execute_set_sql_query(sql_query)
 
 def sapa_test__():
@@ -240,7 +239,7 @@ def add_column_default():
     execute_set_sql_query(sql_query)
 
 def add_column_sapa():
-    sql_query = "ALTER TABLE sapa_link UPDATE COLUMN link varchar(500);"
+    sql_query = "ALTER TABLE sapa_bonus ADD COLUMN fullname varchar(500);"
     execute_set_sql_query(sql_query)
 
 def delete_verif_columns():
