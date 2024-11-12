@@ -73,7 +73,7 @@ hse_competition_field = ["👷🏻‍♂️Еңбекті қорғау бойы�
 hse_com_field = ["Мой безопасный рабочий день/Менің қауіпсіз жұмыс күнім", "Лучший совет по безопасности/Ең жақсы қауіпсіздік кеңесі", "Принять участие в обоих конкурсах/Екі байқауға қатысу"]
 verification_field = ["📄Декларацияны тапсыруды растау"]
 portal_bts = ["'Бірлік' порталы дегеніміз не?", "Порталға қалай кіруге болады?", "Порталға өтініш қалдыру"]
-sapa_admin = ['1066191569', '353845928']
+sapa_admin = ['1066191569', '353845928', '947621727', '468270698', '531622371', '1621516433', '477945972', '577247261', '1009867354', '476878708']
 # "Бірлік Гид"
 portal_ = ["Мобильді нұсқа", "ДК немесе ноутбук", "Қалай кіруге болады", "Жеке профиль", "Порталдан ССП өту",
            "iOS", "Android", "Есть checkpoint", "Нет checkpoint"]
@@ -242,7 +242,19 @@ branches_admin = [
     {'branch': 'Дирекция Управления Проектами', 'sapa_admin': '353845928'},
     {'branch': 'Сервисная Фабрика', 'sapa_admin': '353845928'}
 ]
-
+'''
+branches_admin = [
+    {'branch': 'Центральный Аппарат', 'sapa_admin': '1009867354'},
+    {'branch': 'Обьединение Дивизион "Сеть"', 'sapa_admin': '1621516433'},
+    {'branch': 'Дивизион по Розничному Бизнесу', 'sapa_admin': '531622371'},
+    {'branch': 'Дивизион по Корпоративному Бизнесу', 'sapa_admin': '468270698'},
+    {'branch': 'Корпоративный Университет', 'sapa_admin': '476878708'},
+    {'branch': 'Дивизион Информационных Технологий', 'sapa_admin': '577247261'},
+    {'branch': 'Дирекция Телеком Комплект', 'sapa_admin': '353845928'},
+    {'branch': 'Дирекция Управления Проектами', 'sapa_admin': '947621727'},
+    {'branch': 'Сервисная Фабрика', 'sapa_admin': '477945972'}
+]
+'''
 def get_markup(message):
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
     if check_id(str(message.chat.id)):
@@ -488,11 +500,12 @@ def sapa_con(bot, message):
     if message_text == '📶SAPA+':
         # Основное меню с двумя кнопками
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-        markup.add(types.KeyboardButton('SAPA+ бонустық жүйесі'), types.KeyboardButton('Нұсқаулар, техникалық қолдау және беру нүктелері'))
+        markup.add(types.KeyboardButton('Sapa+ бонустық жүйесі'), types.KeyboardButton('Нұсқаулар, техникалық қолдау және табыстау нүктелері'))
 
         bot.send_message(user_id, "Әрекеттердің бірін таңдаңыз:", reply_markup=markup)
         bot.register_next_step_handler(message, sapa_main_menu, bot)
-        
+
+
 def sapa_main_menu(message, bot):
     user_id = message.chat.id
     choice = message.text.strip().lower()
@@ -507,27 +520,29 @@ def sapa_main_menu(message, bot):
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
         if str(user_id) in sapa_admin:
             markup.add(types.KeyboardButton('Сілтемелерді бағалау'), types.KeyboardButton('Кестені жүктеу'))
-        markup.add(types.KeyboardButton('Көшбасшылар тақтасы'), types.KeyboardButton('Сілтемені/Фотосуретті жүктеу'))
+        else:
+            markup.add(types.KeyboardButton('Сілтемені/фотосуретті жүктеу'))
+        markup.add(types.KeyboardButton('Көшбасшылар тақтасы'), types.KeyboardButton('Артқа'))
 
-        bot.send_message(user_id, "Төменде қол жетімді опциялардың бірін таңдаңыз:", reply_markup=markup)
+        bot.send_message(user_id, "Мәзірдегі әрекеттердің бірін таңдаңыз:", reply_markup=markup)
         bot.register_next_step_handler(message, sapa_instruments, bot)
 
-    elif choice == 'нұсқаулар, техникалық қолдау және беру нүктелері':
+    elif choice == 'нұсқаулар, техникалық қолдау және табыстау нүктелері':
         # Меню с четырьмя дополнительными кнопками
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
         markup.add(types.KeyboardButton('Модемді орнату бойынша нұсқаулық'))
-        markup.add(types.KeyboardButton('SAPA+ роутердің беру пункттері'))
-        markup.add(types.KeyboardButton('ОДС/техникалық мәселелер бойынша чат бот'))
-        markup.add(types.KeyboardButton('Мегалайнерлерге арналған SAPA+ қолдауы'), types.KeyboardButton('SAPA quest+ чаты'))
+        markup.add(types.KeyboardButton('Sapa+ маршрутизаторларын беру пункттері'))
+        markup.add(types.KeyboardButton('Техникалық мәселелер бойынша чат боты/ ОДС'))
+        markup.add(types.KeyboardButton('Мегалайнерлерге арналған SAPA + қолдауы'), types.KeyboardButton('SAPA quest+ чаты'))
 
-        bot.send_message(user_id, "Қажетті ақпаратты таңдаңыз:", reply_markup=markup)
+        bot.send_message(user_id, "Міне, қажетті ақпарат:", reply_markup=markup)
         bot.register_next_step_handler(message, additional_info_handler, bot)
 
     else:
         # Если пользователь ввел что-то другое, попросим сделать выбор снова
-        bot.send_message(user_id, "Төменде қол жетімді опциялардың бірін таңдаңыз:")
+        bot.send_message(user_id, "Ұсынылған опциялардан әрекетті таңдаңыз.")
         bot.register_next_step_handler(message, sapa_main_menu, bot)
-        
+
 def sapa_instruments(message, bot):
     user_id = str(message.chat.id)
     response = message.text.strip().lower()
@@ -542,13 +557,20 @@ def sapa_instruments(message, bot):
     elif response == 'сілтемелерді бағалау' and str(user_id) in sapa_admin:
         show_pending_links(bot, user_id)
     elif response == 'кестені жүктеу' and str(user_id) in sapa_admin:
-        msg = bot.send_message(user_id, "Қатысушылардың деректері бар Excel файлын жүктеңіз.")
+        msg = bot.send_message(user_id, "Қатысушының деректері бар Excel файлын жүктеңіз.")
         bot.register_next_step_handler(msg, upload_sapa_table, bot)
     elif response == 'сілтемені/фотосуретті жүктеу':
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
         markup.add(types.KeyboardButton('Жүктеу'), types.KeyboardButton('Тексерілмеген сілтемелер тізімі'))
-        bot.send_message(user_id, "Төменде қол жетімді опциялардың бірін таңдаңыз:", reply_markup=markup)
+        bot.send_message(user_id, "Сілтемені жүктеу әрекеттерінің бірін таңдаңыз:", reply_markup=markup)
         bot.register_next_step_handler(message, links_instruments, bot)
+    elif response == 'артқа':
+        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+        markup.add(types.KeyboardButton('Sapa+ бонустық жүйесі'),
+                   types.KeyboardButton('Нұсқаулар, техникалық қолдау және табыстау нүктелері'))
+
+        msg = bot.send_message(user_id, "Опциялардың бірін таңдаңыз", reply_markup=markup)
+        bot.register_next_step_handler(msg, sapa_main_menu, bot)
     else:
         bot.send_message(user_id, "Опциялардың бірін таңдаңыз.")
         bot.register_next_step_handler(message, sapa_instruments, bot)
@@ -563,22 +585,21 @@ def additional_info_handler(message, bot):
             menu(bot, message)
             return True
     elif info_request == 'модемді орнату бойынша нұсқаулық':
-        bot.send_message(user_id, "Инструкция для мегалайнера. Помощь в установке роутера для абонента https://youtu.be/0e4Yc5Kdzpo")
-        bot.send_document(user_id, open("files/Настройки KC-Link Wi-Fi.pdf", 'rb'))
+        bot.send_message(user_id, "Мегалайнерге арналған нұсқаулық. Абонент үшін маршрутизаторды орнатуға көмек https://youtu.be/0e4Yc5Kdzpo")
         bot.send_document(user_id, open("files/Инструкция_по_подключению_и_настройке_роутера.pdf", 'rb'))
         bot.send_document(user_id, open("files/Инструкция_пользователя_WFM_инсталлятор.pdf", 'rb'))
         bot.register_next_step_handler(message, additional_info_handler, bot)
-    elif info_request == 'sapa+ роутердің беру пункттері':
+    elif info_request == 'sapa+ маршрутизаторларын беру пункттері':
         bot.send_document(user_id, open("files/Пункты выдачи по городам РК.pdf", 'rb'))
         bot.register_next_step_handler(message, additional_info_handler, bot)
-    elif info_request == 'одс/техникалық мәселелер бойынша чат бот':
+    elif info_request == 'техникалық мәселелер бойынша чат боты/ ОДС':
         bot.send_message(user_id, "Ботқа қосылу сілтемесі: https://t.me/C_M_S_bot")
         bot.register_next_step_handler(message, additional_info_handler, bot)
-    elif info_request == 'мегалайнерлерге арналған sapa+ қолдауы':
-        bot.send_message(user_id, "Ссылка для присоединения к группе: https://t.me/+gCyDTZGRZIBlZDIy")
+    elif info_request == 'мегалайнерлерге арналған SAPA + қолдауы':
+        bot.send_message(user_id, "Группаға қосылу үшін сілтеме: https://t.me/+gCyDTZGRZIBlZDIy")
         bot.register_next_step_handler(message, additional_info_handler, bot)
     elif info_request == 'sapa quest+ чаты':
-        bot.send_message(user_id, "Cсылка на информационый канал:https://t.me/+LJl92t3A3NE2MzMy")
+        bot.send_message(user_id, "Ақпараттық арнаға сілтеме: https://t.me/+LJl92t3A3NE2MzMy")
         bot.register_next_step_handler(message, additional_info_handler, bot)
     else:
         bot.send_message(user_id, "Опциялардың бірін таңдаңыз.")
@@ -594,7 +615,7 @@ def links_instruments(message, bot):
             menu(bot, message)
             return True
     elif response == 'жүктеу':
-        msg = bot.send_message(user_id, "Сілтемені/фотосуретті енгізіңіз (немесе 'стоп' деп жазыңыз):")
+        msg = bot.send_message(user_id, "Сілтемені/фотосуретті енгізіңіз:")
         bot.register_next_step_handler(msg, upload_link, bot)
     elif response == 'тексерілмеген сілтемелер тізімі':
         show_user_links(bot, message)
@@ -604,34 +625,61 @@ def links_instruments(message, bot):
 
 def upload_link(message, bot):
     user_id = message.chat.id
-    
+
     # Проверяем, есть ли фото
     if message.photo:
         bot.send_message(user_id, "Фотосурет алынды, біз жүктеуді бастаймыз...")
         try:
             # Получаем информацию о фотографии и создаем URL для загрузки
             file_info = bot.get_file(message.photo[-1].file_id)
-            file_url = 'https://api.telegram.org/file/bot{}/{}'.format(db_connect.TOKEN, file_info.file_path)
-            file_data = requests.get(file_url).content
+            file_url = f'https://api.telegram.org/file/bot{db_connect.TOKEN}/{file_info.file_path}'
+
+            # Загружаем фото
+            response = requests.get(file_url)
+            if response.status_code == 200:
+                file_data = response.content
+            else:
+                bot.send_message(user_id, "Фотосуретті жүктеу кезінде қате пайда болды. Қайталап көріңіз.")
+                return
 
             # Получаем email пользователя
-            email = get_user_email(user_id)
-            if not email:
-                bot.send_message(user_id, "Қате: email табылмады.")
+            user_info = get_user(message.chat.id)
+            email = user_info[6]
+            branch = user_info[7]
+            if not email or not branch:
+                bot.send_message(user_id, "Қате: email немесе филиал табылмады.")
                 return
 
             # Сохраняем фотографию в базу данных
             db_connect.execute_set_sql_query("""
-                        INSERT INTO sapa_link (email, link, is_checked, status, image_data) 
-                        VALUES (%s, %s, FALSE, NULL, %s)
-                    """, (email, None, file_data,))
+                INSERT INTO sapa_link (email, link, is_checked, status, image_data, branch) 
+                VALUES (%s, NULL, FALSE, NULL, %s, %s)
+            """, (email, file_data, branch))
+
+            # Проверяем и добавляем пользователя в sapa_bonus, если его нет
+            check_user_query = "SELECT * FROM sapa_bonus WHERE email = %s"
+            result = db_connect.execute_get_sql_query(check_user_query, (email,))
+
+            if not result:
+                user_query = "SELECT firstname, lastname FROM users WHERE email = %s"
+                user_info = db_connect.execute_get_sql_query(user_query, (email,))
+                if user_info:
+                    firstname, lastname = user_info[0]
+                    fullname = f"{firstname} {lastname}"
+                    db_connect.execute_set_sql_query("""
+                        INSERT INTO sapa_bonus (email, fullname, bonus_score, total_score)
+                        VALUES (%s, %s, 0, 0)
+                    """, (email, fullname))
 
             bot.send_message(user_id, "Фотосурет сәтті жүктелді және тексеруді күтуде.")
-            
-            # Запрашиваем следующую ссылку или фото и регистрируем `upload_link` для обработки
-            msg = bot.send_message(user_id, "Келесі сілтемені енгізіңіз немесе фотосуретті жіберіңіз (немесе аяқтау үшін 'стоп' деп теріңіз):")
-            bot.register_next_step_handler(msg, upload_link, bot)
-            return  # Завершаем выполнение, чтобы не обрабатывать дальше как ссылку
+
+            bot.send_message(user_id, "Сіз Sapa+ негізгі мәзіріне бағытталасыз")
+            markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+            markup.add(types.KeyboardButton('Sapa+ бонустық жүйесі'),
+                       types.KeyboardButton('Нұсқаулар, техникалық қолдау және табыстау нүктелері'))
+
+            msg = bot.send_message(user_id, "Әрекеттердің бірін таңдаңыз:", reply_markup=markup)
+            bot.register_next_step_handler(msg, sapa_main_menu, bot)
 
         except Exception as e:
             bot.send_message(user_id, f"Фотосуретті жүктеу кезінде қате пайда болды: {e}")
@@ -641,28 +689,43 @@ def upload_link(message, bot):
     link = message.text.strip()
 
     if link.lower() == 'стоп':
-        bot.send_message(user_id, "Сілтемелерді жүктеу процесі аяқталды.")
-        # Возвращаемся к основным действиям
-        msg = bot.send_message(user_id, "Төменде қол жетімді опциялардың бірін таңдаңыз:")
-        bot.register_next_step_handler(msg, links_instruments, bot)  # Сброс контекста
+        bot.send_message(user_id, "Процесс загрузки ссылок завершён.")
+        msg = bot.send_message(user_id, "Выберите один из доступных вариантов ниже:")
+        bot.register_next_step_handler(msg, links_instruments, bot)
         return
 
     if not link.startswith("http"):
-        bot.send_message(user_id, "Қате сілтеме пішімі. Дұрыс URL мекенжайын еңгізіңіз.")
+        bot.send_message(user_id, "Қате сілтеме пішімі. Дұрыс URL мекенжайын көрсетіңіз.")
         msg = bot.send_message(user_id, "Сілтемені/фотосуретті енгізіңіз (немесе аяқтау үшін 'стоп' деп теріңіз):")
         bot.register_next_step_handler(msg, upload_link, bot)
         return
 
     try:
-        email = get_user_email(user_id)
-        if not email:
-            bot.send_message(user_id, "Қате: email табылмады.")
-            return
+        user_info = get_user(message.chat.id)
+        email = user_info[6]
+        branch = user_info[7]
+        if not email or not branch:
+            bot.send_message(user_id, "Қате: email немесе филиал табылмады.")
 
         db_connect.execute_set_sql_query("""
-                INSERT INTO sapa_link (email, link, is_checked, status) 
-                VALUES (%s, %s, FALSE, NULL)
-            """, (email, link,))
+            INSERT INTO sapa_link (email, link, is_checked, status, branch) 
+                VALUES (%s, %s, FALSE, NULL, %s)
+            """, (email, link, branch))
+
+        # Проверяем и добавляем пользователя в sapa_bonus, если его нет
+        check_user_query = "SELECT * FROM sapa_bonus WHERE email = %s"
+        result = db_connect.execute_get_sql_query(check_user_query, (email,))
+
+        if not result:
+            user_query = "SELECT firstname, lastname FROM users WHERE email = %s"
+            user_info = db_connect.execute_get_sql_query(user_query, (email,))
+            if user_info:
+                firstname, lastname = user_info[0]
+                fullname = f"{firstname} {lastname}"
+                db_connect.execute_set_sql_query("""
+                    INSERT INTO sapa_bonus (email, fullname, bonus_score, total_score)
+                    VALUES (%s, %s, 0, 0)
+                """, (email, fullname))
 
         bot.send_message(user_id, "Сілтеме сәтті жүктелді! Тексеруді күтіңіз.")
 
@@ -688,9 +751,10 @@ def get_user_email(user_id):
     return result[0][0] if result else None
 
 def show_user_links(bot, message):
-    user_email = get_user_email(message.chat.id)
+    user_info = get_user(message.chat.id)
+    user_email = user_info[6]
     if not user_email:
-        bot.send_message(message.chat.id, "Сіздің email-ңыз табылмады.")
+        bot.send_message(message.chat.id, "Сіздің электрондық поштаңыз табылмады.")
         return
 
     links_result = db_connect.execute_get_sql_query(
@@ -698,9 +762,9 @@ def show_user_links(bot, message):
     )
 
     if links_result:
-        response_message = "Сіздің сілтемелеріңіз және олардың статустары:\n"
+        response_message = "Сіздің сілтемелеріңіз және олардың күйлері:\n"
         for link, status in links_result:
-            response_message += f"Сілтеме: {link}\nСтатус: {status}\n\n"
+            response_message += f"Сілтеме: {link}\nЖағдайы: {status}\n\n"
 
         bot.send_message(message.chat.id, response_message)
         msg = bot.send_message(message.chat.id, "Төменде қол жетімді опциялардың бірін таңдаңыз:")
@@ -710,31 +774,33 @@ def show_user_links(bot, message):
         bot.register_next_step_handler(msg, sapa_instruments, bot)
 
 def display_leaderboard(bot, message):
+    # Запрос на получение fullname и общего балла, сортировка по общему баллу
     result = db_connect.execute_get_sql_query("""
-            SELECT s.fullname, sb.email, COALESCE(s.score, 0) + sb.bonus_score AS total_score
+            SELECT sb.fullname, COALESCE(s.score, 0) + sb.bonus_score AS total_score
             FROM sapa_bonus sb
             LEFT JOIN sapa s ON sb.email = s.email
             ORDER BY total_score DESC
             LIMIT 10
         """)
 
+    # Формируем текст для таблицы лидеров
     leaderboard = "Көшбасшылар тақтасы:\n" + "\n".join(
-        f"{i}. Қатысушы: {row[0]} (Email: {row[1]}) - Жалпы балл: {row[2]}"
+        f"{i}. Қатысушы {row[0]} - Жалпы балл: {row[1]}"
         for i, row in enumerate(result, 1)
     )
     bot.send_message(message.chat.id, leaderboard)
 
-    # Get user's email based on their chat ID
+    # Получаем email пользователя на основе их chat ID
     user_email_result = db_connect.execute_get_sql_query(
         "SELECT email FROM users WHERE id = %s",
         (str(message.chat.id),)
     )
 
-    # Check if the email was retrieved
+    # Проверяем, был ли найден email
     if user_email_result:
-        user_email = user_email_result[0][0].strip().lower()  # Normalize email to lowercase
+        user_email = user_email_result[0][0].strip().lower()  # Нормализуем email в нижний регистр
 
-        # Find the rank and score of the user in the leaderboard
+        # Находим ранг и балл пользователя в таблице лидеров
         user_rank_result = db_connect.execute_get_sql_query("""
                 WITH RankedUsers AS (
                     SELECT 
@@ -746,20 +812,27 @@ def display_leaderboard(bot, message):
                 )
                 SELECT rank, total_score
                 FROM RankedUsers
-                WHERE LOWER(email) = %s  -- Ensure case-insensitive comparison
+                WHERE LOWER(email) = %s  -- Сравнение без учета регистра
             """, (user_email,))
 
         if user_rank_result:
             user_rank, user_score = user_rank_result[0]
             bot.send_message(message.chat.id, f"Сіздің орныңыз: {user_rank}, Жалпы балл: {user_score}")
         else:
-            bot.send_message(message.chat.id, "Сіз әзірге байқауға қатыспайсыз.")
+            bot.send_message(message.chat.id, "Сіз әлі байқауға қатыспайсыз.")
     else:
-        bot.send_message(message.chat.id, "Сіздің email-ңыз табылмады.")
+        bot.send_message(message.chat.id, "Сіздің электрондық поштаңызды табу мүмкін болмады.")
 
-    msg = bot.send_message(message.chat.id, "Төменде қол жетімді опциялардың бірін таңдаңыз:")
-    bot.register_next_step_handler(msg, sapa_instruments, bot)
+    # Переход к доступным опциям 
+    bot.send_message(message.chat.id, "Біз сізді Sapa+ негізгі мәзіріне бағыттаймыз")
+    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+    markup.add(types.KeyboardButton('Sapa+ бонустық жүйесі'),
+               types.KeyboardButton('Нұсқаулар, техникалық қолдау және табыстау нүктелері'))
 
+    msg = bot.send_message(message.chat.id, "Выберите одно из действий:", reply_markup=markup)
+    bot.register_next_step_handler(msg, sapa_main_menu, bot)
+
+# Функция для отображения ссылок для администратора с фильтрацией по branch
 def show_pending_links(bot, admin_user_id):
     try:
         # Логика получения филиала администратора
@@ -770,7 +843,7 @@ def show_pending_links(bot, admin_user_id):
                 break
 
         if not admin_branch:
-            bot.send_message(admin_user_id, "Қате: админ филиалы табылмады.")
+            bot.send_message(admin_user_id, "Қате: әкімші филиалы табылмады.")
             return
 
         # Получаем ссылки или фотографии, отправленные пользователями с тем же branch
@@ -804,15 +877,19 @@ def show_pending_links(bot, admin_user_id):
                 ]
                 markup.add(*buttons)
 
-                bot.send_message(admin_user_id, "Төменде қол жетімді опциялардың бірін таңдаңыз:", reply_markup=markup)
+                bot.send_message(admin_user_id, "Әрекетті таңдаңыз:", reply_markup=markup)
         else:
-            bot.send_message(admin_user_id, "Қазіргі уақытта тексеріске жаңа сілтемелер жоқ.")
+            bot.send_message(admin_user_id, "Қазіргі уақытта тексеру үшін жаңа сілтемелер немесе фотосуреттер жоқ.")
             msg = bot.send_message(admin_user_id, "Төменде қол жетімді опциялардың бірін таңдаңыз:")
             bot.register_next_step_handler(msg, sapa_instruments, bot)
     except Exception as e:
         bot.send_message(admin_user_id, f"Сілтемелерді алу кезінде қате: {e}")
 
 def upload_sapa_table(message, bot):
+    bot.send_message(message.chat.id, "Әлі де дамуда...")
+    bot.send_message(message.chat.id, "'/menu'-деп жазып негізгі мәзірге оралыңыз.")
+    
+    '''
     user_id = str(message.chat.id)
     if message.content_type == 'document':
         file_info = bot.get_file(message.document.file_id)
@@ -857,12 +934,12 @@ def upload_sapa_table(message, bot):
             msg = bot.send_message(user_id, "Төменде қол жетімді опциялардың бірін таңдаңыз:")
             bot.register_next_step_handler(msg, sapa_instruments, bot)
         except Exception as e:
-            bot.send_message(user_id, f"Кестені жүктеу кезінде қате орын алды: {e}")
+            bot.send_message(user_id, f"Кестені жүктеу кезінде қате: {e}")
     else:
         bot.send_message(user_id, "Файлды Excel форматында жүктеңіз.")
         msg = bot.send_message(user_id, "Төменде қол жетімді опциялардың бірін таңдаңыз:")
         bot.register_next_step_handler(msg, sapa_instruments, bot)
-
+        '''
 
 def hse_competition_(bot, message, id_i_s = None):
     text = "Сақталған ақпарат\n\n"
@@ -1119,7 +1196,7 @@ def call_back(bot, call):
                     email, link = link_result[0]
 
                     if email:
-                        email = email.strip().lower()
+                        email = email.strip()
                     else:
                         email = get_user_email(user_id)
 
@@ -1138,7 +1215,7 @@ def call_back(bot, call):
                     """, (new_bonus_score, new_bonus_score, email))
 
                     bot.send_message(call.message.chat.id,
-                                     f"Сілтеме '{link}' мақұлданды. Қатысушыға '{link_type} ' түрі үшін {new_bonus_score} ұпайлары беріледі!")
+                                     f"Сілтеме мақұлданды. Қатысушыға '{link_type}' түрі үшін {new_bonus_score} ұпайлары берілді!")
 
                     user_result = db_connect.execute_get_sql_query(
                         "SELECT id FROM users WHERE email = %s", (email,)
@@ -1169,33 +1246,31 @@ def call_back(bot, call):
                             )
                             bot.send_message(user_chat_id, message)
                             markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-                            markup.add(types.KeyboardButton('Негізгі әрекеттер'),
-                                       types.KeyboardButton('Қажетті ақпарат'))
+                            markup.add(types.KeyboardButton('Sapa+ бонустық жүйесі'),
+                                       types.KeyboardButton('Нұсқаулар, техникалық қолдау және табыстау нүктелері'))
 
                             msg = bot.send_message(user_id, "Әрекеттердің бірін таңдаңыз:", reply_markup=markup)
                             bot.register_next_step_handler(msg, sapa_main_menu, bot)
                         else:
-                            bot.send_message(user_chat_id, "Бонустық ұпайлар мен жалпы шот табылмады.")
+                            bot.send_message(user_chat_id, "Бонустық ұпайлар мен жалпы шот табылған жоқ.")
                             markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-                            markup.add(types.KeyboardButton('Негізгі әрекеттер'),
-                                       types.KeyboardButton('Қажетті ақпарат'))
+                            markup.add(types.KeyboardButton('Sapa+ бонустық жүйесі'),
+                                       types.KeyboardButton('Нұсқаулар, техникалық қолдау және табыстау нүктелері'))
 
                             msg = bot.send_message(user_id, "Әрекеттердің бірін таңдаңыз:", reply_markup=markup)
                             bot.register_next_step_handler(msg, sapa_main_menu, bot)
                     else:
-                        print("Қатысушы табылмады.")
-
                         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-                        markup.add(types.KeyboardButton('Негізгі әрекеттер'),
-                                   types.KeyboardButton('Қажетті ақпарат'))
+                        markup.add(types.KeyboardButton('Sapa+ бонустық жүйесі'),
+                                   types.KeyboardButton('Нұсқаулар, техникалық қолдау және табыстау нүктелері'))
 
                         msg = bot.send_message(user_id, "Әрекеттердің бірін таңдаңыз:", reply_markup=markup)
                         bot.register_next_step_handler(msg, sapa_main_menu, bot)
                 else:
                     bot.send_message(call.message.chat.id, "Қате: сілтеме табылмады.")
                     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-                    markup.add(types.KeyboardButton('Негізгі әрекеттер'),
-                               types.KeyboardButton('Қажетті ақпарат'))
+                    markup.add(types.KeyboardButton('Sapa+ бонустық жүйесі'),
+                               types.KeyboardButton('Нұсқаулар, техникалық қолдау және табыстау нүктелері'))
 
                     msg = bot.send_message(user_id, "Әрекеттердің бірін таңдаңыз:", reply_markup=markup)
                     bot.register_next_step_handler(msg, sapa_main_menu, bot)
@@ -1203,7 +1278,7 @@ def call_back(bot, call):
                 bot.send_message(call.message.chat.id,
                                  "Қате жауап. Сілтеме түрін таңдап, сілтеме нөмірін көрсетіңіз.")
         except Exception as e:
-            bot.send_message(call.message.chat.id, f"Әкімші тексеру кезінде қате орын алды: {e}")
+            bot.send_message(call.message.chat.id, f"Әкімшінің жауабын өңдеу кезінде қате: {e}")
 
     if call.data == 'Начинаем!':
         cm_sv_db(call.message, 'Начинаем!')
