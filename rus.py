@@ -238,29 +238,30 @@ branches = ['Центральный Аппарат', 'Объединение Д�
             'Дивизион по Корпоративному Бизнесу', 'Корпоративный Университет', 'Дивизион Информационных Технологий',
             'Дирекция Телеком Комплект', 'Дирекция Управления Проектами',
             'Сервисная Фабрика']
-branches_admin = [
-    {'branch': 'Центральный Аппарат', 'sapa_admin': '353845928'},
-    {'branch': 'Обьединение Дивизион "Сеть"', 'sapa_admin': '353845928'},
-    {'branch': 'Дивизион по Розничному Бизнесу', 'sapa_admin': '353845928'},
-    {'branch': 'Дивизион по Корпоративному Бизнесу', 'sapa_admin': '353845928'},
-    {'branch': 'Корпоративный Университет', 'sapa_admin': '1066191569'},
-    {'branch': 'Дивизион Информационных Технологий', 'sapa_admin': '353845928'},
-    {'branch': 'Дирекция Телеком Комплект', 'sapa_admin': '353845928'},
-    {'branch': 'Дирекция Управления Проектами', 'sapa_admin': '353845928'},
-    {'branch': 'Сервисная Фабрика', 'sapa_admin': '353845928'}
-]
-
 # branches_admin = [
-#     {'branch': 'Центральный Аппарат', 'sapa_admin': '1009867354'},
-#     {'branch': 'Обьединение Дивизион "Сеть"', 'sapa_admin': '1621516433'},
-#     {'branch': 'Дивизион по Розничному Бизнесу', 'sapa_admin': '531622371'},
-#     {'branch': 'Дивизион по Корпоративному Бизнесу', 'sapa_admin': '468270698'},
-#     {'branch': 'Корпоративный Университет', 'sapa_admin': '476878708'},
-#     {'branch': 'Дивизион Информационных Технологий', 'sapa_admin': '577247261'},
+#     {'branch': 'Центральный Аппарат', 'sapa_admin': '353845928'},
+#     {'branch': 'Обьединение Дивизион "Сеть"', 'sapa_admin': '353845928'},
+#     {'branch': 'Дивизион по Розничному Бизнесу', 'sapa_admin': '353845928'},
+#     {'branch': 'Дивизион по Корпоративному Бизнесу', 'sapa_admin': '353845928'},
+#     {'branch': 'Корпоративный Университет', 'sapa_admin': '1066191569'},
+#     {'branch': 'Дивизион Информационных Технологий', 'sapa_admin': '353845928'},
 #     {'branch': 'Дирекция Телеком Комплект', 'sapa_admin': '353845928'},
-#     {'branch': 'Дирекция Управления Проектами', 'sapa_admin': '947621727'},
-#     {'branch': 'Сервисная Фабрика', 'sapa_admin': '477945972'}
+#     {'branch': 'Дирекция Управления Проектами', 'sapa_admin': '353845928'},
+#     {'branch': 'Сервисная Фабрика', 'sapa_admin': '353845928'}
 # ]
+
+branches_admin = [
+    {'branch': 'Центральный Аппарат', 'sapa_admin': '1066191569'},
+    # {'branch': 'Центральный Аппарат', 'sapa_admin': '1009867354'},y
+    {'branch': 'Обьединение Дивизион "Сеть"', 'sapa_admin': '1621516433'},
+    {'branch': 'Дивизион по Розничному Бизнесу', 'sapa_admin': '531622371'},
+    {'branch': 'Дивизион по Корпоративному Бизнесу', 'sapa_admin': '468270698'},
+    {'branch': 'Корпоративный Университет', 'sapa_admin': '476878708'},
+    {'branch': 'Дивизион Информационных Технологий', 'sapa_admin': '577247261'},
+    {'branch': 'Дирекция Телеком Комплект', 'sapa_admin': '353845928'},
+    {'branch': 'Дирекция Управления Проектами', 'sapa_admin': '947621727'},
+    {'branch': 'Сервисная Фабрика', 'sapa_admin': '477945972'}
+]
 
 def get_markup(message):
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
@@ -557,9 +558,8 @@ def sapa_main_menu(message, bot):
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
         if str(user_id) in sapa_admin:
             markup.add(types.KeyboardButton('Оценка ссылок'), types.KeyboardButton('Загрузить таблицу'))
-        # else:
-        #
-        markup.add(types.KeyboardButton('Загрузить ссылку/фото'))
+        else:
+            markup.add(types.KeyboardButton('Загрузить ссылку/фото'))
         markup.add(types.KeyboardButton('Таблица лидеров'), types.KeyboardButton('Назад'))
 
         bot.send_message(user_id, "Выберите одно из действий в меню:", reply_markup=markup)
@@ -689,7 +689,9 @@ def upload_link(message, bot):
             branch = user_info[7]
             if not email or not branch:
                 bot.send_message(user_id, "Ошибка: email или филиал не найден.")
+                return
 
+            # Сохранение ссылки с актуальным branch пользователя
             db_connect.execute_set_sql_query("""
                 INSERT INTO sapa_link (email, link, is_checked, status, branch) 
                 VALUES (%s, %s, FALSE, NULL, %s)
@@ -743,6 +745,7 @@ def upload_link(message, bot):
                 bot.send_message(user_id, "Ошибка: email или филиал не найден.")
                 return
 
+            # Сохранение фото с актуальным branch пользователя
             db_connect.execute_set_sql_query("""
                 INSERT INTO sapa_link (email, link, is_checked, status, image_data, branch) 
                 VALUES (%s, NULL, FALSE, NULL, %s, %s)
@@ -884,7 +887,7 @@ def display_leaderboard(bot, message):
 # Функция для отображения ссылок для администратора с фильтрацией по branch
 def show_pending_links(bot, admin_user_id):
     try:
-        # Логика получения филиала администратора
+        # Find admin's branch
         admin_branch = None
         for branch_info in branches_admin:
             if branch_info['sapa_admin'] == str(admin_user_id):
@@ -895,14 +898,12 @@ def show_pending_links(bot, admin_user_id):
             bot.send_message(admin_user_id, "Ошибка: филиал администратора не найден.")
             return
 
-        # Получаем ссылки или фотографии, отправленные пользователями с тем же branch
+        # Fetch links associated with the admin's branch, not the user's current branch
         result = db_connect.execute_get_sql_query("""
             SELECT id, link, image_data 
             FROM sapa_link 
             WHERE is_checked = FALSE 
-            AND email IN (
-                SELECT email FROM users WHERE branch = %s
-            )
+            AND branch = %s
             ORDER BY id 
             LIMIT 1
         """, (admin_branch,))
@@ -915,7 +916,7 @@ def show_pending_links(bot, admin_user_id):
                 elif image_data:
                     bot.send_photo(admin_user_id, image_data)
 
-                # Инлайн-клавиатура для оценок
+                # Inline keyboard for rating actions
                 markup = types.InlineKeyboardMarkup(row_width=2)
                 buttons = [
                     types.InlineKeyboardButton("Фото", callback_data=f'фото {link_id}'),
@@ -933,7 +934,6 @@ def show_pending_links(bot, admin_user_id):
             bot.register_next_step_handler(msg, sapa_instruments, bot)
     except Exception as e:
         bot.send_message(admin_user_id, f"Ошибка при получении ссылок: {e}")
-
 
 # Функция для загрузки таблицы участников
 # def upload_sapa_table(message, bot):
