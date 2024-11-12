@@ -557,8 +557,9 @@ def sapa_main_menu(message, bot):
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
         if str(user_id) in sapa_admin:
             markup.add(types.KeyboardButton('Оценка ссылок'), types.KeyboardButton('Загрузить таблицу'))
-        else:
-            markup.add(types.KeyboardButton('Загрузить ссылку/фото'))
+        # else:
+        #
+        markup.add(types.KeyboardButton('Загрузить ссылку/фото'))
         markup.add(types.KeyboardButton('Таблица лидеров'), types.KeyboardButton('Назад'))
 
         bot.send_message(user_id, "Выберите одно из действий в меню:", reply_markup=markup)
@@ -662,15 +663,72 @@ def links_instruments(message, bot):
 def upload_link(message, bot):
     user_id = message.chat.id
 
-    # Проверяем, есть ли фото
-    if message.photo:
+    # Проверка, есть ли текст в сообщении
+    if message.text:
+        link = message.text.strip()
+
+        if link.startswith('/'):
+            if link == '/menu':
+                menu(bot, message)
+                return True
+        elif link.lower() == 'стоп':
+            bot.send_message(user_id, "Процесс загрузки ссылок завершён.")
+            msg = bot.send_message(user_id, "Выберите один из доступных вариантов ниже:")
+            bot.register_next_step_handler(msg, links_instruments, bot)
+            return
+
+        if not link.startswith("http"):
+            bot.send_message(user_id, "Неверный формат ссылки. Пожалуйста, укажите корректный URL.")
+            msg = bot.send_message(user_id, "Пожалуйста, отправьте ссылку/фото:")
+            bot.register_next_step_handler(msg, upload_link, bot)
+            return
+
+        try:
+            user_info = get_user(message.chat.id)
+            email = user_info[6]
+            branch = user_info[7]
+            if not email or not branch:
+                bot.send_message(user_id, "Ошибка: email или филиал не найден.")
+
+            db_connect.execute_set_sql_query("""
+                INSERT INTO sapa_link (email, link, is_checked, status, branch) 
+                VALUES (%s, %s, FALSE, NULL, %s)
+                """, (email, link, branch))
+
+            # Проверяем и добавляем пользователя в sapa_bonus, если его нет
+            check_user_query = "SELECT * FROM sapa_bonus WHERE email = %s"
+            result = db_connect.execute_get_sql_query(check_user_query, (email,))
+
+            if not result:
+                user_query = "SELECT firstname, lastname FROM users WHERE email = %s"
+                user_info = db_connect.execute_get_sql_query(user_query, (email,))
+                if user_info:
+                    firstname, lastname = user_info[0]
+                    fullname = f"{firstname} {lastname}"
+                    db_connect.execute_set_sql_query("""
+                        INSERT INTO sapa_bonus (email, fullname, bonus_score, total_score)
+                        VALUES (%s, %s, 0, 0)
+                    """, (email, fullname))
+
+            bot.send_message(user_id, "Ссылка успешно загружена! Ожидайте проверки.")
+
+            bot.send_message(user_id, "Вы будете перенаправлены в главное меню SAPA+")
+            markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+            markup.add(types.KeyboardButton('бонусная система SAPA+'),
+                       types.KeyboardButton('Инструкции, техническая поддержка и точки передачи'))
+
+            msg = bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
+            bot.register_next_step_handler(msg, sapa_main_menu, bot)
+        except Exception as e:
+            bot.send_message(user_id, f"Произошла ошибка при загрузке ссылки: {e}")
+
+    # Обработка фото
+    elif message.photo:
         bot.send_message(user_id, "Фото получено, начинаем загрузку...")
         try:
-            # Получаем информацию о фотографии и создаем URL для загрузки
             file_info = bot.get_file(message.photo[-1].file_id)
             file_url = f'https://api.telegram.org/file/bot{db_connect.TOKEN}/{file_info.file_path}'
 
-            # Загружаем фото
             response = requests.get(file_url)
             if response.status_code == 200:
                 file_data = response.content
@@ -678,7 +736,6 @@ def upload_link(message, bot):
                 bot.send_message(user_id, "Ошибка при загрузке фото. Попробуйте снова.")
                 return
 
-            # Получаем email пользователя
             user_info = get_user(message.chat.id)
             email = user_info[6]
             branch = user_info[7]
@@ -686,13 +743,11 @@ def upload_link(message, bot):
                 bot.send_message(user_id, "Ошибка: email или филиал не найден.")
                 return
 
-            # Сохраняем фотографию в базу данных
             db_connect.execute_set_sql_query("""
                 INSERT INTO sapa_link (email, link, is_checked, status, image_data, branch) 
                 VALUES (%s, NULL, FALSE, NULL, %s, %s)
             """, (email, file_data, branch))
 
-            # Проверяем и добавляем пользователя в sapa_bonus, если его нет
             check_user_query = "SELECT * FROM sapa_bonus WHERE email = %s"
             result = db_connect.execute_get_sql_query(check_user_query, (email,))
 
@@ -719,61 +774,9 @@ def upload_link(message, bot):
 
         except Exception as e:
             bot.send_message(user_id, f"Произошла ошибка при загрузке фотографии: {e}")
-            return
-
-    # Условие для обработки текстовых ссылок
-    link = message.text.strip()
-
-    if link.lower() == 'стоп':
-        bot.send_message(user_id, "Процесс загрузки ссылок завершён.")
-        msg = bot.send_message(user_id, "Выберите один из доступных вариантов ниже:")
-        bot.register_next_step_handler(msg, links_instruments, bot)
-        return
-
-    if not link.startswith("http"):
-        bot.send_message(user_id, "Неверный формат ссылки. Пожалуйста, укажите корректный URL.")
-        msg = bot.send_message(user_id, "Пожалуйста, отправьте ссылку/фото:")
-        bot.register_next_step_handler(msg, upload_link, bot)
-        return
-
-    try:
-        user_info = get_user(message.chat.id)
-        email = user_info[6]
-        branch = user_info[7]
-        if not email or not branch:
-            bot.send_message(user_id, "Ошибка: email или филиал не найден.")
-
-        db_connect.execute_set_sql_query("""
-            INSERT INTO sapa_link (email, link, is_checked, status, branch) 
-                VALUES (%s, %s, FALSE, NULL, %s)
-            """, (email, link, branch))
-
-        # Проверяем и добавляем пользователя в sapa_bonus, если его нет
-        check_user_query = "SELECT * FROM sapa_bonus WHERE email = %s"
-        result = db_connect.execute_get_sql_query(check_user_query, (email,))
-
-        if not result:
-            user_query = "SELECT firstname, lastname FROM users WHERE email = %s"
-            user_info = db_connect.execute_get_sql_query(user_query, (email,))
-            if user_info:
-                firstname, lastname = user_info[0]
-                fullname = f"{firstname} {lastname}"
-                db_connect.execute_set_sql_query("""
-                    INSERT INTO sapa_bonus (email, fullname, bonus_score, total_score)
-                    VALUES (%s, %s, 0, 0)
-                """, (email, fullname))
-
-        bot.send_message(user_id, "Ссылка успешно загружена! Ожидайте проверки.")
-
-        bot.send_message(user_id, "Вы будете перенаправлены в главное меню SAPA+")
-        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-        markup.add(types.KeyboardButton('бонусная система SAPA+'),
-                   types.KeyboardButton('Инструкции, техническая поддержка и точки передачи'))
-
-        msg = bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
-        bot.register_next_step_handler(msg, sapa_main_menu, bot)
-    except Exception as e:
-        bot.send_message(user_id, f"Произошла ошибка при загрузке ссылки: {e}")
+    else:
+        bot.send_message(user_id, "Пожалуйста, отправьте ссылку или фото.")
+        bot.register_next_step_handler(message, upload_link, bot)
 
 def get_user_email(user_id):
     # Ensure params is a tuple to avoid SQL errors
