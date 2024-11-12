@@ -238,29 +238,29 @@ branches = ['Центральный Аппарат', 'Объединение Д�
             'Дивизион по Корпоративному Бизнесу', 'Корпоративный Университет', 'Дивизион Информационных Технологий',
             'Дирекция Телеком Комплект', 'Дирекция Управления Проектами',
             'Сервисная Фабрика']
-# branches_admin = [
-#     {'branch': 'Центральный Аппарат', 'sapa_admin': '353845928'},
-#     {'branch': 'Обьединение Дивизион "Сеть"', 'sapa_admin': '353845928'},
-#     {'branch': 'Дивизион по Розничному Бизнесу', 'sapa_admin': '353845928'},
-#     {'branch': 'Дивизион по Корпоративному Бизнесу', 'sapa_admin': '353845928'},
-#     {'branch': 'Корпоративный Университет', 'sapa_admin': '1066191569'},
-#     {'branch': 'Дивизион Информационных Технологий', 'sapa_admin': '353845928'},
-#     {'branch': 'Дирекция Телеком Комплект', 'sapa_admin': '353845928'},
-#     {'branch': 'Дирекция Управления Проектами', 'sapa_admin': '353845928'},
-#     {'branch': 'Сервисная Фабрика', 'sapa_admin': '353845928'}
-# ]
-
 branches_admin = [
-    {'branch': 'Центральный Аппарат', 'sapa_admin': '1009867354'},
-    {'branch': 'Обьединение Дивизион "Сеть"', 'sapa_admin': '1621516433'},
-    {'branch': 'Дивизион по Розничному Бизнесу', 'sapa_admin': '531622371'},
-    {'branch': 'Дивизион по Корпоративному Бизнесу', 'sapa_admin': '468270698'},
-    {'branch': 'Корпоративный Университет', 'sapa_admin': '476878708'},
-    {'branch': 'Дивизион Информационных Технологий', 'sapa_admin': '577247261'},
+    {'branch': 'Центральный Аппарат', 'sapa_admin': '353845928'},
+    {'branch': 'Обьединение Дивизион "Сеть"', 'sapa_admin': '353845928'},
+    {'branch': 'Дивизион по Розничному Бизнесу', 'sapa_admin': '353845928'},
+    {'branch': 'Дивизион по Корпоративному Бизнесу', 'sapa_admin': '353845928'},
+    {'branch': 'Корпоративный Университет', 'sapa_admin': '1066191569'},
+    {'branch': 'Дивизион Информационных Технологий', 'sapa_admin': '353845928'},
     {'branch': 'Дирекция Телеком Комплект', 'sapa_admin': '353845928'},
-    {'branch': 'Дирекция Управления Проектами', 'sapa_admin': '947621727'},
-    {'branch': 'Сервисная Фабрика', 'sapa_admin': '477945972'}
+    {'branch': 'Дирекция Управления Проектами', 'sapa_admin': '353845928'},
+    {'branch': 'Сервисная Фабрика', 'sapa_admin': '353845928'}
 ]
+
+# branches_admin = [
+#     {'branch': 'Центральный Аппарат', 'sapa_admin': '1009867354'},
+#     {'branch': 'Обьединение Дивизион "Сеть"', 'sapa_admin': '1621516433'},
+#     {'branch': 'Дивизион по Розничному Бизнесу', 'sapa_admin': '531622371'},
+#     {'branch': 'Дивизион по Корпоративному Бизнесу', 'sapa_admin': '468270698'},
+#     {'branch': 'Корпоративный Университет', 'sapa_admin': '476878708'},
+#     {'branch': 'Дивизион Информационных Технологий', 'sapa_admin': '577247261'},
+#     {'branch': 'Дирекция Телеком Комплект', 'sapa_admin': '353845928'},
+#     {'branch': 'Дирекция Управления Проектами', 'sapa_admin': '947621727'},
+#     {'branch': 'Сервисная Фабрика', 'sapa_admin': '477945972'}
+# ]
 
 def get_markup(message):
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
@@ -557,7 +557,9 @@ def sapa_main_menu(message, bot):
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
         if str(user_id) in sapa_admin:
             markup.add(types.KeyboardButton('Оценка ссылок'), types.KeyboardButton('Загрузить таблицу'))
-        markup.add(types.KeyboardButton('Таблица лидеров'), types.KeyboardButton('Загрузить ссылку/фото'), types.KeyboardButton('Назад'))
+        else:
+            markup.add(types.KeyboardButton('Загрузить ссылку/фото'))
+        markup.add(types.KeyboardButton('Таблица лидеров'), types.KeyboardButton('Назад'))
 
         bot.send_message(user_id, "Выберите одно из действий в меню:", reply_markup=markup)
         bot.register_next_step_handler(message, sapa_instruments, bot)
@@ -650,7 +652,7 @@ def links_instruments(message, bot):
             menu(bot, message)
             return True
     elif response == 'загрузить':
-        msg = bot.send_message(user_id, "Пожалуйста введите ссылку/фото(или введите 'стоп' для завершения):")
+        msg = bot.send_message(user_id, "Пожалуйста введите ссылку/фото:")
         bot.register_next_step_handler(msg, upload_link, bot)
     elif response == 'список непроверенных ссылок':
         show_user_links(bot, message)
@@ -709,11 +711,13 @@ def upload_link(message, bot):
 
             bot.send_message(user_id, "Фото успешно загружено и ожидает проверки.")
 
-            # Запрашиваем следующую ссылку или фото
-            msg = bot.send_message(user_id,
-                                   "Пожалуйста, введите следующую ссылку или отправьте фото (или введите 'стоп' для завершения):")
-            bot.register_next_step_handler(msg, upload_link, bot)
-            return  # Завершаем выполнение, чтобы не обрабатывать дальше как ссылку
+            bot.send_message(user_id, "Вы будете перенаправлены в главное меню SAPA+")
+            markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+            markup.add(types.KeyboardButton('бонусная система SAPA+'),
+                       types.KeyboardButton('Необходимая информация'))
+
+            msg = bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
+            bot.register_next_step_handler(msg, sapa_main_menu, bot)
 
         except Exception as e:
             bot.send_message(user_id, f"Произошла ошибка при загрузке фотографии: {e}")
@@ -730,7 +734,7 @@ def upload_link(message, bot):
 
     if not link.startswith("http"):
         bot.send_message(user_id, "Неверный формат ссылки. Пожалуйста, укажите корректный URL.")
-        msg = bot.send_message(user_id, "Пожалуйста, введите ссылку/фото (или введите 'стоп' для завершения):")
+        msg = bot.send_message(user_id, "Пожалуйста, введите ссылку/фото:")
         bot.register_next_step_handler(msg, upload_link, bot)
         return
 
@@ -763,9 +767,13 @@ def upload_link(message, bot):
 
         bot.send_message(user_id, "Ссылка успешно загружена! Ожидайте проверки.")
 
-        # Запрашиваем следующую ссылку
-        msg = bot.send_message(user_id, "Пожалуйста, введите следующую ссылку (или введите 'стоп' для завершения):")
-        bot.register_next_step_handler(msg, upload_link, bot)
+        bot.send_message(user_id, "Вы будете перенаправлены в главное меню SAPA+")
+        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+        markup.add(types.KeyboardButton('бонусная система SAPA+'),
+                   types.KeyboardButton('Необходимая информация'))
+
+        msg = bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
+        bot.register_next_step_handler(msg, sapa_main_menu, bot)
     except Exception as e:
         bot.send_message(user_id, f"Произошла ошибка при загрузке ссылки: {e}")
 
@@ -969,55 +977,57 @@ def show_pending_links(bot, admin_user_id):
 #         bot.register_next_step_handler(msg, sapa_instruments, bot)
 
 def upload_sapa_table(message, bot):
-    user_id = str(message.chat.id)
-    if message.content_type == 'document':
-        file_info = bot.get_file(message.document.file_id)
-        downloaded_file = bot.download_file(file_info.file_path)
-
-        try:
-            # Загружаем данные из Excel файла в DataFrame
-            df = pd.read_excel(io.BytesIO(downloaded_file))
-
-            # Очищаем таблицу sapa и вставляем новые данные
-            db_connect.execute_set_sql_query("DELETE FROM sapa")
-            for _, row in df.iterrows():
-                # Вставка данных в таблицу sapa
-                insert_sapa_query = "INSERT INTO sapa (fullname, email, table_number, score) VALUES (%s, %s, %s, %s)"
-                insert_params = (row['fullname'], row['email'], row['table_number'], row['score'])
-                db_connect.execute_set_sql_query(insert_sapa_query, insert_params)
-
-                # Обновляем или вставляем данные в sapa_bonus
-                check_user_query = "SELECT bonus_score FROM sapa_bonus WHERE email = %s"
-                result = db_connect.execute_get_sql_query(check_user_query, (row['email'],))
-
-                if result:
-                    # Если пользователь уже существует, пересчитаем total_score
-                    current_bonus_score = result[0][0]  # Используем числовой индекс [0][0]
-                    new_total_score = current_bonus_score + row['score']
-                    update_total_score_query = """
-                        UPDATE sapa_bonus 
-                        SET total_score = %s
-                        WHERE email = %s
-                    """
-                    db_connect.execute_set_sql_query(update_total_score_query, (new_total_score, row['email']))
-                else:
-                    # Если пользователь не существует, добавим его с начальным значением bonus_score = 0
-                    insert_user_query = """
-                        INSERT INTO sapa_bonus (email, bonus_score, total_score)
-                        VALUES (%s, %s, %s)
-                    """
-                    insert_params = (row['email'], 0, row['score'])
-                    db_connect.execute_set_sql_query(insert_user_query, insert_params)
-
-            bot.send_message(user_id, "Таблица успешно обновлена!")
-            msg = bot.send_message(user_id, "Выберите один из доступных вариантов ниже:")
-            bot.register_next_step_handler(msg, sapa_instruments, bot)
-        except Exception as e:
-            bot.send_message(user_id, f"Ошибка при загрузке таблицы: {e}")
-    else:
-        bot.send_message(user_id, "Пожалуйста, загрузите файл в формате Excel.")
-        msg = bot.send_message(user_id, "Выберите один из доступных вариантов ниже:")
-        bot.register_next_step_handler(msg, sapa_instruments, bot)
+    bot.send_message(message.chat.id, "Еще в разработке")
+    bot.send_message(message.chat.id, "Пожалуйста вернитесь в главное меню. Написав команду '/menu'")
+    # user_id = str(message.chat.id)
+    # if message.content_type == 'document':
+    #     file_info = bot.get_file(message.document.file_id)
+    #     downloaded_file = bot.download_file(file_info.file_path)
+    #
+    #     try:
+    #         # Загружаем данные из Excel файла в DataFrame
+    #         df = pd.read_excel(io.BytesIO(downloaded_file))
+    #
+    #         # Очищаем таблицу sapa и вставляем новые данные
+    #         db_connect.execute_set_sql_query("DELETE FROM sapa")
+    #         for _, row in df.iterrows():
+    #             # Вставка данных в таблицу sapa
+    #             insert_sapa_query = "INSERT INTO sapa (fullname, email, table_number, score) VALUES (%s, %s, %s, %s)"
+    #             insert_params = (row['fullname'], row['email'], row['table_number'], row['score'])
+    #             db_connect.execute_set_sql_query(insert_sapa_query, insert_params)
+    #
+    #             # Обновляем или вставляем данные в sapa_bonus
+    #             check_user_query = "SELECT bonus_score FROM sapa_bonus WHERE email = %s"
+    #             result = db_connect.execute_get_sql_query(check_user_query, (row['email'],))
+    #
+    #             if result:
+    #                 # Если пользователь уже существует, пересчитаем total_score
+    #                 current_bonus_score = result[0][0]  # Используем числовой индекс [0][0]
+    #                 new_total_score = current_bonus_score + row['score']
+    #                 update_total_score_query = """
+    #                     UPDATE sapa_bonus
+    #                     SET total_score = %s
+    #                     WHERE email = %s
+    #                 """
+    #                 db_connect.execute_set_sql_query(update_total_score_query, (new_total_score, row['email']))
+    #             else:
+    #                 # Если пользователь не существует, добавим его с начальным значением bonus_score = 0
+    #                 insert_user_query = """
+    #                     INSERT INTO sapa_bonus (email, bonus_score, total_score)
+    #                     VALUES (%s, %s, %s)
+    #                 """
+    #                 insert_params = (row['email'], 0, row['score'])
+    #                 db_connect.execute_set_sql_query(insert_user_query, insert_params)
+    #
+    #         bot.send_message(user_id, "Таблица успешно обновлена!")
+    #         msg = bot.send_message(user_id, "Выберите один из доступных вариантов ниже:")
+    #         bot.register_next_step_handler(msg, sapa_instruments, bot)
+    #     except Exception as e:
+    #         bot.send_message(user_id, f"Ошибка при загрузке таблицы: {e}")
+    # else:
+    #     bot.send_message(user_id, "Пожалуйста, загрузите файл в формате Excel.")
+    #     msg = bot.send_message(user_id, "Выберите один из доступных вариантов ниже:")
+    #     bot.register_next_step_handler(msg, sapa_instruments, bot)
 
 def hse_competition_(bot, message, id_i_s = None):
     text = "Сохраненная информация\n\n"
