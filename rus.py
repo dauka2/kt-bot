@@ -597,10 +597,8 @@ def sapa_instruments(message, bot):
         msg = bot.send_message(user_id, "Пожалуйста, загрузите Excel файл с данными участников.")
         bot.register_next_step_handler(msg, upload_sapa_table, bot)
     elif response == 'загрузить ссылку/фото':
-        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-        markup.add(types.KeyboardButton('Загрузить'), types.KeyboardButton('Список непроверенных ссылок'))
-        bot.send_message(user_id, "Выберите одно из действий загрузки ссылки:", reply_markup=markup)
-        bot.register_next_step_handler(message, links_instruments, bot)
+        msg = bot.send_message(user_id, "Пожалуйста отправьте ссылку/фото:")
+        bot.register_next_step_handler(msg, upload_link, bot)
     elif response == 'назад':
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
         markup.add(types.KeyboardButton('Бонусная система SAPA+'),
@@ -652,7 +650,7 @@ def links_instruments(message, bot):
             menu(bot, message)
             return True
     elif response == 'загрузить':
-        msg = bot.send_message(user_id, "Пожалуйста введите ссылку/фото:")
+        msg = bot.send_message(user_id, "Пожалуйста отправьте ссылку/фото:")
         bot.register_next_step_handler(msg, upload_link, bot)
     elif response == 'список непроверенных ссылок':
         show_user_links(bot, message)
@@ -734,7 +732,7 @@ def upload_link(message, bot):
 
     if not link.startswith("http"):
         bot.send_message(user_id, "Неверный формат ссылки. Пожалуйста, укажите корректный URL.")
-        msg = bot.send_message(user_id, "Пожалуйста, введите ссылку/фото:")
+        msg = bot.send_message(user_id, "Пожалуйста, отправьте ссылку/фото:")
         bot.register_next_step_handler(msg, upload_link, bot)
         return
 
@@ -809,8 +807,13 @@ def show_user_links(bot, message):
             response_message += f"Ссылка: {link}\nСтатус: {status}\n\n"
 
         bot.send_message(message.chat.id, response_message)
-        msg = bot.send_message(message.chat.id, "Выберите один из доступных вариантов ниже:")
-        bot.register_next_step_handler(msg, links_instruments, bot)
+        bot.send_message(message.chat.id, "Вы будете перенаправлены в главное меню SAPA+")
+        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+        markup.add(types.KeyboardButton('бонусная система SAPA+'),
+                   types.KeyboardButton('Инструкции, техническая поддержка и точки передачи'))
+
+        msg = bot.send_message(message.chat.id, "Выберите одно из действий:", reply_markup=markup)
+        bot.register_next_step_handler(msg, sapa_main_menu, bot)
     else:
         msg = bot.send_message(message.chat.id, "На данный момент у вас нет ссылок, ожидающих проверки.")
         bot.register_next_step_handler(msg, sapa_instruments, bot)
