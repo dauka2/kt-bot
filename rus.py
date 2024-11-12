@@ -604,7 +604,7 @@ def sapa_instruments(message, bot):
     elif response == 'назад':
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
         markup.add(types.KeyboardButton('Бонусная система SAPA+'),
-                   types.KeyboardButton('Необходимая информация'))
+                   types.KeyboardButton('Инструкции, техническая поддержка и точки передачи'))
 
         msg = bot.send_message(user_id, "Выберите один из вариантов", reply_markup=markup)
         bot.register_next_step_handler(msg, sapa_main_menu, bot)
@@ -714,7 +714,7 @@ def upload_link(message, bot):
             bot.send_message(user_id, "Вы будете перенаправлены в главное меню SAPA+")
             markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
             markup.add(types.KeyboardButton('бонусная система SAPA+'),
-                       types.KeyboardButton('Необходимая информация'))
+                       types.KeyboardButton('Инструкции, техническая поддержка и точки передачи'))
 
             msg = bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
             bot.register_next_step_handler(msg, sapa_main_menu, bot)
@@ -770,7 +770,7 @@ def upload_link(message, bot):
         bot.send_message(user_id, "Вы будете перенаправлены в главное меню SAPA+")
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
         markup.add(types.KeyboardButton('бонусная система SAPA+'),
-                   types.KeyboardButton('Необходимая информация'))
+                   types.KeyboardButton('Инструкции, техническая поддержка и точки передачи'))
 
         msg = bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
         bot.register_next_step_handler(msg, sapa_main_menu, bot)
@@ -867,8 +867,13 @@ def display_leaderboard(bot, message):
         bot.send_message(message.chat.id, "Не удалось найти ваш email.")
 
     # Переход к доступным опциям
-    msg = bot.send_message(message.chat.id, "Выберите один из доступных вариантов ниже:")
-    bot.register_next_step_handler(msg, sapa_instruments, bot)
+    bot.send_message(message.chat.id, "Перенаправляем вас в главное меню SAPA+")
+    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+    markup.add(types.KeyboardButton('бонусная система SAPA+'),
+               types.KeyboardButton('Инструкции, техническая поддержка и точки передачи'))
+
+    msg = bot.send_message(message.chat.id, "Выберите одно из действий:", reply_markup=markup)
+    bot.register_next_step_handler(msg, sapa_main_menu, bot)
 
 # Функция для отображения ссылок для администратора с фильтрацией по branch
 def show_pending_links(bot, admin_user_id):
@@ -1332,7 +1337,7 @@ def call_back(bot, call):
                             bot.send_message(user_chat_id, message)
                             markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
                             markup.add(types.KeyboardButton('бонусная система SAPA+'),
-                                       types.KeyboardButton('Необходимая информация'))
+                                       types.KeyboardButton('Инструкции, техническая поддержка и точки передачи'))
 
                             msg = bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
                             bot.register_next_step_handler(msg, sapa_main_menu, bot)
@@ -1340,14 +1345,14 @@ def call_back(bot, call):
                             bot.send_message(user_chat_id, "Бонусные баллы и общий счёт не найдены.")
                             markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
                             markup.add(types.KeyboardButton('бонусная система SAPA+'),
-                                       types.KeyboardButton('Необходимая информация'))
+                                       types.KeyboardButton('Инструкции, техническая поддержка и точки передачи'))
 
                             msg = bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
                             bot.register_next_step_handler(msg, sapa_main_menu, bot)
                     else:
                         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
                         markup.add(types.KeyboardButton('бонусная система SAPA+'),
-                                   types.KeyboardButton('Необходимая информация'))
+                                   types.KeyboardButton('Инструкции, техническая поддержка и точки передачи'))
 
                         msg = bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
                         bot.register_next_step_handler(msg, sapa_main_menu, bot)
@@ -1355,7 +1360,7 @@ def call_back(bot, call):
                     bot.send_message(call.message.chat.id, "Ошибка: ссылка не найдена.")
                     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
                     markup.add(types.KeyboardButton('бонусная система SAPA+'),
-                               types.KeyboardButton('Необходимая информация'))
+                               types.KeyboardButton('Инструкции, техническая поддержка и точки передачи'))
 
                     msg = bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
                     bot.register_next_step_handler(msg, sapa_main_menu, bot)
