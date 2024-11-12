@@ -560,10 +560,8 @@ def sapa_instruments(message, bot):
         msg = bot.send_message(user_id, "Қатысушының деректері бар Excel файлын жүктеңіз.")
         bot.register_next_step_handler(msg, upload_sapa_table, bot)
     elif response == 'сілтемені/фотосуретті жүктеу':
-        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-        markup.add(types.KeyboardButton('Жүктеу'), types.KeyboardButton('Тексерілмеген сілтемелер тізімі'))
-        bot.send_message(user_id, "Сілтемені жүктеу әрекеттерінің бірін таңдаңыз:", reply_markup=markup)
-        bot.register_next_step_handler(message, links_instruments, bot)
+        msg = bot.send_message(user_id, "Сілтемені/фотосуретті жіберіңіз:")
+        bot.register_next_step_handler(msg, upload_link, bot)
     elif response == 'артқа':
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
         markup.add(types.KeyboardButton('Sapa+ бонустық жүйесі'),
@@ -615,7 +613,7 @@ def links_instruments(message, bot):
             menu(bot, message)
             return True
     elif response == 'жүктеу':
-        msg = bot.send_message(user_id, "Сілтемені/фотосуретті енгізіңіз:")
+        msg = bot.send_message(user_id, "Сілтемені/фотосуретті жіберіңіз:")
         bot.register_next_step_handler(msg, upload_link, bot)
     elif response == 'тексерілмеген сілтемелер тізімі':
         show_user_links(bot, message)
@@ -689,14 +687,14 @@ def upload_link(message, bot):
     link = message.text.strip()
 
     if link.lower() == 'стоп':
-        bot.send_message(user_id, "Процесс загрузки ссылок завершён.")
-        msg = bot.send_message(user_id, "Выберите один из доступных вариантов ниже:")
+        bot.send_message(user_id, "Сілтемелерді жүктеу процесі аяқталды.")
+        msg = bot.send_message(user_id, "Төменде қол жетімді опциялардың бірін таңдаңыз:")
         bot.register_next_step_handler(msg, links_instruments, bot)
         return
 
     if not link.startswith("http"):
         bot.send_message(user_id, "Қате сілтеме пішімі. Дұрыс URL мекенжайын көрсетіңіз.")
-        msg = bot.send_message(user_id, "Сілтемені/фотосуретті енгізіңіз (немесе аяқтау үшін 'стоп' деп теріңіз):")
+        msg = bot.send_message(user_id, "Сілтемені/фотосуретті жіберіңіз")
         bot.register_next_step_handler(msg, upload_link, bot)
         return
 
@@ -765,10 +763,15 @@ def show_user_links(bot, message):
         response_message = "Сіздің сілтемелеріңіз және олардың күйлері:\n"
         for link, status in links_result:
             response_message += f"Сілтеме: {link}\nЖағдайы: {status}\n\n"
-
+        
         bot.send_message(message.chat.id, response_message)
-        msg = bot.send_message(message.chat.id, "Төменде қол жетімді опциялардың бірін таңдаңыз:")
-        bot.register_next_step_handler(msg, links_instruments, bot)
+        bot.send_message(message.chat.id, "Сіз Sapa+ негізгі мәзіріне бағытталасыз")
+        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+        markup.add(types.KeyboardButton('Sapa+ бонустық жүйесі'),
+                   types.KeyboardButton('Нұсқаулар, техникалық қолдау және табыстау нүктелері'))
+
+        msg = bot.send_message(message.chat.id, "Әрекеттердің бірін таңдаңыз:", reply_markup=markup)
+        bot.register_next_step_handler(msg, sapa_main_menu, bot)
     else:
         msg = bot.send_message(message.chat.id, "Қазіргі уақытта сізде тексеруді күтетін сілтемелер жоқ.")
         bot.register_next_step_handler(msg, sapa_instruments, bot)
