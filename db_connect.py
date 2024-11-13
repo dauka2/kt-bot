@@ -508,9 +508,9 @@ def insert_into_performers_right():
         'parent_category varchar(50))')
 
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) '
-                'values (%s, %s, %s, %s, %s, %s, %s)', ("6682886650", "Learning.telecom.kz | Техническая поддержка",
-                                                        "Тамирлан", "Оспанов", "87081930374", "info.ktcu@telecom.kz",
-                                                        "@ktbot_kazakhtelecom"))
+                'values (%s, %s, %s, %s, %s, %s, %s)', ("353845928", "Learning.telecom.kz | Техническая поддержка",
+                                                        "Диас", "Серикханов", "87052280934", "serikkhanov.d@telecom.kz",
+                                                        "@callmedisa"))
     # cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) '
     #             'values (%s, %s, %s, %s, %s, %s, %s)', ("1483219013", "Learning.telecom.kz | Техническая поддержка",
     #                                                     "Людмила", "Нам", "+77009145025", "info.ktcu@telecom.kz", "@"))
