@@ -888,6 +888,12 @@ def get_excel(message):
     sql_query = "SELECT * from sapa_bonus"
     common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
 
+@bot.message_handler(commands=['get_sapa_bonus_'])
+def get_excel(message):
+    sql_query = ("SELECT sapa_bonus.id, fullname, sapa_bonus.email, bonus_score, total_score, users.branch from sapa_bonus "
+                 "inner join users on sapa_bonus.email = users.email")
+    common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
+
 @bot.message_handler(commands=['get_sapa_links'])
 def get_excel(message):
     sql_query = "SELECT * from sapa_link"
@@ -913,13 +919,39 @@ def get_excel(message):
     db_connect.sapa_test_()
     bot.send_message(message.chat.id, "Изменения сохранены")
 
-
 @bot.message_handler(commands=['functionn'])
 def get_excel(message):
     sql_query = "select * from performers where category = %s and subcategory = %s"
     params = ('Обьединение Дивизион "Сеть"', 'Запад',)
     result = db_connect.execute_get_sql_query(sql_query, params)
     bot.send_message(message.chat.id, str(result[0]))
+
+
+@bot.message_handler(commands=['get_end_register_users'])
+def get_end_register_users(message):
+    sql_query = """
+        SELECT 
+            users.branch AS "Филиал",
+            COUNT(DISTINCT users.id) AS "Количество уникальных пользователей"
+        FROM 
+            commands_history
+        INNER JOIN 
+            users ON commands_history.id = users.id
+        WHERE 
+            commands_history.commands_name = '/end_register' 
+            AND commands_history.date BETWEEN '2024-11-12 00:00:00' AND '2024-11-12 23:59:59'
+        GROUP BY 
+            users.branch
+        ORDER BY 
+            users.branch;
+    """
+
+    # Имя администратора или список для отправки
+    admin_id_new = admin_id[:]
+    admin_id_new.append('353845928')  # добавляем id админа, если необходимо
+
+    # Генерация Excel файла и отправка
+    common_file.get_excel(bot, message, admin_id_new, 'output_file.xlsx', sql_query)
 
 
 @bot.message_handler(commands=['get_appeals'])
