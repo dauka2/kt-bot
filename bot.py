@@ -784,7 +784,7 @@ def callback_handler(call):
 
 @bot.message_handler(commands=['get_excel'])
 def get_excel(message):
-    sql_query = "SELECT users.id, firstname, lastname, commands_name, commands_history.date FROM commands_history " \
+    sql_query = "SELECT users.id, firstname, lastname, commands_name, branch, commands_history.date FROM commands_history " \
                 "full outer join users on commands_history.id = users.id"
     common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
 
