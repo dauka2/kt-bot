@@ -714,7 +714,7 @@ def upload_link(message, bot):
                         VALUES (%s, %s, 0, 0)
                     """, (email, fullname))
 
-            bot.send_message(user_id, "Ссылка успешно загружена! Ожидайте проверки.")
+            bot.send_message(user_id, "Фотография успешно загружена! Ожидайте проверки.")
 
             bot.send_message(user_id, "Вы будете перенаправлены в главное меню SAPA+")
             markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
