@@ -28,6 +28,7 @@ from lteClass import add_internal_sale, set_subscriber_type, set_category_i_s, s
 from performerClass import get_performer_by_category, get_regions, list_categories, get_categories_by_parentcategory, \
     get_performer_id_by_category, get_subsubcategories_by_subcategory, \
     get_performer_by_category_and_subcategory, get_performer_by_subsubcategory, get_performers_
+from sapa import get_photo_by_id
 from userClass import get_branch, get_firstname, get_user, generate_and_save_code, get_email, \
     set_email, verification_timers, get_saved_verification_code, get_lastname, get_phone_number, \
     get_user_verification_status, check_if_registered, delete_participation, check_registration_message_in_history, \
@@ -2924,7 +2925,32 @@ def verify_code(message, bot):
         msg = bot.send_message(message.chat.id, "Введите код еще раз:")
         bot.register_next_step_handler(msg, verify_code, bot)
 
+def send_photo_by_id(message, bot):
+    # Проверка, ввел ли пользователь команду выхода в меню
+    if message.text.startswith('/'):
+        if message.text == '/menu':
+            menu(bot, message)
+            return
 
+    try:
+        # Получаем ID, который ввел пользователь
+        photo_id = int(message.text.strip())
+
+        # Получаем изображение из базы данных по ID
+        image_data = get_photo_by_id(photo_id)
+        if image_data:
+            # Отправка фото пользователю
+            bot.send_photo(message.chat.id, image_data)
+        else:
+            bot.reply_to(message, "Фото с таким ID не найдено.")
+    except ValueError:
+        bot.reply_to(message, "Пожалуйста, введите корректный ID.")
+    except Exception as e:
+        bot.reply_to(message, f"Произошла ошибка: {e}")
+
+    # Запрос следующего ID фотографии или возвращение в меню
+    msg = bot.send_message(message.chat.id, "Введите следующий ID объекта или используйте /menu для выхода в главное меню:")
+    bot.register_next_step_handler(msg, send_photo_by_id, bot)
 
 def is_none(line):
     if line is None:

@@ -16,7 +16,7 @@ from sapa import get_photo_by_id
 
 bot = telebot.TeleBot(db_connect.TOKEN, parse_mode="HTML")
 admin_id = ['484489968', '760906879', '577247261', '204504707', '531622371', '6682886650', '1066191569', '353845928']
-AUTHORIZED_USER_ID = 1066191569  # Замените на реальный chat.id пользователя
+AUTHORIZED_USER_IDS = [1066191569, 510122980]
 branches = ['Центральный Аппарат', 'Обьединение Дивизион "Сеть"', 'Дивизион по Розничному Бизнесу',
             'Дивизион по Корпоративному Бизнесу', 'Корпоративный Университет', 'Дивизион Информационных Технологий',
             'Дирекция Телеком Комплект', 'Дирекция Управления Проектами',
@@ -1087,31 +1087,31 @@ def get_excel(message):
 @bot.message_handler(commands=['get_photo_sapa'])
 def ask_for_photo_id(message):
     # Проверка, что команда отправлена авторизованным пользователем
-    if message.chat.id != AUTHORIZED_USER_ID:
+    if message.chat.id not in AUTHORIZED_USER_IDS:
         bot.reply_to(message, "У вас нет доступа к этой команде.")
         return
 
     # Запрос ID фотографии у пользователя
     msg = bot.reply_to(message, "Введите ID объекта:")
-    bot.register_next_step_handler(msg, send_photo_by_id)
+    bot.register_next_step_handler(msg, rus.send_photo_by_id, bot)
 
 # Функция для отправки фото по ID
-def send_photo_by_id(message):
-    try:
-        # Получаем ID, который ввел пользователь
-        photo_id = int(message.text.strip())
-
-        # Получаем изображение из базы данных по ID
-        image_data = get_photo_by_id(photo_id)
-        if image_data:
-            # Отправка фото пользователю
-            bot.send_photo(message.chat.id, image_data)
-        else:
-            bot.reply_to(message, "Фото с таким ID не найдено.")
-    except ValueError:
-        bot.reply_to(message, "Пожалуйста, введите корректный ID.")
-    except Exception as e:
-        bot.reply_to(message, f"Произошла ошибка: {e}")
+# def send_photo_by_id(message):
+#     try:
+#         # Получаем ID, который ввел пользователь
+#         photo_id = int(message.text.strip())
+#
+#         # Получаем изображение из базы данных по ID
+#         image_data = get_photo_by_id(photo_id)
+#         if image_data:
+#             # Отправка фото пользователю
+#             bot.send_photo(message.chat.id, image_data)
+#         else:
+#             bot.reply_to(message, "Фото с таким ID не найдено.")
+#     except ValueError:
+#         bot.reply_to(message, "Пожалуйста, введите корректный ID.")
+#     except Exception as e:
+#         bot.reply_to(message, f"Произошла ошибка: {e}")
 
 
 @bot.message_handler(commands=['get_sales'])
