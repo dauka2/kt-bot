@@ -598,8 +598,10 @@ def sapa_instruments(message, bot):
     elif response == 'оценка ссылок' and str(user_id) in sapa_admin:
         show_pending_links(bot, user_id)
     elif response == 'загрузить таблицу' and str(user_id) in sapa_admin:
-        msg = bot.send_message(user_id, "Пожалуйста, загрузите Excel файл с данными участников.")
-        bot.register_next_step_handler(msg, upload_sapa_table, bot)
+        # msg = bot.send_message(user_id, "Пожалуйста, загрузите Excel файл с данными участников.")
+        # bot.register_next_step_handler(msg, upload_sapa_table, bot)
+        bot.send_message(message.chat.id, "Еще в разработке")
+        bot.send_message(message.chat.id, "Пожалуйста вернитесь в главное меню. Написав команду '/menu'")
     elif response == 'загрузить ссылку/фото':
         msg = bot.send_message(user_id, "Пожалуйста отправьте ссылку/фото:")
         bot.register_next_step_handler(msg, upload_link, bot)

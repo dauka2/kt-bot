@@ -558,8 +558,10 @@ def sapa_instruments(message, bot):
     elif response == 'сілтемелерді бағалау' and str(user_id) in sapa_admin:
         show_pending_links(bot, user_id)
     elif response == 'кестені жүктеу' and str(user_id) in sapa_admin:
-        msg = bot.send_message(user_id, "Қатысушының деректері бар Excel файлын жүктеңіз.")
-        bot.register_next_step_handler(msg, upload_sapa_table, bot)
+        # msg = bot.send_message(user_id, "Қатысушының деректері бар Excel файлын жүктеңіз.")
+        # bot.register_next_step_handler(msg, upload_sapa_table, bot)
+        bot.send_message(message.chat.id, "Әлі дамуда...")
+        bot.send_message(message.chat.id, "'/menu'-деп жазып негізгі мәзірге оралыңыз.")
     elif response == 'сілтемені/фотосуретті жүктеу':
         msg = bot.send_message(user_id, "Сілтемені/фотосуретті жіберіңіз:")
         bot.register_next_step_handler(msg, upload_link, bot)
