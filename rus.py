@@ -570,7 +570,7 @@ def sapa_main_menu(message, bot):
 
     elif choice == 'инструкции, техническая поддержка и точки передачи':
         # Меню с четырьмя дополнительными кнопками
-        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         markup.add(types.KeyboardButton('Инструкция по установке модема'))
         markup.add(types.KeyboardButton('Пункты выдачи роутеров SAPA+'))
         markup.add(types.KeyboardButton('Чат бот по техническим вопросам/ОДС'))
@@ -604,7 +604,7 @@ def sapa_instruments(message, bot):
         msg = bot.send_message(user_id, "Пожалуйста отправьте ссылку/фото:")
         bot.register_next_step_handler(msg, upload_link, bot)
     elif response == 'назад':
-        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         markup.add(types.KeyboardButton('Бонусная система SAPA+'),
                    types.KeyboardButton('Инструкции, техническая поддержка и точки передачи'))
 
