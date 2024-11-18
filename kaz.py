@@ -530,7 +530,7 @@ def sapa_main_menu(message, bot):
 
     elif choice == 'нұсқаулар, техникалық қолдау және табыстау нүктелері':
         # Меню с четырьмя дополнительными кнопками
-        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         markup.add(types.KeyboardButton('Модемді орнату бойынша нұсқаулық'))
         markup.add(types.KeyboardButton('Sapa+ маршрутизаторларын беру пункттері'))
         markup.add(types.KeyboardButton('Техникалық мәселелер бойынша чат боты/ ОДС'))
