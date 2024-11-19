@@ -1,7 +1,7 @@
 from telebot import types
 import psycopg2
 
-TOKEN = '6684043919:AAFq7pz10dG01UR8MkeIHY4JphE1pjmnzxQ'
+TOKEN = '6145415028:AAEdgPMvSsi3FJw2ccyzWf2QiJrPa_Ycz0A'
 admins_id = ['760906879', '1066191569', '6682886650', '353845928']
 
 def execute_get_sql_query(sql_query, params=None):
