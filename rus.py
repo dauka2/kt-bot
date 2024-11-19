@@ -1281,6 +1281,12 @@ def call_back(bot, call):
                 link_type = parts[0].lower()
                 link_id = parts[1]
 
+                # Удаление кнопок после выбора
+                try:
+                    bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id, reply_markup=None)
+                except Exception as e:
+                    bot.send_message(call.message.chat.id, f"Ошибка при удалении кнопок: {e}")
+
                 bonus_points = {
                     "фото": 200,
                     "отзыв": 1000,

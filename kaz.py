@@ -261,7 +261,7 @@ def get_markup(message):
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
     if check_id(str(message.chat.id)):
         markup.add(types.KeyboardButton("Админ панель"))
-    button1 = types.KeyboardButton(hse_competition_field[0])
+    # button1 = types.KeyboardButton(hse_competition_field[0])
     # button2 = types.KeyboardButton("🚀Цифрлық марафон | Тіркеу")
     button10 = types.KeyboardButton('📶SAPA+')
     button9 = types.KeyboardButton("📄Декларацияны тапсыруды растау")
@@ -272,7 +272,7 @@ def get_markup(message):
     button6 = types.KeyboardButton("🧐Менің профилім")
     button7 = types.KeyboardButton('🖥Портал "Бірлік"')
     button8 = types.KeyboardButton(lte_[0])
-    markup.add(button10, button1, button9, button)
+    markup.add(button10, button9, button)
     #markup.add(button1, button9, button2, button)
     if get_branch(message.chat.id) == branches[2]:
         markup.add(button8)
@@ -1191,6 +1191,13 @@ def call_back(bot, call):
             if len(parts) == 2 and parts[1].isdigit():
                 link_type = parts[0].lower()
                 link_id = parts[1]
+
+                # Удаление кнопок после выбора
+                try:
+                    bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                                                  reply_markup=None)
+                except Exception as e:
+                    bot.send_message(call.message.chat.id, f"Ошибка при удалении кнопок: {e}")
 
                 bonus_points = {
                     "фото": 200,
