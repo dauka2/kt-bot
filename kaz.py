@@ -555,7 +555,7 @@ def sapa_instruments(message, bot):
             menu(bot, message)
             return True
     elif response == 'көшбасшылар тақтасы':
-        bot.send_message(message.chat.id, "</b>Бағалардың қайталануына рейтингті тексеру нәтижесінде ұпайларды қайта есептеу жүргізілді.</b>")
+        bot.send_message(message.chat.id, "<b>Бағалардың қайталануына рейтингті тексеру нәтижесінде ұпайларды қайта есептеу жүргізілді.</b>")
         display_leaderboard(bot, message)
     elif response == 'сілтемелерді бағалау' and str(user_id) in sapa_admin:
         show_pending_links(bot, user_id)
