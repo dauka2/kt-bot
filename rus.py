@@ -598,7 +598,7 @@ def sapa_instruments(message, bot):
             menu(bot, message)
             return True
     elif response == 'таблица лидеров':
-        bot.send_message(message.chat.id, "В результате проверки рейтинга на дублирование оценок произведен пересчет баллов..")
+        bot.send_message(message.chat.id, "</b>В результате проверки рейтинга на дублирование оценок произведен пересчет баллов.</b>")
         display_leaderboard(bot, message)
     elif response == 'оценка ссылок' and str(user_id) in sapa_admin:
         show_pending_links(bot, user_id)
