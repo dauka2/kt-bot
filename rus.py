@@ -565,7 +565,7 @@ def sapa_main_menu(message, bot):
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
         if str(user_id) in sapa_admin:
             markup.add(types.KeyboardButton('Оценка ссылок'), types.KeyboardButton('Загрузить таблицу'))
-        #else:
+        else:
             markup.add(types.KeyboardButton('Загрузить ссылку/фото'))
         markup.add(types.KeyboardButton('Таблица лидеров'), types.KeyboardButton('Назад'))
 
@@ -598,6 +598,7 @@ def sapa_instruments(message, bot):
             menu(bot, message)
             return True
     elif response == 'таблица лидеров':
+        bot.send_message(message.chat.id, "В результате проверки рейтинга на дублирование оценок произведен пересчет баллов..")
         display_leaderboard(bot, message)
     elif response == 'оценка ссылок' and str(user_id) in sapa_admin:
         show_pending_links(bot, user_id)
