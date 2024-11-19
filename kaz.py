@@ -1180,7 +1180,6 @@ def kaz_get_status(message, appeal_id):
         return "Өтініш қабылданды"
     return status
 
-
 def call_back(bot, call):
     user_id = call.from_user.id
     response = call.data  # Assuming the response comes through call.data

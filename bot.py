@@ -16,7 +16,7 @@ from sapa import get_photo_by_id, update_total_score_by_id
 
 bot = telebot.TeleBot(db_connect.TOKEN, parse_mode="HTML")
 admin_id = ['484489968', '760906879', '577247261', '204504707', '531622371', '6682886650', '1066191569', '353845928']
-AUTHORIZED_USER_IDS = [1066191569, 510122980]
+AUTHORIZED_USER_IDS = [1066191569, 510122980, 353845928]
 branches = ['Центральный Аппарат', 'Обьединение Дивизион "Сеть"', 'Дивизион по Розничному Бизнесу',
             'Дивизион по Корпоративному Бизнесу', 'Корпоративный Университет', 'Дивизион Информационных Технологий',
             'Дирекция Телеком Комплект', 'Дирекция Управления Проектами',
@@ -1115,6 +1115,9 @@ def ask_for_photo_id(message):
 
 @bot.message_handler(commands=['get_sapa_edit'])
 def get_sapa_edit(message):
+    if message.chat.id not in AUTHORIZED_USER_IDS:
+        bot.reply_to(message, "У вас нет доступа к этой команде.")
+        return
     bot.send_message(message.chat.id, "Укажите ID:")
     bot.register_next_step_handler(message, process_user_id)
 

@@ -28,7 +28,7 @@ from lteClass import add_internal_sale, set_subscriber_type, set_category_i_s, s
 from performerClass import get_performer_by_category, get_regions, list_categories, get_categories_by_parentcategory, \
     get_performer_id_by_category, get_subsubcategories_by_subcategory, \
     get_performer_by_category_and_subcategory, get_performer_by_subsubcategory, get_performers_
-from sapa import get_photo_by_id, update_total_score_by_id
+from sapa import get_photo_by_id
 from userClass import get_branch, get_firstname, get_user, generate_and_save_code, get_email, \
     set_email, verification_timers, get_saved_verification_code, get_lastname, get_phone_number, \
     get_user_verification_status, check_if_registered, delete_participation, check_registration_message_in_history, \
@@ -241,18 +241,18 @@ branches = ['Центральный Аппарат', 'Объединение Д�
             'Дирекция Телеком Комплект', 'Дирекция Управления Проектами',
             'Сервисная Фабрика']
 
-'''branches_admin = [
-    {'branch': 'Центральный Аппарат', 'sapa_admin': '353845928'},
-    {'branch': 'Обьединение Дивизион "Сеть"', 'sapa_admin': '353845928'},
-    {'branch': 'Дивизион по Розничному Бизнесу', 'sapa_admin': '353845928'},
-    {'branch': 'Дивизион по Корпоративному Бизнесу', 'sapa_admin': '353845928'},
-    {'branch': 'Корпоративный Университет', 'sapa_admin': '1066191569'},
-    {'branch': 'Дивизион Информационных Технологий', 'sapa_admin': '353845928'},
-    {'branch': 'Дирекция Телеком Комплект', 'sapa_admin': '353845928'},
-    {'branch': 'Дирекция Управления Проектами', 'sapa_admin': '353845928'},
-    {'branch': 'Сервисная Фабрика', 'sapa_admin': '353845928'}
-]
-'''
+# branches_admin = [
+#     {'branch': 'Центральный Аппарат', 'sapa_admin': '353845928'},
+#     {'branch': 'Обьединение Дивизион "Сеть"', 'sapa_admin': '353845928'},
+#     {'branch': 'Дивизион по Розничному Бизнесу', 'sapa_admin': '353845928'},
+#     {'branch': 'Дивизион по Корпоративному Бизнесу', 'sapa_admin': '353845928'},
+#     {'branch': 'Корпоративный Университет', 'sapa_admin': '1066191569'},
+#     {'branch': 'Дивизион Информационных Технологий', 'sapa_admin': '353845928'},
+#     {'branch': 'Дирекция Телеком Комплект', 'sapa_admin': '353845928'},
+#     {'branch': 'Дирекция Управления Проектами', 'sapa_admin': '353845928'},
+#     {'branch': 'Сервисная Фабрика', 'sapa_admin': '353845928'}
+# ]
+
 
 branches_admin = [
      {'branch': 'Центральный Аппарат', 'sapa_admin': '735766161'},
@@ -268,7 +268,7 @@ branches_admin = [
      {'branch': 'Дирекция Телеком Комплект', 'sapa_admin': '597334185'},
      {'branch': 'Дирекция Управления Проектами', 'sapa_admin': '947621727'},
      {'branch': 'Сервисная Фабрика', 'sapa_admin': '477945972'}
- ]
+]
 
 def get_markup(message):
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
@@ -565,8 +565,8 @@ def sapa_main_menu(message, bot):
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
         if str(user_id) in sapa_admin:
             markup.add(types.KeyboardButton('Оценка ссылок'), types.KeyboardButton('Загрузить таблицу'))
-        else:
-           markup.add(types.KeyboardButton('Загрузить ссылку/фото'))
+        #else:
+            markup.add(types.KeyboardButton('Загрузить ссылку/фото'))
         markup.add(types.KeyboardButton('Таблица лидеров'), types.KeyboardButton('Назад'))
 
         bot.send_message(user_id, "Выберите одно из действий в меню:", reply_markup=markup)
