@@ -12,7 +12,7 @@ import maraphonersClass
 import rus
 import userClass
 import user_infoClass
-from sapa import get_photo_by_id
+from sapa import get_photo_by_id, update_total_score_by_id
 
 bot = telebot.TeleBot(db_connect.TOKEN, parse_mode="HTML")
 admin_id = ['484489968', '760906879', '577247261', '204504707', '531622371', '6682886650', '1066191569', '353845928']
@@ -1112,6 +1112,35 @@ def ask_for_photo_id(message):
 #         bot.reply_to(message, "Пожалуйста, введите корректный ID.")
 #     except Exception as e:
 #         bot.reply_to(message, f"Произошла ошибка: {e}")
+
+@bot.message_handler(commands=['get_sapa_edit'])
+def get_sapa_edit(message):
+    bot.send_message(message.chat.id, "Укажите ID:")
+    bot.register_next_step_handler(message, process_user_id)
+
+def process_user_id(message):
+    try:
+        user_id = int(message.text)  # Преобразуем введённый текст в число
+        bot.send_message(message.chat.id, f"Вы ввели ID: {user_id}. Введите изменения (новое значение total_score и bonus_score):")
+        # Передаем user_id в следующую функцию
+        bot.register_next_step_handler(message, process_new_total_score, user_id)
+    except ValueError:
+        bot.send_message(message.chat.id, "ID должен быть числом. Попробуйте ещё раз, используя /get_sapa_edit.")
+        print("Ошибка: Введённое значение не является числом.")
+
+# Обработка нового значения total_score
+def process_new_total_score(message, user_id):
+    try:
+        new_total_score = int(message.text)  # Преобразуем введённый текст в число
+        result = update_total_score_by_id(user_id, new_total_score)
+        bot.send_message(message.chat.id, result)
+        print(f"total_score и bonus_score для ID {user_id} успешно обновлены до {new_total_score}.")
+    except ValueError:
+        bot.send_message(message.chat.id, "Новое значение total_score должно быть числом. Попробуйте ещё раз.")
+        print("Ошибка: Введённое значение не является числом.")
+    except Exception as e:
+        bot.send_message(message.chat.id, f"Произошла ошибка: {e}")
+        print(f"Ошибка при обновлении: {e}")
 
 
 @bot.message_handler(commands=['get_sales'])
