@@ -1323,7 +1323,7 @@ def call_back(bot, call):
                     "фото": 200,
                     "отзыв": 1000,
                     "пост": 1000,
-                    " ls": 500,
+                    "reels": 500,
                     "ничего": 0
                 }
                 new_bonus_score = bonus_points.get(link_type, 0)
