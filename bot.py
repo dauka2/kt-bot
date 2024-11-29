@@ -1145,6 +1145,31 @@ def process_new_total_score(message, user_id):
         bot.send_message(message.chat.id, f"Произошла ошибка: {e}")
         print(f"Ошибка при обновлении: {e}")
 
+@bot.message_handler(commands=['reset_sapa_scores'])
+def reset_all_scores(message):
+    if message.chat.id not in AUTHORIZED_USER_IDS:
+        bot.reply_to(message, "У вас нет доступа к этой команде.")
+        return
+
+    try:
+        result = reset_all_scores_to_zero()
+        bot.send_message(message.chat.id, result)
+        print("Все `bonus_score` и `total_score` успешно сброшены до 0.")
+    except Exception as e:
+        bot.send_message(message.chat.id, f"Произошла ошибка: {e}")
+        print(f"Ошибка при сбросе всех значений: {e}")
+
+def reset_all_scores_to_zero():
+    try:
+        sql_query = """
+        UPDATE sapa_bonus
+        SET bonus_score = 0, total_score = 0;
+        """
+        db_connect.execute_set_sql_query(sql_query)
+        return "Все значения `bonus_score` и `total_score` успешно обновлены до 0."
+    except Exception as e:
+        raise Exception(f"Ошибка при обновлении записей: {e}")
+
 
 @bot.message_handler(commands=['get_sales'])
 def get_excel(message):
