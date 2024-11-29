@@ -63,7 +63,7 @@ def create_db():
     cur.execute(
         'CREATE TABLE IF NOT EXISTS sapa_bonus(id serial primary key, fullname varchar(500), email varchar(50), bonus_score int DEFAULT 0, total_score int DEFAULT 0)')
     cur.execute(
-        'CREATE TABLE IF NOT EXISTS sapa_link(id serial primary key, email varchar(50), link varchar(500), branch varchar(50), is_checked bool DEFAULT FALSE, status varchar(50), image_data bytea)')
+        'CREATE TABLE IF NOT EXISTS sapa_link(id serial primary key, email varchar(50), link varchar(500), branch varchar(50), is_checked bool DEFAULT FALSE, status varchar(50), image_data bytea, date timestamp)')
     cur.execute(
         'CREATE TABLE IF NOT EXISTS performers('
         'id serial primary key, '
@@ -153,6 +153,14 @@ def sapa_test_():
     sql_query += "ALTER TABLE sapa_bonus INSERT INTO fullname 'qwerty'"
     execute_set_sql_query(sql_query)
 
+def sapa_test1():
+    sql_query = "ALTER TABLE sapa_link ADD COLUMN date timestamp"
+    execute_set_sql_query(sql_query)
+
+def sapa_test2():
+    sql_query = "UPDATE sapa_link SET date = '2024-11-29 11:40:06' WHERE date IS NULL "
+    execute_set_sql_query(sql_query)
+
 def sapa_test__():
     sql_query = "DROP TABLE IF EXISTS sapa_link"
     execute_set_sql_query(sql_query)
@@ -194,8 +202,8 @@ def delete_verif_columns():
     execute_set_sql_query(sql_query)
 
 def update_sapa():
-    sql_query = "ALTER TABLE sapa_bonus ALTER COLUMN bonus_score SET DEFAULT 0; "
-    sql_query += "ALTER TABLE sapa_bonus ALTER COLUMN total_score SET DEFAULT 0; "
+    sql_query = "UPDATE TABLE sapa_bonus ALTER COLUMN bonus_score SET DEFAULT 0; "
+    sql_query += "UPDATE TABLE sapa_bonus ALTER COLUMN total_score SET DEFAULT 0; "
     execute_set_sql_query(sql_query)
 
 def update_verification_columns():

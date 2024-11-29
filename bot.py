@@ -906,6 +906,11 @@ def get_excel(message):
     db_connect.sapa_test1()
     bot.send_message(message.chat.id, "Изменения сохранены")
 
+@bot.message_handler(commands=['get_sapa_test2'])
+def get_excel(message):
+    db_connect.sapa_test2()
+    bot.send_message(message.chat.id, "Изменения сохранены")
+
 @bot.message_handler(commands=['get_sapa_'])
 def get_excel(message):
     db_connect.sapa_test__()
