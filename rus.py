@@ -663,7 +663,7 @@ def additional_info_handler(message, bot):
         )
         bot.register_next_step_handler(message, additional_info_handler, bot)
     elif info_request == 'пункты выдачи роутеров sapa+':
-        bot.send_document(user_id, open("files/Пункты выдачи по городам РК.pdf", 'rb'))
+        bot.send_document(user_id, open("files/Пункты_выдачи_и_обучение_мегалайнеров_SAPAplus.pdf", 'rb'))
         bot.register_next_step_handler(message, additional_info_handler, bot)
     elif info_request == 'чат бот по техническим вопросам/одс':
         bot.send_message(user_id, "Ссылка для подключению к боту: https://t.me/C_M_S_bot")
