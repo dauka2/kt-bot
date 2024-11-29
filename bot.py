@@ -901,6 +901,11 @@ def get_excel(message):
     sql_query = "SELECT * from sapa_link"
     common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
 
+@bot.message_handler(commands=['get_sapa_test1'])
+def get_excel(message):
+    db_connect.sapa_test1()
+    bot.send_message(message.chat.id, "Изменения сохранены")
+
 @bot.message_handler(commands=['get_sapa_'])
 def get_excel(message):
     db_connect.sapa_test__()
@@ -1150,7 +1155,6 @@ def reset_all_scores(message):
     if message.chat.id not in AUTHORIZED_USER_IDS:
         bot.reply_to(message, "У вас нет доступа к этой команде.")
         return
-
     try:
         result = reset_all_scores_to_zero()
         bot.send_message(message.chat.id, result)
@@ -1158,7 +1162,6 @@ def reset_all_scores(message):
     except Exception as e:
         bot.send_message(message.chat.id, f"Произошла ошибка: {e}")
         print(f"Ошибка при сбросе всех значений: {e}")
-
 def reset_all_scores_to_zero():
     try:
         sql_query = """

@@ -728,11 +728,11 @@ def upload_link(message, bot):
                 bot.send_message(user_id, "Ошибка: email или филиал не найден.")
                 return
 
-            # Сохранение ссылки с актуальным branch пользователя
+            # Сохранение ссылки с актуальной датой и branch пользователя
             db_connect.execute_set_sql_query("""
-                INSERT INTO sapa_link (email, link, is_checked, status, branch) 
-                VALUES (%s, %s, FALSE, NULL, %s)
-                """, (email, link, branch))
+                INSERT INTO sapa_link (email, link, is_checked, status, branch, date) 
+                VALUES (%s, %s, FALSE, NULL, %s, NOW())
+            """, (email, link, branch))
 
             # Проверяем и добавляем пользователя в sapa_bonus, если его нет
             check_user_query = "SELECT * FROM sapa_bonus WHERE email = %s"
@@ -749,7 +749,7 @@ def upload_link(message, bot):
                         VALUES (%s, %s, 0, 0)
                     """, (email, fullname))
 
-            bot.send_message(user_id, "Фотография успешно загружена! Ожидайте проверки.")
+            bot.send_message(user_id, "Ссылка успешно загружена! Ожидайте проверки.")
 
             bot.send_message(user_id, "Вы будете перенаправлены в главное меню SAPA+")
             markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
@@ -782,10 +782,10 @@ def upload_link(message, bot):
                 bot.send_message(user_id, "Ошибка: email или филиал не найден.")
                 return
 
-            # Сохранение фото с актуальным branch пользователя
+            # Сохранение фото с актуальной датой и branch пользователя
             db_connect.execute_set_sql_query("""
-                INSERT INTO sapa_link (email, link, is_checked, status, image_data, branch) 
-                VALUES (%s, NULL, FALSE, NULL, %s, %s)
+                INSERT INTO sapa_link (email, link, is_checked, status, image_data, branch, date) 
+                VALUES (%s, NULL, FALSE, NULL, %s, %s, NOW())
             """, (email, file_data, branch))
 
             check_user_query = "SELECT * FROM sapa_bonus WHERE email = %s"
