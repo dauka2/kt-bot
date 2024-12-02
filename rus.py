@@ -271,8 +271,8 @@ branches = ['Центральный Аппарат', 'Объединение Д�
 #      {'branch': 'Сервисная Фабрика', 'sapa_admin': '477945972'}
 # ]
 
-# branches_admin = 735766161
-branches_admin = 1066191569
+branches_admin = 735766161
+# branches_admin = 1066191569
 
 def get_markup(message):
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
