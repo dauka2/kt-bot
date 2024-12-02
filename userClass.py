@@ -193,17 +193,6 @@ def check_if_registered_reg(user_id):
         return True
     return False
 
-# def check_if_registered(user_id):
-#     sql_query = "SELECT COUNT(*) FROM financial_literacy WHERE user_id = %s"
-#     params = (user_id,)
-#     result = execute_get_sql_query(sql_query, params)
-#
-#     # Проверяем, что результат не пустой и содержит данные
-#     if result and result[0][0] > 0:
-#         return True
-#     else:
-#         return False
-
 def get_users_id():
     sql_query = 'SELECT id FROM users'
     users = execute_get_sql_query(sql_query)

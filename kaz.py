@@ -244,20 +244,23 @@ branches = ['Центральный Аппарат', 'Обьединение Д�
 #     {'branch': 'Сервисная Фабрика', 'sapa_admin': '353845928'}
 # ]
 
-branches_admin = [
-    # {'branch': 'Центральный Аппарат', 'sapa_admin': '735766161'},
-    {'branch': 'Центральный Аппарат', 'sapa_admin': '559872057'},
-    # {'branch': 'Центральный Аппарат', 'sapa_admin': '1009867354'},
-    # {'branch': 'Обьединение Дивизион "Сеть"', 'sapa_admin': '1621516433'},
-    {'branch': 'Обьединение Дивизион "Сеть"', 'sapa_admin': '735766161'},
-    {'branch': 'Дивизион по Розничному Бизнесу', 'sapa_admin': '531622371'},
-    {'branch': 'Дивизион по Корпоративному Бизнесу', 'sapa_admin': '468270698'},
-    {'branch': 'Корпоративный Университет', 'sapa_admin': '476878708'},
-    {'branch': 'Дивизион Информационных Технологий', 'sapa_admin': '577247261'},
-    {'branch': 'Дирекция Телеком Комплект', 'sapa_admin': '597334185'},
-    {'branch': 'Дирекция Управления Проектами', 'sapa_admin': '947621727'},
-    {'branch': 'Сервисная Фабрика', 'sapa_admin': '477945972'}
-]
+# branches_admin = [
+#     # {'branch': 'Центральный Аппарат', 'sapa_admin': '735766161'},
+#     {'branch': 'Центральный Аппарат', 'sapa_admin': '559872057'},
+#     # {'branch': 'Центральный Аппарат', 'sapa_admin': '1009867354'},
+#     # {'branch': 'Обьединение Дивизион "Сеть"', 'sapa_admin': '1621516433'},
+#     {'branch': 'Обьединение Дивизион "Сеть"', 'sapa_admin': '735766161'},
+#     {'branch': 'Дивизион по Розничному Бизнесу', 'sapa_admin': '531622371'},
+#     {'branch': 'Дивизион по Корпоративному Бизнесу', 'sapa_admin': '468270698'},
+#     {'branch': 'Корпоративный Университет', 'sapa_admin': '476878708'},
+#     {'branch': 'Дивизион Информационных Технологий', 'sapa_admin': '577247261'},
+#     {'branch': 'Дирекция Телеком Комплект', 'sapa_admin': '597334185'},
+#     {'branch': 'Дирекция Управления Проектами', 'sapa_admin': '947621727'},
+#     {'branch': 'Сервисная Фабрика', 'sapa_admin': '477945972'}
+# ]
+
+# branches_admin = 735766161
+branches_admin = 1066191569
 
 def get_markup(message):
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
@@ -559,7 +562,7 @@ def sapa_instruments(message, bot):
     elif response == 'көшбасшылар тақтасы':
         display_leaderboard(bot, message)
     elif response == 'сілтемелерді бағалау' and str(user_id) in sapa_admin:
-        show_pending_links(bot, user_id)
+        show_pending_links(message, bot)
     elif response == 'кестені жүктеу' and str(user_id) in sapa_admin:
         # msg = bot.send_message(user_id, "Қатысушының деректері бар Excel файлын жүктеңіз.")
         # bot.register_next_step_handler(msg, upload_sapa_table, bot)
@@ -875,38 +878,28 @@ def display_leaderboard(bot, message):
     bot.register_next_step_handler(msg, sapa_main_menu, bot)
 
 # Функция для отображения ссылок для администратора с фильтрацией по branch
-def show_pending_links(bot, admin_user_id):
+def show_pending_links(message, bot):
     try:
-        # Логика получения филиала администратора
-        admin_branch = None
-        for branch_info in branches_admin:
-            if branch_info['sapa_admin'] == str(admin_user_id):
-                admin_branch = branch_info['branch']
-                break
-
-        if not admin_branch:
-            bot.send_message(admin_user_id, "Қате: әкімші филиалы табылмады.")
+        if message.chat.id != branches_admin:
+            bot.send_message(message.chat.id, "Қате: әкімші филиалы табылмады.")
             return
 
-        # Получаем ссылки или фотографии, отправленные пользователями с тем же branch
+            # Fetch links associated with the admin's branch, not the user's current branch
         result = db_connect.execute_get_sql_query("""
-            SELECT id, link, image_data 
-            FROM sapa_link 
-            WHERE is_checked = FALSE 
-            AND email IN (
-                SELECT email FROM users WHERE branch = %s
-            )
-            ORDER BY id 
-            LIMIT 1
-        """, (admin_branch,))
+                SELECT id, link, image_data 
+                FROM sapa_link 
+                WHERE is_checked = FALSE 
+                ORDER BY id 
+                LIMIT 1
+            """)
 
         if result:
             for row in result:
                 link_id, link, image_data = row
                 if link:
-                    bot.send_message(admin_user_id, f"Сілтеме: {link}")
+                    bot.send_message(message.chat.id, f"Сілтеме: {link}")
                 elif image_data:
-                    bot.send_photo(admin_user_id, image_data)
+                    bot.send_photo(message.chat.id, image_data)
 
                 # Инлайн-клавиатура для оценок
                 markup = types.InlineKeyboardMarkup(row_width=2)
@@ -919,13 +912,13 @@ def show_pending_links(bot, admin_user_id):
                 ]
                 markup.add(*buttons)
 
-                bot.send_message(admin_user_id, "Әрекетті таңдаңыз:", reply_markup=markup)
+                bot.send_message(message.chat.id, "Әрекетті таңдаңыз:", reply_markup=markup)
         else:
-            bot.send_message(admin_user_id, "Қазіргі уақытта тексеру үшін жаңа сілтемелер немесе фотосуреттер жоқ.")
-            msg = bot.send_message(admin_user_id, "Төменде қол жетімді опциялардың бірін таңдаңыз:")
+            bot.send_message(message.chat.id, "Қазіргі уақытта тексеру үшін жаңа сілтемелер немесе фотосуреттер жоқ.")
+            msg = bot.send_message(message.chat.id, "Төменде қол жетімді опциялардың бірін таңдаңыз:")
             bot.register_next_step_handler(msg, sapa_instruments, bot)
     except Exception as e:
-        bot.send_message(admin_user_id, f"Сілтемелерді алу кезінде қате: {e}")
+        bot.send_message(message.chat.id, f"Сілтемелерді алу кезінде қате: {e}")
 
 def upload_sapa_table(message, bot):
     bot.send_message(message.chat.id, "Әлі де дамуда...")
