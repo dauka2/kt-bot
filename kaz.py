@@ -687,6 +687,8 @@ def upload_link(message, bot):
             db_connect.execute_set_sql_query("""
                 INSERT INTO sapa_link (email, link, is_checked, status, branch) 
                 VALUES (%s, %s, FALSE, NULL, %s)
+                INSERT INTO sapa_link (email, link, is_checked, status, branch, date) 
+                VALUES (%s, %s, FALSE, NULL, %s, NOW())
                 """, (email, link, branch))
 
             # Проверяем и добавляем пользователя в sapa_bonus, если его нет
@@ -740,6 +742,8 @@ def upload_link(message, bot):
             db_connect.execute_set_sql_query("""
                 INSERT INTO sapa_link (email, link, is_checked, status, image_data, branch) 
                 VALUES (%s, NULL, FALSE, NULL, %s, %s)
+                INSERT INTO sapa_link (email, link, is_checked, status, image_data, branch, date) 
+                VALUES (%s, NULL, FALSE, NULL, %s, %s, NOW())
             """, (email, file_data, branch))
 
             check_user_query = "SELECT * FROM sapa_bonus WHERE email = %s"
