@@ -2145,7 +2145,7 @@ def instructions(bot, message):
         bot.send_document(message.chat.id, open("files/Аннотация Инструкция для работы с измерительным прибором.pdf", "rb"))
     elif message.text == "Қашықтан курстарды оқуға арналған нұсқаулық":
         bot.send_document(message.chat.id,
-                          open("files/Инструкция для прохождения дистанционных курсов на портале LMS каз.яз.pptx", "rb"))
+                          open("files/Инструкция для прохождения дистанционных курсов на портале LMS - 2.jpg", "rb"))
 
 
 def kb(bot, message):
