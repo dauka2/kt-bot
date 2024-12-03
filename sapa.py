@@ -24,7 +24,7 @@ def recalculate_scores():
                 END
             ) as total_score
             FROM sapa_link
-            WHERE date >= '2024-12-03 9:36:00' AND is_checked = TRUE
+            WHERE date >= '2024-12-01 00:00:00' AND is_checked = TRUE
             GROUP BY email
         """)
         scores = cur.fetchall()
