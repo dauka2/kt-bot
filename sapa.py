@@ -4,6 +4,65 @@ import psycopg2
 
 from db_connect import execute_get_sql_query, execute_set_sql_query
 
+def recalculate_scores():
+    """
+    Пересчитывает баллы пользователей с декабря и обновляет таблицу sapa_bonus.
+    Учитывает только записи с is_checked='True' и распределяет баллы по статусу.
+    """
+    try:
+        conn = psycopg2.connect(host='db', user="postgres", password="postgres", database="postgres")
+        cur = conn.cursor()
+
+        # Получаем сумму баллов пользователей из sapa_links с фильтром
+        cur.execute("""
+            SELECT email, SUM(
+                CASE
+                    WHEN status = 'пост1' THEN 500
+                    WHEN status = 'пост' THEN 1000
+                    WHEN status = 'отзыв' THEN 1000
+                    WHEN status = 'ничего' THEN 0
+                END
+            ) as total_score
+            FROM sapa_link
+            WHERE date >= '2024-12-03 9:36:00' AND is_checked = TRUE
+            GROUP BY email
+        """)
+        scores = cur.fetchall()
+
+        if not scores:
+            return "Нет данных для обновления."
+
+        # Обновляем или вставляем данные в sapa_bonus
+        for email, total_score in scores:
+            # Проверяем, существует ли запись
+            cur.execute("SELECT 1 FROM sapa_bonus WHERE email = %s", (email,))
+            if cur.fetchone():
+                # Если запись существует, обновляем
+                cur.execute("""
+                    UPDATE sapa_bonus
+                    SET total_score = %s, bonus_score = %s
+                    WHERE email = %s
+                """, (total_score, total_score, email))
+            else:
+                # Если записи нет, вставляем
+                cur.execute("""
+                    INSERT INTO sapa_bonus (email, total_score)
+                    VALUES (%s, %s)
+                """, (email, total_score))
+
+        # Подтверждаем изменения
+        conn.commit()
+
+        return f"Баллы успешно пересчитаны для {len(scores)} пользователей."
+    except Exception as e:
+        print(f"Ошибка при обновлении баллов: {e}")
+        return f"Ошибка при обновлении баллов: {e}"
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
+
 def get_photo_by_id(photo_id):
     try:
         # Подключение к базе данных

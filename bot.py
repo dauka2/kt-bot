@@ -12,7 +12,7 @@ import maraphonersClass
 import rus
 import userClass
 import user_infoClass
-from sapa import update_total_score_by_id
+from sapa import update_total_score_by_id, recalculate_scores
 
 bot = telebot.TeleBot(db_connect.TOKEN, parse_mode="HTML")
 admin_id = ['484489968', '760906879', '577247261', '204504707', '531622371', '6682886650', '1066191569', '353845928', '510122980', '309419454', '735766161']
@@ -1177,7 +1177,17 @@ def reset_all_scores_to_zero():
         return "Все значения `bonus_score` и `total_score` успешно обновлены до 0."
     except Exception as e:
         raise Exception(f"Ошибка при обновлении записей: {e}")
-
+    
+    
+@bot.message_handler(commands=["get_update_scores"])
+def start_update_scores(message):
+    bot.send_message(message.chat.id, "Пересчитываю баллы с декабря...")
+    try:
+        result = recalculate_scores()
+        bot.send_message(message.chat.id, result)
+    except Exception as e:
+        bot.send_message(message.chat.id, f"Произошла ошибка: {e}")
+        
 
 @bot.message_handler(commands=['get_sales'])
 def get_excel(message):
