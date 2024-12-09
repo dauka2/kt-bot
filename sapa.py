@@ -17,9 +17,10 @@ def recalculate_scores():
         cur.execute("""
             SELECT email, SUM(
                 CASE
-                    WHEN status = 'пост1' THEN 500
+                    WHEN status = 'фото' THEN 200
                     WHEN status = 'пост' THEN 1000
                     WHEN status = 'отзыв' THEN 1000
+                    WHEN status = 'reels' THEN 500
                     WHEN status = 'ничего' THEN 0
                 END
             ) as total_score

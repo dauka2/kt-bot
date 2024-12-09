@@ -1187,7 +1187,6 @@ def start_update_scores(message):
         bot.send_message(message.chat.id, result)
     except Exception as e:
         bot.send_message(message.chat.id, f"Произошла ошибка: {e}")
-        
 
 @bot.message_handler(commands=['get_sales'])
 def get_excel(message):
