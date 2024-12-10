@@ -471,7 +471,7 @@ def insert_into_performers_right():
     #                                                     "Людмила", "Нам", "+77009145025", "info.ktcu@telecom.kz", "@"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) '
                 'values (%s, %s, %s, %s, %s, %s, %s)', ("6682886650", "Обучение | Корпоративный Университет",
-                                                        "Тамирлан", "Оспанов", "87081930374", "info.ktcu@telecom.kz",
+                                                        "Даулет", "Марат", "+77788184151", "info.ktcu@telecom.kz",
                                                         "@ktbot_kazakhtelecom"))
     cur.execute("insert into performers (category, email) "
                 "values  (%s, %s)", ('Служба поддержки \"Нысана\"', 'nysana@cscc.kz'))
