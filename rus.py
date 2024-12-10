@@ -634,6 +634,7 @@ def additional_info_handler(message, bot):
             menu(bot, message)
             return True
     elif info_request == 'инструкции':
+        bot.send_message(user_id, "Видеоинструкция по настройке роутера:\nhttps://youtu.be/rgvRczmW6Ng")
         bot.send_message(user_id, "Инструкция для мегалайнера. Помощь в установке роутера для абонента https://youtu.be/0e4Yc5Kdzpo")
         bot.send_document(user_id, open("files/Инструкция_по_подключению_и_настройке_роутера.pdf", 'rb'))
         bot.send_document(user_id, open("files/Создание заявки мегалайнером.pdf", 'rb'))

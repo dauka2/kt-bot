@@ -592,6 +592,7 @@ def additional_info_handler(message, bot):
             menu(bot, message)
             return True
     elif info_request == 'модемді орнату бойынша нұсқаулық':
+        bot.send_message(user_id, "Роутерді баптау бойынша бейненұсқаулық:\nhttps://youtu.be/mpDbJNkRS04")
         bot.send_message(user_id, "Мегалайнерге арналған нұсқаулық. Абонент үшін маршрутизаторды орнатуға көмек https://youtu.be/0e4Yc5Kdzpo")
         bot.send_document(user_id, open("files/Инструкция_по_подключению_и_настройке_роутера.pdf", 'rb'))
         bot.send_document(user_id, open("files/Создание заявки мегалайнером.pdf", 'rb'))
