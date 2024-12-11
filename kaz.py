@@ -906,10 +906,9 @@ def show_pending_links(message, bot):
                 # Инлайн-клавиатура для оценок
                 markup = types.InlineKeyboardMarkup(row_width=2)
                 buttons = [
-                    types.InlineKeyboardButton("Фото", callback_data=f'фото {link_id}'),
+                    types.InlineKeyboardButton("Қызметкердің посты/сторис", callback_data=f'пост {link_id}'),
+                    types.InlineKeyboardButton("Клиенттің посты/сторис", callback_data=f'пост1 {link_id}'),
                     types.InlineKeyboardButton("Пікір", callback_data=f'отзыв {link_id}'),
-                    types.InlineKeyboardButton("Пост", callback_data=f'пост {link_id}'),
-                    types.InlineKeyboardButton("Reels", callback_data=f'reels {link_id}'),
                     types.InlineKeyboardButton("Ештеңе", callback_data=f'ничего {link_id}')
                 ]
                 markup.add(*buttons)
@@ -1208,7 +1207,7 @@ def call_back(bot, call):
     user_id = call.from_user.id
     response = call.data  # Assuming the response comes through call.data
 
-    if str(user_id) in sapa_admin and response.startswith(('фото', 'отзыв', 'пост', 'reels', 'ничего')):
+    if str(user_id) in sapa_admin and response.startswith(('пост', 'пост1', 'отзыв', 'ничего')):
         try:
             parts = response.split(' ')
             if len(parts) == 2 and parts[1].isdigit():
@@ -1223,10 +1222,9 @@ def call_back(bot, call):
                     bot.send_message(call.message.chat.id, f"Ошибка при удалении кнопок: {e}")
 
                 bonus_points = {
-                    "фото": 200,
-                    "отзыв": 1000,
                     "пост": 1000,
-                    "reels": 500,
+                    "пост1": 500,
+                    "отзыв": 1000,
                     "ничего": 0
                 }
                 new_bonus_score = bonus_points.get(link_type, 0)
