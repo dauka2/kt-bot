@@ -1222,8 +1222,8 @@ def call_back(bot, call):
                     bot.send_message(call.message.chat.id, f"Ошибка при удалении кнопок: {e}")
 
                 bonus_points = {
-                    "пост": 1000,
-                    "пост1": 500,
+                    "пост": 500,
+                    "пост1": 1000,
                     "отзыв": 1000,
                     "ничего": 0
                 }
