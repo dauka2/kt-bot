@@ -541,6 +541,7 @@ def sapa_main_menu(message, bot):
         markup.add(types.KeyboardButton('Sapa+ маршрутизаторларын беру пункттері'))
         markup.add(types.KeyboardButton('Техникалық мәселелер бойынша чат боты/ ОДС'))
         markup.add(types.KeyboardButton('Мегалайнерлерге арналған SAPA+ қолдауы'), types.KeyboardButton('SAPA quest+ чаты'))
+        markup.add(types.KeyboardButton('SAPA+ ДТПК орнату/жылдамдық бойынша көмек'), types.KeyboardButton('SAPA+ абоненттерін тексеру'))
 
         bot.send_message(user_id, "Міне, қажетті ақпарат:", reply_markup=markup)
         bot.register_next_step_handler(message, additional_info_handler, bot)
@@ -636,6 +637,12 @@ def additional_info_handler(message, bot):
         bot.register_next_step_handler(message, additional_info_handler, bot)
     elif info_request == 'sapa quest+ чаты':
         bot.send_message(user_id, "Ақпараттық арнаға сілтеме: https://t.me/+LJl92t3A3NE2MzMy")
+        bot.register_next_step_handler(message, additional_info_handler, bot)
+    elif info_request == 'sapa+ дтпк орнату/жылдамдық бойынша көмек':
+        bot.send_message(user_id, "Ссылка для присоединения к группе: https://t.me/+yVOT2YdR6hAyMjRi")
+        bot.register_next_step_handler(message, additional_info_handler, bot)
+    elif info_request == 'sapa+ абоненттерін тексеру':
+        bot.send_message(user_id, "Ссылка для присоединения к группе: https://t.me/+b2lri21NwEM3YmRi")
         bot.register_next_step_handler(message, additional_info_handler, bot)
     else:
         bot.send_message(user_id, "Опциялардың бірін таңдаңыз.")
