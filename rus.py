@@ -638,6 +638,7 @@ def additional_info_handler(message, bot):
         bot.send_message(user_id, "Видеоинструкция по настройке роутера:\nhttps://youtu.be/rgvRczmW6Ng")
         bot.send_message(user_id, "Инструкция для мегалайнера. Помощь в установке роутера для абонента https://youtu.be/0e4Yc5Kdzpo")
         bot.send_document(user_id, open("files/Инструкция_по_подключению_и_настройке_роутера.pdf", 'rb'))
+        bot.send_document(user_id, open("files/Создание_заявки_мегалайнером+смс_6_тизначный.pdf", 'rb'))
         bot.send_document(user_id, open("files/Создание заявки мегалайнером.pdf", 'rb'))
         bot.send_document(user_id, open("files/Инструкция_пользователя_WFM_инсталлятор.pdf", 'rb'))
         bot.send_photo(
