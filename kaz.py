@@ -539,9 +539,10 @@ def sapa_main_menu(message, bot):
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         markup.add(types.KeyboardButton('Модемді орнату бойынша нұсқаулық'))
         markup.add(types.KeyboardButton('Sapa+ маршрутизаторларын беру пункттері'))
+        markup.add(types.KeyboardButton('SAPA+ абоненттерін тексеру'))
         # markup.add(types.KeyboardButton('Техникалық мәселелер бойынша чат боты/ ОДС'))
         markup.add(types.KeyboardButton('SAPA+QUEST'), types.KeyboardButton('Мегалайнерлерге арналған SAPA+ қолдауы'))
-        markup.add(types.KeyboardButton('SAPA+ ДТПК орнату/жылдамдық бойынша көмек'), types.KeyboardButton('SAPA+ абоненттерін тексеру'))
+        # markup.add(types.KeyboardButton('SAPA+ ДТПК орнату/жылдамдық бойынша көмек'), types.KeyboardButton('SAPA+ абоненттерін тексеру'))
 
         bot.send_message(user_id, "Міне, қажетті ақпарат:", reply_markup=markup)
         bot.register_next_step_handler(message, additional_info_handler, bot)
