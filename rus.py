@@ -581,9 +581,9 @@ def sapa_main_menu(message, bot):
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         markup.add(types.KeyboardButton('Инструкции'))
         markup.add(types.KeyboardButton('Пункты выдачи роутеров SAPA+'))
-        markup.add(types.KeyboardButton('Верификация абонентов SAPA+'))
+        markup.add(types.KeyboardButton('SAPA+QUEST'))
         # markup.add(types.KeyboardButton('Чат бот по техническим вопросам/ОДС'))SAPA+QUEST
-        markup.add(types.KeyboardButton('SAPA+QUEST'), types.KeyboardButton('Тех поддержка SAPA+ для мегалайнеров'))
+        markup.add(types.KeyboardButton('Верификация абонентов SAPA+'), types.KeyboardButton('Тех поддержка SAPA+ для мегалайнеров'))
         # markup.add(types.KeyboardButton('Помощь по настройке/скорости SAPA+ ДТПК'), types.KeyboardButton('Верификация абонентов SAPA+'))
 
         bot.send_message(user_id, "Вот необходимая информация:", reply_markup=markup)
