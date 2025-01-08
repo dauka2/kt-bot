@@ -17,15 +17,14 @@ def recalculate_scores():
         cur.execute("""
             SELECT email, SUM(
                 CASE
-                    WHEN status = 'фото' THEN 200
-                    WHEN status = 'пост' THEN 1000
+                    WHEN status = 'пост' THEN 500
+                    WHEN status = 'пост1' THEN 1000
                     WHEN status = 'отзыв' THEN 1000
-                    WHEN status = 'reels' THEN 500
                     WHEN status = 'ничего' THEN 0
                 END
             ) as total_score
             FROM sapa_link
-            WHERE date >= '2024-12-01 00:00:00' AND is_checked = TRUE
+            WHERE date >= '2024-01-01 00:00:00' AND is_checked = TRUE
             GROUP BY email
         """)
         scores = cur.fetchall()
