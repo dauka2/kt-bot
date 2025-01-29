@@ -644,6 +644,7 @@ def additional_info_handler(message, bot):
         bot.send_document(user_id, open("files/Создание_заявки_мегалайнером+смс_6_тизначный.pdf", 'rb'))
         bot.send_document(user_id, open("files/Создание заявки мегалайнером.pdf", 'rb'))
         bot.send_document(user_id, open("files/Инструкция_пользователя_WFM_инсталлятор.pdf", 'rb'))
+        bot.send_document(user_id, open("files/Инструкция_Передача оборудования SAPA+.pdf", 'rb'))
         bot.send_photo(
             chat_id=user_id,  # ID пользователя
             photo=open("images/Памятка.jpeg", 'rb'),  # Путь к изображению
