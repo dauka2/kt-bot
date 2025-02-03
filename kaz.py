@@ -507,38 +507,6 @@ def sapa_con(bot, message):
     message_text = message.text
 
     if message_text == '📶SAPA+':
-        # Основное меню с двумя кнопками
-        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-        markup.add(
-            # types.KeyboardButton('Sapa+ бонустық жүйесі'),
-                   types.KeyboardButton('Нұсқаулар, техникалық қолдау және табыстау нүктелері'))
-
-        bot.send_message(user_id, "Әрекеттердің бірін таңдаңыз:", reply_markup=markup)
-        bot.register_next_step_handler(message, sapa_main_menu, bot)
-
-
-def sapa_main_menu(message, bot):
-    user_id = message.chat.id
-    choice = message.text.strip().lower()
-
-    if choice.startswith('/'):
-        # Переход в меню, если команда "/menu"
-        if choice == '/menu':
-            menu(bot, message)
-            return True
-    # elif choice == 'sapa+ бонустық жүйесі':
-    #     # Меню с действиями для администратора и участников
-    #     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-    #     if str(user_id) in sapa_admin:
-    #         markup.add(types.KeyboardButton('Сілтемелерді бағалау'), types.KeyboardButton('Кестені жүктеу'))
-    #     else:
-    #         markup.add(types.KeyboardButton('Сілтемені/фотосуретті жүктеу'))
-    #     markup.add(types.KeyboardButton('Көшбасшылар тақтасы'), types.KeyboardButton('Артқа'))
-    #
-    #     bot.send_message(user_id, "Мәзірдегі әрекеттердің бірін таңдаңыз:", reply_markup=markup)
-    #     bot.register_next_step_handler(message, sapa_instruments, bot)
-
-    elif choice == 'нұсқаулар, техникалық қолдау және табыстау нүктелері':
         # Меню с четырьмя дополнительными кнопками
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         markup.add(types.KeyboardButton('Модемді орнату бойынша нұсқаулық'))
@@ -548,13 +516,13 @@ def sapa_main_menu(message, bot):
         markup.add(types.KeyboardButton('SAPA+ абоненттерін тексеру'), types.KeyboardButton('Мегалайнерлерге арналған SAPA+ қолдауы'))
         # markup.add(types.KeyboardButton('SAPA+ ДТПК орнату/жылдамдық бойынша көмек'), types.KeyboardButton('SAPA+ абоненттерін тексеру'))
 
-        bot.send_message(user_id, "Міне, қажетті ақпарат:", reply_markup=markup)
+        bot.send_message(user_id, "Қажетті санатты таңдаңыз:", reply_markup=markup)
         bot.register_next_step_handler(message, additional_info_handler, bot)
 
     else:
         # Если пользователь ввел что-то другое, попросим сделать выбор снова
         bot.send_message(user_id, "Ұсынылған опциялардан әрекетті таңдаңыз.")
-        bot.register_next_step_handler(message, sapa_main_menu, bot)
+        bot.register_next_step_handler(message, sapa_con, bot)
 
 def sapa_instruments(message, bot):
     user_id = str(message.chat.id)
@@ -584,7 +552,7 @@ def sapa_instruments(message, bot):
                    types.KeyboardButton('Нұсқаулар, техникалық қолдау және табыстау нүктелері'))
 
         msg = bot.send_message(user_id, "Опциялардың бірін таңдаңыз", reply_markup=markup)
-        bot.register_next_step_handler(msg, sapa_main_menu, bot)
+        bot.register_next_step_handler(msg, sapa_con, bot)
     else:
         bot.send_message(user_id, "Опциялардың бірін таңдаңыз.")
         bot.register_next_step_handler(message, sapa_instruments, bot)
@@ -732,7 +700,7 @@ def upload_link(message, bot):
                        types.KeyboardButton('Нұсқаулар, техникалық қолдау және табыстау нүктелері'))
 
             msg = bot.send_message(user_id, "Опциялардың бірін таңдаңыз", reply_markup=markup)
-            bot.register_next_step_handler(msg, sapa_main_menu, bot)
+            bot.register_next_step_handler(msg, sapa_con, bot)
         except Exception as e:
             bot.send_message(user_id, f"Сілтемені жүктеу кезінде қате пайда болды: {e}")
 
@@ -785,7 +753,7 @@ def upload_link(message, bot):
                        types.KeyboardButton('Нұсқаулар, техникалық қолдау және табыстау нүктелері'))
 
             msg = bot.send_message(user_id, "Опциялардың бірін таңдаңыз", reply_markup=markup)
-            bot.register_next_step_handler(msg, sapa_main_menu, bot)
+            bot.register_next_step_handler(msg, sapa_con, bot)
 
         except Exception as e:
             bot.send_message(user_id, f"Фотосуретті жүктеу кезінде қате пайда болды: {e}")
@@ -832,7 +800,7 @@ def show_user_links(bot, message):
                    types.KeyboardButton('Нұсқаулар, техникалық қолдау және табыстау нүктелері'))
 
         msg = bot.send_message(message.chat.id, "Әрекеттердің бірін таңдаңыз:", reply_markup=markup)
-        bot.register_next_step_handler(msg, sapa_main_menu, bot)
+        bot.register_next_step_handler(msg, sapa_con, bot)
     else:
         msg = bot.send_message(message.chat.id, "Қазіргі уақытта сізде тексеруді күтетін сілтемелер жоқ.")
         bot.register_next_step_handler(msg, sapa_instruments, bot)
@@ -895,7 +863,7 @@ def display_leaderboard(bot, message):
                types.KeyboardButton('Нұсқаулар, техникалық қолдау және табыстау нүктелері'))
 
     msg = bot.send_message(message.chat.id, "Әрекеттердің бірін таңдаңыз:", reply_markup=markup)
-    bot.register_next_step_handler(msg, sapa_main_menu, bot)
+    bot.register_next_step_handler(msg, sapa_con, bot)
 
 # Функция для отображения ссылок для администратора с фильтрацией по branch
 def show_pending_links(message, bot):
@@ -1310,7 +1278,7 @@ def call_back(bot, call):
                                        types.KeyboardButton('Нұсқаулар, техникалық қолдау және табыстау нүктелері'))
 
                             msg = bot.send_message(user_id, "Әрекеттердің бірін таңдаңыз:", reply_markup=markup)
-                            bot.register_next_step_handler(msg, sapa_main_menu, bot)
+                            bot.register_next_step_handler(msg, sapa_con, bot)
                         else:
                             bot.send_message(user_chat_id, "Бонустық ұпайлар мен жалпы шот табылған жоқ.")
                             markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
@@ -1319,7 +1287,7 @@ def call_back(bot, call):
                                        types.KeyboardButton('Нұсқаулар, техникалық қолдау және табыстау нүктелері'))
 
                             msg = bot.send_message(user_id, "Әрекеттердің бірін таңдаңыз:", reply_markup=markup)
-                            bot.register_next_step_handler(msg, sapa_main_menu, bot)
+                            bot.register_next_step_handler(msg, sapa_con, bot)
                     else:
                         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
                         markup.add(
@@ -1327,7 +1295,7 @@ def call_back(bot, call):
                                    types.KeyboardButton('Нұсқаулар, техникалық қолдау және табыстау нүктелері'))
 
                         msg = bot.send_message(user_id, "Әрекеттердің бірін таңдаңыз:", reply_markup=markup)
-                        bot.register_next_step_handler(msg, sapa_main_menu, bot)
+                        bot.register_next_step_handler(msg, sapa_con, bot)
                 else:
                     bot.send_message(call.message.chat.id, "Қате: сілтеме табылмады.")
                     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
@@ -1336,7 +1304,7 @@ def call_back(bot, call):
                                types.KeyboardButton('Нұсқаулар, техникалық қолдау және табыстау нүктелері'))
 
                     msg = bot.send_message(user_id, "Әрекеттердің бірін таңдаңыз:", reply_markup=markup)
-                    bot.register_next_step_handler(msg, sapa_main_menu, bot)
+                    bot.register_next_step_handler(msg, sapa_con, bot)
             else:
                 bot.send_message(call.message.chat.id,
                                  "Қате жауап. Сілтеме түрін таңдап, сілтеме нөмірін көрсетіңіз.")

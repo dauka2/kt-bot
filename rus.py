@@ -549,38 +549,6 @@ def sapa_con(bot, message):
     message_text = message.text
 
     if message_text == '📶SAPA+':
-        # Основное меню с двумя кнопками
-        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-        markup.add(
-            # types.KeyboardButton('Бонусная система SAPA+'),
-                   types.KeyboardButton('Инструкции, техническая поддержка и точки передачи'))
-
-        bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
-        bot.register_next_step_handler(message, sapa_main_menu, bot)
-
-
-def sapa_main_menu(message, bot):
-    user_id = message.chat.id
-    choice = message.text.strip().lower()
-
-    if choice.startswith('/'):
-        # Переход в меню, если команда "/menu"
-        if choice == '/menu':
-            menu(bot, message)
-            return True
-    # elif choice == 'бонусная система sapa+':
-    #     # Меню с действиями для администратора и участников
-    #     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-    #     if str(user_id) in sapa_admin:
-    #         markup.add(types.KeyboardButton('Оценка ссылок'), types.KeyboardButton('Загрузить таблицу'))
-    #     else:
-    #         markup.add(types.KeyboardButton('Загрузить ссылку/фото'))
-    #     markup.add(types.KeyboardButton('Таблица лидеров'), types.KeyboardButton('Назад'))
-    #
-    #     bot.send_message(user_id, "Выберите одно из действий в меню:", reply_markup=markup)
-    #     bot.register_next_step_handler(message, sapa_instruments, bot)
-
-    elif choice == 'инструкции, техническая поддержка и точки передачи':
         # Меню с четырьмя дополнительными кнопками
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         markup.add(types.KeyboardButton('Инструкции'))
@@ -590,13 +558,13 @@ def sapa_main_menu(message, bot):
         markup.add(types.KeyboardButton('Верификация абонентов SAPA+'), types.KeyboardButton('Тех поддержка SAPA+ для мегалайнеров'))
         # markup.add(types.KeyboardButton('Помощь по настройке/скорости SAPA+ ДТПК'), types.KeyboardButton('Верификация абонентов SAPA+'))
 
-        bot.send_message(user_id, "Вот необходимая информация:", reply_markup=markup)
+        bot.send_message(user_id, "Выберите необходимую категорию:", reply_markup=markup)
         bot.register_next_step_handler(message, additional_info_handler, bot)
 
     else:
         # Если пользователь ввел что-то другое, попросим сделать выбор снова
         bot.send_message(user_id, "Пожалуйста, выберите действие из предложенных вариантов.")
-        bot.register_next_step_handler(message, sapa_main_menu, bot)
+        bot.register_next_step_handler(message, sapa_con, bot)
 
 def sapa_instruments(message, bot):
     user_id = str(message.chat.id)
@@ -626,7 +594,7 @@ def sapa_instruments(message, bot):
                    types.KeyboardButton('Инструкции, техническая поддержка и точки передачи'))
 
         msg = bot.send_message(user_id, "Выберите один из вариантов", reply_markup=markup)
-        bot.register_next_step_handler(msg, sapa_main_menu, bot)
+        bot.register_next_step_handler(msg, sapa_con, bot)
     else:
         bot.send_message(user_id, "Пожалуйста, выберите один из вариантов.")
         bot.register_next_step_handler(message, sapa_instruments, bot)
@@ -778,7 +746,7 @@ def upload_link(message, bot):
                        types.KeyboardButton('Инструкции, техническая поддержка и точки передачи'))
 
             msg = bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
-            bot.register_next_step_handler(msg, sapa_main_menu, bot)
+            bot.register_next_step_handler(msg, sapa_con, bot)
         except Exception as e:
             bot.send_message(user_id, f"Произошла ошибка при загрузке ссылки: {e}")
 
@@ -832,7 +800,7 @@ def upload_link(message, bot):
                        types.KeyboardButton('Инструкции, техническая поддержка и точки передачи'))
 
             msg = bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
-            bot.register_next_step_handler(msg, sapa_main_menu, bot)
+            bot.register_next_step_handler(msg, sapa_con, bot)
 
         except Exception as e:
             bot.send_message(user_id, f"Произошла ошибка при загрузке фотографии: {e}")
@@ -879,7 +847,7 @@ def show_user_links(bot, message):
                    types.KeyboardButton('Инструкции, техническая поддержка и точки передачи'))
 
         msg = bot.send_message(message.chat.id, "Выберите одно из действий:", reply_markup=markup)
-        bot.register_next_step_handler(msg, sapa_main_menu, bot)
+        bot.register_next_step_handler(msg, sapa_con, bot)
     else:
         msg = bot.send_message(message.chat.id, "На данный момент у вас нет ссылок, ожидающих проверки.")
         bot.register_next_step_handler(msg, sapa_instruments, bot)
@@ -943,7 +911,7 @@ def display_leaderboard(bot, message):
                types.KeyboardButton('Инструкции, техническая поддержка и точки передачи'))
 
     msg = bot.send_message(message.chat.id, "Выберите одно из действий:", reply_markup=markup)
-    bot.register_next_step_handler(msg, sapa_main_menu, bot)
+    bot.register_next_step_handler(msg, sapa_con, bot)
 
 # Функция для отображения ссылок для администратора с фильтрацией по branch
 def show_pending_links(message, bot):
@@ -1404,7 +1372,7 @@ def call_back(bot, call):
                                        types.KeyboardButton('Инструкции, техническая поддержка и точки передачи'))
 
                             msg = bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
-                            bot.register_next_step_handler(msg, sapa_main_menu, bot)
+                            bot.register_next_step_handler(msg, sapa_con, bot)
                         else:
                             bot.send_message(user_chat_id, "Бонусные баллы и общий счёт не найдены.")
                             markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
@@ -1413,7 +1381,7 @@ def call_back(bot, call):
                                        types.KeyboardButton('Инструкции, техническая поддержка и точки передачи'))
 
                             msg = bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
-                            bot.register_next_step_handler(msg, sapa_main_menu, bot)
+                            bot.register_next_step_handler(msg, sapa_con, bot)
                     else:
                         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
                         markup.add(
@@ -1421,7 +1389,7 @@ def call_back(bot, call):
                                    types.KeyboardButton('Инструкции, техническая поддержка и точки передачи'))
 
                         msg = bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
-                        bot.register_next_step_handler(msg, sapa_main_menu, bot)
+                        bot.register_next_step_handler(msg, sapa_con, bot)
                 else:
                     bot.send_message(call.message.chat.id, "Ошибка: ссылка не найдена.")
                     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
@@ -1430,7 +1398,7 @@ def call_back(bot, call):
                                types.KeyboardButton('Инструкции, техническая поддержка и точки передачи'))
 
                     msg = bot.send_message(user_id, "Выберите одно из действий:", reply_markup=markup)
-                    bot.register_next_step_handler(msg, sapa_main_menu, bot)
+                    bot.register_next_step_handler(msg, sapa_con, bot)
             else:
                 bot.send_message(call.message.chat.id,
                                  "Некорректный ответ. Пожалуйста, выберите тип ссылки и укажите номер ссылки.")
