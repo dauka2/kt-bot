@@ -509,7 +509,9 @@ def sapa_con(bot, message):
     if message_text == '📶SAPA+':
         # Основное меню с двумя кнопками
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-        markup.add(types.KeyboardButton('Sapa+ бонустық жүйесі'), types.KeyboardButton('Нұсқаулар, техникалық қолдау және табыстау нүктелері'))
+        markup.add(
+            # types.KeyboardButton('Sapa+ бонустық жүйесі'),
+                   types.KeyboardButton('Нұсқаулар, техникалық қолдау және табыстау нүктелері'))
 
         bot.send_message(user_id, "Әрекеттердің бірін таңдаңыз:", reply_markup=markup)
         bot.register_next_step_handler(message, sapa_main_menu, bot)
@@ -524,17 +526,17 @@ def sapa_main_menu(message, bot):
         if choice == '/menu':
             menu(bot, message)
             return True
-    elif choice == 'sapa+ бонустық жүйесі':
-        # Меню с действиями для администратора и участников
-        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-        if str(user_id) in sapa_admin:
-            markup.add(types.KeyboardButton('Сілтемелерді бағалау'), types.KeyboardButton('Кестені жүктеу'))
-        else:
-            markup.add(types.KeyboardButton('Сілтемені/фотосуретті жүктеу'))
-        markup.add(types.KeyboardButton('Көшбасшылар тақтасы'), types.KeyboardButton('Артқа'))
-
-        bot.send_message(user_id, "Мәзірдегі әрекеттердің бірін таңдаңыз:", reply_markup=markup)
-        bot.register_next_step_handler(message, sapa_instruments, bot)
+    # elif choice == 'sapa+ бонустық жүйесі':
+    #     # Меню с действиями для администратора и участников
+    #     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+    #     if str(user_id) in sapa_admin:
+    #         markup.add(types.KeyboardButton('Сілтемелерді бағалау'), types.KeyboardButton('Кестені жүктеу'))
+    #     else:
+    #         markup.add(types.KeyboardButton('Сілтемені/фотосуретті жүктеу'))
+    #     markup.add(types.KeyboardButton('Көшбасшылар тақтасы'), types.KeyboardButton('Артқа'))
+    #
+    #     bot.send_message(user_id, "Мәзірдегі әрекеттердің бірін таңдаңыз:", reply_markup=markup)
+    #     bot.register_next_step_handler(message, sapa_instruments, bot)
 
     elif choice == 'нұсқаулар, техникалық қолдау және табыстау нүктелері':
         # Меню с четырьмя дополнительными кнопками
@@ -577,7 +579,8 @@ def sapa_instruments(message, bot):
         bot.register_next_step_handler(msg, upload_link, bot)
     elif response == 'артқа':
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-        markup.add(types.KeyboardButton('Sapa+ бонустық жүйесі'),
+        markup.add(
+            # types.KeyboardButton('Sapa+ бонустық жүйесі'),
                    types.KeyboardButton('Нұсқаулар, техникалық қолдау және табыстау нүктелері'))
 
         msg = bot.send_message(user_id, "Опциялардың бірін таңдаңыз", reply_markup=markup)
@@ -724,7 +727,8 @@ def upload_link(message, bot):
 
             bot.send_message(user_id, "Сіз Sapa+ негізгі мәзіріне бағытталасыз")
             markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-            markup.add(types.KeyboardButton('Sapa+ бонустық жүйесі'),
+            markup.add(
+                # types.KeyboardButton('Sapa+ бонустық жүйесі'),
                        types.KeyboardButton('Нұсқаулар, техникалық қолдау және табыстау нүктелері'))
 
             msg = bot.send_message(user_id, "Опциялардың бірін таңдаңыз", reply_markup=markup)
@@ -776,7 +780,8 @@ def upload_link(message, bot):
 
             bot.send_message(user_id, "Сіз Sapa+ негізгі мәзіріне бағытталасыз")
             markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-            markup.add(types.KeyboardButton('Sapa+ бонустық жүйесі'),
+            markup.add(
+                # types.KeyboardButton('Sapa+ бонустық жүйесі'),
                        types.KeyboardButton('Нұсқаулар, техникалық қолдау және табыстау нүктелері'))
 
             msg = bot.send_message(user_id, "Опциялардың бірін таңдаңыз", reply_markup=markup)
@@ -822,7 +827,8 @@ def show_user_links(bot, message):
         bot.send_message(message.chat.id, response_message)
         bot.send_message(message.chat.id, "Сіз Sapa+ негізгі мәзіріне бағытталасыз")
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-        markup.add(types.KeyboardButton('Sapa+ бонустық жүйесі'),
+        markup.add(
+            # types.KeyboardButton('Sapa+ бонустық жүйесі'),
                    types.KeyboardButton('Нұсқаулар, техникалық қолдау және табыстау нүктелері'))
 
         msg = bot.send_message(message.chat.id, "Әрекеттердің бірін таңдаңыз:", reply_markup=markup)
@@ -884,7 +890,8 @@ def display_leaderboard(bot, message):
     # Переход к доступным опциям 
     bot.send_message(message.chat.id, "Біз сізді Sapa+ негізгі мәзіріне бағыттаймыз")
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-    markup.add(types.KeyboardButton('Sapa+ бонустық жүйесі'),
+    markup.add(
+        # types.KeyboardButton('Sapa+ бонустық жүйесі'),
                types.KeyboardButton('Нұсқаулар, техникалық қолдау және табыстау нүктелері'))
 
     msg = bot.send_message(message.chat.id, "Әрекеттердің бірін таңдаңыз:", reply_markup=markup)
@@ -1298,7 +1305,8 @@ def call_back(bot, call):
                             )
                             bot.send_message(user_chat_id, message)
                             markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-                            markup.add(types.KeyboardButton('Sapa+ бонустық жүйесі'),
+                            markup.add(
+                                # types.KeyboardButton('Sapa+ бонустық жүйесі'),
                                        types.KeyboardButton('Нұсқаулар, техникалық қолдау және табыстау нүктелері'))
 
                             msg = bot.send_message(user_id, "Әрекеттердің бірін таңдаңыз:", reply_markup=markup)
@@ -1306,14 +1314,16 @@ def call_back(bot, call):
                         else:
                             bot.send_message(user_chat_id, "Бонустық ұпайлар мен жалпы шот табылған жоқ.")
                             markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-                            markup.add(types.KeyboardButton('Sapa+ бонустық жүйесі'),
+                            markup.add(
+                                # types.KeyboardButton('Sapa+ бонустық жүйесі'),
                                        types.KeyboardButton('Нұсқаулар, техникалық қолдау және табыстау нүктелері'))
 
                             msg = bot.send_message(user_id, "Әрекеттердің бірін таңдаңыз:", reply_markup=markup)
                             bot.register_next_step_handler(msg, sapa_main_menu, bot)
                     else:
                         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-                        markup.add(types.KeyboardButton('Sapa+ бонустық жүйесі'),
+                        markup.add(
+                            # types.KeyboardButton('Sapa+ бонустық жүйесі'),
                                    types.KeyboardButton('Нұсқаулар, техникалық қолдау және табыстау нүктелері'))
 
                         msg = bot.send_message(user_id, "Әрекеттердің бірін таңдаңыз:", reply_markup=markup)
@@ -1321,7 +1331,8 @@ def call_back(bot, call):
                 else:
                     bot.send_message(call.message.chat.id, "Қате: сілтеме табылмады.")
                     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-                    markup.add(types.KeyboardButton('Sapa+ бонустық жүйесі'),
+                    markup.add(
+                        # types.KeyboardButton('Sapa+ бонустық жүйесі'),
                                types.KeyboardButton('Нұсқаулар, техникалық қолдау және табыстау нүктелері'))
 
                     msg = bot.send_message(user_id, "Әрекеттердің бірін таңдаңыз:", reply_markup=markup)
