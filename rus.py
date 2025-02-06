@@ -1779,7 +1779,7 @@ def appeal(bot, message, message_text):
         else:
             bot.send_message(message.chat.id, "Тут пока пусто, "
                                               "\nно Вы можете оставить обращение и оно будет отображаться здесь")
-    elif message_text == "Оставить обращение" or message_text == portal_bts[2]:
+    elif message_text == "Оставить обращение":
         markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         button2_ap = types.KeyboardButton("Да")
         markup_ap.add(button2_ap)

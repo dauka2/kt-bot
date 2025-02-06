@@ -1695,7 +1695,7 @@ def appeal(bot, message, message_text):
         else:
             bot.send_message(message.chat.id, "Бұл жерде әлі бос,\nбірақ сіз апелляцияны қалдыра аласыз және ол "
                                               "осы жерде көрсетіледі")
-    elif message_text == "Өтінішті қалдыру" or message_text == portal_bts[2]:
+    elif message_text == "Өтінішті қалдыру":
         markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         button2_ap = types.KeyboardButton("Иә")
         markup_ap.add(button2_ap)
