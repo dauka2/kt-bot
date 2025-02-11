@@ -50,11 +50,14 @@ def get_excel(bot, message, admin_id, excel_file, sql_query, params=None):
 
 
 def send_gmails(text, category, file_url=None):
-    s = smtplib.SMTP('smtp.gmail.com', 587)
+    # s = smtplib.SMTP('smtp.gmail.com', 587)
+    s = smtplib.SMTP('smtp.gmail.com', 465)
     s.starttls()
-    s.login("sending1001@gmail.com", "njdhfqafaajixebg")
+    # s.login("sending1001@gmail.com", "njdhfqafaajixebg")
+    s.login("default36404@gmail.com", "khbvbzpnfibttcbp")
     msg = MIMEMultipart()
-    msg['From'] = "sending1001@gmail.com"
+    # msg['From'] = "sending1001@gmail.com"
+    msg['From'] = "default36404@gmail.com"
     msg['Subject'] = Header(category, 'utf-8')
     msg.attach(MIMEText(text, 'plain', 'utf-8'))
     if file_url is not None:
@@ -64,16 +67,19 @@ def send_gmails(text, category, file_url=None):
             photo = MIMEImage(photo_data, name='photo.jpg')
             msg.attach(photo)
     email = get_email_by_category(category)
-    s.sendmail("sending1001@gmail.com", email, msg.as_string())
+    # s.sendmail("sending1001@gmail.com", email, msg.as_string())
+    s.sendmail("default36404@gmail.com", email, msg.as_string())
     s.quit()
 
 
 def send_gmails_for_verif(text, user_id, file_url=None):
     s = smtplib.SMTP('smtp.gmail.com', 587)
     s.starttls()
-    s.login("sending1001@gmail.com", "njdhfqafaajixebg")
+    # s.login("sending1001@gmail.com", "njdhfqafaajixebg")
+    s.login("default36404@gmail.com", "khbvbzpnfibttcbp")
     msg = MIMEMultipart()
-    msg['From'] = "sending1001@gmail.com"
+    # msg['From'] = "sending1001@gmail.com"
+    msg['From'] = "default36404@gmail.com"
     msg['Subject'] = Header("Верификация аккаунта", 'utf-8')
     msg.attach(MIMEText(text, 'plain', 'utf-8'))
     if file_url is not None:
@@ -83,7 +89,8 @@ def send_gmails_for_verif(text, user_id, file_url=None):
             photo = MIMEImage(photo_data, name='photo.jpg')
             msg.attach(photo)
     email = get_email_for_verif(str(user_id))
-    s.sendmail("sending1001@gmail.com", email, msg.as_string())
+    # s.sendmail("sending1001@gmail.com", email, msg.as_string())
+    s.sendmail("default36404@gmail.com", email, msg.as_string())
     s.quit()
 
 

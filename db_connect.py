@@ -143,7 +143,6 @@ def delete_performers():
     sql_query = "DROP TABLE IF EXISTS performers"
     execute_set_sql_query(sql_query)
 
-
 def sapa_test():
     sql_query = "DROP TABLE IF EXISTS sapa_bonus"
     execute_set_sql_query(sql_query)
