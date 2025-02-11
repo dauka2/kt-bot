@@ -51,7 +51,7 @@ def get_excel(bot, message, admin_id, excel_file, sql_query, params=None):
 
 def send_gmails(text, category, file_url=None):
     # s = smtplib.SMTP('smtp.gmail.com', 587)
-    s = smtplib.SMTP('smtp.gmail.com', 465)
+    s = smtplib.SMTP('smtp.gmail.com', 587)
     s.starttls()
     # s.login("sending1001@gmail.com", "njdhfqafaajixebg")
     s.login("default36404@gmail.com", "khbvbzpnfibttcbp")
