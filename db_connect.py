@@ -480,10 +480,15 @@ def insert_into_performers_right():
                 'values (%s, %s, %s, %s, %s, %s, %s)', ("544040063", 'Портал "Бірлік"',
                                                          "Айгуль", "Уразбаева", "87064301630", "urazbayeva.a@telecom.kz",
                                                         "@eighth_muse"))
+    # cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
+    #             'parent_category) '
+    #             'values (%s, %s, %s, %s, %s, %s, %s, %s)', ("1499087558", "Портал закупок 2.0 | Техническая поддержка",
+    #                                                         "Надолинский", "Владимир", "+77076669935", "@gmail.com",
+    #                                                         "@", "Закупочная деятельность"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
                 'parent_category) '
-                'values (%s, %s, %s, %s, %s, %s, %s, %s)', ("1499087558", "Портал закупок 2.0 | Техническая поддержка",
-                                                            "Надолинский", "Владимир", "+77076669935", "@gmail.com",
+                'values (%s, %s, %s, %s, %s, %s, %s, %s)', ("807542464", "Портал закупок 2.0 | Техническая поддержка",
+                                                            "Мурзасеитова", "Аида", "87471919348", "@gmail.com",
                                                             "@", "Закупочная деятельность"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
                 'parent_category) '
