@@ -54,7 +54,7 @@ def send_gmails(text, category, file_url=None):
     s = smtplib.SMTP('smtp.gmail.com', 587)
     s.starttls()
     # s.login("sending1001@gmail.com", "njdhfqafaajixebg")
-    s.login("default36404@gmail.com", "khbvbzpnfibttcbp")
+    s.login("default36404@gmail.com", "eoiuxgulbdtzhiyf")
     msg = MIMEMultipart()
     # msg['From'] = "sending1001@gmail.com"
     msg['From'] = "default36404@gmail.com"
@@ -76,7 +76,7 @@ def send_gmails_for_verif(text, user_id, file_url=None):
     s = smtplib.SMTP('smtp.gmail.com', 587)
     s.starttls()
     # s.login("sending1001@gmail.com", "njdhfqafaajixebg")
-    s.login("default36404@gmail.com", "khbvbzpnfibttcbp")
+    s.login("default36404@gmail.com", "eoiuxgulbdtzhiyf")
     msg = MIMEMultipart()
     # msg['From'] = "sending1001@gmail.com"
     msg['From'] = "default36404@gmail.com"

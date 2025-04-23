@@ -931,6 +931,26 @@ def get_excel(message):
     db_connect.sapa_test_()
     bot.send_message(message.chat.id, "Изменения сохранены")
 
+@bot.message_handler(commands=['delete_ideas'])
+def get_excel(message):
+    db_connect.delete_ideas()
+    bot.send_message(message.chat.id, "Изменения сохранены")
+
+@bot.message_handler(commands=['delete_researches'])
+def get_excel(message):
+    db_connect.delete_researches()
+    bot.send_message(message.chat.id, "Изменения сохранены")
+
+@bot.message_handler(commands=['get_ideas'])
+def get_excel(message):
+    sql_query = "SELECT * from ideas ORDER BY id ASC"
+    common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
+
+@bot.message_handler(commands=['get_researches'])
+def get_excel(message):
+    sql_query = "SELECT * from researches ORDER BY id ASC"
+    common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
+
 @bot.message_handler(commands=['functionn'])
 def get_excel(message):
     sql_query = "select * from performers where category = %s and subcategory = %s"
@@ -1414,6 +1434,8 @@ def text(message, get_message, lang_py):
         lang_py.fin_gram(bot, message, message.text)
     elif get_message in lang_py.modems_field:
         lang_py.sapa_con(bot, message)
+    elif get_message in lang_py.idea_field:
+        lang_py.bank_idei(bot, message)
     elif get_message == "📄У меня есть вопрос" or get_message == "📄Менің сұрағым бар":
         lang_py.questions(bot, message)
     elif get_message == "Мои обращения" or get_message == "Менің өтініштерім" \

@@ -1,7 +1,10 @@
 from telebot import types
 import psycopg2
 
-TOKEN = '6145415028:AAEdgPMvSsi3FJw2ccyzWf2QiJrPa_Ycz0A'
+# Тестовый
+TOKEN = '6684043919:AAFq7pz10dG01UR8MkeIHY4JphE1pjmnzxQ'
+# кт-бот
+# TOKEN = '6145415028:AAEdgPMvSsi3FJw2ccyzWf2QiJrPa_Ycz0A'
 admins_id = ['760906879', '1066191569', '6682886650', '353845928']
 
 def execute_get_sql_query(sql_query, params=None):
@@ -100,6 +103,42 @@ def create_db():
     );
     """
     )
+    cur.execute(
+        """
+    CREATE TABLE IF NOT EXISTS ideas (
+    id SERIAL PRIMARY KEY ,
+    user_id VARCHAR(50) NOT NULL,
+    format VARCHAR (100),
+    for_who VARCHAR(100),
+    perimetr VARCHAR(100),
+    auditory VARCHAR(100),
+    otrasl_primeneniya VARCHAR(80),
+    gotovnost_idei VARCHAR(100),
+    comanda VARCHAR(100),
+    potential_effect VARCHAR(100),
+    finance VARCHAR(120),
+    idea VARCHAR(1000)
+    );
+    """
+    )
+    cur.execute(
+        """
+    CREATE TABLE IF NOT EXISTS researches (
+    id SERIAL PRIMARY KEY ,
+    user_id VARCHAR(50) NOT NULL,
+    format VARCHAR (100),
+    for_who VARCHAR(100),
+    perimetr VARCHAR(100),
+    auditory VARCHAR(100),
+    research_direction VARCHAR(100),
+    stage VARCHAR(100),
+    comanda VARCHAR(100),
+    ozhidaemyi_effect VARCHAR(100), 
+    finance VARCHAR(120),
+    idea VARCHAR(1000)
+    );
+    """
+    )
     conn.commit()
     cur.close()
     conn.close()
@@ -127,9 +166,9 @@ def addIfNotExistUser(message):
     cur.close()
     conn.close()
 
-def delete_users():
-    sql_query = "DROP TABLE IF EXISTS users"
-    execute_set_sql_query(sql_query)
+# def delete_users():
+#     sql_query = "DROP TABLE IF EXISTS users"
+#     execute_set_sql_query(sql_query)
 
 def delete_commands_history_user():
     sql_query = "DELETE * FROM commands_history WHERE user_id = %s"
@@ -164,20 +203,27 @@ def sapa_test__():
     sql_query = "DROP TABLE IF EXISTS sapa_link"
     execute_set_sql_query(sql_query)
 
+def delete_ideas():
+    sql_query = "DROP TABLE IF EXISTS ideas"
+    execute_set_sql_query(sql_query)
+
+def delete_researches():
+    sql_query = "DROP TABLE IF EXISTS researches"
+    execute_set_sql_query(sql_query)
+
 # def delete_nenuzhnoe_v_usersinfo():
 #     sql_query = "ALTER TABLE users_info DROP COLUMN IF EXISTS appeal_id;"
 #     sql_query += "ALTER TABLE users_info DROP COLUMN IF EXISTS is_appeal_anon;"
 #     execute_set_sql_query(sql_query)
 
-def delete_appeals():
-    sql_query = "DROP TABLE IF EXISTS appeals"
-    execute_set_sql_query(sql_query)
+# def delete_appeals():
+#     sql_query = "DROP TABLE IF EXISTS appeals"
+#     execute_set_sql_query(sql_query)
 
 def add_column():
     sql_query = "ALTER TABLE users_info ADD COLUMN IF NOT EXISTS subcategory char(50);"
     sql_query += "ALTER TABLE appeals ADD COLUMN IF NOT EXISTS subsubcategory char(50);"
     execute_set_sql_query(sql_query)
-
 
 def add_column_dec():
     sql_query = "ALTER TABLE users_info ADD COLUMN IF NOT EXISTS verif_code char(50);"
