@@ -970,14 +970,14 @@ def bank_idei(bot, message):
 
     if message_text == '💡Идеялар банкі':
         markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-        button2_ap = types.KeyboardButton("Все верно")
+        button2_ap = types.KeyboardButton("Бәрі дұрыс")
         markup_ap.add(button2_ap)
         profile(bot, message)
-        msg = bot.send_message(message.chat.id, "Информация верна?", reply_markup=markup_ap)
+        msg = bot.send_message(message.chat.id, "Ақпарат дұрыс па?", reply_markup=markup_ap)
         bot.register_next_step_handler(msg, confirm_dannyie, bot)
     else:
         # Если пользователь ввел что-то другое, попросим сделать выбор снова
-        msg = bot.send_message(message.chat.id, "Пожалуйста, выберите действие из предложенных вариантов.")
+        msg = bot.send_message(message.chat.id, "Ұсынылған опциялардың біреуін таңдаңыз.")
         bot.register_next_step_handler(msg, bank_idei, bot)
 
 def confirm_dannyie(message, bot, id_i_s=None):
@@ -985,15 +985,15 @@ def confirm_dannyie(message, bot, id_i_s=None):
     if redirect(bot, message, id_i_s):
         return
 
-    elif message_text == "Все верно":
+    elif message_text == "Бәрі дұрыс":
         markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-        markup_ap.add(types.KeyboardButton("Научно-исследовательская работа"))
-        markup_ap.add(types.KeyboardButton("Улучшение рабочих процессов"))
-        msg = bot.send_message(message.chat.id, "Выберите формат идеи", reply_markup=markup_ap)
+        markup_ap.add(types.KeyboardButton("Ғылыми-зерттеу жұмысы"))
+        markup_ap.add(types.KeyboardButton("Жұмыс процестерін жақсарту"))
+        msg = bot.send_message(message.chat.id, "Идея форматын таңдаңыз", reply_markup=markup_ap)
         bot.register_next_step_handler(msg, process_idea, bot)
     else:
         # Если пользователь ввел что-то другое, попросим сделать выбор снова
-        msg = bot.send_message(message.chat.id, "Пожалуйста, выберите действие из предложенных вариантов.")
+        msg = bot.send_message(message.chat.id, "Ұсынылған опциялардың біреуін таңдаңыз.")
         bot.register_next_step_handler(msg, confirm_dannyie, bot)
 
 def process_idea(message, bot, id_i_s=None):
@@ -1002,24 +1002,24 @@ def process_idea(message, bot, id_i_s=None):
     message_text = message.text
     user_id = message.chat.id
     markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-    if message_text == "Улучшение рабочих процессов":
+    if message_text == "Жұмыс процестерін жақсарту":
         try:
             idei.insert_into_idei(user_id)  # Сохраняем id новой записи
             idea_id = idei.get_id_from_idea(user_id)
             idei.set_format(idea_id, message_text)
-            markup_ap.add(types.KeyboardButton("Сотрудников внутри компании"))
-            markup_ap.add(types.KeyboardButton("Клиентов и партнеров"))
-            msg = bot.send_message(message.chat.id, "Укажите, кого касается ваша идея?", reply_markup=markup_ap)
+            markup_ap.add(types.KeyboardButton("Компания ішіндегі қызметкерлерге"))
+            markup_ap.add(types.KeyboardButton("Клиенттер мен серіктестерге"))
+            msg = bot.send_message(message.chat.id, "Сіздің идеяңыз кімге қатысты?", reply_markup=markup_ap)
             bot.register_next_step_handler(msg, kogo_kasaetsa, bot, idea_id)  # Передаем idea_id
         except Exception as e:
-            bot.send_message(message.chat.id, f"Ошибка в добавлении формат:{e}")
-    elif message_text == "Научно-исследовательская работа":
+            bot.send_message(message.chat.id, f"Форматқа қосу кезінде қате кетті: {e}")
+    elif message_text == "Ғылыми-зерттеу жұмысы":
         idei.insert_into_researches(user_id)  # Сохраняем id новой записи
         idea_id = idei.get_id_from_researches(user_id)
         idei.set_format_r(idea_id, message_text)
-        markup_ap.add(types.KeyboardButton("Сотрудников внутри компании"))
-        markup_ap.add(types.KeyboardButton("Клиентов и партнеров"))
-        msg = bot.send_message(message.chat.id, "Укажите, кого касается ваша идея?", reply_markup=markup_ap)
+        markup_ap.add(types.KeyboardButton("Компания ішіндегі қызметкерлерге"))
+        markup_ap.add(types.KeyboardButton("Клиенттер мен серіктестерге"))
+        msg = bot.send_message(message.chat.id, "Сіздің идеяңыз кімге қатысты?", reply_markup=markup_ap)
         bot.register_next_step_handler(msg, kogo_kasaetsa_r, bot, idea_id)  # Передаем idea_id
 
 def kogo_kasaetsa(message, bot, idea_id):
@@ -1027,47 +1027,47 @@ def kogo_kasaetsa(message, bot, idea_id):
         return
     message_text = message.text.strip().lower()
     markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-    if message_text == "сотрудников внутри компании":
+    if message_text == "компания ішіндегі қызметкерлерге":
         try:
             idei.set_kogo_kasaetsya(idea_id, message_text)
-            markup_ap.add(types.KeyboardButton("На уровне всей компании (национальный масштаб)"))
-            markup_ap.add(types.KeyboardButton("На уровне дивизиона / региона (одно бизнес-направление)"))
-            markup_ap.add(types.KeyboardButton("В одном филиале / отделе (локальная идея)"))
-            markup_ap.add(types.KeyboardButton("Центральный аппарат (управ. и страт. улучшения)"))
-            msg = bot.send_message(message.chat.id, "Укажите периметр реализации", reply_markup=markup_ap)
+            markup_ap.add(types.KeyboardButton("Бүкіл компания деңгейінде (Ұлттық ауқым)"))
+            markup_ap.add(types.KeyboardButton("Дивизион / Аймақ деңгейінде (бір бизнес бағыты)"))
+            markup_ap.add(types.KeyboardButton("Бір филиалда / бөлімде (жергілікті идея)"))
+            markup_ap.add(types.KeyboardButton("Орталық аппарат (басқарушылық және стратегиялық жақсартулар)"))
+            msg = bot.send_message(message.chat.id, "Іске асыру периметрін көрсетіңіз", reply_markup=markup_ap)
             bot.register_next_step_handler(msg, per_audit, bot, idea_id)
         except Exception as e:
-            bot.send_message(message.chat.id, f"Ошибка в 'кого касается':{e}")
-    elif message_text == "клиентов и партнеров":
+            bot.send_message(message.chat.id, f"'Кімге қатысты' қатесі:{e}")
+    elif message_text == "клиенттер мен серіктестерге":
         try:
             idei.set_kogo_kasaetsya(idea_id, message_text)
-            markup_ap.add(types.KeyboardButton("Физические лица (B2C) - клиенты"))
-            markup_ap.add(types.KeyboardButton("Бизнес-клиенты (B2B) - компании"))
-            markup_ap.add(types.KeyboardButton("Госорганы и партнёры(B2G) — идеи, связанные с e-Gov"))
-            msg = bot.send_message(message.chat.id, "Укажите целевую аудиторию", reply_markup=markup_ap)
+            markup_ap.add(types.KeyboardButton("Жеке тұлғалар (B2C) - клиенттер"))
+            markup_ap.add(types.KeyboardButton("Бизнес-клиенттер (B2B) - компаниялар"))
+            markup_ap.add(types.KeyboardButton("Мемлекеттік органдар мен серіктестер (B2G) — 'E-Gov-пен' байланысты идеялар"))
+            msg = bot.send_message(message.chat.id, "Мақсатты аудиторияны көрсетіңіз", reply_markup=markup_ap)
             bot.register_next_step_handler(msg, per_audit, bot, idea_id)
         except Exception as e:
-            bot.send_message(message.chat.id, f"Ошибка в 'кого касается':{e}")
+            bot.send_message(message.chat.id, f"'Кімге қатысты' қатесі:{e}")
 
 def kogo_kasaetsa_r(message, bot, idea_id):
     if redirect(bot, message, idea_id):
         return
     message_text = message.text.strip().lower()
     markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-    if message_text == "сотрудников внутри компании":
+    if message_text == "компания ішіндегі қызметкерлерге":
         idei.set_kogo_kasaetsya_r(idea_id, message_text)
-        markup_ap.add(types.KeyboardButton("На уровне всей компании (национальный масштаб)"))
-        markup_ap.add(types.KeyboardButton("На уровне дивизиона / региона (одно бизнес-направление)"))
-        markup_ap.add(types.KeyboardButton("В одном филиале / отделе (локальная идея)"))
-        markup_ap.add(types.KeyboardButton("Центральный аппарат (управ. и страт. улучшения)"))
-        msg = bot.send_message(message.chat.id, "Укажите периметр реализации", reply_markup=markup_ap)
+        markup_ap.add(types.KeyboardButton("Бүкіл компания деңгейінде (Ұлттық ауқым)"))
+        markup_ap.add(types.KeyboardButton("Дивизион / Аймақ деңгейінде (бір бизнес бағыты)"))
+        markup_ap.add(types.KeyboardButton("Бір филиалда / бөлімде (жергілікті идея)"))
+        markup_ap.add(types.KeyboardButton("Орталық аппарат (басқарушылық және стратегиялық жақсартулар)"))
+        msg = bot.send_message(message.chat.id, "Іске асыру периметрін көрсетіңіз", reply_markup=markup_ap)
         bot.register_next_step_handler(msg, per_audit_r, bot, idea_id)
-    elif message_text == "клиентов и партнеров":
+    elif message_text == "клиенттер мен серіктестерге":
         idei.set_kogo_kasaetsya_r(idea_id, message_text)
-        markup_ap.add(types.KeyboardButton("Физические лица (B2C) - клиенты"))
-        markup_ap.add(types.KeyboardButton("Бизнес-клиенты (B2B) - компании"))
-        markup_ap.add(types.KeyboardButton("Госорганы и партнёры(B2G) — идеи, связанные с e-Gov"))
-        msg = bot.send_message(message.chat.id, "Укажите целевую аудиторию", reply_markup=markup_ap)
+        markup_ap.add(types.KeyboardButton("Жеке тұлғалар (B2C) - клиенттер"))
+        markup_ap.add(types.KeyboardButton("Бизнес-клиенттер (B2B) - компаниялар"))
+        markup_ap.add(types.KeyboardButton("Мемлекеттік органдар мен серіктестер (B2G) — 'E-Gov-пен' байланысты идеялар"))
+        msg = bot.send_message(message.chat.id, "Мақсатты аудиторияны көрсетіңіз", reply_markup=markup_ap)
         bot.register_next_step_handler(msg, per_audit_r, bot, idea_id)
 
 def per_audit(message, bot, idea_id):
@@ -1075,25 +1075,25 @@ def per_audit(message, bot, idea_id):
         return
     message_text = message.text.strip().lower()
     markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-    if message_text in ["на уровне всей компании (национальный масштаб)", "на уровне дивизиона / региона (одно бизнес-направление)",
-                        "в одном филиале / отделе (локальная идея)", "центральный аппарат (управ. и страт. улучшения)"]:
+    if message_text in ["бүкіл компания деңгейінде (ұлттық ауқым)", "дивизион / аймақ деңгейінде (бір бизнес бағыты)",
+                        "бір филиалда / бөлімде (жергілікті идея)", "орталық аппарат (басқарушылық және стратегиялық жақсартулар)"]:
         try:
             idei.set_perimetr(idea_id, message_text)
         except Exception as e:
-            bot.send_message(message.chat.id, f"Ошибка в функции 'set_perimeter':{e}")
-    elif message_text in ["физические лица (b2c) - клиенты", "бизнес-клиенты (b2b) - компании", "госорганы и партнёры(b2g) — идеи, связанные с e-gov"]:
+            bot.send_message(message.chat.id, f"'set_perimeter' функциядағы қате:{e}")
+    elif message_text in ["жеке тұлғалар (b2c) - клиенттер", "бизнес-клиенттер (b2b) - компаниялар", "мемлекеттік органдар мен серіктестер (b2g) — 'e-gov-пен' байланысты идеялар"]:
         try:
             idei.set_auditory(idea_id, message_text)
         except Exception as e:
-            bot.send_message(message.chat.id, f"Ошибка в функции 'set_auditory':{e}")
-    markup_ap.add(types.KeyboardButton("Телеком-инфраструктура и связь"))
-    markup_ap.add(types.KeyboardButton("Цифровые сервисы и продукты"))
-    markup_ap.add(types.KeyboardButton("ИИ и автоматизация внутренних процессов"))
-    markup_ap.add(types.KeyboardButton("Обслуживание клиентов и пользовательский опыт"))
-    markup_ap.add(types.KeyboardButton("Розничный и корпоративный бизнес"))
-    markup_ap.add(types.KeyboardButton("Образование и кадры"))
-    markup_ap.add(types.KeyboardButton("Проектный менеджмент и оптимизация процессов"))
-    msg = bot.send_message(message.chat.id, "Укажите отрасль применения", reply_markup=markup_ap)
+            bot.send_message(message.chat.id, f"'set_auditory' функциядағы қате:{e}")
+    markup_ap.add(types.KeyboardButton("Телеком-инфрақұрылым және байланыс"))
+    markup_ap.add(types.KeyboardButton("Сандық қызметтер мен өнімдер"))
+    markup_ap.add(types.KeyboardButton("ЖИ және ішкі процестерді автоматтандыру"))
+    markup_ap.add(types.KeyboardButton("Клиенттерге қызмет көрсету және пайдаланушы тәжірибесі"))
+    markup_ap.add(types.KeyboardButton("Бөлшек және корпоративтік бизнес"))
+    markup_ap.add(types.KeyboardButton("Білім және кадрлар"))
+    markup_ap.add(types.KeyboardButton("Жобалық менеджмент және процестерді оңтайландыру"))
+    msg = bot.send_message(message.chat.id, "Қолдану саласын көрсетіңіз", reply_markup=markup_ap)
     bot.register_next_step_handler(msg, otrasl, bot, idea_id)
 
 def otrasl(message, bot, idea_id):
@@ -1103,15 +1103,15 @@ def otrasl(message, bot, idea_id):
     markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
     try:
         idei.set_otrasl_primeneniya(idea_id, message_text)
-        markup_ap.add(types.KeyboardButton("Идея на словах - есть только идея"))
-        markup_ap.add(types.KeyboardButton("Описано и оформлено - есть текстовое описание, схема"))
-        markup_ap.add(types.KeyboardButton("Есть прототип / пилот - реализован MVP, протестирован в отделе"))
-        markup_ap.add(types.KeyboardButton("Работает локально - внедрено в одном филиале / процессе"))
-        markup_ap.add(types.KeyboardButton("Масштабируется - готово к тиражированию"))
-        msg = bot.send_message(message.chat.id, "Укажите готовность идеи", reply_markup=markup_ap)
+        markup_ap.add(types.KeyboardButton("Сөз идеясы - тек идея бар"))
+        markup_ap.add(types.KeyboardButton("Сипатталған және ресімделген - мәтіндік сипаттама, схема бар"))
+        markup_ap.add(types.KeyboardButton("Прототипі бар - MVP жүзеге асырылды, бөлімде сыналды"))
+        markup_ap.add(types.KeyboardButton("Жергілікті жұмыс істейді - бір филиалда / процесте енгізілген"))
+        markup_ap.add(types.KeyboardButton("Масштабтауда - тираждауға дайын"))
+        msg = bot.send_message(message.chat.id, "Идеяның дайындығын көрсетіңіз", reply_markup=markup_ap)
         bot.register_next_step_handler(msg, comanda, bot, idea_id)
     except Exception as e:
-            bot.send_message(message.chat.id, f"Ошибка в функции 'set_otrasl_primeneniya':{e}")
+            bot.send_message(message.chat.id, f"'set_otrasl_primeneniya' функциядағы қате:{e}")
 
 def comanda(message, bot, idea_id):
     if redirect(bot, message, idea_id):
@@ -1120,15 +1120,15 @@ def comanda(message, bot, idea_id):
         message_text = message.text
         markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         idei.set_gotovnost_idei(idea_id, message_text)
-        markup_ap.add(types.KeyboardButton("Инициатор (один человек)"))
-        markup_ap.add(types.KeyboardButton("Группа сотрудников"))
-        markup_ap.add(types.KeyboardButton("Партнёрство с вузами/НИИ"))
-        markup_ap.add(types.KeyboardButton("Нужна команда"))
-        markup_ap.add(types.KeyboardButton("Стартап/внешний подрядчик"))
-        msg = bot.send_message(message.chat.id, "Укажите команду проекта", reply_markup=markup_ap)
+        markup_ap.add(types.KeyboardButton("Бастамашы (бір адам)"))
+        markup_ap.add(types.KeyboardButton("Қызметкерлер тобы"))
+        markup_ap.add(types.KeyboardButton("ҒЗИ / Жоғары оқу орындарымен әріптестік"))
+        markup_ap.add(types.KeyboardButton("Команда керек"))
+        markup_ap.add(types.KeyboardButton("Стартап / сыртқы мердігер"))
+        msg = bot.send_message(message.chat.id, "Жоба командасын көрсетіңіз", reply_markup=markup_ap)
         bot.register_next_step_handler(msg, effect, bot, idea_id)
     except Exception as e:
-            bot.send_message(message.chat.id, f"Ошибка в функции 'set_gotovnost_idei':{e}")
+            bot.send_message(message.chat.id, f"'set_gotovnost_idei' функциядағы қате:{e}")
 
 def effect(message, bot, idea_id):
     if redirect(bot, message, idea_id):
@@ -1137,15 +1137,15 @@ def effect(message, bot, idea_id):
         message_text = message.text
         markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         idei.set_comanda(idea_id, message_text)
-        markup_ap.add(types.KeyboardButton("Рост дохода / ARPU"))
-        markup_ap.add(types.KeyboardButton("Повышение операционной эффективности"))
-        markup_ap.add(types.KeyboardButton("Улучшение клиентского опыта (CX)"))
-        markup_ap.add(types.KeyboardButton("Развитие внутри компании"))
-        markup_ap.add(types.KeyboardButton("Репутационный эффект"))
-        msg = bot.send_message(message.chat.id, "Укажите потенциальный эффект", reply_markup=markup_ap)
+        markup_ap.add(types.KeyboardButton("Табыстың өсуі / ARPU"))
+        markup_ap.add(types.KeyboardButton("Операциялық тиімділікті арттыру"))
+        markup_ap.add(types.KeyboardButton("Клиенттің тәжірибесін жақсарту (CX)"))
+        markup_ap.add(types.KeyboardButton("Компания ішіндегі даму"))
+        markup_ap.add(types.KeyboardButton("Беделді әсер"))
+        msg = bot.send_message(message.chat.id, "Ықтимал әсерді көрсетіңіз", reply_markup=markup_ap)
         bot.register_next_step_handler(msg, finance, bot, idea_id)
     except Exception as e:
-            bot.send_message(message.chat.id, f"Ошибка в функции 'set_comanda':{e}")
+            bot.send_message(message.chat.id, f"'set_comanda' функциядағы қате:{e}")
 
 def finance(message, bot, idea_id):
     if redirect(bot, message, idea_id):
@@ -1154,15 +1154,15 @@ def finance(message, bot, idea_id):
         message_text = message.text
         markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         idei.set_potential_effect(idea_id, message_text)  # Устанавливаем эффект
-        markup_ap.add(types.KeyboardButton("Не нужно финансирование"))
-        markup_ap.add(types.KeyboardButton("Нужно минимальное финансирование → Требуется небольшая поддержка - доработать идею, провести тестирование."))
-        markup_ap.add(types.KeyboardButton("Нужен грант или поддержка от компании - Нужна помощь от компаний или внешний грант."))
-        markup_ap.add(types.KeyboardButton("Нужны серьёзные инвестиции - Требуется финансирование свыше 10 млн ₸, возможно партнёрство."))
-        markup_ap.add(types.KeyboardButton("Есть подходящая Гос. программа"))
-        msg = bot.send_message(message.chat.id, "Укажите требуемое финансирование", reply_markup=markup_ap)
+        markup_ap.add(types.KeyboardButton("Қаржыландыру қажет емес"))
+        markup_ap.add(types.KeyboardButton("Аз қаржыландыру қажет → Аз қолдау қажет - идеяны нақтылауға, тестілеуге"))
+        markup_ap.add(types.KeyboardButton("Компаниядан грант немесе қолдау қажет - Компаниялардан көмек немесе сыртқы грант қажет"))
+        markup_ap.add(types.KeyboardButton("Елеулі инвестициялар қажет - 10 млн теңгеден астам қаржыландыру қажет, серіктестік болуы мүмкін."))
+        markup_ap.add(types.KeyboardButton("Қолайлы мемлекеттік бағдарлама бар"))
+        msg = bot.send_message(message.chat.id, "Қажетті қаржыландыруды көрсетіңіз", reply_markup=markup_ap)
         bot.register_next_step_handler(msg, idea, bot, idea_id)
     except Exception as e:
-            bot.send_message(message.chat.id, f"Ошибка в функции 'set_comanda':{e}")
+            bot.send_message(message.chat.id, f"'set_potential_effect' функциядағы қате:{e}")
 
 def idea(message, bot, idea_id):
     if redirect(bot, message, idea_id):
@@ -1170,15 +1170,15 @@ def idea(message, bot, idea_id):
     try:
         message_text = message.text
         idei.set_finance(idea_id, message_text)  # Устанавливаем эффект
-        bot.send_message(message.chat.id, "Распишите свою идею в одном сообщении (макс.объем - 1000 символов)")
-        msg = bot.send_message(message.chat.id, f"Так же можете дополнительно ответить на эти вопросы:"
-                               "\n\nЕсли вы выбрали 'Нужна команда': \n1.Какие специалисты вам нужны в команду?\n\n"
-                               "Если вам нужно 'Финансирование': \n1.На что примерно потребуются средства?"
-                               "\n2. Сколько финансов вам потребуется? \n\nСрок реализации: "
-                               "\n1.Какой период займет реализация данного проекта?")
+        bot.send_message(message.chat.id, "Өз идеяңызды бір хабарламада жазыңыз (максималды көлемі - 1000 таңба)")
+        msg = bot.send_message(message.chat.id, f"Сондай-ақ, осы сұрақтарға қосымша жауап бере аласызба:"
+                               "\n\nЕгер сіз 'Команда керек' деген нұсқауды таңдасаңыз: \n1.Командаға қандай мамандар қажет?\n\n"
+                               "Егер сізге 'Қаржыландыру' қажет болса: \n1.Қаражат сізге не үшін керек болады?"
+                               "\n2.Сізге қанша қаражат қажет? \n\nІске асыру мерзімі: "
+                               "\n1.Бұл жобаны іске асыру қанша уақыт алады?")
         bot.register_next_step_handler(msg, save_idea, bot, idea_id)
     except Exception as e:
-            bot.send_message(message.chat.id, f"Ошибка в функции 'set_potential_effect':{e}")
+            bot.send_message(message.chat.id, f"'set_finance' функциядағы қате:{e}")
 
 def save_idea(message, bot, idea_id):
     if redirect(bot, message, idea_id):
@@ -1186,29 +1186,29 @@ def save_idea(message, bot, idea_id):
     try:
         message_text = message.text
         idei.set_idea(idea_id, message_text)  # Сохраняем описание идеи
-        bot.send_message(message.chat.id, "Ваша идея успешно сохранена! Отправляем вас в главное меню")
+        bot.send_message(message.chat.id, "Сіздің идеяңыз сәтті сақталды! Біз сізді негізгі мәзірге жібереміз")
         menu(bot, message)
     except Exception as e:
-            bot.send_message(message.chat.id, f"Ошибка в функции 'set_idea':{e}")
+            bot.send_message(message.chat.id, f"'set_idea' функциядағы қате:{e}")
 
 def per_audit_r(message, bot, idea_id):
     if redirect(bot, message, idea_id):
         return
-    message_text = message.text
+    message_text = message.text.strip().lower()
     markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-    if message_text in ["На уровне всей компании (национальный масштаб)", "На уровне дивизиона / региона (одно бизнес-направление)",
-                        "В одном филиале / отделе (локальная идея)", "Центральный аппарат (управ. и страт. улучшения)"]:
+    if message_text in ["бүкіл компания деңгейінде (ұлттық ауқым)", "дивизион / аймақ деңгейінде (бір бизнес бағыты)",
+                        "бір филиалда / бөлімде (жергілікті идея)", "орталық аппарат (басқарушылық және стратегиялық жақсартулар)"]:
         idei.set_perimetr_r(idea_id, message_text)
-    elif message_text in ["Физические лица (B2C) - клиенты", "Бизнес-клиенты (B2B) - компании", "Госорганы и партнёры(B2G) — идеи, связанные с e-Gov"]:
+    elif message_text in ["жеке тұлғалар (b2c) - клиенттер", "бизнес-клиенттер (b2b) - компаниялар", "мемлекеттік органдар мен серіктестер (b2g) — 'e-gov-пен' байланысты идеялар"]:
         idei.set_auditory_r(idea_id, message_text)
-    markup_ap.add(types.KeyboardButton("Связь нового поколения (5G/6G)"))
+    markup_ap.add(types.KeyboardButton("Жаңа буын байланысы (5G/6G)"))
     markup_ap.add(types.KeyboardButton("IoT/Smart Devices"))
-    markup_ap.add(types.KeyboardButton("Искусственный интеллект и Big Data"))
-    markup_ap.add(types.KeyboardButton("Новые форматы связи и протоколы"))
-    markup_ap.add(types.KeyboardButton("Оптоэлектроника и материалы"))
-    markup_ap.add(types.KeyboardButton("Облачные и граничные вычисления (Edge/Cloud)"))
-    markup_ap.add(types.KeyboardButton("XR/AR/VR в телеком"))
-    msg = bot.send_message(message.chat.id, "Укажите направление исследования", reply_markup=markup_ap)
+    markup_ap.add(types.KeyboardButton("Жасанды интеллект және Big Data"))
+    markup_ap.add(types.KeyboardButton("Жаңа байланыс форматтары мен хаттамалары"))
+    markup_ap.add(types.KeyboardButton("Оптоэлектроника және материалдар"))
+    markup_ap.add(types.KeyboardButton("Бұлттық және шеткі есептеулер (Edge/Cloud)"))
+    markup_ap.add(types.KeyboardButton("XR/AR/VR телекомда"))
+    msg = bot.send_message(message.chat.id, "Зерттеу бағытын көрсетіңіз", reply_markup=markup_ap)
     bot.register_next_step_handler(msg, napravlenie, bot, idea_id)
 
 def napravlenie(message, bot, idea_id):
@@ -1218,15 +1218,15 @@ def napravlenie(message, bot, idea_id):
     markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
     try:
         idei.set_research_direction(idea_id, message_text)
-        markup_ap.add(types.KeyboardButton("Гипотеза/идея - есть только идея"))
-        markup_ap.add(types.KeyboardButton("Изучение и моделирование -  анализ, подбор решений, разработка модели"))
-        markup_ap.add(types.KeyboardButton("Прототип/лабораторное тестирование - создана и протестирована базовая реализация"))
-        markup_ap.add(types.KeyboardButton("Полевые испытания/пилот - испытания в ограниченном масштабе"))
-        markup_ap.add(types.KeyboardButton("Готово к внедрению/публикации - оформлены патенты, статьи"))
-        msg = bot.send_message(message.chat.id, "Укажите этап разработки", reply_markup=markup_ap)
+        markup_ap.add(types.KeyboardButton("Гипотеза / идея - тек идея бар"))
+        markup_ap.add(types.KeyboardButton("Зерттеу және модельдеу - талдау, шешімдерді таңдау, модельді әзірлеу"))
+        markup_ap.add(types.KeyboardButton("Прототип / зертханалық сынақ — базалық нұсқасы жасалып, сынақтан өткізілді"))
+        markup_ap.add(types.KeyboardButton("Далалық сынақтар / пилоттық жоба — шектеулі ауқымда жүргізілген сынақтар"))
+        markup_ap.add(types.KeyboardButton("Іске енгізуге / жариялауға дайын — патенттер мен мақалалар рәсімделді"))
+        msg = bot.send_message(message.chat.id, "Даму кезеңін көрсетіңіз", reply_markup=markup_ap)
         bot.register_next_step_handler(msg, etap_razrab, bot, idea_id)
     except Exception as e:
-            bot.send_message(message.chat.id, f"Ошибка в функции 'set_research_direction':{e}")
+            bot.send_message(message.chat.id, f"'set_research_direction' функциядағы қате:{e}")
 
 def etap_razrab(message, bot, idea_id):
     if redirect(bot, message, idea_id):
@@ -1235,15 +1235,15 @@ def etap_razrab(message, bot, idea_id):
         message_text = message.text
         markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         idei.set_stage(idea_id, message_text)
-        markup_ap.add(types.KeyboardButton("Инициатор (один человек)"))
-        markup_ap.add(types.KeyboardButton("Группа сотрудников"))
-        markup_ap.add(types.KeyboardButton("Партнёрство с вузами/НИИ"))
-        markup_ap.add(types.KeyboardButton("Нужна команда"))
-        markup_ap.add(types.KeyboardButton("Стартап/внешний подрядчик"))
-        msg = bot.send_message(message.chat.id, "Укажите команду проекта", reply_markup=markup_ap)
+        markup_ap.add(types.KeyboardButton("Бастамашы (бір адам)"))
+        markup_ap.add(types.KeyboardButton("Қызметкерлер тобы"))
+        markup_ap.add(types.KeyboardButton("ҒЗИ / Жоғары оқу орындарымен әріптестік"))
+        markup_ap.add(types.KeyboardButton("Команда керек"))
+        markup_ap.add(types.KeyboardButton("Стартап / сыртқы мердігер"))
+        msg = bot.send_message(message.chat.id, "Жоба командасын көрсетіңіз", reply_markup=markup_ap)
         bot.register_next_step_handler(msg, comanda_r, bot, idea_id)
     except Exception as e:
-            bot.send_message(message.chat.id, f"Ошибка в функции 'set_gotovnost_idei':{e}")
+            bot.send_message(message.chat.id, f"'set_stage' функциядағы қате:{e}")
 
 def comanda_r(message, bot, idea_id):
     if redirect(bot, message, idea_id):
@@ -1252,15 +1252,15 @@ def comanda_r(message, bot, idea_id):
         message_text = message.text
         markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         idei.set_comanda_r(idea_id, message_text)
-        markup_ap.add(types.KeyboardButton("Экономия - Сократит расходы на текущие процессы."))
-        markup_ap.add(types.KeyboardButton("Прибыль - Потенциально принесёт дополнительный доход."))
-        markup_ap.add(types.KeyboardButton("Повышение эффективности - Упростит, ускорит или автоматизирует важные процессы."))
-        markup_ap.add(types.KeyboardButton("Имидж и репутация - Усилит образ компаний как лидера инноваций."))
-        markup_ap.add(types.KeyboardButton("Вклад в устойчивое развитие - Эффект на долгосрочную перспективу + экологию и цифр. трансформацию"))
-        msg = bot.send_message(message.chat.id, "Укажите ожидаемый эффект", reply_markup=markup_ap)
+        markup_ap.add(types.KeyboardButton("Экономия — ағымдағы үдерістердің шығындарын азайтады"))
+        markup_ap.add(types.KeyboardButton("Пайда — қосымша табыс әкелуі мүмкін"))
+        markup_ap.add(types.KeyboardButton("Тиімділікті арттыру — маңызды үдерістерді жеңілдетеді, жеделдетеді немесе автоматтандырады"))
+        markup_ap.add(types.KeyboardButton("Имидж және бедел - компанияның Инновация көшбасшысы ретіндегі имиджін күшейтеді"))
+        markup_ap.add(types.KeyboardButton("Тұрақты даму үлесі - Ұзақ мерзімді перспективаға әсер + экология және цифрлық трансформация"))
+        msg = bot.send_message(message.chat.id, "Күтілетін әсер", reply_markup=markup_ap)
         bot.register_next_step_handler(msg, finance_r, bot, idea_id)
     except Exception as e:
-            bot.send_message(message.chat.id, f"Ошибка в функции 'set_gotovnost_idei':{e}")
+            bot.send_message(message.chat.id, f"'set_comanda_r' функциядағы қате:{e}")
 
 def finance_r(message, bot, idea_id):
     if redirect(bot, message, idea_id):
@@ -1269,15 +1269,15 @@ def finance_r(message, bot, idea_id):
         message_text = message.text
         markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)        
         idei.set_ozhidaemyi_effect(idea_id, message_text)  # Устанавливаем эффект
-        markup_ap.add(types.KeyboardButton("Не нужно финансирование"))
-        markup_ap.add(types.KeyboardButton("Нужно минимальное финансирование → Требуется небольшая поддержка - доработать идею, провести тестирование."))
-        markup_ap.add(types.KeyboardButton("Нужен грант или поддержка от компании - Нужна помощь от компаний или внешний грант."))
-        markup_ap.add(types.KeyboardButton("Нужны серьёзные инвестиции - Требуется финансирование свыше 10 млн ₸, возможно партнёрство."))
-        markup_ap.add(types.KeyboardButton("Есть подходящая Гос. программа"))
-        msg = bot.send_message(message.chat.id, "Укажите требуемое финансирование", reply_markup=markup_ap)
+        markup_ap.add(types.KeyboardButton("Қаржыландыру қажет емес"))
+        markup_ap.add(types.KeyboardButton("Минималды қаржыландыру қажет → Идеяны жетілдіру, тестілеу жүргізу үшін аздаған қолдау қажет"))
+        markup_ap.add(types.KeyboardButton("Грант немесе компаниядан қолдау қажет – Компаниялардан көмек немесе сыртқы грант қажет"))
+        markup_ap.add(types.KeyboardButton("Ерекше инвестициялар қажет – 10 млн ₸ жоғары қаржыландыру қажет, серіктестік мүмкіндігі бар."))
+        markup_ap.add(types.KeyboardButton("Қолайлы мемлекеттік бағдарлама бар"))
+        msg = bot.send_message(message.chat.id, "Қажет қаржыландыруды көрсетіңіз", reply_markup=markup_ap)
         bot.register_next_step_handler(msg, idea_r, bot, idea_id)
     except Exception as e:
-            bot.send_message(message.chat.id, f"Ошибка в функции 'set_potential_effect':{e}")
+            bot.send_message(message.chat.id, f"'set_ozhidaemyi_effect' функциядағы қате:{e}")
 
 def idea_r(message, bot, idea_id):
     if redirect(bot, message, idea_id):
@@ -1285,14 +1285,16 @@ def idea_r(message, bot, idea_id):
     try:
         message_text = message.text
         idei.set_finance_r(idea_id, message_text)  # Устанавливаем эффект
-        bot.send_message(message.chat.id, "Распишите свою идею в одном сообщении (макс.объем - 1000 символов)")
-        msg = bot.send_message(message.chat.id, f"Так же можете дополнительно ответить на эти вопросы:"
-                               "\n\nЕсли вы выбрали 'Нужна команда': \n1.Какие специалисты вам нужны в команду?\n\n"
-                               "Если вам нужно 'Финансирование': \n1.На что примерно потребуются средства?\n"
-                               "\n1.Какой период займет реализация данного проекта?")
+        bot.send_message(message.chat.id, "Өз идеяңызды бір хабарламада жазыңыз (максималды көлемі - 1000 таңба)")
+        msg = bot.send_message(message.chat.id, f"Сондай-ақ, осы сұрақтарға қосымша жауап бере аласызба:"
+                               "\n\nЕгер сіз 'Команда керек' деген нұсқауды таңдасаңыз: \n1.Командаға қандай мамандар қажет?\n\n"
+                               "Егер сізге 'Қаржыландыру' қажет болса: \n1.Қаражат сізге не үшін керек болады?"
+                               "\n2.Сізге қанша қаражат қажет? \n\nІске асыру мерзімі: "
+                               "\n1.Бұл жобаны іске асыру қанша уақыт алады?")
+        
         bot.register_next_step_handler(msg, save_idea_r, bot, idea_id)
     except Exception as e:
-            bot.send_message(message.chat.id, f"Ошибка в функции 'set_potential_effect':{e}")
+            bot.send_message(message.chat.id, f"'set_finance_r' функциядағы қате:{e}")
 
 def save_idea_r(message, bot, idea_id):
     if redirect(bot, message, idea_id):
@@ -1300,10 +1302,10 @@ def save_idea_r(message, bot, idea_id):
     try:
         message_text = message.text
         idei.set_research_idea(idea_id, message_text)  # Сохраняем описание идеи
-        bot.send_message(message.chat.id, "Ваша идея успешно сохранена! Отправляем вас в главное меню")
+        bot.send_message(message.chat.id, "Сіздің идеяңыз сәтті сақталды! Біз сізді негізгі мәзірге жібереміз")
         menu(bot, message)
     except Exception as e:
-            bot.send_message(message.chat.id, f"Ошибка в функции 'set_idea':{e}")
+            bot.send_message(message.chat.id, f"'set_research_idea' функциядағы қате:{e}")
 
 def hse_competition_(bot, message, id_i_s = None):
     text = "Сақталған ақпарат\n\n"
