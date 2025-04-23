@@ -293,12 +293,12 @@ def get_markup(message):
     button4 = types.KeyboardButton("👷Заполнить карточку БиОТ")
     button5 = types.KeyboardButton("📄У меня есть вопрос")
     button6 = types.KeyboardButton("🧐Мой профиль")
-    button7 = types.KeyboardButton('🖥Портал "Бірлік"')
+    # button7 = types.KeyboardButton('🖥Портал "Бірлік"')
     button8 = types.KeyboardButton(lte_[0])
     markup.add(button10, button9, button)
     if get_branch(message.chat.id) == branches[2]:
         markup.add(button8)
-    markup.add(button3, button7, button5, button4, button6)
+    markup.add(button3 , button5, button4, button6)
     return markup
 
 def send_welcome_message(bot, message):
@@ -1175,7 +1175,7 @@ def per_audit(message, bot, idea_id):
     markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
     if message_text in ["на уровне всей компании (национальный масштаб)", "на уровне дивизиона / региона (одно бизнес-направление)",
                         "в одном филиале / отделе (локальная идея)", "центральный аппарат (управ. и страт. улучшения)"]:
-        try:
+        try: 
             idei.set_perimetr(idea_id, message_text)
         except Exception as e:
             bot.send_message(message.chat.id, f"Ошибка в функции 'set_perimeter':{e}")
@@ -1260,7 +1260,7 @@ def finance(message, bot, idea_id):
         msg = bot.send_message(message.chat.id, "Укажите требуемое финансирование", reply_markup=markup_ap)
         bot.register_next_step_handler(msg, idea, bot, idea_id)
     except Exception as e:
-            bot.send_message(message.chat.id, f"Ошибка в функции 'set_comanda':{e}")
+            bot.send_message(message.chat.id, f"Ошибка в функции 'set_potential_effect':{e}")
 
 def idea(message, bot, idea_id):
     if redirect(bot, message, idea_id):
@@ -1271,12 +1271,12 @@ def idea(message, bot, idea_id):
         bot.send_message(message.chat.id, "Распишите свою идею в одном сообщении (макс.объем - 1000 символов)")
         msg = bot.send_message(message.chat.id, f"Так же можете дополнительно ответить на эти вопросы:"
                                "\n\nЕсли вы выбрали 'Нужна команда': \n1.Какие специалисты вам нужны в команду?\n\n"
-                               "Если вам нужно 'Финансирование': 1.На что примерно потребуются средства?\n"
+                               "Если вам нужно 'Финансирование': \n1.На что примерно потребуются средства?\n"
                                "\n2. Сколько финансов вам потребуется? \n\nСрок реализации: "
                                "\n1.Какой период займет реализация данного проекта?")
         bot.register_next_step_handler(msg, save_idea, bot, idea_id)
     except Exception as e:
-            bot.send_message(message.chat.id, f"Ошибка в функции 'set_potential_effect':{e}")
+            bot.send_message(message.chat.id, f"Ошибка в функции 'set_finance':{e}")
 
 def save_idea(message, bot, idea_id):
     if redirect(bot, message, idea_id):
@@ -1292,12 +1292,12 @@ def save_idea(message, bot, idea_id):
 def per_audit_r(message, bot, idea_id):
     if redirect(bot, message, idea_id):
         return
-    message_text = message.text
+    message_text = message.text.strip().lower()
     markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-    if message_text in ["На уровне всей компании (национальный масштаб)", "На уровне дивизиона / региона (одно бизнес-направление)",
-                        "В одном филиале / отделе (локальная идея)", "Центральный аппарат (управ. и страт. улучшения)"]:
+    if message_text in ["на уровне всей компании (национальный масштаб)", "на уровне дивизиона / региона (одно бизнес-направление)",
+                        "в одном филиале / отделе (локальная идея)", "центральный аппарат (управ. и страт. улучшения)"]:
         idei.set_perimetr_r(idea_id, message_text)
-    elif message_text in ["Физические лица (B2C) - клиенты", "Бизнес-клиенты (B2B) - компании", "Госорганы и партнёры(B2G) — идеи, связанные с e-Gov"]:
+    elif message_text in ["физические лица (b2c) - клиенты", "бизнес-клиенты (b2b) - компании", "госорганы и партнёры(b2g) — идеи, связанные с e-gov"]:
         idei.set_auditory_r(idea_id, message_text)
     markup_ap.add(types.KeyboardButton("Связь нового поколения (5G/6G)"))
     markup_ap.add(types.KeyboardButton("IoT/Smart Devices"))
@@ -1341,7 +1341,7 @@ def etap_razrab(message, bot, idea_id):
         msg = bot.send_message(message.chat.id, "Укажите команду проекта", reply_markup=markup_ap)
         bot.register_next_step_handler(msg, comanda_r, bot, idea_id)
     except Exception as e:
-            bot.send_message(message.chat.id, f"Ошибка в функции 'set_gotovnost_idei':{e}")
+            bot.send_message(message.chat.id, f"Ошибка в функции 'set_stage':{e}")
 
 def comanda_r(message, bot, idea_id):
     if redirect(bot, message, idea_id):
@@ -1358,7 +1358,7 @@ def comanda_r(message, bot, idea_id):
         msg = bot.send_message(message.chat.id, "Укажите ожидаемый эффект", reply_markup=markup_ap)
         bot.register_next_step_handler(msg, finance_r, bot, idea_id)
     except Exception as e:
-            bot.send_message(message.chat.id, f"Ошибка в функции 'set_gotovnost_idei':{e}")
+            bot.send_message(message.chat.id, f"Ошибка в функции 'set_comanda_r':{e}")
 
 def finance_r(message, bot, idea_id):
     if redirect(bot, message, idea_id):
@@ -1375,7 +1375,7 @@ def finance_r(message, bot, idea_id):
         msg = bot.send_message(message.chat.id, "Укажите требуемое финансирование", reply_markup=markup_ap)
         bot.register_next_step_handler(msg, idea_r, bot, idea_id)
     except Exception as e:
-            bot.send_message(message.chat.id, f"Ошибка в функции 'set_potential_effect':{e}")
+            bot.send_message(message.chat.id, f"Ошибка в функции 'set_ozhidaemyi_effect':{e}")
 
 def idea_r(message, bot, idea_id):
     if redirect(bot, message, idea_id):
@@ -1391,7 +1391,7 @@ def idea_r(message, bot, idea_id):
                                "\n1.Какой период займет реализация данного проекта?")
         bot.register_next_step_handler(msg, save_idea_r, bot, idea_id)
     except Exception as e:
-            bot.send_message(message.chat.id, f"Ошибка в функции 'set_potential_effect':{e}")
+            bot.send_message(message.chat.id, f"Ошибка в функции 'set_finance_r':{e}")
 
 def save_idea_r(message, bot, idea_id):
     if redirect(bot, message, idea_id):
@@ -1402,7 +1402,7 @@ def save_idea_r(message, bot, idea_id):
         bot.send_message(message.chat.id, "Ваша идея успешно сохранена! Отправляем вас в главное меню")
         menu(bot, message)
     except Exception as e:
-            bot.send_message(message.chat.id, f"Ошибка в функции 'set_idea':{e}")
+            bot.send_message(message.chat.id, f"Ошибка в функции 'set_research_idea':{e}")
 
 def hse_competition_(bot, message, id_i_s = None):
     text = "Сохраненная информация\n\n"
