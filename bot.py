@@ -114,16 +114,15 @@ def delete_commands_history_user(message):
 #     db_connect.delete_users()
 #     bot.send_message(message.chat.id, "Изменения сохранены")
 
+# @bot.message_handler(commands=['delete_appeals'])
+# def delete_appeals(message):
+#     db_connect.delete_appeals()
+#     bot.send_message(message.chat.id, "Изменения сохранены")
 
-@bot.message_handler(commands=['delete_appeals'])
-def delete_appeals(message):
-    db_connect.delete_appeals()
-    bot.send_message(message.chat.id, "Изменения сохранены")
-
-@bot.message_handler(commands=['update_sapa'])
-def delete_appeals(message):
-    db_connect.update_sapa()
-    bot.send_message(message.chat.id, "Изменения сохранены")
+# @bot.message_handler(commands=['update_sapa'])
+# def delete_appeals(message):
+#     db_connect.update_sapa()
+#     bot.send_message(message.chat.id, "Изменения сохранены")
 
 @bot.message_handler(commands=['delete_sapa_bonus'])
 def delete_appeals(message):
