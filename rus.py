@@ -298,7 +298,7 @@ def get_markup(message):
     markup.add(button10, button9, button)
     if get_branch(message.chat.id) == branches[2]:
         markup.add(button8)
-    markup.add(button3 , button5, button4, button6)
+    markup.add(button3, button5, button4, button6)
     return markup
 
 def send_welcome_message(bot, message):
@@ -1105,9 +1105,9 @@ def process_idea(message, bot, id_i_s=None):
             idei.insert_into_idei(user_id)  # Сохраняем id новой записи
             idea_id = idei.get_id_from_idea(user_id)
             idei.set_format(idea_id, message_text)
-            markup_ap.add(types.KeyboardButton("Сотрудников внутри компании"))
+            markup_ap.add(types.KeyboardButton("Работников внутри компании"))
             markup_ap.add(types.KeyboardButton("Клиентов и партнеров"))
-            msg = bot.send_message(message.chat.id, "Укажите, кого касается ваша идея?", reply_markup=markup_ap)
+            msg = bot.send_message(message.chat.id, "Уточните, на какую целевую аудиторию направлена ваша идея?", reply_markup=markup_ap)
             bot.register_next_step_handler(msg, kogo_kasaetsa, bot, idea_id)  # Передаем idea_id
         except Exception as e:
             bot.send_message(message.chat.id, f"Ошибка в добавлении формат:{e}")
@@ -1115,9 +1115,9 @@ def process_idea(message, bot, id_i_s=None):
         idei.insert_into_researches(user_id)  # Сохраняем id новой записи
         idea_id = idei.get_id_from_researches(user_id)
         idei.set_format_r(idea_id, message_text)
-        markup_ap.add(types.KeyboardButton("Сотрудников внутри компании"))
+        markup_ap.add(types.KeyboardButton("Работников внутри компании"))
         markup_ap.add(types.KeyboardButton("Клиентов и партнеров"))
-        msg = bot.send_message(message.chat.id, "Укажите, кого касается ваша идея?", reply_markup=markup_ap)
+        msg = bot.send_message(message.chat.id, "Уточните, на какую целевую аудиторию направлена ваша идея?", reply_markup=markup_ap)
         bot.register_next_step_handler(msg, kogo_kasaetsa_r, bot, idea_id)  # Передаем idea_id
 
 def kogo_kasaetsa(message, bot, idea_id):
@@ -1125,7 +1125,7 @@ def kogo_kasaetsa(message, bot, idea_id):
         return
     message_text = message.text.strip().lower()
     markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-    if message_text == "сотрудников внутри компании":
+    if message_text == "работников внутри компании":
         try:
             idei.set_kogo_kasaetsya(idea_id, message_text)
             markup_ap.add(types.KeyboardButton("На уровне всей компании (национальный масштаб)"))
@@ -1152,7 +1152,7 @@ def kogo_kasaetsa_r(message, bot, idea_id):
         return
     message_text = message.text.strip().lower()
     markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-    if message_text == "сотрудников внутри компании":
+    if message_text == "работников внутри компании":
         idei.set_kogo_kasaetsya_r(idea_id, message_text)
         markup_ap.add(types.KeyboardButton("На уровне всей компании (национальный масштаб)"))
         markup_ap.add(types.KeyboardButton("На уровне дивизиона / региона (одно бизнес-направление)"))
@@ -1206,7 +1206,7 @@ def otrasl(message, bot, idea_id):
         markup_ap.add(types.KeyboardButton("Есть прототип / пилот - реализован MVP, протестирован в отделе"))
         markup_ap.add(types.KeyboardButton("Работает локально - внедрено в одном филиале / процессе"))
         markup_ap.add(types.KeyboardButton("Масштабируется - готово к тиражированию"))
-        msg = bot.send_message(message.chat.id, "Укажите готовность идеи", reply_markup=markup_ap)
+        msg = bot.send_message(message.chat.id, "Какова текущая степень готовности вашей идеи?", reply_markup=markup_ap)
         bot.register_next_step_handler(msg, comanda, bot, idea_id)
     except Exception as e:
             bot.send_message(message.chat.id, f"Ошибка в функции 'set_otrasl_primeneniya':{e}")
