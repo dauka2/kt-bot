@@ -2,10 +2,10 @@ from telebot import types
 import psycopg2
 
 # Тестовый
-TOKEN = '6684043919:AAFq7pz10dG01UR8MkeIHY4JphE1pjmnzxQ'
+# TOKEN = '6684043919:AAFq7pz10dG01UR8MkeIHY4JphE1pjmnzxQ'
 # кт-бот
-# TOKEN = '6145415028:AAEdgPMvSsi3FJw2ccyzWf2QiJrPa_Ycz0A'
-admins_id = ['760906879', '1066191569', '6682886650', '353845928']
+TOKEN = '6145415028:AAEdgPMvSsi3FJw2ccyzWf2QiJrPa_Ycz0A'
+admins_id = ['760906879', '1066191569', '6682886650', '353845928', '309419454']
 
 def execute_get_sql_query(sql_query, params=None):
     try:
@@ -291,44 +291,44 @@ def insert_into_performers():
                                                         "@callmedisa"
                                                         ))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
-                'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("760906879",
+                'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("309419454",
                                                                              "Портал закупок 2.0 | "
                                                                              "Техническая поддержка",
                                                                              "Тотиева", "Жансая", "+77001117777",
                                                                              "@gmail.com",
                                                                              "@", "Закупочная деятельность"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
-                'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("760906879",
+                'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("309419454",
                                                                              "Открытый тендер",
                                                                              "Копешбаев", "Чингиз", "+77001117777",
                                                                              "@gmail.com",
                                                                              "@", "Закупочная деятельность"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
-                'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("760906879",
+                'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("309419454",
                                                                              "Запрос ценовых предложений",
                                                                              "Аметова", "Асем", "+77001117777",
                                                                              "@gmail.com",
                                                                              "@", "Закупочная деятельность"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
-                'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("760906879",
+                'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("309419454",
                                                                              "Один источник и Электронный магазин",
                                                                              "Нурбатшанова", "Нурай", "+77001117777",
                                                                              "@gmail.com",
                                                                              "@", "Закупочная деятельность"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
-                'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("760906879",
+                'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("309419454",
                                                                              "Заключение договоров",
                                                                              "Уркумбаев", "Руслан", "+77001117777",
                                                                              "@gmail.com",
                                                                              "@", "Закупочная деятельность"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
-                'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("760906879",
+                'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("309419454",
                                                                              "Логистика",
                                                                              "Азанбеков", "Улан", "+77001117777",
                                                                              "@gmail.com",
                                                                              "@", "Закупочная деятельность"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
-                'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("760906879",
+                'parent_category) values (%s, %s, %s, %s, %s, %s, %s, %s)', ("309419454",
                                                                              "Транспортировка",
                                                                              "Азанбеков", "Улан", "+77001117777",
                                                                              "mail.com",
@@ -389,7 +389,7 @@ def insert_into_performers():
     cur.execute(
         'insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) values '
         '(%s, %s, %s, %s, %s, %s, %s)',
-        ("760906879", "Костанайская ОДТ",
+        ("309419454", "Костанайская ОДТ",
          "Тамирлан", "Оспанов", "87079089665", "@gmail.com", "@tamirlanospanov"))
     cur.execute(
         'insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram) values '
@@ -452,19 +452,19 @@ def insert_into_performers():
                  "mail.com", "@", "Дивизион Информационных Технологий"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
                 'subcategory) values (%s, %s, %s, %s, %s, %s, %s, %s)',
-                ("760906879", "Вопрос к EX", "Д", "Д", "+77001117777",
+                ("309419454", "Вопрос к EX", "Д", "Д", "+77001117777",
                  "mail.com", "@", "Корпоративный Университет"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
                 'subcategory) values (%s, %s, %s, %s, %s, %s, %s, %s)',
-                ("760906879", "Вопрос к EX", "Д", "Д", "+77001117777",
+                ("309419454", "Вопрос к EX", "Д", "Д", "+77001117777",
                  "mail.com", "@", "Сервисная Фабрика"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
                 'subcategory) values (%s, %s, %s, %s, %s, %s, %s, %s)',
-                ("760906879", "Вопрос к EX", "Д", "Д", "+77001117777",
+                ("309419454", "Вопрос к EX", "Д", "Д", "+77001117777",
                  "mail.com", "@", "Дирекция Телеком Комплект"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
                 'subcategory) values (%s, %s, %s, %s, %s, %s, %s, %s)',
-                ("760906879", "Вопрос к EX", "Д", "Д", "+77001117777",
+                ("309419454", "Вопрос к EX", "Д", "Д", "+77001117777",
                  "mail.com", "@", "Дирекция Управления Проектами"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
                 'subcategory, subsubcategory) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
@@ -484,15 +484,15 @@ def insert_into_performers():
                  "mail.com", "@", 'Обьединение Дивизион "Сеть"', "Юг"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
                 'subcategory, subsubcategory) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
-                ("760906879", "Вопрос к EX", "Д", "Д", "+77001117777",
+                ("309419454", "Вопрос к EX", "Д", "Д", "+77001117777",
                  "mail.com", "@", 'Обьединение Дивизион "Сеть"', "Запад"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
                 'subcategory, subsubcategory) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
-                ("760906879", "Вопрос к EX", "Д", "Д", "+77001117777",
+                ("309419454", "Вопрос к EX", "Д", "Д", "+77001117777",
                  "mail.com", "@", 'Обьединение Дивизион "Сеть"', "Восток"))
     cur.execute('insert into performers (performer_id, category, firstname, lastname, phone_num, email, telegram, '
                 'subcategory, subsubcategory) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
-                ("760906879", "Вопрос к EX", "Д", "Д", "+77001117777",
+                ("309419454", "Вопрос к EX", "Д", "Д", "+77001117777",
                  "mail.com", "@", 'Обьединение Дивизион "Сеть"', "Алматы"))
     conn.commit()
     cur.close()
