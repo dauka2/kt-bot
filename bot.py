@@ -114,16 +114,15 @@ def delete_commands_history_user(message):
 #     db_connect.delete_users()
 #     bot.send_message(message.chat.id, "Изменения сохранены")
 
+# @bot.message_handler(commands=['delete_appeals'])
+# def delete_appeals(message):
+#     db_connect.delete_appeals()
+#     bot.send_message(message.chat.id, "Изменения сохранены")
 
-@bot.message_handler(commands=['delete_appeals'])
-def delete_appeals(message):
-    db_connect.delete_appeals()
-    bot.send_message(message.chat.id, "Изменения сохранены")
-
-@bot.message_handler(commands=['update_sapa'])
-def delete_appeals(message):
-    db_connect.update_sapa()
-    bot.send_message(message.chat.id, "Изменения сохранены")
+# @bot.message_handler(commands=['update_sapa'])
+# def delete_appeals(message):
+#     db_connect.update_sapa()
+#     bot.send_message(message.chat.id, "Изменения сохранены")
 
 @bot.message_handler(commands=['delete_sapa_bonus'])
 def delete_appeals(message):
@@ -941,12 +940,12 @@ def get_excel(message):
     db_connect.delete_researches()
     bot.send_message(message.chat.id, "Изменения сохранены")
 
-@bot.message_handler(commands=['get_ideas'])
+@bot.message_handler(commands=['get_ideas_4758'])
 def get_excel(message):
     sql_query = "SELECT * from ideas ORDER BY id ASC"
     common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
 
-@bot.message_handler(commands=['get_researches'])
+@bot.message_handler(commands=['get_researches_4758'])
 def get_excel(message):
     sql_query = "SELECT * from researches ORDER BY id ASC"
     common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
