@@ -83,6 +83,8 @@ def set_idea(idea_id, idea):
     result = execute_set_sql_query(sql_query, params)
     return bool(result)
 
+# ресерчи
+
 def set_format_r(idea_id, format):
     sql_query = 'UPDATE researches SET format = %s WHERE id = %s'
     params = (format, idea_id)
@@ -142,6 +144,109 @@ def set_research_idea(idea_id, idea):
     params = (idea, idea_id)
     result = execute_set_sql_query(sql_query, params)
     return bool(result)
+
+def get_format(idea_id):
+    sql_query = "SELECT format FROM ideas WHERE id = %s"
+    params = (idea_id,)
+    return execute_get_sql_query(sql_query, params)[0][0]
+
+def get_kogo_kasaetsya(idea_id):
+    sql_query = "SELECT for_who FROM ideas WHERE id = %s"
+    params = (idea_id,)
+    return execute_get_sql_query(sql_query, params)[0][0]
+
+def get_perimetr(idea_id):
+    sql_query = "SELECT perimetr FROM ideas WHERE id = %s"
+    params = (idea_id,)
+    return execute_get_sql_query(sql_query, params)[0][0]
+
+def get_auditory(idea_id):
+    sql_query = "SELECT auditory FROM ideas WHERE id = %s"
+    params = (idea_id,)
+    return execute_get_sql_query(sql_query, params)[0][0]
+
+def get_otrasl_primeneniya(idea_id):
+    sql_query = "SELECT otrasl_primeneniya FROM ideas WHERE id = %s"
+    params = (idea_id,)
+    return execute_get_sql_query(sql_query, params)[0][0]
+
+def get_gotovnost_idei(idea_id):
+    sql_query = "SELECT gotovnost_idei FROM ideas WHERE id = %s"
+    params = (idea_id,)
+    return execute_get_sql_query(sql_query, params)[0][0]
+
+def get_comanda(idea_id):
+    sql_query = "SELECT comanda FROM ideas WHERE id = %s"
+    params = (idea_id,)
+    return execute_get_sql_query(sql_query, params)[0][0]
+
+def get_potential_effect(idea_id):
+    sql_query = "SELECT potential_effect FROM ideas WHERE id = %s"
+    params = (idea_id,)
+    return execute_get_sql_query(sql_query, params)[0][0]
+
+def get_finance(idea_id):
+    sql_query = "SELECT finance FROM ideas WHERE id = %s"
+    params = (idea_id,)
+    return execute_get_sql_query(sql_query, params)[0][0]
+
+def get_idea(idea_id):
+    sql_query = "SELECT idea FROM ideas WHERE id = %s"
+    params = (idea_id,)
+    return execute_get_sql_query(sql_query, params)[0][0]
+
+# Аналоги для таблицы researches
+
+def get_format_r(idea_id):
+    sql_query = "SELECT format FROM researches WHERE id = %s"
+    params = (idea_id,)
+    return execute_get_sql_query(sql_query, params)[0][0]
+
+def get_kogo_kasaetsya_r(idea_id):
+    sql_query = "SELECT for_who FROM researches WHERE id = %s"
+    params = (idea_id,)
+    return execute_get_sql_query(sql_query, params)[0][0]
+
+def get_perimetr_r(idea_id):
+    sql_query = "SELECT perimetr FROM researches WHERE id = %s"
+    params = (idea_id,)
+    return execute_get_sql_query(sql_query, params)[0][0]
+
+def get_auditory_r(idea_id):
+    sql_query = "SELECT auditory FROM researches WHERE id = %s"
+    params = (idea_id,)
+    return execute_get_sql_query(sql_query, params)[0][0]
+
+def get_research_direction(idea_id):
+    sql_query = "SELECT research_direction FROM researches WHERE id = %s"
+    params = (idea_id,)
+    return execute_get_sql_query(sql_query, params)[0][0]
+
+def get_stage(idea_id):
+    sql_query = "SELECT stage FROM researches WHERE id = %s"
+    params = (idea_id,)
+    return execute_get_sql_query(sql_query, params)[0][0]
+
+def get_comanda_r(idea_id):
+    sql_query = "SELECT comanda FROM researches WHERE id = %s"
+    params = (idea_id,)
+    return execute_get_sql_query(sql_query, params)[0][0]
+
+def get_ozhidaemyi_effect(idea_id):
+    sql_query = "SELECT ozhidaemyi_effect FROM researches WHERE id = %s"
+    params = (idea_id,)
+    return execute_get_sql_query(sql_query, params)[0][0]
+
+def get_finance_r(idea_id):
+    sql_query = "SELECT finance FROM researches WHERE id = %s"
+    params = (idea_id,)
+    return execute_get_sql_query(sql_query, params)[0][0]
+
+def get_research_idea(idea_id):
+    sql_query = "SELECT idea FROM researches WHERE id = %s"
+    params = (idea_id,)
+    return execute_get_sql_query(sql_query, params)[0][0]
+
 
 def delete_idea(idea_id):
     sql_query = "DELETE FROM ideas WHERE id = %s"

@@ -969,23 +969,10 @@ def bank_idei(bot, message):
     message_text = message.text
 
     if message_text == '💡Идеялар банкі':
-        markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-        button2_ap = types.KeyboardButton("Бәрі дұрыс")
-        markup_ap.add(button2_ap)
-        profile(bot, message)
-        msg = bot.send_message(message.chat.id, "Ақпарат дұрыс па?", reply_markup=markup_ap)
-        bot.register_next_step_handler(msg, confirm_dannyie, bot)
-    else:
-        # Если пользователь ввел что-то другое, попросим сделать выбор снова
-        msg = bot.send_message(message.chat.id, "Ұсынылған опциялардың біреуін таңдаңыз.")
-        bot.register_next_step_handler(msg, bank_idei, bot)
-
-def confirm_dannyie(message, bot, id_i_s=None):
-    message_text = message.text
-    if redirect(bot, message, id_i_s):
-        return
-
-    elif message_text == "Бәрі дұрыс":
+        bot.send_message(message.chat.id, "🧠 «Идеялар банкіне» идеяны қалай ұсынуға болады? \n\n"
+                         "1️⃣ Өз идеяңызға қатысты сұрақтарға жауап беріңіз \n🤖 Бот бірнеше нақтылаушы сұрақ қояды — сізге тек сәйкес нұсқаларды таңдау қажет (мысалы: идея кімге арналған, идеяның түрі, дайындық кезеңі және т.б.)\n\n"
+                         "2️⃣ Идеяңызды сипаттаңыз\n📝 Идеяңызды бір хабарламада жазыңыз (1000 таңбаға дейін).\n💬 Қосымша сұрақтарға да жауап бере аласыз:\n— Команда қажет пе?"
+                         "\n— Қаржыландыру қажет пе?\n— Іске асыру қанша уақыт алады?\n\n 3️⃣ Деректеріңізді тексеріңіз\n👉 Бот алдымен сіздің сауалнамалық деректеріңіз өзекті екенін нақтылайды. \nРастаңыз немесе жаңартыңыз!")
         markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         markup_ap.add(types.KeyboardButton("Ғылыми-зерттеу жұмысы"))
         markup_ap.add(types.KeyboardButton("Жұмыс процестерін жақсарту"))
@@ -994,7 +981,7 @@ def confirm_dannyie(message, bot, id_i_s=None):
     else:
         # Если пользователь ввел что-то другое, попросим сделать выбор снова
         msg = bot.send_message(message.chat.id, "Ұсынылған опциялардың біреуін таңдаңыз.")
-        bot.register_next_step_handler(msg, confirm_dannyie, bot)
+        bot.register_next_step_handler(msg, bank_idei, bot)
 
 def process_idea(message, bot, id_i_s=None):
     if redirect(bot, message, id_i_s):
@@ -1030,7 +1017,7 @@ def kogo_kasaetsa(message, bot, idea_id):
     if message_text == "компания ішіндегі қызметкерлерге":
         try:
             idei.set_kogo_kasaetsya(idea_id, message_text)
-            markup_ap.add(types.KeyboardButton("Бүкіл компания деңгейінде (Ұлттық ауқым)"))
+            markup_ap.add(types.KeyboardButton("Бүкіл компания деңгейінде"))
             markup_ap.add(types.KeyboardButton("Дивизион / Аймақ деңгейінде (бір бизнес бағыты)"))
             markup_ap.add(types.KeyboardButton("Бір филиалда / бөлімде (жергілікті идея)"))
             markup_ap.add(types.KeyboardButton("Орталық аппарат (басқарушылық және стратегиялық жақсартулар)"))
@@ -1056,7 +1043,7 @@ def kogo_kasaetsa_r(message, bot, idea_id):
     markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
     if message_text == "компания ішіндегі қызметкерлерге":
         idei.set_kogo_kasaetsya_r(idea_id, message_text)
-        markup_ap.add(types.KeyboardButton("Бүкіл компания деңгейінде (Ұлттық ауқым)"))
+        markup_ap.add(types.KeyboardButton("Бүкіл компания деңгейінде"))
         markup_ap.add(types.KeyboardButton("Дивизион / Аймақ деңгейінде (бір бизнес бағыты)"))
         markup_ap.add(types.KeyboardButton("Бір филиалда / бөлімде (жергілікті идея)"))
         markup_ap.add(types.KeyboardButton("Орталық аппарат (басқарушылық және стратегиялық жақсартулар)"))
@@ -1075,7 +1062,7 @@ def per_audit(message, bot, idea_id):
         return
     message_text = message.text.strip().lower()
     markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-    if message_text in ["бүкіл компания деңгейінде (ұлттық ауқым)", "дивизион / аймақ деңгейінде (бір бизнес бағыты)",
+    if message_text in ["бүкіл компания деңгейінде", "дивизион / аймақ деңгейінде (бір бизнес бағыты)",
                         "бір филиалда / бөлімде (жергілікті идея)", "орталық аппарат (басқарушылық және стратегиялық жақсартулар)"]:
         try:
             idei.set_perimetr(idea_id, message_text)
@@ -1091,7 +1078,6 @@ def per_audit(message, bot, idea_id):
     markup_ap.add(types.KeyboardButton("ЖИ және ішкі процестерді автоматтандыру"))
     markup_ap.add(types.KeyboardButton("Клиенттерге қызмет көрсету және пайдаланушы тәжірибесі"))
     markup_ap.add(types.KeyboardButton("Бөлшек және корпоративтік бизнес"))
-    markup_ap.add(types.KeyboardButton("Білім және кадрлар"))
     markup_ap.add(types.KeyboardButton("Жобалық менеджмент және процестерді оңтайландыру"))
     msg = bot.send_message(message.chat.id, "Қолдану саласын көрсетіңіз", reply_markup=markup_ap)
     bot.register_next_step_handler(msg, otrasl, bot, idea_id)
@@ -1140,8 +1126,8 @@ def effect(message, bot, idea_id):
         markup_ap.add(types.KeyboardButton("Табыстың өсуі / ARPU"))
         markup_ap.add(types.KeyboardButton("Операциялық тиімділікті арттыру"))
         markup_ap.add(types.KeyboardButton("Клиенттің тәжірибесін жақсарту (CX)"))
-        markup_ap.add(types.KeyboardButton("Компания ішіндегі даму"))
         markup_ap.add(types.KeyboardButton("Беделді әсер"))
+        markup_ap.add(types.KeyboardButton("Басқалары"))
         msg = bot.send_message(message.chat.id, "Ықтимал әсерді көрсетіңіз", reply_markup=markup_ap)
         bot.register_next_step_handler(msg, finance, bot, idea_id)
     except Exception as e:
@@ -1186,17 +1172,35 @@ def save_idea(message, bot, idea_id):
     try:
         message_text = message.text
         idei.set_idea(idea_id, message_text)  # Сохраняем описание идеи
-        bot.send_message(message.chat.id, "Сіздің идеяңыз сәтті сақталды! Біз сізді негізгі мәзірге жібереміз")
-        menu(bot, message)
+        bot.send_message(message.chat.id, "Сіздің идеяңыз сәтті сақталды! Деректеріңізді растаңыз")
+        markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+        button2_ap = types.KeyboardButton("Бәрі дұрыс")
+        markup_ap.add(button2_ap)
+        profile(bot, message)
+        msg = bot.send_message(message.chat.id, "Ақпарат дұрыс па?", reply_markup=markup_ap)
+        bot.register_next_step_handler(msg, confirm_dannyie, bot)
     except Exception as e:
             bot.send_message(message.chat.id, f"'set_idea' функциядағы қате:{e}")
+
+def confirm_dannyie(message, bot, id_i_s=None):
+    message_text = message.text
+    if redirect(bot, message, id_i_s):
+        return
+
+    elif message_text == "Бәрі дұрыс":
+        bot.send_message(message.chat.id, "Деректердің растағаныңыз үшін рахмет! Біз сізді негізгі мәзірге жібереміз")
+        menu(bot, message)
+    else:
+        # Если пользователь ввел что-то другое, попросим сделать выбор снова
+        msg = bot.send_message(message.chat.id, "Ұсынылған опциялардың біреуін таңдаңыз.")
+        bot.register_next_step_handler(msg, confirm_dannyie, bot)
 
 def per_audit_r(message, bot, idea_id):
     if redirect(bot, message, idea_id):
         return
     message_text = message.text.strip().lower()
     markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-    if message_text in ["бүкіл компания деңгейінде (ұлттық ауқым)", "дивизион / аймақ деңгейінде (бір бизнес бағыты)",
+    if message_text in ["бүкіл компания деңгейінде", "дивизион / аймақ деңгейінде (бір бизнес бағыты)",
                         "бір филиалда / бөлімде (жергілікті идея)", "орталық аппарат (басқарушылық және стратегиялық жақсартулар)"]:
         idei.set_perimetr_r(idea_id, message_text)
     elif message_text in ["жеке тұлғалар (b2c) - клиенттер", "бизнес-клиенттер (b2b) - компаниялар", "мемлекеттік органдар мен серіктестер (b2g) — 'e-gov-пен' байланысты идеялар"]:
@@ -1302,8 +1306,13 @@ def save_idea_r(message, bot, idea_id):
     try:
         message_text = message.text
         idei.set_research_idea(idea_id, message_text)  # Сохраняем описание идеи
-        bot.send_message(message.chat.id, "Сіздің идеяңыз сәтті сақталды! Біз сізді негізгі мәзірге жібереміз")
-        menu(bot, message)
+        bot.send_message(message.chat.id, "Сіздің идеяңыз сәтті сақталды! Деректеріңізді растаңыз")
+        markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+        button2_ap = types.KeyboardButton("Бәрі дұрыс")
+        markup_ap.add(button2_ap)
+        profile(bot, message)
+        msg = bot.send_message(message.chat.id, "Ақпарат дұрыс па?", reply_markup=markup_ap)
+        bot.register_next_step_handler(msg, confirm_dannyie, bot)
     except Exception as e:
             bot.send_message(message.chat.id, f"'set_research_idea' функциядағы қате:{e}")
 
@@ -2599,6 +2608,7 @@ def profile(bot, message):
 
 
 def questions(bot, message):
+    send_photo_(bot, message.chat.id, 'фотка обращений')
     button_q = types.KeyboardButton("Менің өтініштерім")
     button_q1 = types.KeyboardButton("Өтінішті қалдыру")
     button_q2 = types.KeyboardButton("Жиі қойылатын сұрақтар")

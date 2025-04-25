@@ -1063,27 +1063,63 @@ def show_pending_links(message, bot):
     #     msg = bot.send_message(user_id, "Выберите один из доступных вариантов ниже:")
     #     bot.register_next_step_handler(msg, sapa_instruments, bot)
 
+
+# def bank_idei(bot, message):
+#     message_text = message.text
+
+#     if message_text == '💡Банк идей':
+#         markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+#         markup_ap.add(types.KeyboardButton("Да"))
+#         markup_ap.add(types.KeyboardButton("Нет"))
+#         msg = bot.send_message(message.chat.id, "Перед началом, не хотели бы вы ознакомиться с инструкцией по использованию этой функции?", reply_markup=markup_ap)
+#         bot.register_next_step_handler(msg, podtverdit_profil, bot)
+#     else:
+#         # Если пользователь ввел что-то другое, попросим сделать выбор снова
+#         msg = bot.send_message(message.chat.id, "Пожалуйста, выберите действие из предложенных вариантов.")
+#         bot.register_next_step_handler(msg, bank_idei, bot)
+
+# def podtverdit_profil(message, bot):
+#     message_text = message.text
+
+#     if message_text == 'Нет':
+#         markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+#         button2_ap = types.KeyboardButton("Все верно")
+#         markup_ap.add(button2_ap)
+#         profile(bot, message)
+#         msg = bot.send_message(message.chat.id, "Информация верна?", reply_markup=markup_ap)
+#         bot.register_next_step_handler(msg, confirm_dannyie, bot)
+#     elif message_text == 'Да':
+#         msg = bot.send_document(message.chat.id, open("files/dtk/Заявки в ОЦО HR.docx", 'rb'))
+#         bot.register_next_step_handler(msg, podtverdit_profil, bot)
+#     else:
+#         # Если пользователь ввел что-то другое, попросим сделать выбор снова
+#         msg = bot.send_message(message.chat.id, "Пожалуйста, выберите действие из предложенных вариантов.")
+#         bot.register_next_step_handler(msg, podtverdit_profil, bot)
+
+# def confirm_dannyie(message, bot, id_i_s=None):
+#     message_text = message.text
+#     if redirect(bot, message, id_i_s):
+#         return
+
+#     elif message_text == "Все верно":
+#         markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+#         markup_ap.add(types.KeyboardButton("Научно-исследовательская работа"))
+#         markup_ap.add(types.KeyboardButton("Улучшение рабочих процессов"))
+#         msg = bot.send_message(message.chat.id, "Выберите формат идеи", reply_markup=markup_ap)
+#         bot.register_next_step_handler(msg, process_idea, bot)
+#     else:
+#         # Если пользователь ввел что-то другое, попросим сделать выбор снова
+#         msg = bot.send_message(message.chat.id, "Пожалуйста, выберите действие из предложенных вариантов.")
+#         bot.register_next_step_handler(msg, confirm_dannyie, bot)
+
 def bank_idei(bot, message):
     message_text = message.text
 
     if message_text == '💡Банк идей':
-        markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-        button2_ap = types.KeyboardButton("Все верно")
-        markup_ap.add(button2_ap)
-        profile(bot, message)
-        msg = bot.send_message(message.chat.id, "Информация верна?", reply_markup=markup_ap)
-        bot.register_next_step_handler(msg, confirm_dannyie, bot)
-    else:
-        # Если пользователь ввел что-то другое, попросим сделать выбор снова
-        msg = bot.send_message(message.chat.id, "Пожалуйста, выберите действие из предложенных вариантов.")
-        bot.register_next_step_handler(msg, bank_idei, bot)
-
-def confirm_dannyie(message, bot, id_i_s=None):
-    message_text = message.text
-    if redirect(bot, message, id_i_s):
-        return
-
-    elif message_text == "Все верно":
+        bot.send_message(message.chat.id, "🧠 Как предложить идею в Банк Идей \n\n"
+                         "1️⃣ Ответьте на вопросы касательно вашей идеи \n🤖 Бот задаст пару уточняющих вопросов — просто выбирайте нужные варианты (например: для кого идея, тип идеи, этап готовности и т.д.).\n\n"
+                         "2️⃣ Опишите вашу идею\n📝 Напишите её в одном сообщении (до 1000 символов).\n💬 Также можно ответить на доп. вопросы:\n— Нужна ли команда?"
+                         "\n— Нужно ли финансирование?\n— Сколько времени займет реализация?\n\n 3️⃣ Проверьте свои данные\n👉 Бот сначала уточнит, актуальны ли ваши анкетные данные. \nПодтвердите или обновите!")
         markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         markup_ap.add(types.KeyboardButton("Научно-исследовательская работа"))
         markup_ap.add(types.KeyboardButton("Улучшение рабочих процессов"))
@@ -1092,7 +1128,7 @@ def confirm_dannyie(message, bot, id_i_s=None):
     else:
         # Если пользователь ввел что-то другое, попросим сделать выбор снова
         msg = bot.send_message(message.chat.id, "Пожалуйста, выберите действие из предложенных вариантов.")
-        bot.register_next_step_handler(msg, confirm_dannyie, bot)
+        bot.register_next_step_handler(msg, bank_idei, bot)
 
 def process_idea(message, bot, id_i_s=None):
     if redirect(bot, message, id_i_s):
@@ -1128,7 +1164,7 @@ def kogo_kasaetsa(message, bot, idea_id):
     if message_text == "работников внутри компании":
         try:
             idei.set_kogo_kasaetsya(idea_id, message_text)
-            markup_ap.add(types.KeyboardButton("На уровне всей компании (национальный масштаб)"))
+            markup_ap.add(types.KeyboardButton("На уровне всей компании"))
             markup_ap.add(types.KeyboardButton("На уровне дивизиона / региона (одно бизнес-направление)"))
             markup_ap.add(types.KeyboardButton("В одном филиале / отделе (локальная идея)"))
             markup_ap.add(types.KeyboardButton("Центральный аппарат (управ. и страт. улучшения)"))
@@ -1154,7 +1190,7 @@ def kogo_kasaetsa_r(message, bot, idea_id):
     markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
     if message_text == "работников внутри компании":
         idei.set_kogo_kasaetsya_r(idea_id, message_text)
-        markup_ap.add(types.KeyboardButton("На уровне всей компании (национальный масштаб)"))
+        markup_ap.add(types.KeyboardButton("На уровне всей компании"))
         markup_ap.add(types.KeyboardButton("На уровне дивизиона / региона (одно бизнес-направление)"))
         markup_ap.add(types.KeyboardButton("В одном филиале / отделе (локальная идея)"))
         markup_ap.add(types.KeyboardButton("Центральный аппарат (управ. и страт. улучшения)"))
@@ -1173,7 +1209,7 @@ def per_audit(message, bot, idea_id):
         return
     message_text = message.text.strip().lower()
     markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-    if message_text in ["на уровне всей компании (национальный масштаб)", "на уровне дивизиона / региона (одно бизнес-направление)",
+    if message_text in ["на уровне всей компании", "на уровне дивизиона / региона (одно бизнес-направление)",
                         "в одном филиале / отделе (локальная идея)", "центральный аппарат (управ. и страт. улучшения)"]:
         try: 
             idei.set_perimetr(idea_id, message_text)
@@ -1189,7 +1225,6 @@ def per_audit(message, bot, idea_id):
     markup_ap.add(types.KeyboardButton("ИИ и автоматизация внутренних процессов"))
     markup_ap.add(types.KeyboardButton("Обслуживание клиентов и пользовательский опыт"))
     markup_ap.add(types.KeyboardButton("Розничный и корпоративный бизнес"))
-    markup_ap.add(types.KeyboardButton("Образование и кадры"))
     markup_ap.add(types.KeyboardButton("Проектный менеджмент и оптимизация процессов"))
     msg = bot.send_message(message.chat.id, "Укажите отрасль применения", reply_markup=markup_ap)
     bot.register_next_step_handler(msg, otrasl, bot, idea_id)
@@ -1220,7 +1255,7 @@ def comanda(message, bot, idea_id):
         idei.set_gotovnost_idei(idea_id, message_text)
         markup_ap.add(types.KeyboardButton("Инициатор (один человек)"))
         markup_ap.add(types.KeyboardButton("Группа сотрудников"))
-        markup_ap.add(types.KeyboardButton("Партнёрство с вузами/НИИ"))
+        markup_ap.add(types.KeyboardButton("Партнёрство с ВУЗ-ами/НИИ"))
         markup_ap.add(types.KeyboardButton("Нужна команда"))
         markup_ap.add(types.KeyboardButton("Стартап/внешний подрядчик"))
         msg = bot.send_message(message.chat.id, "Укажите команду проекта", reply_markup=markup_ap)
@@ -1238,8 +1273,8 @@ def effect(message, bot, idea_id):
         markup_ap.add(types.KeyboardButton("Рост дохода / ARPU"))
         markup_ap.add(types.KeyboardButton("Повышение операционной эффективности"))
         markup_ap.add(types.KeyboardButton("Улучшение клиентского опыта (CX)"))
-        markup_ap.add(types.KeyboardButton("Развитие внутри компании"))
         markup_ap.add(types.KeyboardButton("Репутационный эффект"))
+        markup_ap.add(types.KeyboardButton("Прочее"))
         msg = bot.send_message(message.chat.id, "Укажите потенциальный эффект", reply_markup=markup_ap)
         bot.register_next_step_handler(msg, finance, bot, idea_id)
     except Exception as e:
@@ -1266,17 +1301,39 @@ def idea(message, bot, idea_id):
     if redirect(bot, message, idea_id):
         return
     try:
-        message_text = message.text
-        idei.set_finance(idea_id, message_text)  # Устанавливаем эффект
+        finance_idea = message.text
+        comanda_idea = idei.get_comanda(idea_id)
+        idei.set_finance(idea_id, finance_idea)
+
         bot.send_message(message.chat.id, "Распишите свою идею в одном сообщении (макс.объем - 1000 символов)")
-        msg = bot.send_message(message.chat.id, f"Также можете дополнительно ответить на эти вопросы:"
-                               "\n\n1.Если вы выбрали 'Нужна команда': \nКакие специалисты вам нужны в команду?\n\n"
-                               "2.Если вам нужно 'Финансирование': \nКакие ресурсы вам необходимы для реализации проекта и в каком объеме?\n"
-                               "\n\n3.Срок реализации: "
-                               "\nКакой период займет реализация данной идеи?")
+
+        # Проверка на нужду в финансировании
+        needs_finance = finance_idea in [
+            "Нужно минимальное финансирование → Требуется небольшая поддержка - доработать идею, провести тестирование.",
+            "Нужен грант или поддержка от компании - Нужна помощь от компаний или внешний грант.",
+            "Нужны серьёзные инвестиции - Требуется финансирование свыше 10 млн ₸, возможно партнёрство."
+        ]
+
+        needs_team = comanda_idea == "Нужна команда"
+
+        msg_parts = ["Также можете дополнительно ответить на вопросы:\n"]
+
+        if needs_team:
+            msg_parts.append("1. Какие специалисты вам нужны в команду?\n")
+
+        if needs_finance:
+            num = "2." if needs_team else "1."
+            msg_parts.append(f"{num} Какие ресурсы вам необходимы для реализации проекта и в каком объеме?\n")
+
+        # Всегда добавляем срок реализации — он будет последним
+        num = "3." if needs_team and needs_finance else "2." if needs_team or needs_finance else "1."
+        msg_parts.append(f"{num} Какой период займет реализация данной идеи?")
+
+        msg = bot.send_message(message.chat.id, "\n".join(msg_parts))
         bot.register_next_step_handler(msg, save_idea, bot, idea_id)
+
     except Exception as e:
-            bot.send_message(message.chat.id, f"Ошибка в функции 'set_finance':{e}")
+        bot.send_message(message.chat.id, f"Ошибка в функции 'set_finance_r': {e}")
 
 def save_idea(message, bot, idea_id):
     if redirect(bot, message, idea_id):
@@ -1284,17 +1341,33 @@ def save_idea(message, bot, idea_id):
     try:
         message_text = message.text
         idei.set_idea(idea_id, message_text)  # Сохраняем описание идеи
-        bot.send_message(message.chat.id, "Ваша идея успешно сохранена! Отправляем вас в главное меню")
-        menu(bot, message)
+        msg = bot.send_message(message.chat.id, "Ваша идея успешно сохранена! Подтвердите ваши данные")
+        markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+        button2_ap = types.KeyboardButton("Все верно")
+        markup_ap.add(button2_ap)
+        profile(bot, message)
+        msg = bot.send_message(message.chat.id, "Информация верна?", reply_markup=markup_ap)
+        bot.register_next_step_handler(msg, confirm_dannyie, bot)
     except Exception as e:
             bot.send_message(message.chat.id, f"Ошибка в функции 'set_idea':{e}")
+
+def confirm_dannyie(message, bot):
+    message_text = message.text
+    if message_text == "Все верно":
+        bot.send_message(message.chat.id, "Спасибо за подтверждение! Отправляем вас в главное меню")
+        menu(bot, message)
+    else:
+        # Если пользователь ввел что-то другое, попросим сделать выбор снова
+        msg = bot.send_message(message.chat.id, "Пожалуйста, выберите действие из предложенных вариантов.")
+        bot.register_next_step_handler(msg, confirm_dannyie, bot)
+
 
 def per_audit_r(message, bot, idea_id):
     if redirect(bot, message, idea_id):
         return
     message_text = message.text.strip().lower()
     markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-    if message_text in ["на уровне всей компании (национальный масштаб)", "на уровне дивизиона / региона (одно бизнес-направление)",
+    if message_text in ["на уровне всей компании", "на уровне дивизиона / региона (одно бизнес-направление)",
                         "в одном филиале / отделе (локальная идея)", "центральный аппарат (управ. и страт. улучшения)"]:
         idei.set_perimetr_r(idea_id, message_text)
     elif message_text in ["физические лица (b2c) - клиенты", "бизнес-клиенты (b2b) - компании", "госорганы и партнёры(b2g) — идеи, связанные с e-gov"]:
@@ -1335,7 +1408,7 @@ def etap_razrab(message, bot, idea_id):
         idei.set_stage(idea_id, message_text)
         markup_ap.add(types.KeyboardButton("Инициатор (один человек)"))
         markup_ap.add(types.KeyboardButton("Группа сотрудников"))
-        markup_ap.add(types.KeyboardButton("Партнёрство с вузами/НИИ"))
+        markup_ap.add(types.KeyboardButton("Партнёрство с ВУЗ-ами/НИИ"))
         markup_ap.add(types.KeyboardButton("Нужна команда"))
         markup_ap.add(types.KeyboardButton("Стартап/внешний подрядчик"))
         msg = bot.send_message(message.chat.id, "Укажите команду проекта", reply_markup=markup_ap)
@@ -1381,17 +1454,39 @@ def idea_r(message, bot, idea_id):
     if redirect(bot, message, idea_id):
         return
     try:
-        message_text = message.text
-        idei.set_finance_r(idea_id, message_text)  # Устанавливаем эффект
+        finance_res = message.text
+        comanda_res = idei.get_comanda_r(idea_id)
+        idei.set_finance_r(idea_id, finance_res)
+
         bot.send_message(message.chat.id, "Распишите свою идею в одном сообщении (макс.объем - 1000 символов)")
-        msg = bot.send_message(message.chat.id, f"Также можете дополнительно ответить на эти вопросы:"
-                               "\n\n1.Если вы выбрали 'Нужна команда': \nКакие специалисты вам нужны в команду?\n\n"
-                               "2.Если вам нужно 'Финансирование': \nКакие ресурсы вам необходимы для реализации проекта и в каком объеме?\n"
-                               "\n\n3.Срок реализации: "
-                               "\nКакой период займет реализация данной идеи?")
+
+        # Проверка на нужду в финансировании
+        needs_finance = finance_res in [
+            "Нужно минимальное финансирование → Требуется небольшая поддержка - доработать идею, провести тестирование.",
+            "Нужен грант или поддержка от компании - Нужна помощь от компаний или внешний грант.",
+            "Нужны серьёзные инвестиции - Требуется финансирование свыше 10 млн ₸, возможно партнёрство."
+        ]
+
+        needs_team = comanda_res == "Нужна команда"
+
+        msg_parts = ["Также можете дополнительно ответить на вопросы:\n"]
+
+        if needs_team:
+            msg_parts.append("1. Какие специалисты вам нужны в команду?\n")
+
+        if needs_finance:
+            num = "2." if needs_team else "1."
+            msg_parts.append(f"{num} Какие ресурсы вам необходимы для реализации проекта и в каком объеме?\n")
+
+        # Всегда добавляем срок реализации — он будет последним
+        num = "3." if needs_team and needs_finance else "2." if needs_team or needs_finance else "1."
+        msg_parts.append(f"{num} Какой период займет реализация данной идеи?")
+
+        msg = bot.send_message(message.chat.id, "\n".join(msg_parts))
         bot.register_next_step_handler(msg, save_idea_r, bot, idea_id)
+
     except Exception as e:
-            bot.send_message(message.chat.id, f"Ошибка в функции 'set_finance_r':{e}")
+        bot.send_message(message.chat.id, f"Ошибка в функции 'set_finance_r': {e}")
 
 def save_idea_r(message, bot, idea_id):
     if redirect(bot, message, idea_id):
@@ -1399,8 +1494,13 @@ def save_idea_r(message, bot, idea_id):
     try:
         message_text = message.text
         idei.set_research_idea(idea_id, message_text)  # Сохраняем описание идеи
-        bot.send_message(message.chat.id, "Ваша идея успешно сохранена! Отправляем вас в главное меню")
-        menu(bot, message)
+        bot.send_message(message.chat.id, "Ваша идея успешно сохранена! Подтвердите ваши данные")
+        markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+        button2_ap = types.KeyboardButton("Все верно")
+        markup_ap.add(button2_ap)
+        profile(bot, message)
+        msg = bot.send_message(message.chat.id, "Информация верна?", reply_markup=markup_ap)
+        bot.register_next_step_handler(msg, confirm_dannyie, bot)
     except Exception as e:
             bot.send_message(message.chat.id, f"Ошибка в функции 'set_research_idea':{e}")
 
@@ -2805,9 +2905,11 @@ def profile(bot, message):
                                       f"Табельный номер: {user_info[4]}\n"
                                       f"Филиал: {user_info[7]}",
                      reply_markup=markup_ap)
+    
 
 
 def questions(bot, message):
+    send_photo_(bot, message.chat.id, 'фотка обращений')
     button_q = types.KeyboardButton("Мои обращения")
     button_q1 = types.KeyboardButton("Оставить обращение")
     button_q2 = types.KeyboardButton("Часто задаваемые вопросы")
