@@ -83,6 +83,12 @@ def set_idea(idea_id, idea):
     result = execute_set_sql_query(sql_query, params)
     return bool(result)
 
+def set_category(idea_id, idea):
+    sql_query = 'UPDATE ideas SET category = %s WHERE id = %s'
+    params = (idea, idea_id)
+    result = execute_set_sql_query(sql_query, params)
+    return bool(result)
+
 # ресерчи
 
 def set_format_r(idea_id, format):
@@ -144,6 +150,14 @@ def set_research_idea(idea_id, idea):
     params = (idea, idea_id)
     result = execute_set_sql_query(sql_query, params)
     return bool(result)
+
+def set_category_r(idea_id, idea):
+    sql_query = 'UPDATE researches SET category = %s WHERE id = %s'
+    params = (idea, idea_id)
+    result = execute_set_sql_query(sql_query, params)
+    return bool(result)
+
+# Геттеры
 
 def get_format(idea_id):
     sql_query = "SELECT format FROM ideas WHERE id = %s"

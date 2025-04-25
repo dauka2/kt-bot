@@ -108,6 +108,7 @@ def create_db():
     CREATE TABLE IF NOT EXISTS ideas (
     id SERIAL PRIMARY KEY ,
     user_id VARCHAR(50) NOT NULL,
+    category VARCHAR(50),
     format VARCHAR (100),
     for_who VARCHAR(100),
     perimetr VARCHAR(100),
@@ -126,6 +127,7 @@ def create_db():
     CREATE TABLE IF NOT EXISTS researches (
     id SERIAL PRIMARY KEY ,
     user_id VARCHAR(50) NOT NULL,
+    category VARCHAR(50),
     format VARCHAR (100),
     for_who VARCHAR(100),
     perimetr VARCHAR(100),

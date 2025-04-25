@@ -942,12 +942,57 @@ def get_excel(message):
 
 @bot.message_handler(commands=['get_ideas_4758'])
 def get_excel(message):
-    sql_query = "SELECT * from ideas ORDER BY id ASC"
-    common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
+    sql_query = """
+    -- Сначала идёт всё из ideas
+    SELECT
+      u.id               AS user_id,
+      u.firstname,
+      u.lastname, 
+      u.email,
+      u.table_number, 
+      u.phone_number, 
+      u.branch,
+      i.category,
+      i.format,
+      i.for_who,
+      i.perimetr,
+      i.auditory,
+      i.otrasl_primeneniya,
+      i.gotovnost_idei,
+      i.comanda,
+      i.potential_effect,
+      i.finance,
+      i.idea
+    FROM users u
+      JOIN ideas i ON u.id = i.user_id
 
-@bot.message_handler(commands=['get_researches_4758'])
-def get_excel(message):
-    sql_query = "SELECT * from researches ORDER BY id ASC"
+    UNION ALL
+
+    -- Затем все из researches
+    SELECT
+      u.id               AS user_id,
+      u.firstname,
+      u.lastname,
+      u.email,
+      u.table_number, 
+      u.phone_number, 
+      u.branch,
+      r.category,
+      r.format           AS format,
+      r.for_who,
+      r.perimetr,
+      r.auditory,
+      r.research_direction AS otrasl_primeneniya,
+      r.stage            AS gotovnost_idei,
+      r.comanda,
+      r.ozhidaemyi_effect  AS potential_effect,
+      r.finance,
+      r.idea             AS idea
+    FROM users u
+      JOIN researches r ON u.id = r.user_id
+
+    ORDER BY user_id
+    """
     common_file.get_excel(bot, message, admin_id, 'output_file.xlsx', sql_query)
 
 @bot.message_handler(commands=['functionn'])

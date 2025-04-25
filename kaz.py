@@ -1188,18 +1188,45 @@ def idea(message, bot, idea_id):
 def save_idea(message, bot, idea_id):
     if redirect(bot, message, idea_id):
         return
-    try:
-        message_text = message.text
-        idei.set_idea(idea_id, message_text)  # Сохраняем описание идеи
-        bot.send_message(message.chat.id, "Сіздің идеяңыз сәтті сақталды! Деректеріңізді растаңыз")
-        markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-        button2_ap = types.KeyboardButton("Бәрі дұрыс")
-        markup_ap.add(button2_ap)
-        profile(bot, message)
-        msg = bot.send_message(message.chat.id, "Ақпарат дұрыс па?", reply_markup=markup_ap)
-        bot.register_next_step_handler(msg, confirm_dannyie, bot)
-    except Exception as e:
-            bot.send_message(message.chat.id, f"'set_idea' функциядағы қате:{e}")
+    idei.set_idea(idea_id, message.text)  # Идеяның сипаттамасын сақтаймыз
+
+    markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+    markup_ap.add(types.KeyboardButton("Рационализаторлық ұсыныс"))
+    markup_ap.add(types.KeyboardButton("Инновациялық жоба"))
+    markup_ap.add(types.KeyboardButton("Өнертабыс"))
+    markup_ap.add(types.KeyboardButton("Инновация"))
+
+    text = (
+        "Идеяңыздың санатын көрсетіңіз:\n\n"
+        "- *Өнертабыс* — айрықша ерекшеліктері мен пайдалы әсері бар техникалық жаңа шешім; зияткерлік меншік нысаны.\n"
+        "- *Инновация* — жаңа немесе елеулі түрде жетілдірілген өнім, процесс немесе басқару жүйесі.\n"
+        "- *Инновациялық жоба* — сапаны арттыру және шығындарды азайту мақсатында инновацияларды жасау немесе дамыту үшін ғылыми-техникалық, өндірістік және коммерциялық іс-шаралар кешені.\n"
+        "- *Рационализаторлық ұсыныс* — АО «Қазақтелеком» үшін бизнес-процесті, конструкцияны, технологияны немесе материал құрамын өзгертуге бағытталған жаңа пайдалы шешім."
+    )
+
+    msg = bot.send_message(
+        message.chat.id,
+        text,
+        reply_markup=markup_ap,
+        parse_mode='Markdown'
+    )
+    bot.register_next_step_handler(msg, podtverdit, bot, idea_id)
+
+
+def podtverdit(message, bot, idea_id):
+    idei.set_category(idea_id, message.text)  # Таңдалған санатты сақтаймыз
+    bot.send_message(message.chat.id, "Идеяңыз сәтті сақталды! Мәліметтеріңізді растаңыз")
+
+    markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+    markup_ap.add(types.KeyboardButton("Бәрі дұрыс"))
+
+    profile(bot, message)
+    msg = bot.send_message(
+        message.chat.id,
+        "Мәліметтер дұрыс па?",
+        reply_markup=markup_ap
+    )
+    bot.register_next_step_handler(msg, confirm_dannyie, bot)
 
 def confirm_dannyie(message, bot, id_i_s=None):
     message_text = message.text
@@ -1339,18 +1366,54 @@ def idea_r(message, bot, idea_id):
 def save_idea_r(message, bot, idea_id):
     if redirect(bot, message, idea_id):
         return
-    try:
-        message_text = message.text
-        idei.set_research_idea(idea_id, message_text)  # Сохраняем описание идеи
-        bot.send_message(message.chat.id, "Сіздің идеяңыз сәтті сақталды! Деректеріңізді растаңыз")
-        markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-        button2_ap = types.KeyboardButton("Бәрі дұрыс")
-        markup_ap.add(button2_ap)
-        profile(bot, message)
-        msg = bot.send_message(message.chat.id, "Ақпарат дұрыс па?", reply_markup=markup_ap)
+    idei.set_research_idea(idea_id, message.text)  # Зерттеу идеясының сипаттамасын сақтаймыз
+
+    markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+    markup_ap.add(types.KeyboardButton("Рационализаторлық ұсыныс"))
+    markup_ap.add(types.KeyboardButton("Инновациялық жоба"))
+    markup_ap.add(types.KeyboardButton("Өнертабыс"))
+    markup_ap.add(types.KeyboardButton("Инновация"))
+
+    text = (
+        "Идеяңыздың санатын көрсетіңіз:\n\n"
+        "- *Өнертабыс* — айрықша ерекшеліктері мен пайдалы әсері бар техникалық жаңа шешім; зияткерлік меншік нысаны.\n"
+        "- *Инновация* — жаңа немесе елеулі түрде жетілдірілген өнім, процесс немесе басқару жүйесі.\n"
+        "- *Инновациялық жоба* — сапаны арттыру және шығындарды азайту мақсатында инновацияларды жасау немесе дамыту үшін ғылыми-техникалық, өндірістік және коммерциялық іс-шаралар кешені.\n"
+        "- *Рационализаторлық ұсыныс* — АО «Қазақтелеком» үшін бизнес-процесті, конструкцияны, технологияны немесе материал құрамын өзгертуге бағытталған жаңа пайдалы шешім."
+    )
+
+    msg = bot.send_message(
+        message.chat.id,
+        text,
+        reply_markup=markup_ap,
+        parse_mode='Markdown'
+    )
+    bot.register_next_step_handler(msg, podtverdit_r, bot, idea_id)
+
+
+def podtverdit_r(message, bot, idea_id):
+    idei.set_category_r(idea_id, message.text)  # Таңдалған санатты сақтаймыз
+    bot.send_message(message.chat.id, "Идеяңыз сәтті сақталды! Мәліметтеріңізді растаңыз")
+
+    markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+    markup_ap.add(types.KeyboardButton("Бәрі дұрыс"))
+
+    profile(bot, message)
+    msg = bot.send_message(
+        message.chat.id,
+        "Мәліметтер дұрыс па?",
+        reply_markup=markup_ap
+    )
+    bot.register_next_step_handler(msg, confirm_dannyie, bot)
+
+
+def confirm_dannyie(message, bot):
+    if message.text == "Бәрі дұрыс":
+        bot.send_message(message.chat.id, "Растау үшін рақмет! Негізгі мәзірге қайта бағыттаймыз")
+        menu(bot, message)
+    else:
+        msg = bot.send_message(message.chat.id, "Өтінемін, ұсынылған опциялардан біреуін таңдаңыз.")
         bot.register_next_step_handler(msg, confirm_dannyie, bot)
-    except Exception as e:
-            bot.send_message(message.chat.id, f"'set_research_idea' функциядағы қате:{e}")
 
 def hse_competition_(bot, message, id_i_s = None):
     text = "Сақталған ақпарат\n\n"

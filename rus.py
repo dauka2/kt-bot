@@ -1338,18 +1338,38 @@ def idea(message, bot, idea_id):
 def save_idea(message, bot, idea_id):
     if redirect(bot, message, idea_id):
         return
-    try:
-        message_text = message.text
-        idei.set_idea(idea_id, message_text)  # Сохраняем описание идеи
-        msg = bot.send_message(message.chat.id, "Ваша идея успешно сохранена! Подтвердите ваши данные")
-        markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-        button2_ap = types.KeyboardButton("Все верно")
-        markup_ap.add(button2_ap)
-        profile(bot, message)
-        msg = bot.send_message(message.chat.id, "Информация верна?", reply_markup=markup_ap)
-        bot.register_next_step_handler(msg, confirm_dannyie, bot)
-    except Exception as e:
-            bot.send_message(message.chat.id, f"Ошибка в функции 'set_idea':{e}")
+    message_text = message.text
+    idei.set_idea(idea_id, message_text)  # Сохраняем описание идеи
+    markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)        
+    markup_ap.add(types.KeyboardButton("Рационализаторское предложение"))
+    markup_ap.add(types.KeyboardButton("Инновационный проект"))
+    markup_ap.add(types.KeyboardButton("Изобретение"))
+    markup_ap.add(types.KeyboardButton("Инновация"))
+    text = (
+        "Укажите категорию вашей идеи:\n\n"
+        "- *Изобретение* — новое техническое решение задачи с существенными отличиями и полезным эффектом; объект интеллектуальной собственности.\n"
+        "- *Инновация* — новый или значительно улучшенный продукт, процесс или система управления.\n"
+        "- *Инновационный проект* — комплекс научно-технических, производственных и коммерческих шагов для создания или развития инноваций с целью повышения качества и снижения затрат.\n"
+        "- *Рационализаторское предложение* — новое полезное решение для АО «Казахтелеком», меняющее бизнес-процесс, конструкцию, технологию или состав материалов."
+    )
+    msg = bot.send_message(
+        message.chat.id,
+        text,
+        reply_markup=markup_ap,
+        parse_mode='Markdown'
+    )
+    bot.register_next_step_handler(msg, podtverdit, bot, idea_id)
+
+def podtverdit(message, bot, idea_id):
+    message_text = message.text
+    idei.set_category(idea_id, message_text)  # Сохраняем описание идеи
+    bot.send_message(message.chat.id, "Ваша идея успешно сохранена! Подтвердите ваши данные")
+    markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+    button2_ap = types.KeyboardButton("Все верно")
+    markup_ap.add(button2_ap)
+    profile(bot, message)
+    msg = bot.send_message(message.chat.id, "Информация верна?", reply_markup=markup_ap)
+    bot.register_next_step_handler(msg, confirm_dannyie, bot)
 
 def confirm_dannyie(message, bot):
     message_text = message.text
@@ -1491,18 +1511,39 @@ def idea_r(message, bot, idea_id):
 def save_idea_r(message, bot, idea_id):
     if redirect(bot, message, idea_id):
         return
-    try:
-        message_text = message.text
-        idei.set_research_idea(idea_id, message_text)  # Сохраняем описание идеи
-        bot.send_message(message.chat.id, "Ваша идея успешно сохранена! Подтвердите ваши данные")
-        markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-        button2_ap = types.KeyboardButton("Все верно")
-        markup_ap.add(button2_ap)
-        profile(bot, message)
-        msg = bot.send_message(message.chat.id, "Информация верна?", reply_markup=markup_ap)
-        bot.register_next_step_handler(msg, confirm_dannyie, bot)
-    except Exception as e:
-            bot.send_message(message.chat.id, f"Ошибка в функции 'set_research_idea':{e}")
+    message_text = message.text
+    idei.set_research_idea(idea_id, message_text)  # Сохраняем описание идеи
+    markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)        
+    markup_ap.add(types.KeyboardButton("Рационализаторское предложение"))
+    markup_ap.add(types.KeyboardButton("Инновационный проект"))
+    markup_ap.add(types.KeyboardButton("Изобретение"))
+    markup_ap.add(types.KeyboardButton("Инновация"))
+    text = (
+        "Укажите категорию вашей идеи:\n\n"
+        "- *Изобретение* — новое техническое решение задачи с существенными отличиями и полезным эффектом; объект интеллектуальной собственности.\n"
+        "- *Инновация* — новый или значительно улучшенный продукт, процесс или система управления.\n"
+        "- *Инновационный проект* — комплекс научно-технических, производственных и коммерческих шагов для создания или развития инноваций с целью повышения качества и снижения затрат.\n"
+        "- *Рационализаторское предложение* — новое полезное решение для АО «Казахтелеком», меняющее бизнес-процесс, конструкцию, технологию или состав материалов."
+    )
+
+    msg = bot.send_message(
+        message.chat.id,
+        text,
+        reply_markup=markup_ap,
+        parse_mode='Markdown'
+    )
+    bot.register_next_step_handler(msg, podtverdit_r, bot, idea_id)
+
+def podtverdit_r(message, bot, idea_id):
+    message_text = message.text
+    idei.set_category_r(idea_id, message_text)  # Сохраняем описание идеи
+    bot.send_message(message.chat.id, "Ваша идея успешно сохранена! Подтвердите ваши данные")
+    markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+    button2_ap = types.KeyboardButton("Все верно")
+    markup_ap.add(button2_ap)
+    profile(bot, message)
+    msg = bot.send_message(message.chat.id, "Информация верна?", reply_markup=markup_ap)
+    bot.register_next_step_handler(msg, confirm_dannyie, bot)
 
 def hse_competition_(bot, message, id_i_s = None):
     text = "Сохраненная информация\n\n"
