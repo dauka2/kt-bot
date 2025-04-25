@@ -1319,7 +1319,7 @@ def idea(message, bot, idea_id):
         msg_parts = ["Также можете дополнительно ответить на вопросы:\n"]
 
         if needs_team:
-            msg_parts.append("1. Какие специалисты вам нужны в команду?\n")
+            msg_parts.append("1. Какие специалисты требуются для реализации проекта и какие роли они будут выполнять?\n")
 
         if needs_finance:
             num = "2." if needs_team else "1."
@@ -1327,13 +1327,13 @@ def idea(message, bot, idea_id):
 
         # Всегда добавляем срок реализации — он будет последним
         num = "3." if needs_team and needs_finance else "2." if needs_team or needs_finance else "1."
-        msg_parts.append(f"{num} Какой период займет реализация данной идеи?")
+        msg_parts.append(f"{num} Какой предполагаемый срок реализации проекта?")
 
         msg = bot.send_message(message.chat.id, "\n".join(msg_parts))
         bot.register_next_step_handler(msg, save_idea, bot, idea_id)
 
     except Exception as e:
-        bot.send_message(message.chat.id, f"Ошибка в функции 'set_finance_r': {e}")
+        bot.send_message(message.chat.id, f"Ошибка в функции 'set_finance': {e}")
 
 def save_idea(message, bot, idea_id):
     if redirect(bot, message, idea_id):
@@ -1472,7 +1472,7 @@ def idea_r(message, bot, idea_id):
         msg_parts = ["Также можете дополнительно ответить на вопросы:\n"]
 
         if needs_team:
-            msg_parts.append("1. Какие специалисты вам нужны в команду?\n")
+            msg_parts.append("1. Какие специалисты требуются для реализации проекта и какие роли они будут выполнять?\n")
 
         if needs_finance:
             num = "2." if needs_team else "1."
@@ -1480,7 +1480,7 @@ def idea_r(message, bot, idea_id):
 
         # Всегда добавляем срок реализации — он будет последним
         num = "3." if needs_team and needs_finance else "2." if needs_team or needs_finance else "1."
-        msg_parts.append(f"{num} Какой период займет реализация данной идеи?")
+        msg_parts.append(f"{num} Какой предполагаемый срок реализации проекта?")
 
         msg = bot.send_message(message.chat.id, "\n".join(msg_parts))
         bot.register_next_step_handler(msg, save_idea_r, bot, idea_id)
@@ -2909,7 +2909,7 @@ def profile(bot, message):
 
 
 def questions(bot, message):
-    send_photo_(bot, message.chat.id, 'фотка обращений')
+    # send_photo_(bot, message.chat.id, 'фотка обращений')
     button_q = types.KeyboardButton("Мои обращения")
     button_q1 = types.KeyboardButton("Оставить обращение")
     button_q2 = types.KeyboardButton("Часто задаваемые вопросы")

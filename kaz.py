@@ -1141,9 +1141,9 @@ def finance(message, bot, idea_id):
         markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         idei.set_potential_effect(idea_id, message_text)  # Устанавливаем эффект
         markup_ap.add(types.KeyboardButton("Қаржыландыру қажет емес"))
-        markup_ap.add(types.KeyboardButton("Аз қаржыландыру қажет → Аз қолдау қажет - идеяны нақтылауға, тестілеуге"))
-        markup_ap.add(types.KeyboardButton("Компаниядан грант немесе қолдау қажет - Компаниялардан көмек немесе сыртқы грант қажет"))
-        markup_ap.add(types.KeyboardButton("Елеулі инвестициялар қажет - 10 млн теңгеден астам қаржыландыру қажет, серіктестік болуы мүмкін."))
+        markup_ap.add(types.KeyboardButton("Минималды қаржыландыру қажет → Идеяны жетілдіру, тестілеу жүргізу үшін аздаған қолдау қажет"))
+        markup_ap.add(types.KeyboardButton("Грант немесе компаниядан қолдау қажет – Компаниялардан көмек немесе сыртқы грант қажет"))
+        markup_ap.add(types.KeyboardButton("Ерекше инвестициялар қажет – 10 млн ₸ жоғары қаржыландыру қажет, серіктестік мүмкіндігі бар."))
         markup_ap.add(types.KeyboardButton("Қолайлы мемлекеттік бағдарлама бар"))
         msg = bot.send_message(message.chat.id, "Қажетті қаржыландыруды көрсетіңіз", reply_markup=markup_ap)
         bot.register_next_step_handler(msg, idea, bot, idea_id)
@@ -1154,14 +1154,33 @@ def idea(message, bot, idea_id):
     if redirect(bot, message, idea_id):
         return
     try:
-        message_text = message.text
-        idei.set_finance(idea_id, message_text)  # Устанавливаем эффект
+        finance_idea = message.text
+        comanda_idea = idei.get_comanda(idea_id)
+        idei.set_finance(idea_id, finance_idea)
+
         bot.send_message(message.chat.id, "Өз идеяңызды бір хабарламада жазыңыз (максималды көлемі - 1000 таңба)")
-        msg = bot.send_message(message.chat.id, f"Сондай-ақ, осы сұрақтарға қосымша жауап бере аласызба:"
-                               "\n\nЕгер сіз 'Команда керек' деген нұсқауды таңдасаңыз: \n1.Командаға қандай мамандар қажет?\n\n"
-                               "2.Егер сізге 'Қаржыландыру' қажет болса: \nЖобаны іске асыру үшін қандай ресурстар қажет және қандай көлемде?\n"
-                               "\n\n3.Іске асыру мерзімі: "
-                               "\nОсы идеяны іске асыру қанша уақытты алады?")
+
+        needs_finance = finance_idea in [
+            "Минималды қаржыландыру қажет → Идеяны жетілдіру, тестілеу жүргізу үшін аздаған қолдау қажет",
+            "Грант немесе компаниядан қолдау қажет – Компаниялардан көмек немесе сыртқы грант қажет",
+            "Ерекше инвестициялар қажет – 10 млн ₸ жоғары қаржыландыру қажет, серіктестік мүмкіндігі бар."]
+        
+        needs_team = comanda_idea == "Команда керек"
+
+        msg_parts = ["Сондай-ақ, осы сұрақтарға қосымша жауап бере аласызба:\n"]
+
+        if needs_team:
+            msg_parts.append("1.Командаға қандай мамандар қажет?\n")
+
+        if needs_finance: 
+            num = "2." if needs_team else "1."
+            msg_parts.append(f"{num} Жобаны жүзеге асыру үшін сізге қандай ресурстар қажет және қандай көлемде?\n")
+
+        num = "3." if needs_team and needs_finance else "2." if needs_team or needs_finance else "1."
+        msg_parts.append(f"{num} Бұл жобаны іске асыру қанша уақыт алады?")
+
+        msg = bot.send_message(message.chat.id, "\n".join(msg_parts))
+
         bot.register_next_step_handler(msg, save_idea, bot, idea_id)
     except Exception as e:
             bot.send_message(message.chat.id, f"'set_finance' функциядағы қате:{e}")
@@ -1287,15 +1306,32 @@ def idea_r(message, bot, idea_id):
     if redirect(bot, message, idea_id):
         return
     try:
-        message_text = message.text
-        idei.set_finance_r(idea_id, message_text)  # Устанавливаем эффект
+        finance_res = message.text
+        comanda_res = idei.get_comanda_r(idea_id)
+        idei.set_finance_r(idea_id, finance_res)
         bot.send_message(message.chat.id, "Өз идеяңызды бір хабарламада жазыңыз (максималды көлемі - 1000 таңба)")
-        msg = bot.send_message(message.chat.id, f"Сондай-ақ, осы сұрақтарға қосымша жауап бере аласызба:"
-                               "\n\nЕгер сіз 'Команда керек' деген нұсқауды таңдасаңыз: \n1.Командаға қандай мамандар қажет?\n\n"
-                               "2.Егер сізге 'Қаржыландыру' қажет болса: \nЖобаны іске асыру үшін қандай ресурстар қажет және қандай көлемде?\n"
-                               "\n\n3.Іске асыру мерзімі: "
-                               "\nОсы идеяны іске асыру қанша уақытты алады?")
+
+        needs_finance = finance_res in [
+            "Минималды қаржыландыру қажет → Идеяны жетілдіру, тестілеу жүргізу үшін аздаған қолдау қажет",
+            "Грант немесе компаниядан қолдау қажет – Компаниялардан көмек немесе сыртқы грант қажет",
+            "Ерекше инвестициялар қажет – 10 млн ₸ жоғары қаржыландыру қажет, серіктестік мүмкіндігі бар."]
         
+        needs_team = comanda_res == "Команда керек"
+
+        msg_parts = ["Сондай-ақ, осы сұрақтарға қосымша жауап бере аласызба:\n"]
+
+        if needs_team:
+            msg_parts.append("1.Командаға қандай мамандар қажет?\n")
+
+        if needs_finance: 
+            num = "2." if needs_team else "1."
+            msg_parts.append(f"{num} Жобаны жүзеге асыру үшін сізге қандай ресурстар қажет және қандай көлемде?\n")
+
+        num = "3." if needs_team and needs_finance else "2." if needs_team or needs_finance else "1."
+        msg_parts.append(f"{num} Бұл жобаны іске асыру қанша уақыт алады?")
+
+        msg = bot.send_message(message.chat.id, "\n".join(msg_parts))
+
         bot.register_next_step_handler(msg, save_idea_r, bot, idea_id)
     except Exception as e:
             bot.send_message(message.chat.id, f"'set_finance_r' функциядағы қате:{e}")
@@ -2608,7 +2644,7 @@ def profile(bot, message):
 
 
 def questions(bot, message):
-    send_photo_(bot, message.chat.id, 'фотка обращений')
+    # send_photo_(bot, message.chat.id, 'фотка обращений')
     button_q = types.KeyboardButton("Менің өтініштерім")
     button_q1 = types.KeyboardButton("Өтінішті қалдыру")
     button_q2 = types.KeyboardButton("Жиі қойылатын сұрақтар")
