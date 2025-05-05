@@ -89,6 +89,12 @@ def set_category(idea_id, idea):
     result = execute_set_sql_query(sql_query, params)
     return bool(result)
 
+def set_city(idea_id, city):
+    sql_query = 'UPDATE ideas SET city = %s WHERE id = %s'
+    params = (city, idea_id)
+    result = execute_set_sql_query(sql_query, params)
+    return bool(result)
+
 # ресерчи
 
 def set_format_r(idea_id, format):
@@ -157,6 +163,11 @@ def set_category_r(idea_id, idea):
     result = execute_set_sql_query(sql_query, params)
     return bool(result)
 
+def set_city_r(idea_id, idea):
+    sql_query = 'UPDATE researches SET city = %s WHERE id = %s'
+    params = (idea, idea_id)
+    result = execute_set_sql_query(sql_query, params)
+    return bool(result)
 # Геттеры
 
 def get_format(idea_id):
@@ -206,6 +217,11 @@ def get_finance(idea_id):
 
 def get_idea(idea_id):
     sql_query = "SELECT idea FROM ideas WHERE id = %s"
+    params = (idea_id,)
+    return execute_get_sql_query(sql_query, params)[0][0]
+
+def get_city(idea_id):
+    sql_query = "SELECT city FROM ideas WHERE id = %s"
     params = (idea_id,)
     return execute_get_sql_query(sql_query, params)[0][0]
 
@@ -261,6 +277,10 @@ def get_research_idea(idea_id):
     params = (idea_id,)
     return execute_get_sql_query(sql_query, params)[0][0]
 
+def get_city_r(idea_id):
+    sql_query = "SELECT city FROM researches WHERE id = %s"
+    params = (idea_id,)
+    return execute_get_sql_query(sql_query, params)[0][0]
 
 def delete_idea(idea_id):
     sql_query = "DELETE FROM ideas WHERE id = %s"

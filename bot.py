@@ -925,6 +925,11 @@ def get_excel(message):
     db_connect.add_column_sapa()
     bot.send_message(message.chat.id, "Изменения сохранены")
 
+@bot.message_handler(commands=['add_column_ideas'])
+def get_excel(message):
+    db_connect.add_column_ideas()
+    bot.send_message(message.chat.id, "Изменения сохранены")
+
 @bot.message_handler(commands=['get_sapa___'])
 def get_excel(message):
     db_connect.sapa_test_()
@@ -953,6 +958,7 @@ def get_excel(message):
       u.phone_number, 
       u.branch,
       i.category,
+      i.city,
       i.format,
       i.for_who,
       i.perimetr,
@@ -978,6 +984,7 @@ def get_excel(message):
       u.phone_number, 
       u.branch,
       r.category,
+      r.city,
       r.format           AS format,
       r.for_who,
       r.perimetr,

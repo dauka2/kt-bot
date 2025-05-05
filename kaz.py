@@ -1210,11 +1210,17 @@ def save_idea(message, bot, idea_id):
         reply_markup=markup_ap,
         parse_mode='Markdown'
     )
+    bot.register_next_step_handler(msg, gorod, bot, idea_id)
+
+def gorod(message, bot, idea_id):
+    message_text = message.text
+    idei.set_category(idea_id, message_text)  
+    msg = bot.send_message(message.chat.id, "Ағымдағы орналасқан жеріңіздің қаласын көрсетіңіз")
     bot.register_next_step_handler(msg, podtverdit, bot, idea_id)
 
-
 def podtverdit(message, bot, idea_id):
-    idei.set_category(idea_id, message.text)  # Таңдалған санатты сақтаймыз
+    message_text = message.text
+    idei.set_city(idea_id, message_text) 
     bot.send_message(message.chat.id, "Идеяңыз сәтті сақталды! Мәліметтеріңізді растаңыз")
 
     markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
@@ -1388,11 +1394,17 @@ def save_idea_r(message, bot, idea_id):
         reply_markup=markup_ap,
         parse_mode='Markdown'
     )
+    bot.register_next_step_handler(msg, gorod_r, bot, idea_id)
+
+def gorod_r(message, bot, idea_id):
+    message_text = message.text
+    idei.set_category_r(idea_id, message_text)  
+    msg = bot.send_message(message.chat.id, "Ағымдағы орналасқан жеріңіздің қаласын көрсетіңіз")
     bot.register_next_step_handler(msg, podtverdit_r, bot, idea_id)
 
-
 def podtverdit_r(message, bot, idea_id):
-    idei.set_category_r(idea_id, message.text)  # Таңдалған санатты сақтаймыз
+    message_text = message.text
+    idei.set_city_r(idea_id, message_text)  # Сохраняем описание идеи
     bot.send_message(message.chat.id, "Идеяңыз сәтті сақталды! Мәліметтеріңізді растаңыз")
 
     markup_ap = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)

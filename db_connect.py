@@ -109,6 +109,7 @@ def create_db():
     id SERIAL PRIMARY KEY ,
     user_id VARCHAR(50) NOT NULL,
     category VARCHAR(50),
+    city VARCHAR (100),
     format VARCHAR (100),
     for_who VARCHAR(100),
     perimetr VARCHAR(100),
@@ -128,6 +129,7 @@ def create_db():
     id SERIAL PRIMARY KEY ,
     user_id VARCHAR(50) NOT NULL,
     category VARCHAR(50),
+    city VARCHAR (100),
     format VARCHAR (100),
     for_who VARCHAR(100),
     perimetr VARCHAR(100),
@@ -241,6 +243,11 @@ def add_column_default():
 
 def add_column_sapa():
     sql_query = "ALTER TABLE sapa_bonus ADD COLUMN fullname varchar(500);"
+    execute_set_sql_query(sql_query)
+
+def add_column_ideas():
+    sql_query = "ALTER TABLE ideas ADD COLUMN IF NOT EXISTS city char(100); "
+    sql_query += "ALTER TABLE researches ADD COLUMN IF NOT EXISTS city char(100); "
     execute_set_sql_query(sql_query)
 
 def delete_verif_columns():
