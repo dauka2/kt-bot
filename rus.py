@@ -2607,11 +2607,7 @@ def instructions(bot, message):
     elif message.text == "Lotus | Инструкции":
         bot.send_message(message.chat.id, "Здесь вы можете найти всю информацию по установке:\nhttps://drive.google.com/drive/folders/1szMf02y6kAmAVF4OoOnHziUaDNgNtZSy?usp=drive_link")
     elif message.text == "CheckPoint VPN | Удаленная работа":
-        markup_instr = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-        button1_i = types.KeyboardButton("Инструкция по установке CheckPoint")
-        button2_i = types.KeyboardButton("Установочный файл CheckPoint")
-        markup_instr.add(button1_i, button2_i)
-        bot.send_message(message.chat.id, "Выберите категорию", reply_markup=markup_instr)
+        bot.send_message(message.chat.id, "Здесь вы можете найти всю информацию по установке:\nhttps://drive.google.com/drive/folders/1pnRlg6zxKsotVG3YXvEvmny0QRNN2HOa?usp=sharing")
     elif message.text == "Личный кабинет telecom.kz":
         markup_instr = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         button1_i = types.KeyboardButton("Как оплатить услугу")

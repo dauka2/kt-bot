@@ -2491,11 +2491,7 @@ def instructions(bot, message):
     elif message.text == "Lotus | Нұсқаулар":
         bot.send_message(message.chat.id, "Орнату туралы барлық ақпаратты мына жерден таба аласыз: \nhttps://drive.google.com/drive/folders/1szMf02y6kAmAVF4OoOnHziUaDNgNtZSy?usp=drive_link")
     elif message.text == "Checkpoint VPN | Қашықтан жұмыс":
-        markup_instr = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-        button1_i = types.KeyboardButton("CheckPoint Орнату нұсқаулығы")
-        button2_i = types.KeyboardButton("Checkpoint орнату файлы")
-        markup_instr.add(button1_i, button2_i)
-        bot.send_message(message.chat.id, "Санатты таңдаңыз", reply_markup=markup_instr)
+        bot.send_message(message.chat.id, "Орнату туралы барлық ақпаратты мына жерден таба аласыз: \nhttps://drive.google.com/drive/folders/1pnRlg6zxKsotVG3YXvEvmny0QRNN2HOa?usp=sharing")
     elif message.text == "Жеке кабинет telecom.kz":
         markup_instr = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         button1_i = types.KeyboardButton("Қызметті қалай төлеуге болады")
