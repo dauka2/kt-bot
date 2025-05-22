@@ -2,9 +2,9 @@ from telebot import types
 import psycopg2
 
 # Тестовый
-TOKEN = '6684043919:AAFq7pz10dG01UR8MkeIHY4JphE1pjmnzxQ'
+# TOKEN = '6684043919:AAE0VYkTBiukFnNio1LsJNMe9C1hpSOus7Q'
 # кт-бот
-# TOKEN = '6145415028:AAEdgPMvSsi3FJw2ccyzWf2QiJrPa_Ycz0A'
+TOKEN = '6145415028:AAG1R50hi73wjiq6ObwsMsu5onVQ4D4Rg6M'
 admins_id = ['760906879', '1066191569', '6682886650', '353845928', '309419454']
 
 def execute_get_sql_query(sql_query, params=None):
