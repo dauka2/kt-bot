@@ -2489,12 +2489,7 @@ def instructions(bot, message):
         markup_instr.add(button1_i, button2_i, button3_i, button4_i)
         bot.send_message(message.chat.id, "Санатты таңдаңыз", reply_markup=markup_instr)
     elif message.text == "Lotus | Нұсқаулар":
-        markup_instr = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
-        button1_i = types.KeyboardButton("Филиал серверлері бойынша деректер")
-        button2_i = types.KeyboardButton("Lotus Орнату нұсқаулары")
-        button3_i = types.KeyboardButton("Lotus орнату файлы")
-        markup_instr.add(button1_i, button2_i, button3_i)
-        bot.send_message(message.chat.id, "Санатты таңдаңыз", reply_markup=markup_instr)
+        bot.send_message(message.chat.id, "Орнату туралы барлық ақпаратты мына жерден таба аласыз: \nhttps://drive.google.com/drive/folders/1szMf02y6kAmAVF4OoOnHziUaDNgNtZSy?usp=drive_link")
     elif message.text == "Checkpoint VPN | Қашықтан жұмыс":
         markup_instr = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
         button1_i = types.KeyboardButton("CheckPoint Орнату нұсқаулығы")

@@ -56,7 +56,7 @@ def admin_appeal(bot, message, message_text):
 
         markup_a = types.InlineKeyboardMarkup()
         if appeal_info is not None:
-            for appeal_ in appeal_info:
+            for appeal_ in appeal_info: 
                 text_b = str(appeal_[0]) + " ID " + appeal_[2] + " " + appeal_[1]
                 callback_data_a = str(appeal_[0]) + "admin"
                 button_a = types.InlineKeyboardButton(text_b, callback_data=callback_data_a)
